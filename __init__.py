@@ -106,14 +106,16 @@
 '''
 
 
-from lib.model.smartplugin import SmartPlugin
-
-# from .webif import WebInterface
+from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+from lib.item import Items
+from lib.utils import Utils
 
 from collections import OrderedDict
 import importlib
 import logging
 import re
+import cherrypy
+from ast import literal_eval
 
 ITEM_ATTR_DEVICE    = 'md_device'
 ITEM_ATTR_COMMAND   = 'md_command'
@@ -225,6 +227,15 @@ class MD_Device(object):
         except KeyError as e:
             self.logger.error(f'Error in runtime data: {e}. Stopping device.')
 
+    def update_device_params(self, **kwargs):
+        '''
+        Updates configuration parametes for device. Needs device to not be running
+
+        Overwrite as needed.
+        '''
+        if self.alive:
+            self.logger.warning(f'Tried to update params for device {self.name} with {kwargs}, but device is still running. Ignoring request')
+
     def _is_base_device_class(self):
         '''
         Find out if this code is run as original MD_Device 'base' class of from
@@ -300,6 +311,7 @@ class MultiDevice(SmartPlugin):
         print('MD - ' + self.get_shortname())
         self._devices = {}              # contains all configured devices - <device_name>: {'id': <device_id>, 'device': <class-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_name': <device_name>, 'command': <command>}
+        self._items_read = {}           # contains all items with read commands - <item_id>: {'device_name': <device_name>, 'command': <command>}
         self._items_readall = {}        # contains items which trigger 'read all' - <item_id>: <device_name>
         self._commands_read = {}        # contains all commands per device with read command - <device_name>: {<command>: <item_object>}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_name>: ['command', 'command', ...]
@@ -327,6 +339,10 @@ class MultiDevice(SmartPlugin):
                     res = re.match('\\s*([^ =,]+)\\s*=\\s*([^ =,]+)\\s*(?:,\\s*([^ =,]+)\\s*=\\s*([^ =,]+))*\\s*', args)
                     if res:
                         param = dict(zip(res.groups()[::2], res.groups()[1::2]))
+
+                        # try to clean some parameter types
+                        for p in param:
+                            param[p] = self._sanitize_param(param[p])
 
             if device_name and device_name in self._devices:
                 self.logger.warning(f'Duplicate device name {device_name} configured for device_ids {device_id} and {self._devices[device_name]["id"]}. Skipping processing of device id {device_id}')
@@ -360,8 +376,7 @@ class MultiDevice(SmartPlugin):
             return
 
         # if plugin should start even without web interface
-        # TODO: decide on how/where of webif
-        # self.init_webinterface(WebInterface)
+        self.init_webinterface(WebInterface)
 
     def run(self):
         '''
@@ -430,6 +445,7 @@ class MultiDevice(SmartPlugin):
                             self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, but this is already set with item {self._commands_read[device_name][command]}, item {item} is ignored')
                         else:
                             self._commands_read[device_name][command] = item
+                            self._items_read[item.id()] = {'device_name': device_name, 'command': command}
                     else:
                         self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored')
 
@@ -531,6 +547,16 @@ class MultiDevice(SmartPlugin):
             else:
                 self.logger.warning(f'Data update from device {device_name} with command {command} and value "{value}" not assigned to any item, discarding data')
 
+    def _update_device_params(self, device_name):
+        '''
+        hand over all device parameters to the device and tell it to do whatever
+        is necessary to apply the new values.
+        '''
+        self.logger.debug(f'Updating device parameters for {device_name}')
+        device = self._get_device(device_name)
+        if device:
+            device.update_device_params(**self._get_device_params(device_name))
+
     def _apply_on_all_devices(self, method, args_function=None):
         '''
         Call <method> on all devices stored in self._devices. If supplied,
@@ -585,7 +611,35 @@ class MultiDevice(SmartPlugin):
         else:
             return None
 
+    def _sanitize_param(self, val):
+        '''
+        Try to correct type of val:
+        - return int(val) if val is integer
+        - return float(val) if val is float
+        - return bool(val) is val follows conventions for bool
+        - try if string can be converted to list or dict; do so if possible
+        - return val unchanged otherwise
+
+        :param val: value to sanitize
+        :return: sanitized (or unchanged) value
+        '''
+        if Utils.is_int(val):
+            val = int(val)
+        elif Utils.is_float(val):
+            val = float(val)
+        elif val.lower() in ('true', 'false', 'on', 'off', 'yes', 'no'):
+            val = Utils.to_bool(val)
+        else:
+            try:
+                new = literal_eval(val)
+                if type(new) is list or type(new) is dict:
+                    val = new
+            except Exception:
+                pass
+        return val
+
     def __print_global_arrays(self):
+        # for debugging only. console only. lame, so to say.
         print('******************************************************************************')
         print(f'_devices: {self._devices}')
         print('**************************')
@@ -599,3 +653,119 @@ class MultiDevice(SmartPlugin):
         print('**************************')
         print(f'_commands_cyclic: {self._commands_cyclic}')
         print('******************************************************************************')
+
+
+###############################################################################
+#
+# class WebInterface
+#
+###############################################################################
+
+
+class WebInterface(SmartPluginWebIf):
+
+    def __init__(self, webif_dir, plugin):
+        """
+        Initialization of instance of class WebInterface
+
+        :param webif_dir: directory where the webinterface of the plugin resides
+        :param plugin: instance of the plugin
+        :type webif_dir: str
+        :type plugin: object
+        """
+        self.logger = plugin.logger
+        self.webif_dir = webif_dir
+        self.plugin = plugin
+        self.items = Items.get_instance()
+
+        self.tplenv = self.init_template_environment()
+
+    @cherrypy.expose
+    def index(self, reload=None):
+        """
+        Build index.html for cherrypy
+
+        Render the template and return the html file to be delivered to the browser
+
+        :return: contents of the template after beeing rendered
+        """
+        tmpl = self.tplenv.get_template('index.html')
+        # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
+
+        plgitems = []
+        for item in self.items.return_items():
+            if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
+                plgitems.append(item)
+
+        return tmpl.render(p=self.plugin,
+                           items=sorted(self.items.return_items(), key=lambda k: str.lower(k['_path'])),
+                           item_count=0,
+                           plgitems=plgitems,
+                           devices=self.plugin._devices)
+
+    @cherrypy.expose
+    def submit(self, button=None, param=None):
+        '''
+        Submit handler for Ajax
+        '''
+        if button is not None:
+
+            if '#' in button:
+
+                # run/stop command
+                cmd, __, dev = button.partition('#')
+                device = self.plugin._get_device(dev)
+                if device:
+                    if cmd == 'run':
+                        self.logger.info(f'Webinterface starting device {dev}')
+                        device.run()
+                    elif cmd == 'stop':
+                        self.logger.info(f'Webinterface stopping device {dev}')
+                        device.stop()
+            elif '.' in button:
+
+                # set device arg - but only when stopped
+                dev, __, arg = button.partition('.')
+                if param is not None:
+                    param = self.plugin._sanitize_param(param)
+                    try:
+                        self.logger.info(f'Webinterface setting param {arg} of device {dev} to {param}')
+                        self.plugin._devices[dev]['params'][arg] = param
+                        self.plugin._update_device_params(dev)
+                    except Exception as e:
+                        self.logger.info(f'Webinterface failed to set param {arg} of device {dev} to {param} with error {e}')
+
+            # # possibly prepare data for returning
+            # read_cmd = self.plugin._commandname_by_commandcode(button)
+            # if read_cmd is not None:
+            #     self._last_read[button] = {'addr': button, 'cmd': read_cmd, 'val': read_val}
+            #     self._last_read['last'] = self._last_read[button]
+
+        # # possibly return data to WebIf
+        # cherrypy.response.headers['Content-Type'] = 'application/json'
+        # return json.dumps(self._last_read).encode('utf-8')
+
+    @cherrypy.expose
+    def get_data_html(self, dataSet=None):
+        """
+        Return data to update the webpage
+
+        For the standard update mechanism of the web interface, the dataSet to return the data for is None
+
+        :param dataSet: Dataset for which the data should be returned (standard: None)
+        :return: dict with the data needed to update the web page.
+        """
+        if dataSet is None:
+            # get the new data
+            data = {}
+
+            # data['item'] = {}
+            # for i in self.plugin.items:
+            #     data['item'][i]['value'] = self.plugin.getitemvalue(i)
+            #
+            # return it as json the the web page
+            # try:
+            #     return json.dumps(data)
+            # except Exception as e:
+            #     self.logger.error("get_data_html exception: {}".format(e))
+        return {}

@@ -115,6 +115,7 @@ import importlib
 import logging
 import re
 import cherrypy
+import json
 from ast import literal_eval
 
 ITEM_ATTR_DEVICE    = 'md_device'
@@ -311,7 +312,6 @@ class MultiDevice(SmartPlugin):
         print('MD - ' + self.get_shortname())
         self._devices = {}              # contains all configured devices - <device_name>: {'id': <device_id>, 'device': <class-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_name': <device_name>, 'command': <command>}
-        self._items_read = {}           # contains all items with read commands - <item_id>: {'device_name': <device_name>, 'command': <command>}
         self._items_readall = {}        # contains items which trigger 'read all' - <item_id>: <device_name>
         self._commands_read = {}        # contains all commands per device with read command - <device_name>: {<command>: <item_object>}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_name>: ['command', 'command', ...]
@@ -445,7 +445,6 @@ class MultiDevice(SmartPlugin):
                             self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, but this is already set with item {self._commands_read[device_name][command]}, item {item} is ignored')
                         else:
                             self._commands_read[device_name][command] = item
-                            self._items_read[item.id()] = {'device_name': device_name, 'command': command}
                     else:
                         self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored')
 
@@ -551,6 +550,12 @@ class MultiDevice(SmartPlugin):
         '''
         hand over all device parameters to the device and tell it to do whatever
         is necessary to apply the new values.
+        The device _will_ ignore this while it is running. To avoid accidental
+        service interruption, device.stop() is not called automatically.
+        Do. this. yourself.
+
+        :param device_name: device name (surprise!)
+        :type device:name: string
         '''
         self.logger.debug(f'Updating device parameters for {device_name}')
         device = self._get_device(device_name)
@@ -638,23 +643,6 @@ class MultiDevice(SmartPlugin):
                 pass
         return val
 
-    def __print_global_arrays(self):
-        # for debugging only. console only. lame, so to say.
-        print('******************************************************************************')
-        print(f'_devices: {self._devices}')
-        print('**************************')
-        print(f'_items_write: {self._items_write}')
-        print('**************************')
-        print(f'_items_readall: {self._items_readall}')
-        print('**************************')
-        print(f'_commands_read: {self._commands_read}')
-        print('**************************')
-        print(f'_commands_initial: {self._commands_initial}')
-        print('**************************')
-        print(f'_commands_cyclic: {self._commands_cyclic}')
-        print('******************************************************************************')
-
-
 ###############################################################################
 #
 # class WebInterface
@@ -701,6 +689,7 @@ class WebInterface(SmartPluginWebIf):
                            items=sorted(self.items.return_items(), key=lambda k: str.lower(k['_path'])),
                            item_count=0,
                            plgitems=plgitems,
+                           running={dev: self.plugin._devices[dev]['device'].alive for dev in self.plugin._devices},
                            devices=self.plugin._devices)
 
     @cherrypy.expose
@@ -709,6 +698,8 @@ class WebInterface(SmartPluginWebIf):
         Submit handler for Ajax
         '''
         if button is not None:
+
+            notify = None
 
             if '#' in button:
 
@@ -732,6 +723,7 @@ class WebInterface(SmartPluginWebIf):
                         self.logger.info(f'Webinterface setting param {arg} of device {dev} to {param}')
                         self.plugin._devices[dev]['params'][arg] = param
                         self.plugin._update_device_params(dev)
+                        notify = dev + '-' + arg + '-notify'
                     except Exception as e:
                         self.logger.info(f'Webinterface failed to set param {arg} of device {dev} to {param} with error {e}')
 
@@ -741,9 +733,11 @@ class WebInterface(SmartPluginWebIf):
             #     self._last_read[button] = {'addr': button, 'cmd': read_cmd, 'val': read_val}
             #     self._last_read['last'] = self._last_read[button]
 
+            data = {'running': {dev: self.plugin._devices[dev]['device'].alive for dev in self.plugin._devices}, 'notify': notify}
+
         # # possibly return data to WebIf
-        # cherrypy.response.headers['Content-Type'] = 'application/json'
-        # return json.dumps(self._last_read).encode('utf-8')
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return json.dumps(data).encode('utf-8')
 
     @cherrypy.expose
     def get_data_html(self, dataSet=None):

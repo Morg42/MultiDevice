@@ -25,11 +25,41 @@
 
 <script type="text/javascript">
 
+    function show_hide(elem, hide) {
+    		if (hide) {
+    			elem.fadeTo(400, 0, function() { elem.css("visibility", "hidden") });
+    		} else {
+	    		elem.css("visibility", "visible");
+	    		elem.fadeTo(400, 1);
+    		}
+    }
+    
+    function update_buttons(data) {
+    	for (var dev in data.running) {
+    		if (data.running[dev]) {
+    			$("#" + dev + "-run").hide()
+    			$("#" + dev + "-stop").show()
+				document.querySelectorAll('button.' + dev + '-set').forEach(elem => { elem.disabled = true; });
+
+    		} else {
+    			$("#" + dev + "-run").show()
+    			$("#" + dev + "-stop").hide()
+				document.querySelectorAll('button.' + dev + '-set').forEach(elem => { elem.disabled = false; });
+    		}
+    	}
+    	if (data.notify) {
+    		var elem = $("#" + data.notify);
+    		show_hide(elem, false);
+    		setTimeout(function() { show_hide(elem, true) }, 1500); 
+    	}
+    }
+
 	$(document).ready( function () {
 	    $('#itemtable').DataTable( {
 	        "paging": false,
 	        fixedHeader: true
 	        } );
+
 
 	    $("#button_pressed").submit(function(e) {
 	 
@@ -39,6 +69,10 @@
 	        $.post('submit', {button: $("#button").val(), param: $("#param").val()}, function(data) {
  
 	            // and set the title with the result
+ 				update_buttons(data);
+
+				/* old stuff, keep just in case...
+
 	            var cmd = data.last.cmd;
 	            var val = data.last.val;
 
@@ -56,6 +90,8 @@
 						$("#addr"+key).html(data[key].val)
 					}
 				}
+				*/
+
 		    });
     	    return false ;
 	    });
@@ -119,8 +155,8 @@
 		    		<td><strong>{{ _('Gerät') }}:</strong></td>
 		    		<td colspan="3"><strong>{{ dev }}</strong></td>
 		    		<td>
-						<button class="btn btn-shng btn-sm" type="button" onclick="$('#button').val('run#{{ dev }}');$('#button_pressed').submit();">{{ _('Start') }}</button>
-						<button class="btn btn-shng btn-sm" type="button" onclick="$('#button').val('stop#{{ dev }}');$('#button_pressed').submit();">{{ _('Stop') }}</button>		    			
+						<button id="{{dev}}-run" {% if running[dev] %}style="display: none" {% else %}style="display: block"{% endif %} class="btn btn-shng btn-sm" type="button" onclick="$('#button').val('run#{{ dev }}');$('#button_pressed').submit();">{{ _('Start') }}</button>
+						<button id="{{dev}}-stop" class="btn btn-shng btn-sm" {% if not running[dev] %}style="display: none" {% else %}style="display: block"{% endif %}type="button" onclick="$('#button').val('stop#{{ dev }}');$('#button_pressed').submit();">{{ _('Stop') }}</button>		    			
 		    		</td>
 		    	</tr>
 		    	<tr>
@@ -141,9 +177,9 @@
 		    				{%- endif %}
     				<td>{{ arg }}</td>
     				<td>
-    					<input type="{% if devices[dev]['params'][arg] is number %}number{% elif devices[dev]['params'][arg] is boolean %}checkbox{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% elif devices[dev]['params'][arg] is boolean %}{{ _('Bool') }}{% else %}{{ _('String') }}{% endif %})
+    					<input type="{% if devices[dev]['params'][arg] is number %}number{% elif devices[dev]['params'][arg] is boolean %}checkbox{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% elif devices[dev]['params'][arg] is boolean %}{{ _('Bool') }}{% else %}{{ _('String') }}{% endif %}) <span id="{{ dev }}-{{ arg }}-notify" style="visibility: hidden; opacity: 0; background-color: green;">{{ _('übernommen') }}</span>
     				</td>
-    				<td><button class="btn btn-shng btn-sm" type="button" onclick="var fval=$('#{{ dev }}-{{ arg }}').val();$('#param').val(fval);$('#button').val('{{ dev }}.{{ arg }}');$('#button_pressed').submit();">{{ _('Setzen') }}</button></td>
+    				<td><button class="btn btn-shng btn-sm {{dev}}-set" type="button" onclick="var fval=$('#{{ dev }}-{{ arg }}').val();$('#param').val(fval);$('#button').val('{{ dev }}.{{ arg }}');$('#button_pressed').submit();" {% if running[dev] %} disabled{% endif %}>{{ _('Setzen') }}</button></td>
     			</tr>
 		    			{% endfor %}
 		    		{% else %}
@@ -201,7 +237,7 @@
 				            <td>{% if 'md_cycle' in item.conf %}{{ item.conf['md_cycle'] }}{% endif %}</td>
 				            <td>{{ item.type() }}</td>
 				            <td>{{ item() }}</td>
-				            <td>{{ item.last_update() }}</td>
+				            <td>{{ item.last_update().strftime('%Y-%m-%d %H:%M:%S') }}</td>
 				        </tr>
 				    {% endfor %}
 				</tbody>

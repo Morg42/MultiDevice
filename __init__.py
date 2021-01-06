@@ -118,16 +118,73 @@ import cherrypy
 import json
 from ast import literal_eval
 
-ITEM_ATTR_DEVICE    = 'md_device'
-ITEM_ATTR_COMMAND   = 'md_command'
-ITEM_ATTR_READ      = 'md_read'
-ITEM_ATTR_CYCLE     = 'md_read_cycle'
-ITEM_ATTR_READ_INIT = 'md_read_initial'
-ITEM_ATTR_WRITE     = 'md_write'
-ITEM_ATTR_READ_ALL  = 'md_read_all'
 
-COMMAND_READ = True
-COMMAND_WRITE = False
+###############################################################################
+#
+# global constants used to configure plugin, device, connection and items
+#
+###############################################################################
+
+# plugin arguments, used in plugin config 'device'
+PLUGIN_ARG_CONNECTION   = 'conn_type'
+PLUGIN_ARG_NET_HOST     = 'host'
+PLUGIN_ARG_NET_PORT     = 'port'
+PLUGIN_ARG_SERIAL_PORT  = 'serial'
+
+PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT)
+
+
+# connection types for PLUGIN_ARG_CONNECTION
+CONN_NET_TCP_CLI        = 'net_tcp_cli'     # TCP client connection with query-reply logic
+CONN_NET_TCP_SRV        = 'net_tcp_srv'     # TCP server connection with async data callback
+CONN_NET_UDP_SRV        = 'net_udp_srv'     # UDP server connection with async data callback
+CONN_SER_CLI            = 'ser_cli'         # serial connection with query-reply logic
+CONN_SER_ASYNC          = 'ser_async'       # serial connection with async data callback
+
+CONNECTION_TYPES = (CONN_NET_TCP_CLI, CONN_NET_TCP_SRV, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
+
+
+# item attributes (as defines in plugin.yaml)
+ITEM_ATTR_DEVICE        = 'md_device'
+ITEM_ATTR_COMMAND       = 'md_command'
+ITEM_ATTR_READ          = 'md_read'
+ITEM_ATTR_CYCLE         = 'md_read_cycle'
+ITEM_ATTR_READ_INIT     = 'md_read_initial'
+ITEM_ATTR_WRITE         = 'md_write'
+ITEM_ATTR_READ_ALL      = 'md_read_all'
+
+ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL)
+
+
+# command definition
+COMMAND_READ            = True
+COMMAND_WRITE           = False
+
+
+###############################################################################
+#
+# class MD_Command
+#
+###############################################################################
+
+class MD_Commands(object):
+    '''
+    This class represents commands which bring their own methods to take values
+    and return values formatted for shng items or for devices.
+    '''
+    def __init__(self):
+        if not hasattr(self, 'logger'):
+            self.logger = logging.getLogger(__name__)
+        self.logger.debug(f'Command object instantiated: {__name__}')
+
+    def get_send_data(self, command, data):
+        return data
+
+    def get_shng_data(self, command, data):
+        return data
+
+    def is_valid_command(self, command, read=None):
+        return True
 
 
 ###############################################################################
@@ -142,21 +199,38 @@ class MD_Device(object):
     by sending values to the device and collect data by parsing data received from
     the device.
 
+# TODO: decide on final implementation
     Configuration is done via devices/<device_id>_commands.py (see there for format)
 
-    :param device_id: device type as used in commands.py name
+    :param device_id: device type as used in derived class names
     :param device_name: device name for use in item configuration and logs
     :type device_id: str
     :type device_name: str
     '''
-    def __init__(self, device_id, device_name, **kwargs):
 
+    def __init__(self, device_id, device_name, **kwargs):
+        '''
+        This initializes the class object.
+
+        As additional device classes are expected to be implemented as subclasses,
+        most initialization steps are modularized as methods which can be overloaded
+        as needed.
+        As all pre-implemented methods are called in hopefully-logical sequence,
+        this __init__ probably doesn't need to be changed.
+        '''
         # get MultiDevice logger (if not already defined by subclass)
         # NOTE: later on, decide if every device logs to its own logger?
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger(__name__)
 
+        # the connection object
+        self._connection = None
+
+        # the commands object
+        self._commands = None
+
         # set class properties
+        self._params = kwargs
         self.device = device_id
         self.name = device_name
         self.alive = False
@@ -167,39 +241,97 @@ class MD_Device(object):
         self._commands_initial = []
         self._commands_cyclic = {}
 
+        # set device parameters, if any
+        self._set_device_params()
+
+        # try to read configuration files
+        if not self._read_configuration():
+            self.logger.error(f'Configuration for device {self.name} could not be read. Device is disabled')
+            return
+
+        # instantiate connection object
+        self._connection = self._get_connection()
+        if not self._connection:
+            self.logger.error(f'Could not setup connection for {self.name} with {kwargs}, device disabled')
+            return
+
         # the following code should only be run if not called from subclass via super()
-        # TODO - remove when done. say hello
         if self._is_base_device_class():
             self.logger.debug(f'Class {__name__} initialized for device {self.device} as {self.name} with arguments {kwargs}')
 
-    def run(self):
+    def start(self):
+        if self.alive:
+            return
         if self._runtime_data_set:
-            self.logger.debug(f'Run method called for device {self.name}')
+            self.logger.debug(f'Start method called for device {self.name}')
         else:
-            self.logger.error(f'Run method called for device {self.name}, but runtime data not set, not starting device')
+            self.logger.error(f'Start method called for device {self.name}, but runtime data not set, not starting device')
             return
 
         self.alive = True
+        self._connection.open()
 
     def stop(self):
         self.logger.debug(f'Stop method called for device {self.name}')
         self.alive = False
+        self._connection.close()
 
     def send_command(self, command, value=None):
         '''
         Sends the specified command to the device providing <value> as data
 
-        :parameter command: the command to send
-        :parameter value: the data to send, if applicable
+        :param command: the command to send
+        :param value: the data to send, if applicable
         :type command: str
         '''
-        pass
+        if not self.alive:
+            self.logger.warning(f'Trying to send command {command} with value {value}, but device is not active.')
+            return
+
+        if not self._connection:
+            self.logger.warning(f'Trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
+
+        if not self._connection.connected:
+            self._connection.open()
+            if not self._connection.connected:
+                self.logger.warning(f'Trying to send command {command} with value {value}, but connection could not be established.')
+
+        data = self._commands.get_send_data(command, value)
+        self.logger.debug(f'Command {command} with value {value} yielded send data {data}')
+
+        result = self._connection.send(data)
+        if result:
+            self.logger.debug(f'Command {command} received result of {result}')
+            value = self._commands.get_shng_data(command, result)
+            self.logger.debug(f'Command {command} received result {result}, converted to value {value}')
+            if self._data_received_callback:
+                self._data_received_callback(command, value)
+            else:
+                self.logger.warning(f'Received data {value} for command {command}, but _data_received_callback is not set. Discarding data.')
+
+    def data_received(self, command, data):
+        '''
+        Callback function for received data e.g. from an event loop
+        Processes data and dispatches value to plugin class
+
+        :param command: the command in reply to which data was received
+        :param data: received data in 'raw' connection format
+        :type command: str
+        '''
+        self.logger.debug(f'Data received for command {command}: {data}')
+        value = self._commands.get_shng_data(command, data)
+        self.logger.debug(f'Data received for command {command}: {data} converted to value {value}')
+        if self._data_received_callback:
+            self._data_received_callback(command, value)
+        else:
+            self.logger.warning(f'Received data {value} for command {command}, but _data_received_callback is not set. Discarding data.')
 
     def read_all_commands(self):
         '''
         Triggers all configured read commands
         '''
-        pass
+        for cmd in self._commands_read:
+            self.send_command(cmd)
 
     def is_valid_command(self, command, read=None):
         '''
@@ -210,10 +342,13 @@ class MD_Device(object):
         :type command: str
         :param read: check for read (True) or write (False), or both (None)
         :type read: bool | NoneType
-        :return: True if command is valid,
+        :return: True if command is valid, False otherwise
+        :rtype: bool
         '''
-        # TODO: implement after reading and storing of commands is implemented
-        return True
+        if self._commands:
+            return self._commands.is_valid_command(command, read=None)
+        else:
+            return False
 
     def set_runtime_data(self, **kwargs):
         '''
@@ -232,10 +367,106 @@ class MD_Device(object):
         '''
         Updates configuration parametes for device. Needs device to not be running
 
-        Overwrite as needed.
+        overload as needed.
         '''
         if self.alive:
             self.logger.warning(f'Tried to update params for device {self.name} with {kwargs}, but device is still running. Ignoring request')
+            return
+
+        if not kwargs:
+            self.logger.warning(f'update_device_params called without new parameters. Don\'t know what to update.')
+            return
+
+        # merge new params with self._params, overwrite old values if necessary
+        self._params = {**self._params, **kwargs}
+
+        # update this class' settings
+        self._set_device_params()
+
+        # update = recreate the connection with new parameters
+        self._connection = self._get_connection()
+
+    #
+    #
+    # check if overloading needed
+    #
+    #
+
+    def _set_device_params(self, **kwargs):
+        '''
+        This method parses self._parameters for parameters it needs itself and does the
+        necessary initialization.
+        Needs to be overloaded for maximum effect
+        '''
+        pass
+
+    def _get_connection(self):
+        '''
+        return connection object. Try to identify the wanted connection  and return
+        the proper subclass instead. If no decision is possible, just return an
+        instance of MD_Connection.
+
+        If you need to use other connection types for your device, implement it
+        and preselect with PLUGIN_ARG_CONNECTION in /etc/plugin.yaml, so this
+        class will never be used.
+        Otherwise, just parse them in after calling super()._set_connection_params()
+
+        HINT: If you need to modify this, just write something new.
+        The "autodetect"-code will probably only be used with unaltered connection
+        classes. Just return the wanted connection object and ride into the light.
+        '''
+        conn_type = None
+        params = self._params
+
+        # try to find out what kind of connection is wanted
+        if PLUGIN_ARG_CONNECTION in self._params and self._params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
+            conn_type = self._params[PLUGIN_ARG_CONNECTION]
+        else:
+
+            if PLUGIN_ARG_NET_PORT in self._params:
+
+                # no further information on network specifics, use basic TCP client
+                conn_type = CONN_NET_TCP_CLI
+
+            elif PLUGIN_ARG_SERIAL_PORT in self._params:
+
+                # this seems to be a serial killer-application
+                conn_type = CONN_SER_CLI
+
+            if conn_type:
+                params[PLUGIN_ARG_CONNECTION] = conn_type
+
+        if conn_type == CONN_NET_TCP_CLI:
+
+            return MD_Connection_Net_TCP_Client(self.device, self.name, self._data_received_callback, **self._params)
+        elif conn_type == CONN_NET_TCP_SRV:
+
+            return MD_Connection_Net_TCP_Server(self.device, self.name, self._data_received_callback, **self._params)
+        elif conn_type == CONN_NET_UDP_SRV:
+
+            return MD_Connection_Net_UDP_Server(self.device, self.name, self._data_received_callback, **self._params)
+        elif conn_type == CONN_SER_CLI:
+
+            return MD_Connection_Serial_Client(self.device, self.name, self._data_received_callback, **self._params)
+        elif conn_type == CONN_SER_ASYNC:
+
+            return MD_Connection_Serial_Async(self.device, self.name, self._data_received_callback, **self._params)
+        else:
+            return MD_Connection(self.device, self.name, self._data_received_callback, **self._params)
+
+        # Please go on. There is nothing to see here. You shouldn't be here anyway...
+        self.logger.error(f'Could not setup connection for {self.name} with {params}, device disabled')
+
+    #
+    #
+    # private utility methods
+    #
+    #
+
+    def _read_configuration(self):
+# TODO: fill with life
+        self._commands = MD_Commands()
+        return True
 
     def _is_base_device_class(self):
         '''
@@ -249,7 +480,7 @@ class MD_Device(object):
 
 ###############################################################################
 #
-# class MD_Connection
+# class MD_Connection and subclasses
 #
 ###############################################################################
 
@@ -259,14 +490,22 @@ class MD_Connection(object):
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
 
-    So, set up parameters, logging, and hope for a sunny day :)
+    But this class can detect subtle or not-so-subtle hints as to which connection
+    type might be wanted and instead if instantiating itself, it returns a class
+    instance of the suitable derived class (see set_connection_params() and the
+    following subclasses).
+
+    As long as you don't need special other connections or fancy magic, just go
+    ahead with this class and make sure your parameters in plugin.yaml are set up
+    properly.
+    HINT: setting one of the CONNECTION_TYPEs might help...
 
     :param device_id: device type as used in commands.py name
     :param device_name: device name for use in item configuration and logs
     :type device_id: str
     :type device_name: str
     '''
-    def __init__(self, device_id, device_name, **kwargs):
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
 
         # get MultiDevice logger
         self.logger = logging.getLogger(__name__)
@@ -274,15 +513,135 @@ class MD_Connection(object):
         # set class properties
         self.device = device_id
         self.name = device_name
+        self.connected = False
 
-        # TODO - remove when done. say hello
-        self.logger.debug(f'Class {__name__} initialized for device {self.device} as {self.name} with arguments {kwargs}')
+        self._params = kwargs
+        self._data_received_callback = data_received_callback
 
-    def start(self):
-        self.logger.debug(f'Start method called for connection of {self._name}')
+        # check if some of the arguments are usable
+        self._set_connection_params()
 
-    def stop(self):
-        self.logger.debug(f'Stop method called for connection of {self._name}')
+        # tell someone about our actual class
+        self.logger.debug(f'Class {type(self)} initialized for device {self.device} as {self.name} with arguments {kwargs}')
+
+    def open(self):
+        self.logger.debug(f'Open method called for connection of {self.name}')
+        if self._open():
+            self.connected = True
+        self._send_init_on_open()
+
+    def close(self):
+        self.logger.debug(f'Close method called for connection of {self.name}')
+        self._close()
+        self.connected = False
+
+    def send(self, data):
+        '''
+        Send data, possibly return response
+
+        :param data: raw data to send
+        :return: raw response data if applicable, None otherwise
+        '''
+        self.logger.debug(f'Device {self.name} simulating to send data {data}...')
+        response = self._send(data)
+
+        return response
+
+    #
+    #
+    # overloading needed for at least some of the following methods...
+    #
+    #
+
+    def _open(self):
+        '''
+        Overload with opening of connection
+
+        :return: True if successful
+        :rtype: bool
+        '''
+        self.logger.debug(f'Opening connection as {__name__} for device {self.name} with params {self._params}')
+        return True
+
+    def _close(self):
+        '''
+        Overload with closing of connection
+        '''
+        self.logger.debug(f'Closing connection as {__name__} for device {self.name} with params {self._params}')
+
+    def _send(self, data):
+        '''
+        Overload with sending of data and - possibly - returning response data
+        Return None if no response is received or expected.
+        '''
+        return None
+
+    def _send_init_on_open(self):
+        '''
+        This class can be overloaded if anything special is needed to make the
+        other side talk after opening the connection... ;)
+
+        Using class properties instead of arguments makes overloading easy.
+
+        It is routinely by self.open()
+        '''
+        pass
+
+    def _send_init_on_send(self):
+        '''
+        This class can be overloaded if anything special is needed to make the
+        other side talk before sending commands... ;)
+
+        It is routinely by self.send()
+        '''
+        pass
+
+    #
+    #
+    # private utility methods
+    #
+    #
+
+    def _set_connection_params(self):
+        '''
+        Try to set some of the common parameters.
+        Might need to be overloaded...
+        '''
+        for arg in PLUGIN_ARGS:
+            if arg in self._params:
+                setattr(self, arg, sanitize_param(self._params[arg]))
+
+    def _is_base_device_class(self):
+        '''
+        Find out if this code is run as original MD_Connection 'base' class of from
+        subclass super() call
+
+        This seems kind of clumsy. If anyone has a better idea...
+        '''
+        return str(type(self)).count('.') < 3
+
+
+# TODO...
+
+
+class MD_Connection_Net_TCP_Client(MD_Connection):
+    pass
+
+
+class MD_Connection_Net_TCP_Server(MD_Connection):
+    pass
+
+
+class MD_Connection_Net_UDP_Server(MD_Connection):
+    pass
+
+
+class MD_Connection_Serial_Client(MD_Connection):
+    pass
+
+
+class MD_Connection_Serial_Async(MD_Connection):
+    pass
 
 
 ###############################################################################
@@ -342,7 +701,7 @@ class MultiDevice(SmartPlugin):
 
                         # try to clean some parameter types
                         for p in param:
-                            param[p] = self._sanitize_param(param[p])
+                            param[p] = sanitize_param(param[p])
 
             if device_name and device_name in self._devices:
                 self.logger.warning(f'Duplicate device name {device_name} configured for device_ids {device_id} and {self._devices[device_name]["id"]}. Skipping processing of device id {device_id}')
@@ -391,7 +750,7 @@ class MultiDevice(SmartPlugin):
 
         # start the devices
         self.alive = True
-        self._apply_on_all_devices('run')
+        self._apply_on_all_devices('start')
 
     def stop(self):
         '''
@@ -491,6 +850,7 @@ class MultiDevice(SmartPlugin):
         :param source: if given it represents the source
         :param dest: if given it represents the dest
         '''
+        print(f'item: {item}, value: {item()}')
         if self.alive:
 
             self.logger.debug(f'update_item was called with item "{item}" from caller {caller}, source {source} and dest {dest}')
@@ -501,7 +861,7 @@ class MultiDevice(SmartPlugin):
             device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
             # test if source of item change was not the item's device...
-            if caller != self.get_shortname + '.' + device_name:
+            if caller != self.get_shortname() + '.' + device_name:
 
                 # okay, go ahead
                 self.logger.info(f'Update item: {item.id()}, item has been changed outside this plugin')
@@ -513,7 +873,7 @@ class MultiDevice(SmartPlugin):
                     device_name = self._items_write[item.id()]['device_name']
                     device = self._get_device(device_name)
                     command = self._items_write[item.id()]['command']
-                    self.logger.debug(f'Writing value "{value}" to item {item.id()}')
+                    self.logger.debug(f'Writing value "{item()}" to item {item.id()}')
                     device.send_command(command, item())
 
                 elif item.id() in self._items_readall:
@@ -524,7 +884,7 @@ class MultiDevice(SmartPlugin):
                     self.logger.debug(f'Triggering read_all for device {device_name}')
                     device.read_all_commands()
 
-    def received_data(self, device_name, command, value):
+    def data_received(self, device_name, command, value):
         '''
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item
@@ -592,7 +952,7 @@ class MultiDevice(SmartPlugin):
             'read_commands': self._commands_read[device_name].keys(),
             'cycle_commands': self._commands_cyclic[device_name],
             'initial_commands': self._commands_initial[device_name],
-            'callback': self.received_data
+            'callback': self.data_received
         }
 
     def _get_device_id(self, device_name):
@@ -616,32 +976,6 @@ class MultiDevice(SmartPlugin):
         else:
             return None
 
-    def _sanitize_param(self, val):
-        '''
-        Try to correct type of val:
-        - return int(val) if val is integer
-        - return float(val) if val is float
-        - return bool(val) is val follows conventions for bool
-        - try if string can be converted to list or dict; do so if possible
-        - return val unchanged otherwise
-
-        :param val: value to sanitize
-        :return: sanitized (or unchanged) value
-        '''
-        if Utils.is_int(val):
-            val = int(val)
-        elif Utils.is_float(val):
-            val = float(val)
-        elif val.lower() in ('true', 'false', 'on', 'off', 'yes', 'no'):
-            val = Utils.to_bool(val)
-        else:
-            try:
-                new = literal_eval(val)
-                if type(new) is list or type(new) is dict:
-                    val = new
-            except Exception:
-                pass
-        return val
 
 ###############################################################################
 #
@@ -709,7 +1043,7 @@ class WebInterface(SmartPluginWebIf):
                 if device:
                     if cmd == 'run':
                         self.logger.info(f'Webinterface starting device {dev}')
-                        device.run()
+                        device.start()
                     elif cmd == 'stop':
                         self.logger.info(f'Webinterface stopping device {dev}')
                         device.stop()
@@ -718,7 +1052,7 @@ class WebInterface(SmartPluginWebIf):
                 # set device arg - but only when stopped
                 dev, __, arg = button.partition('.')
                 if param is not None:
-                    param = self.plugin._sanitize_param(param)
+                    param = sanitize_param(param)
                     try:
                         self.logger.info(f'Webinterface setting param {arg} of device {dev} to {param}')
                         self.plugin._devices[dev]['params'][arg] = param
@@ -763,3 +1097,41 @@ class WebInterface(SmartPluginWebIf):
             # except Exception as e:
             #     self.logger.error("get_data_html exception: {}".format(e))
         return {}
+
+
+###############################################################################
+#
+# non-class functions
+#
+###############################################################################
+
+
+def sanitize_param(val):
+    '''
+    Try to correct type of val:
+    - return int(val) if val is integer
+    - return float(val) if val is float
+    - return bool(val) is val follows conventions for bool
+    - try if string can be converted to list or dict; do so if possible
+    - return val unchanged otherwise
+
+    :param val: value to sanitize
+    :return: sanitized (or unchanged) value
+    '''
+    print(f'sanitize -- enter "{val}" ({type(val)})')
+
+    if Utils.is_int(val):
+        val = int(val)
+    elif Utils.is_float(val):
+        val = float(val)
+    elif val.lower() in ('true', 'false', 'on', 'off', 'yes', 'no'):
+        val = Utils.to_bool(val)
+    else:
+        try:
+            new = literal_eval(val)
+            if type(new) is list or type(new) is dict:
+                val = new
+        except Exception:
+            pass
+    print(f'sanitize -- exit. "{val}" ({type(val)})')
+    return val

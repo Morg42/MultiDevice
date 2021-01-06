@@ -40,11 +40,13 @@
     			$("#" + dev + "-run").hide()
     			$("#" + dev + "-stop").show()
 				document.querySelectorAll('button.' + dev + '-set').forEach(elem => { elem.disabled = true; });
+				document.querySelectorAll('input.' + dev + '-set').forEach(elem => { elem.disabled = true; });
 
     		} else {
     			$("#" + dev + "-run").show()
     			$("#" + dev + "-stop").hide()
 				document.querySelectorAll('button.' + dev + '-set').forEach(elem => { elem.disabled = false; });
+				document.querySelectorAll('input.' + dev + '-set').forEach(elem => { elem.disabled = false; });
     		}
     	}
     	if (data.notify) {
@@ -177,7 +179,7 @@
 		    				{%- endif %}
     				<td>{{ arg }}</td>
     				<td>
-    					<input type="{% if devices[dev]['params'][arg] is number %}number{% elif devices[dev]['params'][arg] is boolean %}checkbox{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% elif devices[dev]['params'][arg] is boolean %}{{ _('Bool') }}{% else %}{{ _('String') }}{% endif %}) <span id="{{ dev }}-{{ arg }}-notify" style="visibility: hidden; opacity: 0; background-color: green;">{{ _('übernommen') }}</span>
+    					<input class="{{dev}}-set" type="{% if devices[dev]['params'][arg] is number %}number{% elif devices[dev]['params'][arg] is boolean %}checkbox{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% elif devices[dev]['params'][arg] is boolean %}{{ _('Bool') }}{% else %}{{ _('String') }}{% endif %}) <span id="{{ dev }}-{{ arg }}-notify" style="visibility: hidden; opacity: 0; background-color: green;">{{ _('übernommen') }}</span>
     				</td>
     				<td><button class="btn btn-shng btn-sm {{dev}}-set" type="button" onclick="var fval=$('#{{ dev }}-{{ arg }}').val();$('#param').val(fval);$('#button').val('{{ dev }}.{{ arg }}');$('#button_pressed').submit();" {% if running[dev] %} disabled{% endif %}>{{ _('Setzen') }}</button></td>
     			</tr>

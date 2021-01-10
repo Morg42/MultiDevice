@@ -15,4 +15,4 @@ class MD_Device(MD_Device):
         super().__init__(device_id, device_name, **kwargs)
 
         # TODO - remove when done. say hello
-        self.logger.debug(f'Class {__name__} initialized for device {self.device} as {self.name} with arguments {kwargs}')
+        self.logger.debug(f'Device {device_name}: device initialized from {__spec__.name} with arguments {kwargs}')

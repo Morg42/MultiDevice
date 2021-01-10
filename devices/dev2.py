@@ -1,4 +1,4 @@
-from .. import MD_Device
+from .. import MD_Device, MD_Commands, MD_Command_Str
 import logging
 
 
@@ -15,4 +15,8 @@ class MD_Device(MD_Device):
         super().__init__(device_id, device_name, **kwargs)
 
         # TODO - remove when done. say hello
-        self.logger.debug(f'Class {__name__} initialized for device {self.device} as {self.name} with arguments {kwargs}')
+        self.logger.debug(f'Device {device_name}: device initialized from {__spec__.name} with arguments {kwargs}')
+
+    def _read_configuration(self):
+        self._commands = MD_Commands(self.device, MD_Command_Str, **self._plugin_params)
+        return True

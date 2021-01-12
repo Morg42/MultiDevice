@@ -167,12 +167,6 @@
         connection initialization (e.g. serial sync routines)
 '''
 
-
-from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
-from lib.item import Items
-from lib.utils import Utils
-
-from . import datatypes as DT
 # import lib.network
 import requests
 
@@ -180,9 +174,33 @@ from collections import OrderedDict
 import importlib
 import logging
 import re
+import sys
 import cherrypy
 import json
 from ast import literal_eval
+
+
+if __name__ == '__main__':
+    # just needed for standalone mode
+
+    class SmartPlugin():
+        pass
+
+    class SmartPluginWebIf():
+        pass
+
+    import os
+    BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
+    sys.path.insert(0, BASE)
+    import datatypes as DT
+
+else:
+    from lib.item import Items
+    from lib.utils import Utils
+    from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+
+    from . import datatypes as DT
+
 
 #############################################################################################################################################################################################################################################
 #
@@ -611,6 +629,18 @@ class MD_Device(object):
         self.logger.debug(f'Device {self.device}: stop method called')
         self.alive = False
         self._connection.close()
+
+    # def run_standalone(self):
+    #     '''
+    #     If you want to provide a standalone function, you'll have to implement
+    #     this function with the appropriate code. You can use all functions from
+    #     the MultiDevice class, the devices, connections and commands.
+    #     You do not have an sh object, items or web interfaces.
+    #
+    #     As this should not be present for the base class, the definition is
+    #     commented out.
+    #     '''
+    #     pass
 
     def send_command(self, command, value=None):
         '''
@@ -1053,11 +1083,15 @@ class MultiDevice(SmartPlugin):
 
     PLUGIN_VERSION = '0.0.1'
 
-    def __init__(self, sh):
+    def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         '''
         Initalizes the plugin. For this plugin, this means collecting all device
         modules and initializing them by instantiating the proper class.
         '''
+
+        if not sh:
+            self.logger = logger
+
         self.logger.debug(f'Initializung MultiDevice-Plugin as {__name__}')
 
         self._devices = {}              # contains all configured devices - <device_name>: {'id': <device_id>, 'device': <class-instance>, 'params': {'param1': val1, 'param2': val2...}}
@@ -1070,8 +1104,12 @@ class MultiDevice(SmartPlugin):
         # Call init code of parent class (SmartPlugin)
         super().__init__()
 
-        # get the parameters for the plugin (as defined in metadata plugin.yaml):
-        devices = self.get_parameter_value('device')
+        if sh:
+            # get the parameters for the plugin (as defined in metadata plugin.yaml):
+            devices = self.get_parameter_value('device')
+        else:
+            # set devices to "only device, kwargs set as config"
+            devices = {standalone_device: kwargs}
 
         # iterate over all items in plugin configuration 'device' list
         for device in devices:
@@ -1122,7 +1160,7 @@ class MultiDevice(SmartPlugin):
                 except AttributeError as e:
                     self.logger.error(f'Device {device_name}: importing class MD_Device from external module {"devices/" + device_id + ".py"} failed. Skipping device {device_name}. Error was: {e}')
                 except ImportError:
-                    self.logger.warn(f'Device {device_name}: importing external module {"devices/" + device_id + ".py"} failed, reverting to default MD_Device class')
+                    self.logger.warning(f'Device {device_name}: importing external module {"devices/" + device_id + ".py"} failed, reverting to default MD_Device class')
                     device_instance = MD_Device(device_id, device_name, **param)
 
                 if device_instance:
@@ -1137,7 +1175,8 @@ class MultiDevice(SmartPlugin):
             return
 
         # if plugin should start even without web interface
-        self.init_webinterface(WebInterface)
+        if sh:
+            self.init_webinterface(WebInterface)
 
     def run(self):
         '''
@@ -1486,7 +1525,8 @@ class WebInterface(SmartPluginWebIf):
         """
         if dataSet is None:
             # get the new data
-            data = {}
+            # data = {}
+            pass
 
             # data['item'] = {}
             # for i in self.plugin.items:
@@ -1536,3 +1576,99 @@ def sanitize_param(val):
             pass
     # print(f'sanitize -- exit. "{val}" ({type(val)})')
     return val
+
+
+if __name__ == '__main__':
+
+    usage = '''
+    Usage:
+    ----------------------------------------------------------------------------------
+
+    This plugin is meant to be used inside SmartHomeNG.
+
+    Is is generally possible to run this plugin in standalone mode, usually for
+    diagnostic purposes - IF the specified device supports this mode.
+    As devices are modular extensions, it is not possible to print a list of supported
+    devices.
+
+    You need to call this plugin with the device name as the first parameter, any
+    necessary configuration options either as arg=value pairs or as a python dict
+    (this needs to be enclosed in quotes).
+    Be aware that later parameters, be they dict or pair type, overwrite earlier
+    parameters of the same name.
+
+    ./__init__.py MD_Device host=www.smarthomeng.de port=80
+
+    or
+
+    ./__init__.py MD_Device '{"host": "www.smarthomeng.de", "port": 80}'
+
+    If you call it with -v as a parameter after the device name, you get additional
+    debug information:
+
+    ./__init__.py MD_Device -v
+
+    '''
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.CRITICAL)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(message)s  @ %(lineno)d')
+    ch.setFormatter(formatter)
+
+    # add the handlers to the logger
+    logger.addHandler(ch)
+
+    device = ""
+
+    if len(sys.argv) > 1:
+        device = sys.argv[1]
+
+    if device:
+
+        # check for further command line arguments
+        params = {}
+        for arg in range(2, len(sys.argv)):
+
+            arg_str = sys.argv[arg]
+            if arg_str == '-v':
+                print('Debug logging enabled')
+                logger.setLevel(logging.DEBUG)
+
+            else:
+                try:
+                    # convertible to dict?
+                    params.update(literal_eval(arg_str))
+                except Exception:
+                    # if not: try to parse as 'name=value'
+                    match = re.match('([^= \n]+)=([^= ˜n])', arg_str)
+                    if match:
+                        name, value = match.groups(0)
+                        params[name] = value
+
+    else:
+        print(usage)
+        exit()
+
+    print("This is MultiDevice plugin running in standalone mode")
+    print("=====================================================")
+
+    md = MultiDevice(None, standalone_device=device, logger=logger, **params)
+
+    if md._devices:
+        dev = md._devices[list(md._devices.keys())[0]]
+        print(f'Device loaded: {device} --- ', end='')
+
+        if getattr(dev['device'], 'run_standalone', ''):
+            print('running standalone method...')
+
+            dev['device'].run_standalone()
+        else:
+            print('device doesn\'t have a standalone function.')
+    else:
+        print(f'Device {device} could not be loaded.')
+
+    print('Done.')

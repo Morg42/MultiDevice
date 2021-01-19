@@ -18,5 +18,5 @@ class MD_Device(MD_Device):
         self.logger.debug(f'Device {device_name}: device initialized from {__spec__.name} with arguments {kwargs}')
 
     def _read_configuration(self):
-        self._commands = MD_Commands(self.device, MD_Command_Str, **self._plugin_params)
+        self._commands = MD_Commands(self.device_id, self.device, MD_Command_Str, **self._plugin_params)
         return True

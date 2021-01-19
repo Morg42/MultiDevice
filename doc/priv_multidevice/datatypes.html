@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>priv_multidevice.datatypes API documentation</title>
+<meta name="description" content="Datatype
+…" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>priv_multidevice.datatypes</code></h1>
+</header>
+<section id="section-intro">
+<h2 id="datatype">Datatype</h2>
+<p>This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.</p>
+<p>Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of DT_<device data type of format>.</p>
+<p>All datatype classes are imported from Datatypes.py into the 'DT' module.</p>
+<p>New devices probably create the need for new data types.</p>
+<p>For details concernin API and implementation, refer to the reference classes as
+examples.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+#########################################################################
+#  Copyright 2020-      Sebastian Helms             Morg @ knx-user-forum
+#########################################################################
+#  This file aims to become of SmartHomeNG.
+#  https://www.smarthomeNG.de
+#  https://knx-user-forum.de/forum/supportforen/smarthome-py
+#
+#  Datatypes for MultiDevice plugin
+#
+#  SmartHomeNG is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  SmartHomeNG is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with SmartHomeNG. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+#
+#########################################################################
+
+&#39;&#39;&#39;
+    Datatype
+    -----------
+
+    This is one of the most important classes. By declaration, it contains
+    information about the data type and format needed by a device and methods
+    to convert its value from selected Python data types used in items to the
+    (possibly) special data formats required by devices and vice versa.
+
+    Datatypes are specified in subclasses of Datatype with a nomenclature
+    convention of DT_&lt;device data type of format&gt;.
+
+    All datatype classes are imported from Datatypes.py into the &#39;DT&#39; module.
+
+    New devices probably create the need for new data types.
+
+    For details concernin API and implementation, refer to the reference classes as
+    examples.
+
+&#39;&#39;&#39;
+
+# from lib.utils import Utils
+# from collections import OrderedDict
+# import logging
+import json
+
+datatypes = (
+    &#39;int&#39;, &#39;num&#39;, &#39;str&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;tuple&#39;, &#39;bytes&#39;, &#39;bytearray&#39;,
+    &#39;json&#39;, &#39;shng-ws&#39;
+
+)
+
+
+class Datatype(object):
+
+    def __init__(self, fail_silent=True):
+        self._silent = fail_silent
+
+    def get_send_data(self, data):
+        return data
+
+    def get_shng_data(self, data, type=None):
+        if type is None or type not in datatypes:
+            return data
+
+        if type == &#39;int&#39;:
+            try:
+                return int(data)
+            except ValueError:
+                if self._silent:
+                    return 0
+                else:
+                    raise
+
+        if type == &#39;num&#39;:
+            try:
+                return float(data)
+            except ValueError:
+                if self._silent:
+                    return 0
+                else:
+                    raise
+
+        if type == &#39;str&#39;:
+            return str(data)
+
+        if type == &#39;dict&#39;:
+            try:
+                return dict(data)
+            except ValueError:
+                if self._silent:
+                    return {}
+                else:
+                    raise
+
+        if type == &#39;list&#39;:
+            try:
+                return list(data)
+            except ValueError:
+                if self._silent:
+                    return []
+                else:
+                    raise
+
+        if type == &#39;tuple&#39;:
+            try:
+                return tuple(data)
+            except ValueError:
+                if self._silent:
+                    return ()
+                else:
+                    raise
+
+        if type == &#39;bytes&#39;:
+            try:
+                return bytes(str(data), &#39;utf-8&#39;)
+            except ValueError:
+                if self._silent:
+                    return b&#39;&#39;
+                else:
+                    raise
+
+        if type == &#39;bytearray&#39;:
+            try:
+                return bytearray(str(data), &#39;utf-8&#39;)
+            except ValueError:
+                if self._silent:
+                    return bytearray(b&#39;&#39;)
+                else:
+                    raise
+
+        if type == &#39;json&#39;:
+            try:
+                return json.dumps(data)
+            except ValueError:
+                if self._silent:
+                    return None
+                else:
+                    raise
+
+
+class DT_raw(Datatype):
+    &#39;&#39;&#39; pass on data, identical to base class &#39;&#39;&#39;
+    pass
+
+
+#
+# TODO: add error handling on conversion error to DT_ classes...?
+#
+
+class DT_int(Datatype):
+    &#39;&#39;&#39; cast to int &#39;&#39;&#39;
+    def get_send_data(self, data):
+        return int(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return int(data)
+
+        return super().get_shng_data(data, type)
+
+
+class DT_num(Datatype):
+    def get_send_data(self, data):
+        return float(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return float(data)
+
+        return super().get_shng_data(data, type)
+
+
+class DT_str(Datatype):
+    def get_send_data(self, data):
+        return str(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return str(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_list(Datatype):
+    def get_send_data(self, data):
+        return list(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return list(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_dict(Datatype):
+    def get_send_data(self, data):
+        return dict(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return dict(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_tuple(Datatype):
+    def get_send_data(self, data):
+        return tuple(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return tuple(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_bytes(Datatype):
+    def get_send_data(self, data):
+        return bytes(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bytes(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_bytearray(Datatype):
+    def get_send_data(self, data):
+        return bytearray(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bytearray(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_json(Datatype):
+    def get_send_data(self, data):
+        return json.dumps(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return json.loads(data)
+        return super().get_shng_data(data, type)
+
+
+class DT_shng_ws(Datatype):
+    def get_send_data(self, data):
+        return data
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            js = json.loads(data)
+            arg = js.get(&#39;value&#39;, None)
+            return arg
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_bytearray"><code class="flex name class">
+<span>class <span class="ident">DT_bytearray</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_bytearray(Datatype):
+    def get_send_data(self, data):
+        return bytearray(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bytearray(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_bytearray.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return bytearray(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_bytearray.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return bytearray(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_bytes"><code class="flex name class">
+<span>class <span class="ident">DT_bytes</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_bytes(Datatype):
+    def get_send_data(self, data):
+        return bytes(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bytes(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_bytes.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return bytes(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_bytes.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return bytes(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_dict"><code class="flex name class">
+<span>class <span class="ident">DT_dict</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_dict(Datatype):
+    def get_send_data(self, data):
+        return dict(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return dict(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_dict.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return dict(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_dict.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return dict(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_int"><code class="flex name class">
+<span>class <span class="ident">DT_int</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>cast to int</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_int(Datatype):
+    &#39;&#39;&#39; cast to int &#39;&#39;&#39;
+    def get_send_data(self, data):
+        return int(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return int(data)
+
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_int.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return int(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_int.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return int(data)
+
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_json"><code class="flex name class">
+<span>class <span class="ident">DT_json</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_json(Datatype):
+    def get_send_data(self, data):
+        return json.dumps(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return json.loads(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_json.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return json.dumps(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_json.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return json.loads(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_list"><code class="flex name class">
+<span>class <span class="ident">DT_list</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_list(Datatype):
+    def get_send_data(self, data):
+        return list(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return list(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_list.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return list(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_list.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return list(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_num"><code class="flex name class">
+<span>class <span class="ident">DT_num</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_num(Datatype):
+    def get_send_data(self, data):
+        return float(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return float(data)
+
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_num.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return float(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_num.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return float(data)
+
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_raw"><code class="flex name class">
+<span>class <span class="ident">DT_raw</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>pass on data, identical to base class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_raw(Datatype):
+    &#39;&#39;&#39; pass on data, identical to base class &#39;&#39;&#39;
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_shng_ws"><code class="flex name class">
+<span>class <span class="ident">DT_shng_ws</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_shng_ws(Datatype):
+    def get_send_data(self, data):
+        return data
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            js = json.loads(data)
+            arg = js.get(&#39;value&#39;, None)
+            return arg
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_shng_ws.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return data</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_shng_ws.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        js = json.loads(data)
+        arg = js.get(&#39;value&#39;, None)
+        return arg
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_str"><code class="flex name class">
+<span>class <span class="ident">DT_str</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_str(Datatype):
+    def get_send_data(self, data):
+        return str(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return str(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_str.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return str(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_str.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return str(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_tuple"><code class="flex name class">
+<span>class <span class="ident">DT_tuple</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_tuple(Datatype):
+    def get_send_data(self, data):
+        return tuple(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return tuple(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.DT_tuple.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return tuple(data)</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.DT_tuple.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None:
+        return tuple(data)
+    return super().get_shng_data(data, type)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="priv_multidevice.datatypes.Datatype"><code class="flex name class">
+<span>class <span class="ident">Datatype</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Datatype(object):
+
+    def __init__(self, fail_silent=True):
+        self._silent = fail_silent
+
+    def get_send_data(self, data):
+        return data
+
+    def get_shng_data(self, data, type=None):
+        if type is None or type not in datatypes:
+            return data
+
+        if type == &#39;int&#39;:
+            try:
+                return int(data)
+            except ValueError:
+                if self._silent:
+                    return 0
+                else:
+                    raise
+
+        if type == &#39;num&#39;:
+            try:
+                return float(data)
+            except ValueError:
+                if self._silent:
+                    return 0
+                else:
+                    raise
+
+        if type == &#39;str&#39;:
+            return str(data)
+
+        if type == &#39;dict&#39;:
+            try:
+                return dict(data)
+            except ValueError:
+                if self._silent:
+                    return {}
+                else:
+                    raise
+
+        if type == &#39;list&#39;:
+            try:
+                return list(data)
+            except ValueError:
+                if self._silent:
+                    return []
+                else:
+                    raise
+
+        if type == &#39;tuple&#39;:
+            try:
+                return tuple(data)
+            except ValueError:
+                if self._silent:
+                    return ()
+                else:
+                    raise
+
+        if type == &#39;bytes&#39;:
+            try:
+                return bytes(str(data), &#39;utf-8&#39;)
+            except ValueError:
+                if self._silent:
+                    return b&#39;&#39;
+                else:
+                    raise
+
+        if type == &#39;bytearray&#39;:
+            try:
+                return bytearray(str(data), &#39;utf-8&#39;)
+            except ValueError:
+                if self._silent:
+                    return bytearray(b&#39;&#39;)
+                else:
+                    raise
+
+        if type == &#39;json&#39;:
+            try:
+                return json.dumps(data)
+            except ValueError:
+                if self._silent:
+                    return None
+                else:
+                    raise</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="priv_multidevice.datatypes.DT_bytearray" href="#priv_multidevice.datatypes.DT_bytearray">DT_bytearray</a></li>
+<li><a title="priv_multidevice.datatypes.DT_bytes" href="#priv_multidevice.datatypes.DT_bytes">DT_bytes</a></li>
+<li><a title="priv_multidevice.datatypes.DT_dict" href="#priv_multidevice.datatypes.DT_dict">DT_dict</a></li>
+<li><a title="priv_multidevice.datatypes.DT_int" href="#priv_multidevice.datatypes.DT_int">DT_int</a></li>
+<li><a title="priv_multidevice.datatypes.DT_json" href="#priv_multidevice.datatypes.DT_json">DT_json</a></li>
+<li><a title="priv_multidevice.datatypes.DT_list" href="#priv_multidevice.datatypes.DT_list">DT_list</a></li>
+<li><a title="priv_multidevice.datatypes.DT_num" href="#priv_multidevice.datatypes.DT_num">DT_num</a></li>
+<li><a title="priv_multidevice.datatypes.DT_raw" href="#priv_multidevice.datatypes.DT_raw">DT_raw</a></li>
+<li><a title="priv_multidevice.datatypes.DT_shng_ws" href="#priv_multidevice.datatypes.DT_shng_ws">DT_shng_ws</a></li>
+<li><a title="priv_multidevice.datatypes.DT_str" href="#priv_multidevice.datatypes.DT_str">DT_str</a></li>
+<li><a title="priv_multidevice.datatypes.DT_tuple" href="#priv_multidevice.datatypes.DT_tuple">DT_tuple</a></li>
+<li><a title="priv_multidevice.dev_dev2.datatypes.DT_xxx" href="dev_dev2/datatypes.html#priv_multidevice.dev_dev2.datatypes.DT_xxx">DT_xxx</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="priv_multidevice.datatypes.Datatype.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+    return data</code></pre>
+</details>
+</dd>
+<dt id="priv_multidevice.datatypes.Datatype.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, type=None):
+    if type is None or type not in datatypes:
+        return data
+
+    if type == &#39;int&#39;:
+        try:
+            return int(data)
+        except ValueError:
+            if self._silent:
+                return 0
+            else:
+                raise
+
+    if type == &#39;num&#39;:
+        try:
+            return float(data)
+        except ValueError:
+            if self._silent:
+                return 0
+            else:
+                raise
+
+    if type == &#39;str&#39;:
+        return str(data)
+
+    if type == &#39;dict&#39;:
+        try:
+            return dict(data)
+        except ValueError:
+            if self._silent:
+                return {}
+            else:
+                raise
+
+    if type == &#39;list&#39;:
+        try:
+            return list(data)
+        except ValueError:
+            if self._silent:
+                return []
+            else:
+                raise
+
+    if type == &#39;tuple&#39;:
+        try:
+            return tuple(data)
+        except ValueError:
+            if self._silent:
+                return ()
+            else:
+                raise
+
+    if type == &#39;bytes&#39;:
+        try:
+            return bytes(str(data), &#39;utf-8&#39;)
+        except ValueError:
+            if self._silent:
+                return b&#39;&#39;
+            else:
+                raise
+
+    if type == &#39;bytearray&#39;:
+        try:
+            return bytearray(str(data), &#39;utf-8&#39;)
+        except ValueError:
+            if self._silent:
+                return bytearray(b&#39;&#39;)
+            else:
+                raise
+
+    if type == &#39;json&#39;:
+        try:
+            return json.dumps(data)
+        except ValueError:
+            if self._silent:
+                return None
+            else:
+                raise</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#datatype">Datatype</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="priv_multidevice" href="index.html">priv_multidevice</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_bytearray" href="#priv_multidevice.datatypes.DT_bytearray">DT_bytearray</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_bytearray.get_send_data" href="#priv_multidevice.datatypes.DT_bytearray.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_bytearray.get_shng_data" href="#priv_multidevice.datatypes.DT_bytearray.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_bytes" href="#priv_multidevice.datatypes.DT_bytes">DT_bytes</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_bytes.get_send_data" href="#priv_multidevice.datatypes.DT_bytes.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_bytes.get_shng_data" href="#priv_multidevice.datatypes.DT_bytes.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_dict" href="#priv_multidevice.datatypes.DT_dict">DT_dict</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_dict.get_send_data" href="#priv_multidevice.datatypes.DT_dict.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_dict.get_shng_data" href="#priv_multidevice.datatypes.DT_dict.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_int" href="#priv_multidevice.datatypes.DT_int">DT_int</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_int.get_send_data" href="#priv_multidevice.datatypes.DT_int.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_int.get_shng_data" href="#priv_multidevice.datatypes.DT_int.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_json" href="#priv_multidevice.datatypes.DT_json">DT_json</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_json.get_send_data" href="#priv_multidevice.datatypes.DT_json.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_json.get_shng_data" href="#priv_multidevice.datatypes.DT_json.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_list" href="#priv_multidevice.datatypes.DT_list">DT_list</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_list.get_send_data" href="#priv_multidevice.datatypes.DT_list.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_list.get_shng_data" href="#priv_multidevice.datatypes.DT_list.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_num" href="#priv_multidevice.datatypes.DT_num">DT_num</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_num.get_send_data" href="#priv_multidevice.datatypes.DT_num.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_num.get_shng_data" href="#priv_multidevice.datatypes.DT_num.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_raw" href="#priv_multidevice.datatypes.DT_raw">DT_raw</a></code></h4>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_shng_ws" href="#priv_multidevice.datatypes.DT_shng_ws">DT_shng_ws</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_shng_ws.get_send_data" href="#priv_multidevice.datatypes.DT_shng_ws.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_shng_ws.get_shng_data" href="#priv_multidevice.datatypes.DT_shng_ws.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_str" href="#priv_multidevice.datatypes.DT_str">DT_str</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_str.get_send_data" href="#priv_multidevice.datatypes.DT_str.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_str.get_shng_data" href="#priv_multidevice.datatypes.DT_str.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.DT_tuple" href="#priv_multidevice.datatypes.DT_tuple">DT_tuple</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.DT_tuple.get_send_data" href="#priv_multidevice.datatypes.DT_tuple.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.DT_tuple.get_shng_data" href="#priv_multidevice.datatypes.DT_tuple.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></code></h4>
+<ul class="">
+<li><code><a title="priv_multidevice.datatypes.Datatype.get_send_data" href="#priv_multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="priv_multidevice.datatypes.Datatype.get_shng_data" href="#priv_multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

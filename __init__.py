@@ -141,7 +141,6 @@
     The device class needs comprehensive configuration concerning available commands,
     the associated sent and received data formats, which will be supplied by way
     of configuration files in yaml format. Furthermore, the device-dependent
-# TODO
     type and configuration of connection should be set in ``/etc/plugin.yaml`` for
     each device used.
 
@@ -157,14 +156,14 @@
     New device types can be implemented by providing the following:
 
     - a device configuration file defining commands and associated data formats
-    - a specification of needed connection type
-# TODO: decide if this is done in plugin.yaml or in device-commands.py
+    - a specification of needed connection type in /etc/plugin.yaml ('conn_type')
     - only if needed:
       * additional methods in the device class to handle special commands which
         do more than assign transformed item data to a single item or which need
         more complex item transformation
       * additional methods in the connection class to handle special forms of
         connection initialization (e.g. serial sync routines)
+      * additional data types in the datatype file
 '''
 
 # import lib.network
@@ -178,6 +177,7 @@ import sys
 import cherrypy
 import json
 from ast import literal_eval
+from pydoc import locate
 
 
 if __name__ == '__main__':
@@ -264,10 +264,9 @@ class MD_Command(object):
     read = False
     write = False
     shng_type = None
-    dev_type = 'raw'
     _DT = None
 
-    def __init__(self, device_name, name, **kwargs):
+    def __init__(self, device_name, name, dt_class, **kwargs):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger(__name__)
 
@@ -285,21 +284,19 @@ class MD_Command(object):
         kw = kwargs['cmd']
         self._plugin_params = kwargs['plugin']
 
-        self._get_kwargs(('opcode', 'read', 'write', 'shng_type', 'dev_type'), **kw)
+        self._get_kwargs(('opcode', 'read', 'write', 'shng_type'), **kw)
 
         try:
-            send_class = getattr(DT, 'DT_' + self.dev_type)
-            self._DT = send_class()
-        except AttributeError as e:
-            self.logger.warning(f'Device {self.device}: building command {name} with send type {dev_type}, but class "DT_{dev_type}" not available. Reverting to raw. Error was {e}')
-            self._DT = DT.DT_raw
+            self._DT = dt_class()
+        except Exception as e:
+            self.logger.error(f'Device {device_name}: building command {name} failed on instantiating datatype class {dt_class}. Error was {e}')
+            self._DT = DT.DT_raw()
 
         # only log if base class. Derived classes log their own messages
         if self.__class__ is MD_Command:
             self.logger.debug(f'Device {self.device}: learned command {self.name} with device data type {self.dev_type}')
 
     def get_send_data(self, data):
-
         # create read data
         if data is None:
             if self.read_cmd:
@@ -360,16 +357,16 @@ class MD_Command_Str(MD_Command):
     bounds = {}
     _DT = None
 
-    def __init__(self, device_name, name, **kwargs):
+    def __init__(self, device_name, name, dt_class, **kwargs):
 
-        super().__init__(device_name, name, **kwargs)
+        super().__init__(device_name, name, dt_class, **kwargs)
 
         kw = kwargs['cmd']
         self._plugin_params = kwargs['plugin']
 
         self._get_kwargs(('read_cmd', 'write_cmd', 'read_data', 'params', 'values', 'bounds'), **kw)
 
-        self.logger.debug(f'Device {self.device}: learned command {self.name} with device data type {self.dev_type}')
+        self.logger.debug(f'Device {self.device}: learned command {self.name} with device data type {dt_class.__name__}')
 
     def get_send_data(self, data):
         # create read data
@@ -452,18 +449,24 @@ class MD_Commands(object):
 
     Furthermore, this could be overloaded if so needed for special extensions.
     '''
-    def __init__(self, device_name, command_obj_class=MD_Command, **kwargs):
+    def __init__(self, device_id, device_name, command_obj_class=MD_Command, **kwargs):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger(__name__)
 
         self.logger.debug(f'Device {device_name}: commands initializing from {command_obj_class.__name__}')
         self._commands = {}
         self.device = device_name
+        self._device_id = device_id
         self._cmd_class = command_obj_class
         self._plugin_params = kwargs
+        self._dt = {}
+        self._read_dt_classes(device_id)
         self._read_commands(device_name)
 
-        self.logger.debug(f'Device {self.device}: commands initialized')
+        if self._commands:
+            self.logger.debug(f'Device {self.device}: commands initialized')
+        else:
+            self.logger.error(f'Device {self.device}: commands could not be initialized')
 
     def is_valid_command(self, command, read=None):
         if command not in self._commands:
@@ -478,7 +481,6 @@ class MD_Commands(object):
     def get_send_data(self, command, data=None):
         if command in self._commands:
             return self._commands[command].get_send_data(data)
-            # {'payload': data}
 
         return None
 
@@ -488,55 +490,68 @@ class MD_Commands(object):
 
         return None
 
+    def _read_dt_classes(self, device_id):
+        '''
+        This method enumerates all classes named 'DT_*' from the Datatypes module
+        and tries to load custom 'DT_*' classes from the device's subdirectory
+        datatypes.py file and collect all in the self._dt dict.
+        Integrating custom classes into the DT module would change this for all
+        loaded devices and name collisions could not be resolved.
+        '''
+        def _enum_dt_cls(mod):
+            classes = [cls for cls in dir(mod) if cls[:3] == 'DT_']
+            for cls in classes:
+                self._dt[cls] = getattr(mod, cls)
+
+        self._dt['Datatype'] = DT.Datatype
+
+        # enumerate 'DT_*' classes from DT
+        _enum_dt_cls(DT)
+
+        # try to load datatypes.py from device directory
+        cust_mod = locate(self.__module__ + '.dev_' + device_id + '.datatypes')
+        if cust_mod:
+            _enum_dt_cls(cust_mod)
+
     def _read_commands(self, device_name):
         '''
         This is a reference implementation for reading commands from a supplied
         file. For special purposes, this can be overloaded, if you want to use
         your own file format or a database.
         '''
-# TODO
-        test_commands = {
-            'www': {
-                'opcode': 'http://www/',
-                'read': True,
-                'write': False,
-                'shng_type': 'str',
-                'dev_type': 'raw',
-                'read_cmd': '$C'
-            },
-            'ac': {
-                'opcode': 'http://192.168.2.234/dump1090-fa/data/aircraft.json',
-                'read': True,
-                'write': False,
-                'shng_type': 'dict',
-                'dev_type': 'raw',
-                'read_cmd': '$C'
-            },
-            'knx': {
-                'opcode': 'http://192.168.2.231:8384/ws/items/d.stat.knx.last_data',
-                'read': True,
-                'write': False,
-                'shng_type': 'str',
-                'dev_type': 'raw',
-                'read_cmd': '$C'
-            },
-            'lit': {
-                'opcode': 'http://$P:host::$P:port:/ws/items/garage.licht',
-                'read': True,
-                'write': True,
-                'shng_type': 'bool',
-                'dev_type': 'shng_ws',
-                'read_cmd': '$C',
-                'write_cmd': '$C/$V',
-                'read_data': {'dict': ['value']}
-            }
-        }
-        for c in test_commands:
-            kw = {}
-            for arg in ('opcode', 'read', 'write', 'shng_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data'):
-                if arg in test_commands[c]:
-                    kw[arg] = test_commands[c][arg]
-            self._commands[c] = self._cmd_class(self.device, c, **{'cmd': kw, 'plugin': self._plugin_params})
+        # did we get a device id?
+        if not self._device_id:
+            return
+
+        print(f'device: {device_name}, devid: {self._device_id}')
+
+        commands = {}
+        try:
+            # get module
+            cmd_module = importlib.import_module('.dev_' + self._device_id + '.commands', __name__)
+            # get content
+            commands = cmd_module.commands
+        except AttributeError as e:
+            self.logger.error(f'Device {device_name}: importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}')
+        except ImportError:
+            self.logger.error(f'Device {device_name}: importing external module {"dev_" + self._device_id + "/commands.py"} failed')
+
+        if commands and isinstance(commands, dict):
+            for cmd in commands:
+                kw = {}
+                for arg in ('opcode', 'read', 'write', 'shng_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data'):
+                    if arg in commands[cmd]:
+                        kw[arg] = commands[cmd][arg]
+
+                dt_class = None
+                dev_type = kw.get('dev_type', '')
+                if dev_type:
+                    dt_class = self._dt.get('DT_' + dev_type)
+
+                if not dt_class:
+                    self.logger.error(f'Device {device_name}: importing commands found invalid datatype {dev_type}, replacing with DT_raw. Check function of device')
+                    dt_class = DT.DT_raw
+                self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
 
 
 #############################################################################################################################################################################################################################################
@@ -551,8 +566,7 @@ class MD_Device(object):
     by sending values to the device and collect data by parsing data received from
     the device.
 
-# TODO: decide on final implementation
-    Configuration is done via devices/<device_id>_commands.py (see there for format)
+    Configuration is done via dev_<device_id>/ commands.py (see there for format)
 
     :param device_id: device type as used in derived class names
     :param device_name: device name for use in item configuration and logs
@@ -610,7 +624,7 @@ class MD_Device(object):
             return
 
         # the following code should only be run if not called from subclass via super()
-        if self._is_base_device_class():
+        if self.__class__ is MD_Device:
             self.logger.debug(f'Device {self.device}: device initialized from {self.__class__.__name__}')
 
     def start(self):
@@ -806,7 +820,7 @@ class MD_Device(object):
 
             elif PLUGIN_ARG_SERIAL_PORT in self._plugin_params:
 
-                # this seems to be a serial killer-application
+                # this seems to be a serial killer application
                 conn_type = CONN_SER_CLI
 
             if conn_type:
@@ -840,19 +854,13 @@ class MD_Device(object):
     #
 
     def _read_configuration(self):
-# TODO: fill with life
-        self._commands = MD_Commands(self.device, MD_Command, **self._plugin_params)
+        '''
+        This initiates reading of configuration.
+        Basically, this calls the MD_Commands object to fill itselt; but if needed,
+        this can be overloaded to do something else.
+        '''
+        self._commands = MD_Commands(self.device_id, self.device, MD_Command, **self._plugin_params)
         return True
-
-    def _is_base_device_class(self):
-        '''
-        Find out if this code is run as original MD_Device 'base' class of from
-        subclass super() call
-
-        This seems kind of clumsy. If anyone has a better idea...
-        '''
-        # self.logger.debug(f'Device {self.device}: is_base_device_class called in {self.__class__.__name__}')
-        return str(type(self)).count('.') < 3
 
 
 #############################################################################################################################################################################################################################################
@@ -922,7 +930,7 @@ class MD_Connection(object):
         :type data_dict: dict
         :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
         '''
-        self.logger.debug(f'Device {self.device}: device {self.device} simulating to send data {data_dict}...')
+        self._send_init_on_send()
         response = self._send(data_dict)
 
         return response
@@ -954,6 +962,7 @@ class MD_Connection(object):
         Overload with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
         '''
+        self.logger.debug(f'Device {self.device}: device {self.device} simulating to send data {data_dict}...')
         return None
 
     def _send_init_on_open(self):
@@ -963,7 +972,7 @@ class MD_Connection(object):
 
         Using class properties instead of arguments makes overloading easy.
 
-        It is routinely by self.open()
+        It is routinely called by self.open()
         '''
         pass
 
@@ -972,7 +981,7 @@ class MD_Connection(object):
         This class can be overloaded if anything special is needed to make the
         other side talk before sending commands... ;)
 
-        It is routinely by self.send()
+        It is routinely called by self.send()
         '''
         pass
 
@@ -990,8 +999,6 @@ class MD_Connection(object):
         for arg in PLUGIN_ARGS:
             if arg in self._params:
                 setattr(self, arg, sanitize_param(self._params[arg]))
-
-# TODO...
 
 
 class MD_Connection_Net_TCP_Client(MD_Connection):
@@ -1152,15 +1159,15 @@ class MultiDevice(SmartPlugin):
                 device_instance = None
                 try:
                     # get module
-                    device_module = importlib.import_module('.devices.' + device_id, __name__)
+                    device_module = importlib.import_module('.dev_' + device_id + '.device', __name__)
                     # get class name
                     device_class = getattr(device_module, 'MD_Device')
                     # get class instance
                     device_instance = device_class(device_id, device_name, **param)
                 except AttributeError as e:
-                    self.logger.error(f'Device {device_name}: importing class MD_Device from external module {"devices/" + device_id + ".py"} failed. Skipping device {device_name}. Error was: {e}')
-                except ImportError:
-                    self.logger.warning(f'Device {device_name}: importing external module {"devices/" + device_id + ".py"} failed, reverting to default MD_Device class')
+                    self.logger.error(f'Device {device_name}: importing class MD_Device from external module {"dev_" + device_id + "/device.py"} failed. Skipping device {device_name}. Error was: {e}')
+                except (ImportError):
+                    self.logger.warning(f'Device {device_name}: importing external module {"dev_" + device_id + "/device.py"} failed, reverting to default MD_Device class')
                     device_instance = MD_Device(device_id, device_name, **param)
 
                 if device_instance:
@@ -1396,6 +1403,7 @@ class MultiDevice(SmartPlugin):
         }
 
     def _get_device_id(self, device_name):
+        ''' getter method. Really most unused. '''
         dev = self._devices.get(device_name, None)
         if dev:
             return dev['id']
@@ -1403,6 +1411,7 @@ class MultiDevice(SmartPlugin):
             return None
 
     def _get_device(self, device_name):
+        ''' getter method for device object '''
         dev = self._devices.get(device_name, None)
         if dev:
             return dev['device']
@@ -1410,6 +1419,7 @@ class MultiDevice(SmartPlugin):
             return None
 
     def _get_device_params(self, device_name):
+        ''' getter method '''
         dev = self._devices.get(device_name, None)
         if dev:
             return dev['params']
@@ -1422,7 +1432,6 @@ class MultiDevice(SmartPlugin):
 # class WebInterface
 #
 #############################################################################################################################################################################################################################################
-
 
 class WebInterface(SmartPluginWebIf):
 
@@ -1546,21 +1555,18 @@ class WebInterface(SmartPluginWebIf):
 #
 #############################################################################################################################################################################################################################################
 
-
 def sanitize_param(val):
     '''
     Try to correct type of val:
     - return int(val) if val is integer
     - return float(val) if val is float
     - return bool(val) is val follows conventions for bool
-    - try if string can be converted to list or dict; do so if possible
+    - try if string can be converted to list, tuple or dict; do so if possible
     - return val unchanged otherwise
 
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     '''
-    # print(f'sanitize -- enter "{val}" ({type(val)})')
-
     if Utils.is_int(val):
         val = int(val)
     elif Utils.is_float(val):
@@ -1574,7 +1580,6 @@ def sanitize_param(val):
                 val = new
         except Exception:
             pass
-    # print(f'sanitize -- exit. "{val}" ({type(val)})')
     return val
 
 

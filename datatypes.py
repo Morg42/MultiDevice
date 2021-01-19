@@ -3,7 +3,7 @@
 #########################################################################
 #  Copyright 2020-      Sebastian Helms             Morg @ knx-user-forum
 #########################################################################
-#  This file aims to become of SmartHomeNG.
+#  This file aims to become part of SmartHomeNG.
 #  https://www.smarthomeNG.de
 #  https://knx-user-forum.de/forum/supportforen/smarthome-py
 #
@@ -40,20 +40,15 @@
 
     New devices probably create the need for new data types.
 
-    For details concernin API and implementation, refer to the reference classes as
+    For details concerning API and implementation, refer to the reference classes as
     examples.
 
 '''
 
-# from lib.utils import Utils
-# from collections import OrderedDict
-# import logging
 import json
 
 datatypes = (
-    'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray',
-    'json', 'shng-ws'
-
+    'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray', 'json'
 )
 
 

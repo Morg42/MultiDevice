@@ -1561,6 +1561,7 @@ class MultiDevice(SmartPlugin):
                             self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, but this is already set with item {self._commands_read[device_name][command]}, ignoring item')
                         else:
                             self._commands_read[device_name][command] = item
+                            self.logger.debug(f'Item {item} saved for reading command {command} on device {device_name}')
                     else:
                         self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored')
 
@@ -1568,22 +1569,26 @@ class MultiDevice(SmartPlugin):
                     if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                         if command not in self._commands_initial[device_name]:
                             self._commands_initial[device_name].append(command)
+                            self.logger.debug(f'Item {item} saved for startup reading command {command} on device {device_name}')
 
                     # read cyclically?
                     if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
                         cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                         # if cycle is already set for command, use the lower value of the two
                         self._commands_cyclic[device_name][command] = min(cycle, self._commands_cyclic[device_name].get(command, cycle))
+                        self.logger.debug(f'Item {item} saved for cyclic reading command {command} on device {device_name}')
 
                 # command marked for writing
                 if self.has_iattr(item.conf, ITEM_ATTR_WRITE) and self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
                     if device.is_valid_command(command, COMMAND_WRITE):
                         self._items_write[item.id()] = {'device_name': device_name, 'command': command}
+                        self.logger.debug(f'Item {item} saved for writing command {command} on device {device_name}')
                         return self.update_item
 
             # is read_all item?
             if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
                 self._items_readall[item.id()] = device_name
+                self.logger.debug(f'Item {item} saved for read_all on device {device_name}')
                 return self.update_item
 
     # def parse_logic(self, logic):

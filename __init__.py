@@ -1634,7 +1634,7 @@ class MultiDevice(SmartPlugin):
                     device_name = self._items_write[item.id()]['device_name']
                     device = self._get_device(device_name)
                     command = self._items_write[item.id()]['command']
-                    self.logger.debug(f'Writing value "{item()}" to item {item.id()} for device {device_name}')
+                    self.logger.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ for device {device_name}')
                     device.send_command(command, item())
 
                 elif item.id() in self._items_readall:

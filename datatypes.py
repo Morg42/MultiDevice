@@ -46,6 +46,7 @@
 '''
 
 import json
+import logging
 
 datatypes = (
     'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray', 'json'
@@ -55,6 +56,9 @@ datatypes = (
 class Datatype(object):
 
     def __init__(self, fail_silent=True):
+        if not hasattr(self, 'logger'):
+            self.logger = logging.getLogger(__name__)
+
         self._silent = fail_silent
 
     def get_send_data(self, data):

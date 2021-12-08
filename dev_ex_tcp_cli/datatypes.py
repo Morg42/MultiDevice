@@ -5,7 +5,7 @@ from .. import datatypes as DT
 
 
 class DT_xxx(DT.Datatype):
-
+    ''' Example class for Datatype definitions. Not used in class. '''
     def __init__(self, fail_silent=True):
         super().__init__(fail_silent)
-        print('xxx')
+        self.logger.info(f'DT class {self.__class__.__name__} initialized. Do something about this.')

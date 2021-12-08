@@ -257,8 +257,8 @@
           additional data types in the datatype file
 '''
 
-# import lib.network
 import requests
+import socket
 
 from collections import OrderedDict
 import importlib
@@ -267,6 +267,7 @@ import re
 import sys
 import cherrypy
 import json
+from time import sleep, time
 from ast import literal_eval
 from pydoc import locate
 
@@ -309,16 +310,15 @@ PLUGIN_ARG_SERIAL_PORT  = 'serial'
 
 PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT)
 
-
 # connection types for PLUGIN_ARG_CONNECTION
-CONN_NET_TCP_CLI        = 'net_tcp_cli'     # TCP client connection with query-reply logic
+CONN_NET_TCP_REQ        = 'net_tcp_req'     # TCP client connection with URL-based requests
+CONN_NET_TCP_SYN        = 'net_tcp_syn'     # persistent TCP client connection with immediate query-reply logic
 CONN_NET_TCP_SRV        = 'net_tcp_srv'     # TCP server connection with async data callback
 CONN_NET_UDP_SRV        = 'net_udp_srv'     # UDP server connection with async data callback
 CONN_SER_CLI            = 'ser_cli'         # serial connection with query-reply logic
 CONN_SER_ASYNC          = 'ser_async'       # serial connection with async data callback
 
-CONNECTION_TYPES = (CONN_NET_TCP_CLI, CONN_NET_TCP_SRV, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
-
+CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_SYN, CONN_NET_TCP_SRV, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
 
 # item attributes (as defines in plugin.yaml)
 ITEM_ATTR_DEVICE        = 'md_device'
@@ -330,7 +330,6 @@ ITEM_ATTR_WRITE         = 'md_write'
 ITEM_ATTR_READ_ALL      = 'md_read_all'
 
 ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL)
-
 
 # command definition
 COMMAND_READ            = True
@@ -356,7 +355,7 @@ class MD_Command(object):
     opcode = ''
     read = False
     write = False
-    shng_type = None
+    item_type = None
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -377,7 +376,7 @@ class MD_Command(object):
         kw = kwargs['cmd']
         self._plugin_params = kwargs['plugin']
 
-        self._get_kwargs(('opcode', 'read', 'write', 'shng_type'), **kw)
+        self._get_kwargs(('opcode', 'read', 'write', 'item_type'), **kw)
 
         try:
             self._DT = dt_class()
@@ -452,7 +451,7 @@ class MD_Command_Str(MD_Command):
     read_data = None
     params = {}
     values = {}
-    bounds = {}
+    bounds = {} 
     _DT = None
 
     def __init__(self, device_name, name, dt_class, **kwargs):
@@ -472,12 +471,12 @@ class MD_Command_Str(MD_Command):
             if self.read_cmd:
                 cmd_str = self._parse_str(self.read_cmd)
             else:
-                cmd_str = self.opcode
+                cmd_str = self._parse_str(self.opcode, data)
         else:
             if self.write_cmd:
                 cmd_str = self._parse_str(self.write_cmd, data)
             else:
-                cmd_str = self.opcode
+                cmd_str = self._parse_str(self.opcode, data)
 
         data_dict = {}
         data_dict['payload'] = cmd_str
@@ -651,7 +650,7 @@ class MD_Commands(object):
         '''
         for cmd in commands:
             kw = {}
-            for arg in ('opcode', 'read', 'write', 'shng_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data'):
+            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data'):
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 
@@ -927,8 +926,8 @@ class MD_Device(object):
 
             if PLUGIN_ARG_NET_PORT in self._plugin_params:
 
-                # no further information on network specifics, use basic TCP client
-                conn_type = CONN_NET_TCP_CLI
+                # no further information on network specifics, use basic HTTP TCP client
+                conn_type = CONN_NET_TCP_REQ
 
             elif PLUGIN_ARG_SERIAL_PORT in self._plugin_params:
 
@@ -938,9 +937,12 @@ class MD_Device(object):
             if conn_type:
                 params[PLUGIN_ARG_CONNECTION] = conn_type
 
-        if conn_type == CONN_NET_TCP_CLI:
+        if conn_type == CONN_NET_TCP_REQ:
 
-            return MD_Connection_Net_TCP_Client(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_TCP_Reply(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+        elif conn_type == CONN_NET_TCP_SYN:
+
+            return MD_Connection_Net_TCP_Request(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
         elif conn_type == CONN_NET_TCP_SRV:
 
             return MD_Connection_Net_TCP_Server(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
@@ -986,16 +988,6 @@ class MD_Connection(object):
     This class is the base class for further connection classes. It can - well,
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
-
-    But this class can detect subtle or not-so-subtle hints as to which connection
-    type might be wanted and instead if instantiating itself, it returns a class
-    instance of the suitable derived class (see set_connection_params() and the
-    following subclasses).
-
-    As long as you don't need special other connections or fancy magic, just go
-    ahead with this class and make sure your parameters in plugin.yaml are set up
-    properly.
-    HINT: setting one of the CONNECTION_TYPEs might help...
 
     :param device_id: device type as used in commands.py name
     :param device_name: device name for use in item configuration and logs
@@ -1113,7 +1105,7 @@ class MD_Connection(object):
                 setattr(self, arg, sanitize_param(self._params[arg]))
 
 
-class MD_Connection_Net_TCP_Client(MD_Connection):
+class MD_Connection_Net_TCP_Request(MD_Connection):
     '''
     This class implements a TCP connection in the query-reply matter using
     the requests library.
@@ -1167,8 +1159,197 @@ class MD_Connection_Net_TCP_Client(MD_Connection):
         return None
 
 
+class MD_Connection_Net_TCP_Reply(MD_Connection):
+    '''
+    This class implements a persistent TCP connection via sockets
+
+    The data_dict['payload'] is sent as string 1:1; the remainder of data_dict is ignored.
+
+    Response data is returned as text, or None in case of error
+    '''
+
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice logger
+        self.logger = logging.getLogger(__name__)
+
+        self.logger.debug(f'Device {device_name}: connection initializing from {self.__class__.__name__} with arguments {kwargs}')
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+        self._tcp = None
+        self._buffer = b''
+
+        self._params = {PLUGIN_ARG_NET_HOST: '', PLUGIN_ARG_NET_PORT: 0, 'autoreconnect': True, 'connect_retries': 5, 'connect_cycle': 30, 'timeout': 3, 'terminator': b'\x0a'}
+        self._params.update(kwargs)
+        self._data_received_callback = data_received_callback
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        self._autoreconnect = self._params['autoreconnect']
+        self._connect_retries = self._params['connect_retries']
+        self._connect_cycle = self._params['connect_cycle']
+        self._timeout = self._params['timeout']
+        self._terminator = self._params['terminator']
+
+        if not (self.host != '' and self.port > 0):
+            self.logger.error(f'Device {self.device}: insufficient configuration data (TCP {self.host}:{self.port}), not initializing connection') 
+            return False
+
+        # tell someone about our actual class
+        self.logger.debug(f'Device {self.device}: connection initialized from {self.__class__.__name__}')
+
+    def _open(self):
+        if not self.connected:
+            self.logger.debug(f'Device {self.device}: {self.__class__.__name__} "opening connection" as {__name__} for device {self.device} with params {self._params}')
+            self._tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM | socket.SOCK_NONBLOCK)
+            self._tcp.settimeout(5)
+            try:
+                self._tcp.connect((f'{self.host}', int(self.port)))
+                self._tcp.settimeout(self._timeout)
+                self.connected = True
+            except Exception:
+                self.logger.warning(f'Device {self.device}: could not establish a connection to {self.host}:{self.port}')
+
+        return self.connected
+
+    def _close(self):
+        self.logger.debug(f'Device {self.device}: {self.__class__.__name__} "closing connection" as {__name__} for device {self.device} with params {self._params}')
+        if self.connected():
+            self._tcp.close()
+            self.connected = False
+
+    def _reconnect(self):
+        if not self.connected and self._autoreconnect:
+            attempt = 0
+            while attempt < self._connect_retries and not self.connected:
+                attempt += 1
+                self.logger.info(f'Device {self.device}: autoreconnecting, attempt {attempt}/{self._connect_retries}')
+                if self._open():
+                    break
+                sleep(self._connect_cycle)
+
+            if not self.connected:
+                self.logger.warning(f'Device {self.device}: autoreconnect failed after {self._connect_retries} attempts')
+                return False
+
+    def _send(self, data_dict):
+        # extract payload
+        data = data_dict.get('payload', None)
+        if not data:
+            self.logger.error(f'Device {self.device}: refusing to send empty payload from data_dict {data_dict}, aborting')
+            return None
+
+        if not self.connected and not self._reconnect():
+            self.logger.error(f'Device {self.device}: not connected and reconnect not requested or failed, aborting')
+            return None
+
+        # convert payload
+        if not isinstance(data, (bytes, bytearray)):
+            try:
+                data = str(data)
+            except Exception:
+                pass
+            try:
+                data = data.encode('utf-8')
+            except Exception as e:
+                self.logger.warning(f'Device {self.device}: error {e} while encoding data {data} for remote {self.host}:{self.port}')
+                return None
+
+        # just send data, watch for closed socket (BrokenPipeError)
+        # raise on unknown error, don't know what else to do
+        try:
+            self._tcp.send(data)
+        except BrokenPipeError:
+            self.logger.warning(f'Device {self.device}: detected disconnect from {self.host}, send failed.')
+            self.connected = False
+            if self._autoreconnect:
+                self.logger.debug(f'Autoreconnect enabled for {self._host}')
+                self._reconnect()
+            return None
+        except Exception as e:  # log errors we are not prepared to handle and raise exception for further debugging
+            self.logger.warning(f'Device {self.device}: unhandleded error on sending to {self.host}, cannot send data {data}. Error: {e}')
+            raise
+
+        # receive buffer data until
+        # - connection is gone
+        # - terminator is found
+        # - timeout is hit
+        buffer = b''
+        begin = time()
+
+        while self.connected and self._terminator not in buffer and time() - begin > self._timeout:
+            try:
+                sdata = b''
+                sdata = self._tcp.recv(8192)
+                if sdata:
+                    buffer.append(sdata)
+                else:
+                    sleep(0.1)
+            except BrokenPipeError:
+                self.logger.warning(f'Device {self.device}: detected disconnect from {self.host} while receiving.')
+                self.connected = False
+                if self._autoreconnect:
+                    self.logger.debug(f'Autoreconnect enabled for {self._host}')
+                    self._reconnect()
+                return None
+            except Exception:
+                pass
+
+        # I'll be back...
+        if buffer and self._terminator in buffer:
+
+            # return data up to first terminator
+            tpos = buffer.find(self._terminator)
+            result = buffer[:tpos].decode('utf-8').strip()
+            # TODO: store remainder in class member and use for next receive...? implement locking
+            return result
+        elif time() - begin > self._timeout:
+            self.logger.info(f'Device {self.device}: timeout while reading response from {self.host}.')
+        elif not self.connected:
+            self.logger.warning(f'Device {self.device}: disconnect detected while reading response from {self.host}.')
+        else:
+            self.logger.warning(f'Device {self.device}: received no reply from from {self.host}.')
+
+        return None
+
+
 class MD_Connection_Net_TCP_Server(MD_Connection):
-    pass
+    '''
+    This class implements a TCP connection using a listener with asynchronous
+    callback for receiving data. Callbacks for incoming connections and disconnect
+    events can be provided, they are not utilized by this class as of now.
+
+    The callbacks return a `ConnectionClient` from `lib.network`. For receiving
+    data this is handled internally;
+
+    Data received independently from clients is dispatched via callback.
+    '''
+    def __init__(self, device_id, device_name, data_received_callback, incoming_connection_callback, disconnected_callback, **kwargs):
+
+        # get MultiDevice logger
+        self.logger = logging.getLogger(__name__)
+
+        self.logger.debug(f'Device {device_name}: connection initializing from {self.__class__.__name__} with arguments {kwargs}')
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+
+        self._params = kwargs
+        self._data_received_callback = data_received_callback
+        self._incoming_connection_callback = incoming_connection_callback
+        self._disconnected_callback = disconnected_callback
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        # tell someone about our actual class
+        self.logger.debug(f'Device {self.device}: connection initialized from {self.__class__.__name__}')
 
 
 class MD_Connection_Net_UDP_Server(MD_Connection):
@@ -1200,7 +1381,7 @@ class MultiDevice(SmartPlugin):
     It also looks good.
     '''
 
-    PLUGIN_VERSION = '0.0.1'
+    PLUGIN_VERSION = '0.0.2'
 
     def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         '''
@@ -1231,30 +1412,46 @@ class MultiDevice(SmartPlugin):
             devices = {standalone_device: kwargs}
 
         # iterate over all items in plugin configuration 'device' list
+        #
+        # example:
+        #
+        # multidevice:
+        #     plugin_name: multidevice
+        #     device:
+        #         - dev1                    # -> case 1, name=dev1, id=dev1
+        #         - mydev: dev2             # -> case 2, name=mydev, id=dev2
+        #         - my2dev:                 # -> case 3, name=my2dev, id=dev3
+        #             - device: dev3
+        #             - host: somehost
+        #         - dev4:
+        #             - host: someotherhost # -> case 4, name=dev4, id=dev4,
+        #                                   #    handled implicitly by case 3
+
         for device in devices:
             device_id = None
             param = {}
             if type(device) is str:
-                # got only the device id
+                # case 1, device configuration is only string
                 device_id = device_name = device
 
             elif type(device) is OrderedDict:
 
-                # either we have devid: devname or devid: (list of arg: value)
-                device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
+                # either we have devname: devid or devname: (list of arg: value)
+                device_name, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
 
-                # dev_id: dev_name?
                 if type(conf) is str:
-                    device_name = conf
+                    # case 2, device_name: device_id
+                    device_id = conf
                 # dev_id: (list of OrderedDict(arg: value))?
                 elif type(conf) is list and all(type(arg) is OrderedDict for arg in conf):
-                    device_name = device_id
+                    # case 3, get device_id from parsing conf
+                    device_id = device_name
                     for odict in conf:
                         for arg in odict.keys():
 
                             # store parameters
-                            if arg == 'name':
-                                device_name = odict[arg]
+                            if arg == 'device':
+                                device_id = odict[arg]
                             else:
                                 param[arg] = sanitize_param(odict[arg])
 

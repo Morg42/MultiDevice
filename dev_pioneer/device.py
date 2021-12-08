@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+
+'''
+Example class for Pioneer AV Power On function.
+'''
+
 from .. import MD_Device, MD_Commands, MD_Command_Str
 import logging
 
@@ -7,14 +14,13 @@ class MD_Device(MD_Device):
     def __init__(self, device_id, device_name, **kwargs):
 
         # get MultiDevice logger
-# NOTE: later on, decide if every device logs to its own logger?
         s, __, __ = __name__.rpartition('.')
         s, __, __ = s.rpartition('.')
         self.logger = logging.getLogger(s)
 
-        super().__init__(device_id, device_name, **kwargs)
+        super().__init__(device_id, device_name, conn_type='net_tcp_syn', **kwargs)
 
-        # TODO - remove when done. say hello
+        # log own initialization with module (i.e. folder) name
         self.logger.debug(f'Device {device_name}: device initialized from {__spec__.name} with arguments {kwargs}')
 
     def _read_configuration(self):

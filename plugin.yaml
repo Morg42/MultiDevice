@@ -9,7 +9,7 @@ plugin:
         de: 'MultiDevice-Plugin'
         en: 'MultiDevice-Plugin'
     maintainer: Morg
-    # tester:
+    tester: OnkelAndy
     state: develop
     keywords: iot device
     # documentation: https://github.com/smarthomeNG/smarthome/wiki/MultiDevice-Plugin

@@ -939,10 +939,10 @@ class MD_Device(object):
 
         if conn_type == CONN_NET_TCP_REQ:
 
-            return MD_Connection_Net_TCP_Reply(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_TCP_Request(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
         elif conn_type == CONN_NET_TCP_SYN:
 
-            return MD_Connection_Net_TCP_Request(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_TCP_Reply(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
         elif conn_type == CONN_NET_TCP_SRV:
 
             return MD_Connection_Net_TCP_Server(self.device_id, self.device, self._data_received_callback, **self._plugin_params)

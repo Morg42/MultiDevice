@@ -1211,6 +1211,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
                 self._tcp.connect((f'{self.host}', int(self.port)))
                 self._tcp.settimeout(self._timeout)
                 self.connected = True
+                self.logger.debug(f'Device {self.device}: connection established to {self.host}:{self.port}')
             except Exception:
                 self.logger.warning(f'Device {self.device}: could not establish a connection to {self.host}:{self.port}')
 
@@ -1262,7 +1263,9 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
         # just send data, watch for closed socket (BrokenPipeError)
         # raise on unknown error, don't know what else to do
         try:
+            self.logger.debug(f'Device {self.device}: sending data {data} to {self.host}:{self.port}')
             self._tcp.send(data)
+            self.logger.debug(f'Device {self.device}: data sent')
         except BrokenPipeError:
             self.logger.warning(f'Device {self.device}: detected disconnect from {self.host}, send failed.')
             self.connected = False
@@ -1278,6 +1281,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
         # - connection is gone
         # - terminator is found
         # - timeout is hit
+        self.logger.debug(f'Device {self.device}: reading response from {self.host}:{self.port}')
         buffer = b''
         begin = time()
 
@@ -1306,6 +1310,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
             tpos = buffer.find(self._terminator)
             result = buffer[:tpos].decode('utf-8').strip()
             # TODO: store remainder in class member and use for next receive...? implement locking
+            self.logger.debug(f'Device {self.device}: received response {result} from {self.host}:{self.port}')
             return result
         elif time() - begin > self._timeout:
             self.logger.info(f'Device {self.device}: timeout while reading response from {self.host}.')

@@ -1205,7 +1205,8 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
     def _open(self):
         if not self.connected:
             self.logger.debug(f'Device {self.device}: {self.__class__.__name__} "opening connection" as {__name__} for device {self.device} with params {self._params}')
-            self._tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM | socket.SOCK_NONBLOCK)
+            self._tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._tcp.setblocking(False)
             self._tcp.settimeout(5)
             try:
                 self._tcp.connect((f'{self.host}', int(self.port)))

@@ -1220,7 +1220,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
 
     def _close(self):
         self.logger.debug(f'Device {self.device}: {self.__class__.__name__} "closing connection" as {__name__} for device {self.device} with params {self._params}')
-        if self.connected():
+        if self.connected:
             self._tcp.close()
             self.connected = False
 

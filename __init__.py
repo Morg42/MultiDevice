@@ -1286,10 +1286,14 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
         buffer = b''
         begin = time()
 
+        # TODO: remove
+        self.logger.debug(f'Device {self.device}: starting read at {begin} from {self.host}:{self.port}')        
         while self.connected and self._terminator not in buffer and time() - begin > self._timeout:
             try:
                 sdata = b''
                 sdata = self._tcp.recv(8192)
+                # TODO: remove
+                self.logger.debug(f'Device {self.device}: reading response part {sdata} from {self.host}:{self.port}')
                 if sdata:
                     buffer.append(sdata)
                 else:
@@ -1301,14 +1305,23 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
                     self.logger.debug(f'Autoreconnect enabled for {self._host}')
                     self._reconnect()
                 return None
-            except Exception:
+            except Exception as e:
+                # TODO: remove
+                self.logger.debug(f'Device {self.device}: reading response, ignoring exception {e} from {self.host}:{self.port}')
                 pass
+
+        # TODO: remove
+        self.logger.debug(f'Device {self.device}: quit read at {time()} from {self.host}:{self.port}')        
 
         # I'll be back...
         if buffer and self._terminator in buffer:
 
+            # TODO: remove
+            self.logger.debug(f'Device {self.device}: checking result {buffer} for terminator {self._terminator} from {self.host}:{self.port}')        
             # return data up to first terminator
             tpos = buffer.find(self._terminator)
+            # TODO: remove
+            self.logger.debug(f'Device {self.device}: found terminator at {tpos} from {self.host}:{self.port}')        
             result = buffer[:tpos].decode('utf-8').strip()
             # TODO: store remainder in class member and use for next receive...? implement locking
             self.logger.debug(f'Device {self.device}: received response {result} from {self.host}:{self.port}')

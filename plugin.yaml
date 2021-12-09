@@ -15,11 +15,11 @@ plugin:
     # documentation: https://github.com/smarthomeNG/smarthome/wiki/MultiDevice-Plugin
     # support: https://knx-user-forum.de/forum/supportforen/smarthome-py
 
-    version: 0.0.1
+    version: 0.0.2
     sh_minversion: 1.7
     py_minversion: 3.6
     multi_instance: false
-    restartable: tru
+    restartable: true
     classname: MultiDevice
 
 parameters:

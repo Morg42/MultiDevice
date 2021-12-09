@@ -505,7 +505,7 @@ class MD_Command_Str(MD_Command):
             string = re.sub(regex, repl_func, string)
 
         if data is not None:
-            string = string.replace('$V', str(data))
+            string = string.replace('$V', str(self._DT.get_send_data(data)))
 
         return string
 

@@ -12,7 +12,7 @@ class DT_PioPwr(DT.Datatype):
 
     def get_send_data(self, data):
         # simpel - wenn data ( == True ) ist, dann "PO" zurückgeben, sonst "PF"
-        return 'PO\rPO\r' if data else 'PF\r'
+        return 'PO\r\nPO\r\n' if data else 'PF\r\n'
 
     def get_shng_data(self, data, type=None):
 

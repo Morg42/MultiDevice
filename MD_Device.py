@@ -7,8 +7,7 @@
 #  https://www.smarthomeNG.de
 #  https://knx-user-forum.de/forum/supportforen/smarthome-py
 #
-#  MultiDevice plugin for handling arbitrary devices via network or serial
-#  connection.
+#  MD_Device for MultiDevice plugin
 #
 #  SmartHomeNG is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by

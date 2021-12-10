@@ -7,7 +7,7 @@
 #  https://www.smarthomeNG.de
 #  https://knx-user-forum.de/forum/supportforen/smarthome-py
 #
-#  Datatypes for MultiDevice plugin
+#  MD_Datatype and derived classes for MultiDevice plugin
 #
 #  SmartHomeNG is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ datatypes = (
 )
 
 
-class Datatype(object):
+class MD_Datatype(object):
 
     def __init__(self, fail_silent=True):
         if not hasattr(self, 'logger'):

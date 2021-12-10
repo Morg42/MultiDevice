@@ -53,7 +53,7 @@ datatypes = (
 )
 
 
-class MD_Datatype(object):
+class Datatype(object):
 
     def __init__(self, fail_silent=True):
         if not hasattr(self, 'logger'):

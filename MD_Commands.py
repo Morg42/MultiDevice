@@ -89,6 +89,18 @@ class MD_Commands(object):
 
         return None
 
+    def get_command_from_reply(self, data):
+        for command in self._commands:
+            tokens = getattr(self._commands[command], 'reply_token', None)
+            if tokens:
+                if not isinstance(tokens, list):
+                    tokens = [tokens]
+                for token in tokens:
+                    # NOTE: if token == '', this would always match. Maybe make this a feature?
+                    if token != '' and token == data[:len(token)]:
+                        return command
+        return None
+
     def _read_dt_classes(self, device_id):
         '''
         This method enumerates all classes named 'DT_*' from the Datatypes module
@@ -152,7 +164,7 @@ class MD_Commands(object):
         '''
         for cmd in commands:
             kw = {}
-            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data'):
+            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data', 'reply_token'):
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 

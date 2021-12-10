@@ -20,7 +20,7 @@ class MD_Device(MD_Device):
         s, __, __ = s.rpartition('.')
         self.logger = logging.getLogger(s)
 
-        super().__init__(device_id, device_name, standalone=standalone, conn_type='net_tcp_syn', **kwargs)
+        super().__init__(device_id, device_name, standalone=standalone, conn_type='net_tcp_cli', **kwargs)
 
         # log own initialization with module (i.e. folder) name
         self.logger.debug(f'Device {device_name}: device initialized from {__spec__.name} with arguments {kwargs}')

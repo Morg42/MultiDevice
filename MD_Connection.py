@@ -28,6 +28,7 @@ import logging
 from time import sleep, time
 import requests
 import socket
+from lib.network import Tcp_client
 
 from .MD_Globals import *
 
@@ -249,7 +250,6 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
         self._autoreconnect = self._params['autoreconnect']
         self._connect_retries = self._params['connect_retries']
         self._connect_cycle = self._params['connect_cycle']
-        self._timeout = self._params['timeout']
         self._terminator = self._params['terminator']
 
         if not (self.host != '' and self.port > 0):
@@ -266,8 +266,8 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
             self._tcp.setblocking(False)
             self._tcp.settimeout(5)
             try:
+                self._tcp.settimeout(self.timeout)
                 self._tcp.connect((f'{self.host}', int(self.port)))
-                self._tcp.settimeout(self._timeout)
                 self.connected = True
                 self.logger.debug(f'Device {self.device}: connection established to {self.host}:{self.port}')
             except Exception:
@@ -345,7 +345,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
 
         # TODO: remove
         # self.logger.debug(f'Device {self.device}: starting read at {begin} from {self.host}:{self.port}')        
-        while self.connected and self._terminator not in buffer and time() - begin <= self._timeout:
+        while self.connected and self._terminator not in buffer and time() - begin <= self.timeout:
             try:
                 sdata = bytearray()
                 sdata = self._tcp.recv(8192)
@@ -383,7 +383,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
             # TODO: store remainder in class member and use for next receive...? implement locking
             self.logger.debug(f'Device {self.device}: received response {result} from {self.host}:{self.port}')
             return result
-        elif time() - begin > self._timeout:
+        elif time() - begin > self.timeout:
             self.logger.info(f'Device {self.device}: timeout while reading response from {self.host}.')
         elif not self.connected:
             self.logger.warning(f'Device {self.device}: disconnect detected while reading response from {self.host}.')
@@ -391,6 +391,97 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
             self.logger.warning(f'Device {self.device}: received no reply from from {self.host}.')
 
         return None
+
+
+class MD_Connection_Net_TCP_Client(MD_Connection):
+    '''
+    This class implements a TCP connection using a single persistent connection
+    to send data and an anynchronous listener with callback for receiving data.
+
+    Data received is dispatched via callback, then send()-method does not
+    return any response data.
+
+    TODO: define how received data is processed...
+    '''
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice logger
+        self.logger = logging.getLogger(__name__)
+
+        self.logger.debug(f'Device {device_name}: connection initializing from {self.__class__.__name__} with arguments {kwargs}')
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+
+        # make sure we have a basic set of parameters for the TCP connection
+        self._params = {PLUGIN_ARG_NET_HOST: '', PLUGIN_ARG_NET_PORT: 0, 'autoreconnect': True, 'connect_retries': 1, 'connect_cycle': 3, 'disconnected_callback': None, 'timeout': 3}
+        self._params.update(kwargs)
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+        self._autoreconnect = self._params['autoreconnect']
+        self._connect_retries = self._params['connect_retries']
+        self._connect_cycle = self._params['connect_cycle']
+
+        self._data_received_callback = data_received_callback
+        self._disconnected_callback = self._params['disconnected_callback']
+
+        # initialize connection
+        self._tcp = Tcp_client(host=self.host, port=self.port, name=f'{device_id}TcpConnection',
+                               autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
+                               connect_cycle=self._connect_cycle)
+        self._tcp.set_callbacks(data_received=self._on_data_received,
+                                disconnected=self._on_disconnect)
+
+        # tell someone about our actual class
+        self.logger.debug(f'Device {self.device}: connection initialized from {self.__class__.__name__}')
+
+    def _open(self):
+        self.logger.debug(f'Device {self.device}: {self.__class__.__name__} "opening connection" as {__name__} for device {self.device} with params {self._params}')
+        if not self._tcp.connected():
+            self._tcp.connect()
+            sleep(2)
+        return self._tcp.connected()
+
+    def _close(self):
+        self.logger.debug(f'Device {self.device}: {self.__class__.__name__} "closing connection" as {__name__} for device {self.device} with params {self._params}')
+        self._tcp.close()
+
+    def _on_disconnect(self):
+        self.logger.debug(f'Device {self.device}: connection was closed')
+        self.connected = False
+        if self._disconnected_callback:
+            self._disconnected_callback()
+
+    def _on_data_received(self, tcp_cli, data):
+        data = data.strip()
+        if data:
+            self.logger.debug(f'Device {self.device}: received raw data "{data}" from "{tcp_cli.name}"')
+
+            # as we don't know the command for which the reply was issued, we return None as command
+            # the device class has to handle this in conjunction with the commands and datatypes
+            if self._data_received_callback:
+                self._data_received_callback(None, data)
+
+    def _send(self, data_dict):
+        data = data_dict.get('payload', None)
+        if not data:
+            self.logger.error(f'Device {self.device}: can not send without payload data from data_dict {data_dict}, aborting')
+            return False
+
+        if not self.connected:
+            self.open()
+
+            if not self.connected:
+                self.logger.error(f'Device {self.device}: trying to send {data}, but connection can\'t be opened.')
+                return False
+
+        self._tcp.send(data)
+
+        # we receive only via callback, so we return "no reply".
+        return False
 
 
 class MD_Connection_Net_TCP_Server(MD_Connection):

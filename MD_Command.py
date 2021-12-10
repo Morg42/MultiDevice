@@ -51,6 +51,7 @@ class MD_Command(object):
     read = False
     write = False
     item_type = None
+    reply_token = []
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -71,7 +72,7 @@ class MD_Command(object):
         kw = kwargs['cmd']
         self._plugin_params = kwargs['plugin']
 
-        self._get_kwargs(('opcode', 'read', 'write', 'item_type'), **kw)
+        self._get_kwargs(('opcode', 'read', 'write', 'item_type', 'reply_token'), **kw)
 
         try:
             self._DT = dt_class()

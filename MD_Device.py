@@ -29,7 +29,8 @@ import logging
 from .MD_Globals import *
 from .MD_Command import MD_Command
 from .MD_Commands import MD_Commands
-from .MD_Connection import (MD_Connection, MD_Connection_Net_TCP_Request, MD_Connection_Net_TCP_Reply,
+from .MD_Connection import (MD_Connection, MD_Connection_Net_TCP_Request,
+                            MD_Connection_Net_TCP_Reply, MD_Connection_Net_TCP_Client,
                             MD_Connection_Net_TCP_Server, MD_Connection_Net_UDP_Server,
                             MD_Connection_Serial_Async, MD_Connection_Serial_Client)
 
@@ -181,7 +182,7 @@ class MD_Device(object):
                 self.logger.warning(f'Device {self.device}: received data {value} for command {command}, but _data_received_callback is not set. Discarding data.')
         return True
 
-    def data_received(self, command, data):
+    def on_data_received(self, command, data):
         '''
         Callback function for received data e.g. from an event loop
         Processes data and dispatches value to plugin class
@@ -190,11 +191,21 @@ class MD_Device(object):
         :param data: received data in 'raw' connection format
         :type command: str
         '''
-        self.logger.debug(f'Device {self.device}: data received for command {command}: {data}')
+        if command is not None:
+            self.logger.debug(f'Device {self.device}: data received for command {command}: {data}')
+        else:
+            # command == None means that we got raw data from a callback and don't know yet to
+            # which command this belongs to. So find out...
+            self.logger.debug(f'Device {self.device}: data received: {data} without command specification')
+            command = self._commands.get_command_from_reply(data)
+            if not command:
+                self.logger.debug(f'Device {self.device}: data {data} did not identify a known command, ignoring it')
+                return
+
         value = self._commands.get_shng_data(command, data)
         self.logger.debug(f'Device {self.device}: data received for command {command}: {data} converted to value {value}')
         if self._data_received_callback:
-            self._data_received_callback(command, value)
+            self._data_received_callback(self.device, command, value)
         else:
             self.logger.warning(f'Device {self.device}: received data {value} for command {command}, but _data_received_callback is not set. Discarding data.')
 
@@ -310,24 +321,27 @@ class MD_Device(object):
 
         if conn_type == CONN_NET_TCP_REQ:
 
-            return MD_Connection_Net_TCP_Request(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_TCP_Request(self.device_id, self.device, self.on_data_received, **self._plugin_params)
         elif conn_type == CONN_NET_TCP_SYN:
 
-            return MD_Connection_Net_TCP_Reply(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_TCP_Reply(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+        elif conn_type == CONN_NET_TCP_CLI:
+
+            return MD_Connection_Net_TCP_Client(self.device_id, self.device, self.on_data_received, **self._plugin_params)
         elif conn_type == CONN_NET_TCP_SRV:
 
-            return MD_Connection_Net_TCP_Server(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_TCP_Server(self.device_id, self.device, self.on_data_received, **self._plugin_params)
         elif conn_type == CONN_NET_UDP_SRV:
 
-            return MD_Connection_Net_UDP_Server(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Net_UDP_Server(self.device_id, self.device, self.on_data_received, **self._plugin_params)
         elif conn_type == CONN_SER_CLI:
 
-            return MD_Connection_Serial_Client(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Serial_Client(self.device_id, self.device, self.on_data_received, **self._plugin_params)
         elif conn_type == CONN_SER_ASYNC:
 
-            return MD_Connection_Serial_Async(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection_Serial_Async(self.device_id, self.device, self.on_data_received, **self._plugin_params)
         else:
-            return MD_Connection(self.device_id, self.device, self._data_received_callback, **self._plugin_params)
+            return MD_Connection(self.device_id, self.device, self.on_data_received, **self._plugin_params)
 
         # Please go on. There is nothing to see here. You shouldn't be here anyway...
         self.logger.error(f'Device {self.device}: could not setup connection with {params}, device disabled')

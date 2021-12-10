@@ -590,7 +590,7 @@ class MultiDevice(SmartPlugin):
         '''
         if self.alive:
 
-            # check if combination of device_name and command is configured for read access
+            # check if combination of device_name and command is configured for reading
             if device_name in self._commands_read and command in self._commands_read[device_name]:
                 item = self._commands_read[device_name][command]
                 self.logger.debug(f'Device {device_name}: data update with command {command} and value {value} for item {item.id()}')

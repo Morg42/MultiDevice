@@ -594,7 +594,7 @@ class MultiDevice(SmartPlugin):
             if device_name in self._commands_read and command in self._commands_read[device_name]:
                 item = self._commands_read[device_name][command]
                 self.logger.debug(f'Device {device_name}: data update with command {command} and value {value} for item {item.id()}')
-                item(value)
+                item(value, self.get_shortname() + "." + device_name)
             else:
                 self.logger.warning(f'Device {device_name}: data update with command {command} and value {value} not assigned to any item, discarding data')
 

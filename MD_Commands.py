@@ -151,11 +151,10 @@ class MD_Commands(object):
             cmd_module = locate(mod_str)
             # get content
             commands = cmd_module.commands
-        except AttributeError as e:
-            self.logger.error(f'Device {device_name}: importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}')
         except ImportError:
             self.logger.error(f'Device {device_name}: importing external module {"dev_" + self._device_id + "/commands.py"} failed')
-
+        except Exception as e:
+            self.logger.error(f'Device {device_name}: importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}')
         if commands and isinstance(commands, dict):
             self._parse_commands(device_name, commands)
 

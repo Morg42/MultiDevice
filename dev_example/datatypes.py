@@ -2,7 +2,7 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 if MD_standalone:
-    import  datatypes as DT
+    import datatypes as DT
 else:
     from .. import datatypes as DT
 

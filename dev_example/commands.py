@@ -18,7 +18,7 @@ commands = {
         'write_cmd': '',
         # expected SmartHomeNG item type of associated item
         'item_type': 'bool',
-        # datatype (DT_xyz) class used to talk to the device (see ../datatypes.py)
+        # datatype used to talk to the device (see ../datatypes.py). For DT_xyz class, use 'xyz'
         'dev_datatype': 'raw',
         # optional, start sequence/beginning of reply to indicate reply belongs to this command
         'reply_token': ['']

@@ -174,7 +174,8 @@ class MD_Commands(object):
             dt_class = None
             dev_datatype = kw.get('dev_datatype', '')
             if dev_datatype:
-                dt_class = self._dt.get('DT_' + dev_datatype)
+                class_name = '' if dev_datatype[:2] == 'DT_' else 'DT_' + dev_datatype
+                dt_class = self._dt.get(class_name)
 
             if kw.get('read', False) and kw.get('opcode', '') == '' and kw.get('read_cmd', '') == '':
                 self.logger.info(f'Device {self.device}: command {cmd} will not create a command for reading values. Check commands.py configuration...')

@@ -27,9 +27,14 @@
 import logging
 from pydoc import locate
 
-from .MD_Globals import *
-from .MD_Command import MD_Command
-from . import datatypes as DT
+if MD_standalone:
+    from MD_Globals import *
+    from MD_Command import MD_Command
+    import datatypes as DT
+else:
+    from .MD_Globals import *
+    from .MD_Command import MD_Command
+    from . import datatypes as DT
 
 
 #############################################################################################################################################################################################################################################
@@ -47,12 +52,11 @@ class MD_Commands(object):
 
     Furthermore, this could be overloaded if so needed for special extensions.
     '''
-    def __init__(self, device_id, device_name, command_obj_class=MD_Command, standalone=False, **kwargs):
+    def __init__(self, device_id, device_name, command_obj_class=MD_Command, **kwargs):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger(__name__)
 
         self.logger.debug(f'Device {device_name}: commands initializing from {command_obj_class.__name__}')
-        self._standalone = standalone
         self._commands = {}
         self.device = device_name
         self._device_id = device_id
@@ -121,7 +125,7 @@ class MD_Commands(object):
 
         # try to load datatypes.py from device directory
         mod_str = 'dev_' + device_id + '.datatypes'
-        if not self._standalone:
+        if not MD_standalone:
             mod_str = '.'.join(self.__module__.split('.')[:-1]) + '.' + mod_str
 
         cust_mod = locate(mod_str)
@@ -138,7 +142,7 @@ class MD_Commands(object):
 
         # try to load commands.py from device directory
         mod_str = 'dev_' + self._device_id + '.commands'
-        if not self._standalone:
+        if not MD_standalone:
             mod_str = '.'.join(self.__module__.split('.')[:-1]) + '.' + mod_str
 
         commands = {}

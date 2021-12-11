@@ -166,6 +166,7 @@ class DT_int(Datatype):
 
 
 class DT_num(Datatype):
+    ''' cast to float '''
     def get_send_data(self, data):
         return float(data)
 
@@ -177,6 +178,7 @@ class DT_num(Datatype):
 
 
 class DT_str(Datatype):
+    ''' cast to str '''
     def get_send_data(self, data):
         return str(data)
 
@@ -187,6 +189,7 @@ class DT_str(Datatype):
 
 
 class DT_list(Datatype):
+    ''' enlist '''
     def get_send_data(self, data):
         return list(data)
 
@@ -197,6 +200,7 @@ class DT_list(Datatype):
 
 
 class DT_dict(Datatype):
+    ''' dict-ate '''
     def get_send_data(self, data):
         return dict(data)
 
@@ -207,6 +211,7 @@ class DT_dict(Datatype):
 
 
 class DT_tuple(Datatype):
+    ''' toupling (meh...) '''
     def get_send_data(self, data):
         return tuple(data)
 
@@ -247,6 +252,7 @@ class DT_json(Datatype):
 
 
 class DT_shng_ws(Datatype):
+    ''' extract value from json '''
     def get_send_data(self, data):
         return data
 

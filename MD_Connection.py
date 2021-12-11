@@ -30,7 +30,10 @@ import requests
 import socket
 from lib.network import Tcp_client
 
-from .MD_Globals import *
+if MD_standalone:
+    from MD_Globals import *
+else:
+    from .MD_Globals import *
 
 
 #############################################################################################################################################################################################################################################
@@ -161,7 +164,7 @@ class MD_Connection(object):
                 setattr(self, arg, sanitize_param(self._params[arg]))
 
 
-class MD_Connection_Net_TCP_Request(MD_Connection):
+class MD_Connection_Net_Tcp_Request(MD_Connection):
     '''
     This class implements a TCP connection in the query-reply matter using
     the requests library.
@@ -215,7 +218,7 @@ class MD_Connection_Net_TCP_Request(MD_Connection):
         return None
 
 
-class MD_Connection_Net_TCP_Reply(MD_Connection):
+class MD_Connection_Net_Tcp_Reply(MD_Connection):
     '''
     This class implements a persistent TCP connection via sockets
 
@@ -393,7 +396,7 @@ class MD_Connection_Net_TCP_Reply(MD_Connection):
         return None
 
 
-class MD_Connection_Net_TCP_Client(MD_Connection):
+class MD_Connection_Net_Tcp_Client(MD_Connection):
     '''
     This class implements a TCP connection using a single persistent connection
     to send data and an anynchronous listener with callback for receiving data.
@@ -484,7 +487,7 @@ class MD_Connection_Net_TCP_Client(MD_Connection):
         return False
 
 
-class MD_Connection_Net_TCP_Server(MD_Connection):
+class MD_Connection_Net_Tcp_Server(MD_Connection):
     '''
     This class implements a TCP connection using a listener with asynchronous
     callback for receiving data. Callbacks for incoming connections and disconnect
@@ -519,7 +522,7 @@ class MD_Connection_Net_TCP_Server(MD_Connection):
         self.logger.debug(f'Device {self.device}: connection initialized from {self.__class__.__name__}')
 
 
-class MD_Connection_Net_UDP_Server(MD_Connection):
+class MD_Connection_Net_Udp_Server(MD_Connection):
     pass
 
 

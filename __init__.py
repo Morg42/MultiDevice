@@ -30,9 +30,61 @@
     ===========================
 
     This plugin aims to support a wide range of devices which work by sending
-    commands to the device and reading data from it.
+    commands to a device and reading data from it.
     By abstracting devices and connections, most devices will be able to be
     interfaced by this plugin.
+
+    General description
+    ===================
+
+    The whole MultiDevice-plugin is organized and abstracted into multiple levels
+    of (reference) base classes and derived classes handling special implementations.
+
+    The plugin manages item association and updates. For each device it handles,
+    it creates an object based on MD_Device or derived classes.
+
+    The device object handles starting and stopping the device and its configuration.
+    
+    Possible commands are bundled by the MD_Commands class which handles loading, 
+    validating and calling the separate MD_Command or derived objects. 
+    
+    Each MD_Command object handles one command and is responsible for creating  
+    command tokens/strings to/from the real device. 
+
+    Each command is assigned a data type, which is represented by a Datatype-
+    derived class and transforms values between the real device and the command object.
+    
+    To actually talk to the real device, that is, send commands/values and receive
+    replies, it uses a standardized interface via one of the MD_Connection or 
+    derived classes. 
+
+    Thus, the plugin, devices and commands are ignorant of physical connection
+    details, the connection implementation is transparent regarding actual data
+    structures or content, and only the datatype classes need to concern itself
+    with validity of data sent or received.
+
+    (New) devices each reside in their respective subfolder of the plugin folder,
+    providing a derived device class, a command definition and - if applicable -
+    additional necessary datatypes. These are automatically loaded by the plugin
+    if the respective device has a configuration entry in ``/etc/plugin.yaml``.
+
+
+    This concept is meant to
+    - minimize the amount of (repeating) code needed to implement a new device,
+    - make it easy to adjust functionality by deriving base classes, overriding
+      methods without needing to adjust the remaining code,
+    - reduce implementing a new device (mostly) to properly defining the
+      command API and datatypes,
+    - keeping individual devices separated and independent as each is loaded into
+      its own module / namespace.
+
+    This comes at the cost of needing to understand the architecture of the plugin
+    to be able to decide what to change/extend and what to keep.
+
+    My hope is that with proper documentation and examples, this last part is
+    easier to achieve than having to rewrite the whole handling code for items,
+    network, serial interfaces and commands every time.
+
 
     Base Classes
     ============
@@ -65,12 +117,12 @@
     - ``stop()``
     - ``send_command(command, value=None)``
     - ``read_all_commands()``
-    - ``data_received(command, data)``
+    - ``on_data_received(command, data)``
     - ``is_valid_command(command, read=None)``
     - ``set_runtime_data(**kwargs)``
     - ``update_device_params(**kwargs)``
 
-    Methods possible to overload for inherited classes:
+    Methods possibly needed to overload for inherited classes:
 
     - ``run_standalone()``
     - ``_set_device_params(**kwargs)``
@@ -105,14 +157,14 @@
     - ``close()``
     - ``send(data_dict)``
 
-    Methods necessary to overload for inherited classes:
+    Methods necessary to overload for derived classes:
 
     - ``_open()``
     - ``_close()``
     - ``_send(data_dict)``
 
 
-    Methods possible to overload for inherited classes:
+    Methods possible to overload for derived classes:
 
     - ``_send_init_on_open()``
     - ``_send_init_on_send()``
@@ -120,11 +172,13 @@
 
     This class has subclasses defined for the following types of connection:
 
-    - ``MD_Connection_Net_TCP_Client`` for query-reply TCP connections
-    - ``MD_Connection_Net_TCP_Server`` for TCP listening server with async callback
-    - ``MD_Connection_Net_UDP_Server`` for UDP listering server with async callback
-    - ``MD_Connection_Serial_Client`` for query-reply serial connections
-    - ``MD_Connection_Serial_Async`` for event-loop serial connection with async callback
+    - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
+    - ``MD_Connection_Net_TCP_Reply``   for persistent TCP connections with sync replies
+    - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
+    - ``MD_Connection_Net_TCP_Server``  for TCP listening server with async callback
+    - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
+    - ``MD_Connection_Serial_Client``   for query-reply serial connections
+    - ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
     For detailed information and necessary configuration parameters, see the
     respective class definition docstring.
@@ -147,6 +201,7 @@
     - ``is_valid_command(command, read=None)``
     - ``get_send_data(command, data=None)``
     - ``get_shng_data(command, data)``
+    - ``get_command_from_reply(data)``
 
     Methods possible to overload:
 
@@ -158,7 +213,7 @@
 
     This class contains information concerning the command name, the opcode or
     URL needed to issue the command, and information about datatypes expected by
-    SmartHomeNG and the device itself.
+    SmartHomeNG items and the device itself.
 
     Its contents will be initialized by the ``MD_Commands``-class while reading the
     command configuration.
@@ -178,9 +233,9 @@
 
     The class ``MD_Command_Str`` is an example for defining own commands according
     to your needs.
-
-    This utilizes strings and dicts to build request URLs as payload data for the
-    ``MD_Connection_Net_TCP_Client`` class.
+    This example utilizes strings and dicts to build request URLs as payload data
+    for the ``MD_Connection_Net_TCP_Request`` class.
+    It also demonstrates parameter substitution in command definitions.
 
 
     MD_Datatype
@@ -196,10 +251,10 @@
 
     All default datatype classes are imported from ``datatypes.py`` into the 'DT' module.
 
-    New devices can ship their own needed datatype classes in a file calles
-    ``datatypes.py`` in the device's folder.
+    New devices can ship their own needed datatype classes in a file called
+    ``datatypes.py`` in the devices' folder.
 
-    For details concernin API and implementation, refer to the reference classes as
+    For details concerning API and implementation, refer to the reference classes as
     examples.
 
     ``Datatype(fail_silent=True)``
@@ -259,6 +314,7 @@
 
 from collections import OrderedDict
 import importlib
+import builtins
 import logging
 import re
 import sys
@@ -266,16 +322,10 @@ import cherrypy
 import json
 from ast import literal_eval
 
-from .MD_Globals import *
-# from .MD_Command import MD_Command
-# from .MD_Commands import MD_Commands
-# from .MD_Connection import MD_Connection
-from .MD_Device import MD_Device
-# from . import datatypes as DT
-
 
 if __name__ == '__main__':
     # just needed for standalone mode
+    builtins.MD_standalone = True
 
     class SmartPlugin():
         pass
@@ -286,13 +336,18 @@ if __name__ == '__main__':
     import os
     BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
     sys.path.insert(0, BASE)
-    MD_standalone = True
+
+    from MD_Globals import *
+    from MD_Device import MD_Device
 
 else:
+    builtins.MD_standalone = False
+
     from lib.item import Items
     from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
 
-    MD_standalone = False
+    from .MD_Globals import *
+    from .MD_Device import MD_Device
 
 
 #############################################################################################################################################################################################################################################
@@ -399,16 +454,19 @@ class MultiDevice(SmartPlugin):
                 device_instance = None
                 try:
                     # get module
-                    device_module = importlib.import_module('.dev_' + device_id + '.device', __name__)
+                    mod_str = 'dev_' + device_id + '.device'
+                    if not MD_standalone:
+                        mod_str = '.' + mod_str
+                    device_module = importlib.import_module(mod_str, __name__)
                     # get class name
                     device_class = getattr(device_module, 'MD_Device')
                     # get class instance
-                    device_instance = device_class(device_id, device_name, MD_standalone, **param)
+                    device_instance = device_class(device_id, device_name, **param)
                 except AttributeError as e:
                     self.logger.error(f'Device {device_name}: importing class MD_Device from external module {"dev_" + device_id + "/device.py"} failed. Skipping device {device_name}. Error was: {e}')
                 except (ImportError):
                     self.logger.warning(f'Device {device_name}: importing external module {"dev_" + device_id + "/device.py"} failed, reverting to default MD_Device class')
-                    device_instance = MD_Device(device_id, device_name, MD_standalone, **param)
+                    device_instance = MD_Device(device_id, device_name, **param)
 
                 if device_instance:
                     # fill class dicts

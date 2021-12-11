@@ -27,8 +27,12 @@
 import logging
 import re
 
-from .MD_Globals import *
-from . import datatypes as DT
+if MD_standalone:
+    from MD_Globals import *
+    import datatypes as DT
+else:
+    from .MD_Globals import *
+    from . import datatypes as DT
 
 
 #############################################################################################################################################################################################################################################
@@ -225,3 +229,17 @@ class MD_Command_Str(MD_Command):
             return new_dict
         else:
             return node
+
+
+# class MD_Command_OnkelAndy(MD_Command_Str):
+# 
+#     def _parse_str(self, string, data=None):
+#         '''
+#         parse string with eval. Duck and cover...
+#         '''
+# 
+#         if data is not None:
+#             string = string.replace('$V', str(self._DT.get_send_data(data)))
+# 
+#         return eval(string)
+# 

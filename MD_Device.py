@@ -25,14 +25,16 @@
 #########################################################################
 
 import logging
+from importlib import import_module
 
-from .MD_Globals import *
-from .MD_Command import MD_Command
-from .MD_Commands import MD_Commands
-from .MD_Connection import (MD_Connection, MD_Connection_Net_TCP_Request,
-                            MD_Connection_Net_TCP_Reply, MD_Connection_Net_TCP_Client,
-                            MD_Connection_Net_TCP_Server, MD_Connection_Net_UDP_Server,
-                            MD_Connection_Serial_Async, MD_Connection_Serial_Client)
+if MD_standalone:
+    from MD_Globals import *
+    from MD_Commands import MD_Commands
+    from MD_Command import MD_Command
+else:
+    from .MD_Globals import *
+    from .MD_Command import MD_Command
+    from .MD_Commands import MD_Commands
 
 
 #############################################################################################################################################################################################################################################
@@ -55,7 +57,7 @@ class MD_Device(object):
     :type device_name: str
     '''
 
-    def __init__(self, device_id, device_name, standalone=False, **kwargs):
+    def __init__(self, device_id, device_name, **kwargs):
         '''
         This initializes the class object.
 
@@ -89,8 +91,6 @@ class MD_Device(object):
         self._commands_read = {}
         self._commands_initial = []
         self._commands_cyclic = {}
-
-        self._standalone = standalone
 
         # set device parameters, if any
         self._set_device_params()
@@ -134,8 +134,7 @@ class MD_Device(object):
     #     the MultiDevice class, the devices, connections and commands.
     #     You do not have an sh object, items or web interfaces.
     #
-    #     As this should not be present for the base class, the definition is
-    #     commented out.
+    #     As the base class should not have this method, it is commented out.
     #     '''
     #     pass
 
@@ -319,32 +318,21 @@ class MD_Device(object):
             if conn_type:
                 params[PLUGIN_ARG_CONNECTION] = conn_type
 
-        if conn_type == CONN_NET_TCP_REQ:
+        conn_class = 'MD_Connection_' + '_'.join([tok.capitalize() for tok in conn_type.split('_')])
+        self.logger.debug(f'Device {self.device}: wanting connection class named {conn_class}')
 
-            return MD_Connection_Net_TCP_Request(self.device_id, self.device, self.on_data_received, **self._plugin_params)
-        elif conn_type == CONN_NET_TCP_SYN:
+        mod_str = 'MD_Connection'
+        if not MD_standalone:
+            mod_str = '.'.join(self.__module__.split('.')[:-2]) + '.' + mod_str
 
-            return MD_Connection_Net_TCP_Reply(self.device_id, self.device, self.on_data_received, **self._plugin_params)
-        elif conn_type == CONN_NET_TCP_CLI:
-
-            return MD_Connection_Net_TCP_Client(self.device_id, self.device, self.on_data_received, **self._plugin_params)
-        elif conn_type == CONN_NET_TCP_SRV:
-
-            return MD_Connection_Net_TCP_Server(self.device_id, self.device, self.on_data_received, **self._plugin_params)
-        elif conn_type == CONN_NET_UDP_SRV:
-
-            return MD_Connection_Net_UDP_Server(self.device_id, self.device, self.on_data_received, **self._plugin_params)
-        elif conn_type == CONN_SER_CLI:
-
-            return MD_Connection_Serial_Client(self.device_id, self.device, self.on_data_received, **self._plugin_params)
-        elif conn_type == CONN_SER_ASYNC:
-
-            return MD_Connection_Serial_Async(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+        module = import_module(mod_str)
+        if hasattr(module, conn_class):
+            cls = getattr(module, conn_class)
         else:
-            return MD_Connection(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+            cls = getattr(module, 'MD_Connection')
 
-        # Please go on. There is nothing to see here. You shouldn't be here anyway...
-        self.logger.error(f'Device {self.device}: could not setup connection with {params}, device disabled')
+        self.logger.debug(f'Device {self.device}: using connection class {cls}')
+        return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
 
     #
     #
@@ -358,7 +346,7 @@ class MD_Device(object):
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overloaded to do something else.
         '''
-        self._commands = MD_Commands(self.device_id, self.device, MD_Command, self._standalone, **self._plugin_params)
+        self._commands = MD_Commands(self.device_id, self.device, MD_Command, **self._plugin_params)
         return True
 
 

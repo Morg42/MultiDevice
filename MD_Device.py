@@ -33,8 +33,8 @@ if MD_standalone:
     from MD_Command import MD_Command
 else:
     from .MD_Globals import *
-    from .MD_Command import MD_Command
     from .MD_Commands import MD_Commands
+    from .MD_Command import MD_Command
 
 
 #############################################################################################################################################################################################################################################
@@ -91,6 +91,10 @@ class MD_Device(object):
         self._commands_read = {}
         self._commands_initial = []
         self._commands_cyclic = {}
+
+        self._command_class = kwargs.get('command_class', None)
+        if self._command_class is None:
+            self._command_class = MD_Command
 
         # set device parameters, if any
         self._set_device_params()
@@ -357,7 +361,10 @@ class MD_Device(object):
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overloaded to do something else.
         '''
-        self._commands = MD_Commands(self.device_id, self.device, MD_Command, **self._plugin_params)
+        cls = self._command_class
+        if cls is None:
+            cls = MD_Command
+        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
         return True
 
 

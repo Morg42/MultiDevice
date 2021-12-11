@@ -626,7 +626,7 @@ class MultiDevice(SmartPlugin):
                     command = self._items_write[item.id()]['command']
                     self.logger.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ for device {device_name}')
                     if not device.send_command(command, item()):
-                        self.logger.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ for device {device_name}, resetting item value')
+                        self.logger.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ for device {device_name} failed, resetting item value')
                         item(item.property.last_value, self.get_shortname())
                         return None
 

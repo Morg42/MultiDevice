@@ -154,6 +154,7 @@ class MD_Device(object):
 
         if not self._connection:
             self.logger.warning(f'Device {self.device}: trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
+            return False
 
         if not self._connection.connected:
             self._connection.open()

@@ -161,7 +161,7 @@ class MD_Device(object):
                 self.logger.warning(f'Device {self.device}: trying to send command {command} with value {value}, but connection could not be established.')
                 return False
 
-        data_dict = self._commands.get_send_data(command, value)
+        data_dict = self._transform_send_data(self._commands.get_send_data(command, value))
         self.logger.debug(f'Device {self.device}: command {command} with value {value} yielded send data_dict {data_dict}')
 
         # if an error occurs on sending, an exception is thrown
@@ -273,6 +273,16 @@ class MD_Device(object):
     # check if overloading needed
     #
     #
+
+    def _transform_send_data(self, data_dict):
+        '''
+        This method provides a way to adjust, modify or transform all data before
+        it is sent to the device.
+        This might be to add general parameters, add/change line endings or
+        add your favourite pets' name... 
+        By default, nothing happens here.
+        '''
+        return data_dict
 
     def _set_device_params(self, **kwargs):
         '''

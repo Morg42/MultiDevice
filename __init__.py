@@ -125,6 +125,7 @@
     Methods possibly needed to overload for inherited classes:
 
     - ``run_standalone()``
+    - ``_transform_send_data(data_dict)``
     - ``_set_device_params(**kwargs)``
     - ``_get_connection()``
 

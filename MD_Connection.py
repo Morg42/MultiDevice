@@ -487,41 +487,6 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         return False
 
 
-class MD_Connection_Net_Tcp_Server(MD_Connection):
-    '''
-    This class implements a TCP connection using a listener with asynchronous
-    callback for receiving data. Callbacks for incoming connections and disconnect
-    events can be provided, they are not utilized by this class as of now.
-
-    The callbacks return a `ConnectionClient` from `lib.network`. For receiving
-    data this is handled internally;
-
-    Data received independently from clients is dispatched via callback.
-    '''
-    def __init__(self, device_id, device_name, data_received_callback, incoming_connection_callback, disconnected_callback, **kwargs):
-
-        # get MultiDevice logger
-        self.logger = logging.getLogger(__name__)
-
-        self.logger.debug(f'Device {device_name}: connection initializing from {self.__class__.__name__} with arguments {kwargs}')
-
-        # set class properties
-        self.device_id = device_id
-        self.device = device_name
-        self.connected = False
-
-        self._params = kwargs
-        self._data_received_callback = data_received_callback
-        self._incoming_connection_callback = incoming_connection_callback
-        self._disconnected_callback = disconnected_callback
-
-        # check if some of the arguments are usable
-        self._set_connection_params()
-
-        # tell someone about our actual class
-        self.logger.debug(f'Device {self.device}: connection initialized from {self.__class__.__name__}')
-
-
 class MD_Connection_Net_Udp_Server(MD_Connection):
     pass
 

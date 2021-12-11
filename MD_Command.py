@@ -89,6 +89,9 @@ class MD_Command(object):
             self.logger.debug(f'Device {self.device}: learned command {command} with device datatype {dt_class}')
 
     def get_send_data(self, data):
+
+        cmd = None
+
         # create read data
         if data is None:
             if self.read_cmd:
@@ -100,6 +103,9 @@ class MD_Command(object):
                 cmd = self.write_cmd
             else:
                 cmd = self.opcode
+
+        if cmd is None:
+            self.logger.info(f'Device {self.device}: while creating send_data for command {self.name}, no command payload was created. Check commands.py configuration...')
 
         return {'payload': cmd, 'data': self._DT.get_send_data(data)}
 

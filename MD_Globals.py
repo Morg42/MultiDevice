@@ -47,12 +47,11 @@ PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, 
 CONN_NET_TCP_REQ        = 'net_tcp_request'  # TCP client connection with URL-based requests
 CONN_NET_TCP_SYN        = 'net_tcp_reply'    # persistent TCP client connection with immediate query-reply logic
 CONN_NET_TCP_CLI        = 'net_tcp_client'   # persistent TCP client connection with async callback for responses
-CONN_NET_TCP_SRV        = 'net_tcp_server'   # TCP server connection with async data callback
 CONN_NET_UDP_SRV        = 'net_udp_server'   # UDP server connection with async data callback
 CONN_SER_CLI            = 'serial_client'    # serial connection with query-reply logic
 CONN_SER_ASYNC          = 'serial_async'     # serial connection with async data callback
 
-CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_SYN, CONN_NET_TCP_CLI, CONN_NET_TCP_SRV, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
+CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_SYN, CONN_NET_TCP_CLI, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
 
 # item attributes (as defines in plugin.yaml)
 ITEM_ATTR_DEVICE        = 'md_device'

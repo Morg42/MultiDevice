@@ -27,7 +27,7 @@ commands = {
         'read': True,
         'write': False,
         'shng_type': 'dict',
-        'dev_datatype': 'shng_ws',
+        'dev_datatype': 'webservices',
         'read_cmd': '$C'
     },
     # dev_type shng_ws means create URL from opcode with parameters
@@ -38,7 +38,7 @@ commands = {
         'read': True,
         'write': True,
         'shng_type': 'bool',
-        'dev_datatype': 'shng_ws',
+        'dev_datatype': 'webservices',
         'read_cmd': '$C',
         'write_cmd': '$C/$V',
         'read_data': {'dict': ['value']}

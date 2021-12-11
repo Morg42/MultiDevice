@@ -48,23 +48,61 @@
 import json
 import logging
 
+# default / reference datatypes
 datatypes = (
     'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray', 'json'
 )
 
 
 class Datatype(object):
+    '''
+    This class describes the basic structure of all derived datatype classes.
 
+    Basically, it defines the conversion from item value to device "value" and
+    vice versa, e.g. bool <-> text, float <-> encoded number, or 
+    str <-> int for clear text status messages in SmartHomeNG.
+
+    To define own Datatype classes, define derived class and overload at leas
+    get_shng_data() and get_send_data().
+    '''
     def __init__(self, fail_silent=True):
+        '''
+        :param fail_silent: keep silent on data conversion error or raise exception
+        :type fail_silent: bool
+        '''
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger(__name__)
 
         self._silent = fail_silent
 
     def get_send_data(self, data):
+        '''
+        take (item value) data and return value in a format fit for the device
+        In the base class, this just returns whatever it gets.
+
+        :param data: arbitrary data (usually item value)
+        :return: data in device-compatible format
+        '''
         return data
 
     def get_shng_data(self, data, type=None):
+        '''
+        take data from device reply and try and convert it into SmartHomeNG-
+        compatible type (item type).
+
+        By default, this returns data according to the default item type
+        associated with this Datatype class.
+        Optionally, the desired return type can be specified (as string), in
+        which case the method is expected to return the requested type. As a
+        basic 'casting show' is implemented in the base class, derived classes
+        may call the base class' get_shng_data if 'type' is specified.
+        Beware of special needs if converting complex data types.
+
+        :param data: value to convert
+        :param type: type of return value
+        :type type: str
+        :return: converted value
+        '''
         if type is None or type not in datatypes:
             return data
 
@@ -251,8 +289,8 @@ class DT_json(Datatype):
         return super().get_shng_data(data, type)
 
 
-class DT_shng_ws(Datatype):
-    ''' extract value from json '''
+class DT_webservices(Datatype):
+    ''' extract value of key 'value' from json data, e.g. for webservices plugin '''
     def get_send_data(self, data):
         return data
 

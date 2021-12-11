@@ -104,9 +104,6 @@ class MD_Command(object):
             else:
                 cmd = self.opcode
 
-        if cmd is None:
-            self.logger.info(f'Device {self.device}: while creating send_data for command {self.name}, no command payload was created. Check commands.py configuration...')
-
         return {'payload': cmd, 'data': self._DT.get_send_data(data)}
 
     def get_shng_data(self, data):

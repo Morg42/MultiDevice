@@ -14,7 +14,7 @@ commands = {
         # shng item type should be bool for this command
         'item_type': 'bool',
         # device type / data conversion is DT_PioPwr
-        'dev_type': 'PioPwr',
+        'dev_datatype': 'PioPwr',
         # reply token(s) identifying this command
         'reply_token': ['PWR']
     }

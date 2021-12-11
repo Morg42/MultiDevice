@@ -167,16 +167,16 @@ class MD_Commands(object):
         '''
         for cmd in commands:
             kw = {}
-            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_type', 'read_cmd', 'write_cmd', 'read_data', 'reply_token'):
+            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token'):
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 
             dt_class = None
-            dev_type = kw.get('dev_type', '')
-            if dev_type:
-                dt_class = self._dt.get('DT_' + dev_type)
+            dev_datatype = kw.get('dev_datatype', '')
+            if dev_datatype:
+                dt_class = self._dt.get('DT_' + dev_datatype)
 
             if not dt_class:
-                self.logger.error(f'Device {device_name}: importing commands found invalid datatype {dev_type}, replacing with DT_raw. Check function of device')
+                self.logger.error(f'Device {device_name}: importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})

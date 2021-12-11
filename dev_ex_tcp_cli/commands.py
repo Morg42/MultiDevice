@@ -8,7 +8,7 @@ commands = {
         'read': True,
         'write': False,
         'shng_type': 'str',
-        'dev_type': 'raw',
+        'dev_datatype': 'raw',
         'read_cmd': '$C'
     },
     # shng_type dict means return (string) response as dict
@@ -17,7 +17,7 @@ commands = {
         'read': True,
         'write': False,
         'shng_type': 'dict',
-        'dev_type': 'raw',
+        'dev_datatype': 'raw',
         'read_cmd': '$C'
     },
     # dev_type shng_ws means create URL from opcode with parameters
@@ -27,7 +27,7 @@ commands = {
         'read': True,
         'write': False,
         'shng_type': 'dict',
-        'dev_type': 'shng_ws',
+        'dev_datatype': 'shng_ws',
         'read_cmd': '$C'
     },
     # dev_type shng_ws means create URL from opcode with parameters
@@ -38,7 +38,7 @@ commands = {
         'read': True,
         'write': True,
         'shng_type': 'bool',
-        'dev_type': 'shng_ws',
+        'dev_datatype': 'shng_ws',
         'read_cmd': '$C',
         'write_cmd': '$C/$V',
         'read_data': {'dict': ['value']}

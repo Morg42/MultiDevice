@@ -86,7 +86,7 @@ class MD_Command(object):
 
         # only log if base class. Derived classes log their own messages
         if self.__class__ is MD_Command:
-            self.logger.debug(f'Device {self.device}: learned command {command} with device data type {dt_class}')
+            self.logger.debug(f'Device {self.device}: learned command {command} with device datatype {dt_class}')
 
     def get_send_data(self, data):
         # create read data
@@ -163,7 +163,7 @@ class MD_Command_Str(MD_Command):
 
         self._get_kwargs(('read_cmd', 'write_cmd', 'read_data', 'params', 'values', 'bounds'), **kw)
 
-        self.logger.debug(f'Device {self.device}: learned command {self.name} with device data type {dt_class.__name__}')
+        self.logger.debug(f'Device {self.device}: learned command {self.name} with device datatype {dt_class.__name__}')
 
     def get_send_data(self, data):
         # create read data

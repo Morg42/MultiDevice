@@ -11,7 +11,7 @@ commands = {
         'read_cmd': '',
         'write_cmd': '',
         'item_type': 'bool',
-        'dev_type': 'raw',
+        'dev_datatype': 'raw',
         'reply_token': ['']
     }
 }

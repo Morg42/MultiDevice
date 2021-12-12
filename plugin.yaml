@@ -15,8 +15,8 @@ plugin:
     # documentation: https://github.com/smarthomeNG/smarthome/wiki/MultiDevice-Plugin
     # support: https://knx-user-forum.de/forum/supportforen/smarthome-py
 
-    version: 0.0.2
-    sh_minversion: 1.7
+    version: 0.0.3
+    sh_minversion: 1.8.2
     py_minversion: 3.6
     multi_instance: false
     restartable: true

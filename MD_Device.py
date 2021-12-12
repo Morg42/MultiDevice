@@ -25,6 +25,7 @@
 #########################################################################
 
 import logging
+import time
 from importlib import import_module
 
 if MD_standalone:
@@ -85,6 +86,9 @@ class MD_Device(object):
         self.device = device_name
         self.alive = False
         self._runtime_data_set = False
+        self._initial_values_read = False
+        self._cyclic_update_active = False
+        self._plugin = self._plugin_params.get('plugin', None)
 
         self._data_received_callback = None
         self._commands_read = {}
@@ -125,9 +129,16 @@ class MD_Device(object):
         self.alive = True
         self._connection.open()
 
+        if self._connection.connected:
+            self._read_initial_values()
+            if not MD_standalone:
+                self._create_cyclic_scheduler()
+
     def stop(self):
         self.logger.debug('stop method called')
         self.alive = False
+        if self._plugin and self._plugin.scheduler_get(self.device + '_cyclic'):
+            self._plugin.scheduler_remove(self.device + '_cyclic')
         self._connection.close()
 
     # def run_standalone(self):
@@ -368,9 +379,95 @@ class MD_Device(object):
 
     #
     #
-    # private utility methods
+    # utility methods
     #
     #
+
+    def _create_cyclic_scheduler(self):
+        '''
+        Setup the scheduler to handle cyclic read commands and find the proper time for the cycle.
+        '''
+        if not self.alive:
+            return
+
+        # did we get the plugin instance?
+        if not self._plugin:
+            return
+
+        # find shortest cycle
+        shortestcycle = -1
+        for cmd in self._commands_cyclic:
+            cycle = self._commands_cyclic[cmd]['cycle']
+            if shortestcycle == -1 or cycle < shortestcycle:
+                shortestcycle = cycle
+
+        # Start the worker thread
+        if shortestcycle != -1:
+
+            # Balance unnecessary calls and precision
+            workercycle = int(shortestcycle / 2)
+
+            # just in case it already exists...
+            if self._plugin.scheduler_get(self.device + '_cyclic'):
+                self._plugin.scheduler_remove(self.device + '_cyclic')
+            self._plugin.scheduler_add(self.device + '_cyclic', self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
+            self.logger.info(f'Added cyclic worker thread {self.device}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s')
+
+    def _read_initial_values(self):
+        '''
+        Read all values configured to be read at startup
+        '''
+        if self._commands_initial and self._commands_initial != [] and not self._initial_values_read:
+            self.logger.info('Starting initial read commands')
+            for cmd in self._commands_initial:
+                self.logger.debug(f'Sending initial command {cmd}')
+                self.send_command(cmd)
+            self._initial_values_read = True
+            self.logger.info('Initial read commands sent')
+        elif self._initial_values_read:
+            self.logger.debug('_read_initial_values() called, but inital values were already read. Ignoring')
+
+    def _read_cyclic_values(self):
+        '''
+        Recall function for cyclic scheduler. Reads all values configured to be read cyclically.
+        '''
+        # check if another cyclic cmd run is still active
+        if self._cyclic_update_active:
+            self.logger.warning('Triggered cyclic command read, but previous cyclic run is still active. Check device and cyclic configuration (too much/too short?)')
+            return
+        else:
+            self.logger.info('Triggering cyclic command read')
+ 
+        # set lock
+        self._cyclic_update_active = True
+        currenttime = time.time()
+        read_cmds = 0
+        todo = []
+        for cmd in self._commands_cyclic:
+ 
+            # Is the command already due?
+            if self._commands_cyclic[cmd]['next'] <= currenttime:
+                todo.append(cmd)
+ 
+        for cmd in todo:
+            # as this loop can take considerable time, repeatedly check if shng wants to stop
+            if not self.alive:
+                self.logger.info('Stop command issued, cancelling cyclic read')
+                return
+
+            # also leave early on disconnect
+            if not self._connection.connected:
+                self.logger.info('Disconnect detected, cancelling cyclic read')
+                return
+
+            self.logger.debug(f'Triggering cyclic read of command {cmd}')
+            self.send_command(cmd)
+            self._commands_cyclic[cmd]['next'] = currenttime + self._commands_cyclic[cmd]['cycle']
+            read_cmds += 1
+ 
+        self._cyclic_update_active = False
+        if read_cmds:
+            self.logger.debug(f'Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items')
 
     def _read_configuration(self):
         '''

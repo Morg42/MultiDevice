@@ -368,7 +368,7 @@ class MultiDevice(SmartPlugin):
     It also looks good.
     '''
 
-    PLUGIN_VERSION = '0.0.2'
+    PLUGIN_VERSION = '0.0.3'
 
     def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         '''
@@ -462,12 +462,12 @@ class MultiDevice(SmartPlugin):
                     # get class name
                     device_class = getattr(device_module, 'MD_Device')
                     # get class instance
-                    device_instance = device_class(device_id, device_name, **param)
+                    device_instance = device_class(device_id, device_name, plugin=self, **param)
                 except AttributeError as e:
                     self.logger.error(f'Importing class MD_Device from external module {"dev_" + device_id + "/device.py"} failed. Skipping device {device_name}. Error was: {e}')
                 except (ImportError):
                     self.logger.warning(f'Importing external module {"dev_" + device_id + "/device.py"} for device {device_name} failed, reverting to default MD_Device class')
-                    device_instance = MD_Device(device_id, device_name, **param)
+                    device_instance = MD_Device(device_id, device_name, plugin=self, **param)
 
                 if device_instance:
 
@@ -568,7 +568,7 @@ class MultiDevice(SmartPlugin):
                     if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
                         cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                         # if cycle is already set for command, use the lower value of the two
-                        self._commands_cyclic[device_name][command] = min(cycle, self._commands_cyclic[device_name].get(command, cycle))
+                        self._commands_cyclic[device_name][command] = { 'cycle': min(cycle, self._commands_cyclic[device_name].get(command, cycle)), 'next': 0 }
                         self.logger.debug(f'Item {item} saved for cyclic reading command {command} on device {device_name}')
 
                 # command marked for writing

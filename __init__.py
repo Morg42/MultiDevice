@@ -317,6 +317,7 @@ import importlib
 import builtins
 import logging
 import re
+import os
 import sys
 import cherrypy
 import json
@@ -345,6 +346,7 @@ else:
 
     from lib.item import Items
     from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+    import lib.shyaml as shyaml
 
     from .MD_Globals import *
     from .MD_Device import MD_Device
@@ -470,13 +472,35 @@ class MultiDevice(SmartPlugin):
 
                 if device_instance:
 
+                    # create logger for device identity to use in update_item() and store in _devices dict
                     dev_logger = logging.getLogger(__name__ + f'.{device_name}')
+
                     # fill class dicts
                     self._devices[device_name] = {'id': device_id, 'device': device_instance, 'logger': dev_logger, 'params': param}
                     self._commands_read[device_name] = {}
                     self._commands_initial[device_name] = []
                     self._commands_cyclic[device_name] = {}
                     dev_logger = None
+
+                    # check for and load struct definitions
+                    if not MD_standalone:
+                        self.logger.debug(f'trying to load struct definitions for device {device_name} from folder dev_{device_id}')
+                        struct_file = os.path.join(self._plugin_dir, 'dev_' + device_id, 'struct.yaml')
+                        raw_struct = shyaml.yaml_load(struct_file, ordered=True, ignore_notfound=True)
+
+                        # if valid struct definition is found
+                        if raw_struct is not None:
+
+                            self.logger.debug(f'loaded {len(raw_struct.keys())} structs for processing')
+                            # replace all mentions of "DEVICE" with the plugin/device's name
+                            try:
+                                mod_struct = eval(str(raw_struct).replace('DEVICENAME', device_name))
+                            except Exception as e:
+                                self.logger.warning(f'importing structs for device {device_name} failed. Check struct definitions')
+                            else:
+                                for struct_name in mod_struct:
+                                    self.logger.debug(f'adding struct {struct_name}')
+                                    self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_name, struct_name, mod_struct[struct_name])
 
         if not self._devices:
             self._init_complete = False

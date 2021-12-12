@@ -95,6 +95,8 @@ class MD_Commands(object):
         raise Exception(f'command {command} not found in commands')
 
     def get_command_from_reply(self, data):
+        if type(data) in (bytes, bytearray):
+            line = str(data.decode('utf-8'))
         for command in self._commands:
             tokens = getattr(self._commands[command], 'reply_token', None)
             if tokens:
@@ -102,7 +104,7 @@ class MD_Commands(object):
                     tokens = [tokens]
                 for token in tokens:
                     # NOTE: if token == '', this would always match. Maybe make this a feature?
-                    if token != '' and token == data[:len(token)]:
+                    if token != '' and token == line[:len(token)]:
                         return command
         return None
 

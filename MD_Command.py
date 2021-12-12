@@ -59,16 +59,18 @@ class MD_Command(object):
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
+
+        # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, 'logger'):
-            self.logger = logging.getLogger(__name__)
+            self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
 
         if not device_name:
-            self.logger.warning(f'Device (unknown): building command {command} without a device, aborting')
+            self.logger.warning(f'building command {command} without a device, aborting')
         else:
             self.device = device_name
 
         if not command:
-            self.logger.warning(f'Device {self.device}: building command without a name, aborting')
+            self.logger.warning(f'building command without a name, aborting')
             return
         else:
             self.name = command
@@ -81,12 +83,12 @@ class MD_Command(object):
         try:
             self._DT = dt_class()
         except Exception as e:
-            self.logger.error(f'Device {device_name}: building command {command} failed on instantiating datatype class {dt_class}. Error was {e}')
+            self.logger.error(f'building command {command} failed on instantiating datatype class {dt_class}. Error was {e}')
             self._DT = DT.DT_raw()
 
         # only log if base class. Derived classes log their own messages
         if self.__class__ is MD_Command:
-            self.logger.debug(f'Device {self.device}: learned command {command} with device datatype {dt_class}')
+            self.logger.debug(f'learned command {command} with device datatype {dt_class}')
 
     def get_send_data(self, data):
 
@@ -166,7 +168,7 @@ class MD_Command_Str(MD_Command):
 
         self._get_kwargs(('read_cmd', 'write_cmd', 'read_data', 'params', 'values', 'bounds'), **kw)
 
-        self.logger.debug(f'Device {self.device}: learned command {self.name} with device datatype {dt_class.__name__}')
+        self.logger.debug(f'learned command {self.name} with device datatype {dt_class.__name__}')
 
     def get_send_data(self, data):
         # create read data

@@ -381,7 +381,7 @@ class MultiDevice(SmartPlugin):
 
         self.logger.debug(f'Initializung MultiDevice-Plugin as {__name__}')
 
-        self._devices = {}              # contains all configured devices - <device_name>: {'id': <device_id>, 'device': <class-instance>, 'params': {'param1': val1, 'param2': val2...}}
+        self._devices = {}              # contains all configured devices - <device_name>: {'id': <device_id>, 'device': <class-instance>, 'logger': <logger-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_name': <device_name>, 'command': <command>}
         self._items_readall = {}        # contains items which trigger 'read all' - <item_id>: <device_name>
         self._commands_read = {}        # contains all commands per device with read command - <device_name>: {<command>: <item_object>}
@@ -447,7 +447,7 @@ class MultiDevice(SmartPlugin):
                     device_id = device_name = None
 
             if device_name and device_name in self._devices:
-                self.logger.warning(f'Device {self.device}: duplicate device name {device_name} configured for device_ids {device_id} and {self._devices[device_name]["id"]}. Skipping processing of device id {device_id}')
+                self.logger.warning(f'Duplicate device name {device_name} configured for device_ids {device_id} and {self._devices[device_name]["id"]}. Skipping processing of device id {device_id}')
                 break
 
             # did we get a device id?
@@ -464,17 +464,20 @@ class MultiDevice(SmartPlugin):
                     # get class instance
                     device_instance = device_class(device_id, device_name, **param)
                 except AttributeError as e:
-                    self.logger.error(f'Device {device_name}: importing class MD_Device from external module {"dev_" + device_id + "/device.py"} failed. Skipping device {device_name}. Error was: {e}')
+                    self.logger.error(f'Importing class MD_Device from external module {"dev_" + device_id + "/device.py"} failed. Skipping device {device_name}. Error was: {e}')
                 except (ImportError):
-                    self.logger.warning(f'Device {device_name}: importing external module {"dev_" + device_id + "/device.py"} failed, reverting to default MD_Device class')
+                    self.logger.warning(f'Importing external module {"dev_" + device_id + "/device.py"} for device {device_name} failed, reverting to default MD_Device class')
                     device_instance = MD_Device(device_id, device_name, **param)
 
                 if device_instance:
+
+                    dev_logger = logging.getLogger(__name__ + f'.{device_name}')
                     # fill class dicts
-                    self._devices[device_name] = {'id': device_id, 'device': device_instance, 'params': param}
+                    self._devices[device_name] = {'id': device_id, 'device': device_instance, 'logger': dev_logger, 'params': param}
                     self._commands_read[device_name] = {}
                     self._commands_initial[device_name] = []
                     self._commands_cyclic[device_name] = {}
+                    dev_logger = None
 
         if not self._devices:
             self._init_complete = False
@@ -655,10 +658,10 @@ class MultiDevice(SmartPlugin):
             # check if combination of device_name and command is configured for reading
             if device_name in self._commands_read and command in self._commands_read[device_name]:
                 item = self._commands_read[device_name][command]
-                self.logger.debug(f'Device {device_name}: data update with command {command} and value {value} for item {item.id()}')
+                self.logger.debug(f'Device {device_name} updated command {command} with value {value} for item {item.id()}')
                 item(value, self.get_shortname() + "." + device_name)
             else:
-                self.logger.warning(f'Device {device_name}: data update with command {command} and value {value} not assigned to any item, discarding data')
+                self.logger.warning(f'Device {device_name} updated command {command} with value {value}, not assigned to any item, discarding data')
 
     def _update_device_params(self, device_name):
         '''
@@ -671,7 +674,7 @@ class MultiDevice(SmartPlugin):
         :param device_name: device name (surprise!)
         :type device:name: string
         '''
-        self.logger.debug(f'Device {device_name}: updating device parameters')
+        self.logger.debug(f'updating parameters for device {device_name}')
         device = self._get_device(device_name)
         if device:
             device.update_device_params(**self._get_device_params(device_name))

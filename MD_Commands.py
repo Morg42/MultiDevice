@@ -53,10 +53,11 @@ class MD_Commands(object):
     Furthermore, this could be overloaded if so needed for special extensions.
     '''
     def __init__(self, device_id, device_name, command_obj_class=MD_Command, **kwargs):
-        if not hasattr(self, 'logger'):
-            self.logger = logging.getLogger(__name__)
 
-        self.logger.debug(f'Device {device_name}: commands initializing from {command_obj_class.__name__}')
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
+
+        self.logger.debug(f'commands initializing from {command_obj_class.__name__}')
         self._commands = {}
         self.device = device_name
         self._device_id = device_id
@@ -67,9 +68,9 @@ class MD_Commands(object):
         self._read_commands(device_name)
 
         if self._commands:
-            self.logger.debug(f'Device {self.device}: commands initialized')
+            self.logger.debug('commands initialized')
         else:
-            self.logger.error(f'Device {self.device}: commands could not be initialized')
+            self.logger.error('commands could not be initialized')
 
     def is_valid_command(self, command, read=None):
         if command not in self._commands:
@@ -85,13 +86,13 @@ class MD_Commands(object):
         if command in self._commands:
             return self._commands[command].get_send_data(data)
 
-        return None
+        raise Exception(f'command {command} not found in commands')
 
     def get_shng_data(self, command, data):
         if command in self._commands:
             return self._commands[command].get_shng_data(data)
 
-        return None
+        raise Exception(f'command {command} not found in commands')
 
     def get_command_from_reply(self, data):
         for command in self._commands:
@@ -152,9 +153,9 @@ class MD_Commands(object):
             # get content
             commands = cmd_module.commands
         except ImportError:
-            self.logger.error(f'Device {device_name}: importing external module {"dev_" + self._device_id + "/commands.py"} failed')
+            self.logger.error(f'importing external module {"dev_" + self._device_id + "/commands.py"} failed')
         except Exception as e:
-            self.logger.error(f'Device {device_name}: importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}')
+            self.logger.error(f'importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}')
         if commands and isinstance(commands, dict):
             self._parse_commands(device_name, commands)
 
@@ -178,10 +179,10 @@ class MD_Commands(object):
                 dt_class = self._dt.get(class_name)
 
             if kw.get('read', False) and kw.get('opcode', '') == '' and kw.get('read_cmd', '') == '':
-                self.logger.info(f'Device {self.device}: command {cmd} will not create a command for reading values. Check commands.py configuration...')
+                self.logger.info(f'command {cmd} will not create a command for reading values. Check commands.py configuration...')
             if kw.get('write', False) and kw.get('opcode', '') == '' and kw.get('write_cmd', '') == '':
-                self.logger.info(f'Device {self.device}: command {cmd} will not create a command for writing values. Check commands.py configuration...')
+                self.logger.info(f'command {cmd} will not create a command for writing values. Check commands.py configuration...')
             if not dt_class:
-                self.logger.error(f'Device {device_name}: importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device')
+                self.logger.error(f'importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})

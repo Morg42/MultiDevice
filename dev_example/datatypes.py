@@ -11,7 +11,6 @@ class DT_Example(DT.Datatype):
     ''' Example class for Datatype definitions. Not used in class. '''
     def __init__(self, fail_silent=True):
         super().__init__(fail_silent)
-        self.logger.info(f'DT class {self.__class__.__name__} initialized. Yay.')
 
     def get_send_data(self, data):
         return data

@@ -67,12 +67,11 @@ class MD_Device(object):
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn't need to be changed.
         '''
-        # get MultiDevice logger (if not already defined by subclass)
-        # NOTE: later on, decide if every device logs to its own logger?
+        # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, 'logger'):
-            self.logger = logging.getLogger(__name__)
+            self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
 
-        self.logger.debug(f'Device {device_name}: device initializing from {self.__class__.__name__} with arguments {kwargs}')
+        self.logger.debug(f'device {device_name} initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # the connection object
         self._connection = None
@@ -101,33 +100,33 @@ class MD_Device(object):
 
         # try to read configuration files
         if not self._read_configuration():
-            self.logger.error(f'Device {self.device}: configuration could not be read, device disabled')
+            self.logger.error('configuration could not be read, device disabled')
             return
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
-            self.logger.error(f'Device {self.device}: could not setup connection with {kwargs}, device disabled')
+            self.logger.error(f'could not setup connection with {kwargs}, device disabled')
             return
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
-            self.logger.debug(f'Device {self.device}: device initialized from {self.__class__.__name__}')
+            self.logger.debug(f'device initialized from {self.__class__.__name__}')
 
     def start(self):
         if self.alive:
             return
         if self._runtime_data_set:
-            self.logger.debug(f'Device {self.device}: start method called')
+            self.logger.debug('start method called')
         else:
-            self.logger.error(f'Device {self.device}: start method called, but runtime data not set, device disabled')
+            self.logger.error('start method called, but runtime data not set, device disabled')
             return
 
         self.alive = True
         self._connection.open()
 
     def stop(self):
-        self.logger.debug(f'Device {self.device}: stop method called')
+        self.logger.debug('stop method called')
         self.alive = False
         self._connection.close()
 
@@ -153,37 +152,51 @@ class MD_Device(object):
         :rtype: bool
         '''
         if not self.alive:
-            self.logger.warning(f'Device {self.device}: trying to send command {command} with value {value}, but device is not active.')
+            self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
             return False
 
         if not self._connection:
-            self.logger.warning(f'Device {self.device}: trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
+            self.logger.warning(f'trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
             return False
 
         if not self._connection.connected:
             self._connection.open()
             if not self._connection.connected:
-                self.logger.warning(f'Device {self.device}: trying to send command {command} with value {value}, but connection could not be established.')
+                self.logger.warning(f'trying to send command {command} with value {value}, but connection could not be established.')
                 return False
 
-        data_dict = self._transform_send_data(self._commands.get_send_data(command, value))
-        self.logger.debug(f'Device {self.device}: command {command} with value {value} yielded send data_dict {data_dict}')
+        try:
+            data_dict = self._commands.get_send_data(command, value)
+        except Exception as e:
+            self.logger.warning(f'command {command} with value {value} produced error {e} on converting value, aborting')
+            return False
+
+        if data_dict['payload'] is None or data_dict['payload'] == '':
+            self.logger.warning(f'command {command} with value {value} yielded empty command payload, aborting')
+            return False
+
+        data_dict = self._transform_send_data(data_dict)
+        self.logger.debug(f'command {command} with value {value} yielded send data_dict {data_dict}')
 
         # if an error occurs on sending, an exception is thrown
         try:
             result = self._connection.send(data_dict)
         except Exception as e:
-            self.logger.debug(f'Device {self.device}: error on sending command {command}, error was {e}')
+            self.logger.debug(f'error on sending command {command}, error was {e}')
             return False
 
         if result:
-            self.logger.debug(f'Device {self.device}: command {command} received result of {result}')
-            value = self._commands.get_shng_data(command, result)
-            self.logger.debug(f'Device {self.device}: command {command} received result {result}, converted to value {value}')
-            if self._data_received_callback:
-                self._data_received_callback(self.device, command, value)
-            else:
-                self.logger.warning(f'Device {self.device}: received data {value} for command {command}, but _data_received_callback is not set. Discarding data.')
+            self.logger.debug(f'command {command} received result {result}')
+            try:
+                value = self._commands.get_shng_data(command, result)
+            except Exception as e:
+                self.logger.info(f'command {command} received result {result}, error {e} occurred while converting. Discarding result.')
+            else:            
+                self.logger.debug(f'command {command} received result {result}, converted to value {value}')
+                if self._data_received_callback:
+                    self._data_received_callback(self.device, command, value)
+                else:
+                    self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
         return True
 
     def on_data_received(self, command, data):
@@ -196,22 +209,26 @@ class MD_Device(object):
         :type command: str
         '''
         if command is not None:
-            self.logger.debug(f'Device {self.device}: data received for command {command}: {data}')
+            self.logger.debug(f'received data "{data}" for command {command}')
         else:
             # command == None means that we got raw data from a callback and don't know yet to
             # which command this belongs to. So find out...
-            self.logger.debug(f'Device {self.device}: data received: {data} without command specification')
+            self.logger.debug(f'received data "{data}" without command specification')
             command = self._commands.get_command_from_reply(data)
             if not command:
-                self.logger.debug(f'Device {self.device}: data {data} did not identify a known command, ignoring it')
+                self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
                 return
 
-        value = self._commands.get_shng_data(command, data)
-        self.logger.debug(f'Device {self.device}: data received for command {command}: {data} converted to value {value}')
-        if self._data_received_callback:
-            self._data_received_callback(self.device, command, value)
+        try:
+            value = self._commands.get_shng_data(command, data)
+        except Exception as e:
+            self.logger.info(f'received data "{data}" for command {command}, error {e} occurred while converting. Discarding data.')
         else:
-            self.logger.warning(f'Device {self.device}: received data {value} for command {command}, but _data_received_callback is not set. Discarding data.')
+            self.logger.debug(f'received data "{data}" for command {command} converted to value {value}')
+            if self._data_received_callback:
+                self._data_received_callback(self.device, command, value)
+            else:
+                self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
     def read_all_commands(self):
         '''
@@ -248,7 +265,7 @@ class MD_Device(object):
             self._data_received_callback = kwargs['callback']
             self._runtime_data_set = True
         except KeyError as e:
-            self.logger.error(f'Device {self.device}: error in runtime data: {e}. Stopping device.')
+            self.logger.error(f'error in runtime data: {e}. Stopping device.')
 
     def update_device_params(self, **kwargs):
         '''
@@ -257,11 +274,11 @@ class MD_Device(object):
         overload as needed.
         '''
         if self.alive:
-            self.logger.warning(f'Device {self.device}: tried to update params with {kwargs}, but device is still running. Ignoring request')
+            self.logger.warning(f'tried to update params with {kwargs}, but device is still running. Ignoring request')
             return
 
         if not kwargs:
-            self.logger.warning(f'Device {self.device}: update_device_params called without new parameters. Don\'t know what to update.')
+            self.logger.warning('update_device_params called without new parameters. Don\'t know what to update.')
             return
 
         # merge new params with self._plugin_params, overwrite old values if necessary
@@ -334,7 +351,7 @@ class MD_Device(object):
                 params[PLUGIN_ARG_CONNECTION] = conn_type
 
         conn_class = 'MD_Connection_' + '_'.join([tok.capitalize() for tok in conn_type.split('_')])
-        self.logger.debug(f'Device {self.device}: wanting connection class named {conn_class}')
+        self.logger.debug(f'wanting connection class named {conn_class}')
 
         mod_str = 'MD_Connection'
         if not MD_standalone:
@@ -346,7 +363,7 @@ class MD_Device(object):
         else:
             cls = getattr(module, 'MD_Connection')
 
-        self.logger.debug(f'Device {self.device}: using connection class {cls}')
+        self.logger.debug(f'using connection class {cls}')
         return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
 
     #

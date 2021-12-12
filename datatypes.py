@@ -46,7 +46,12 @@
 '''
 
 import json
-import logging
+
+if MD_standalone:
+    from MD_Globals import *
+else:
+    from .MD_Globals import *
+
 
 # default / reference datatypes
 datatypes = (
@@ -62,7 +67,7 @@ class Datatype(object):
     vice versa, e.g. bool <-> text, float <-> encoded number, or 
     str <-> int for clear text status messages in SmartHomeNG.
 
-    To define own Datatype classes, define derived class and overload at leas
+    To define own Datatype classes, define derived class and overload at least
     get_shng_data() and get_send_data().
     '''
     def __init__(self, fail_silent=True):
@@ -70,15 +75,14 @@ class Datatype(object):
         :param fail_silent: keep silent on data conversion error or raise exception
         :type fail_silent: bool
         '''
-        if not hasattr(self, 'logger'):
-            self.logger = logging.getLogger(__name__)
-
         self._silent = fail_silent
 
     def get_send_data(self, data):
         '''
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
+
+        If errors occur while converting, raise an exception.
 
         :param data: arbitrary data (usually item value)
         :return: data in device-compatible format
@@ -97,6 +101,8 @@ class Datatype(object):
         basic 'casting show' is implemented in the base class, derived classes
         may call the base class' get_shng_data if 'type' is specified.
         Beware of special needs if converting complex data types.
+
+        If errors occur while converting, raise an exception.
 
         :param data: value to convert
         :param type: type of return value
@@ -190,6 +196,18 @@ class DT_raw(Datatype):
 #
 # TODO: add error handling on conversion error to DT_ classes...?
 #
+
+class DT_bool(Datatype):
+    ''' cast to bool '''
+    def get_send_data(self, data):
+        return bool(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bool(data)
+
+        return super().get_shng_data(data, type)
+
 
 class DT_int(Datatype):
     ''' cast to int '''

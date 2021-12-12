@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>multidevice.MD_Device API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>multidevice.MD_Device</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+#########################################################################
+#  Copyright 2020-      Sebastian Helms             Morg @ knx-user-forum
+#########################################################################
+#  This file aims to become part of SmartHomeNG.
+#  https://www.smarthomeNG.de
+#  https://knx-user-forum.de/forum/supportforen/smarthome-py
+#
+#  MD_Device for MultiDevice plugin
+#
+#  SmartHomeNG is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  SmartHomeNG is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with SmartHomeNG. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+#
+#########################################################################
+
+import logging
+import time
+from importlib import import_module
+
+if MD_standalone:
+    from MD_Globals import *
+    from MD_Commands import MD_Commands
+    from MD_Command import MD_Command
+else:
+    from .MD_Globals import *
+    from .MD_Commands import MD_Commands
+    from .MD_Command import MD_Command
+
+
+#############################################################################################################################################################################################################################################
+#
+# class MD_Device
+#
+#############################################################################################################################################################################################################################################
+
+class MD_Device(object):
+    &#39;&#39;&#39;
+    This class is the base class for a simple device class. It can process commands
+    by sending values to the device and collect data by parsing data received from
+    the device.
+
+    Configuration is done via dev_&lt;device_id&gt;/ commands.py (see there for format)
+
+    :param device_id: device type as used in derived class names
+    :param device_name: device name for use in item configuration and logs
+    :type device_id: str
+    :type device_name: str
+    &#39;&#39;&#39;
+
+    def __init__(self, device_id, device_name, **kwargs):
+        &#39;&#39;&#39;
+        This initializes the class object.
+
+        As additional device classes are expected to be implemented as subclasses,
+        most initialization steps are modularized as methods which can be overloaded
+        as needed.
+        As all pre-implemented methods are called in hopefully-logical sequence,
+        this __init__ probably doesn&#39;t need to be changed.
+        &#39;&#39;&#39;
+        # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
+        if not hasattr(self, &#39;logger&#39;):
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;device {device_name} initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # the connection object
+        self._connection = None
+
+        # the commands object
+        self._commands = None
+
+        # set class properties
+        self._plugin_params = kwargs
+        self.device_id = device_id
+        self.device = device_name
+        self.alive = False
+        self._runtime_data_set = False
+        self._initial_values_read = False
+        self._cyclic_update_active = False
+        self._plugin = self._plugin_params.get(&#39;plugin&#39;, None)
+
+        self._data_received_callback = None
+        self._commands_read = {}
+        self._commands_initial = []
+        self._commands_cyclic = {}
+
+        self._command_class = kwargs.get(&#39;command_class&#39;, None)
+        if self._command_class is None:
+            self._command_class = MD_Command
+
+        # set device parameters, if any
+        self._set_device_params()
+
+        # try to read configuration files
+        if not self._read_configuration():
+            self.logger.error(&#39;configuration could not be read, device disabled&#39;)
+            return
+
+        # instantiate connection object
+        self._connection = self._get_connection()
+        if not self._connection:
+            self.logger.error(f&#39;could not setup connection with {kwargs}, device disabled&#39;)
+            return
+
+        # the following code should only be run if not called from subclass via super()
+        if self.__class__ is MD_Device:
+            self.logger.debug(f&#39;device initialized from {self.__class__.__name__}&#39;)
+
+    def start(self):
+        if self.alive:
+            return
+        if self._runtime_data_set:
+            self.logger.debug(&#39;start method called&#39;)
+        else:
+            self.logger.error(&#39;start method called, but runtime data not set, device disabled&#39;)
+            return
+
+        self.alive = True
+        self._connection.open()
+
+        if self._connection.connected:
+            self._read_initial_values()
+            if not MD_standalone:
+                self._create_cyclic_scheduler()
+
+    def stop(self):
+        self.logger.debug(&#39;stop method called&#39;)
+        self.alive = False
+        if self._plugin and self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
+            self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+        self._connection.close()
+
+    # def run_standalone(self):
+    #     &#39;&#39;&#39;
+    #     If you want to provide a standalone function, you&#39;ll have to implement
+    #     this function with the appropriate code. You can use all functions from
+    #     the MultiDevice class, the devices, connections and commands.
+    #     You do not have an sh object, items or web interfaces.
+    #
+    #     As the base class should not have this method, it is commented out.
+    #     &#39;&#39;&#39;
+    #     pass
+
+    def send_command(self, command, value=None):
+        &#39;&#39;&#39;
+        Sends the specified command to the device providing &lt;value&gt; as data
+
+        :param command: the command to send
+        :param value: the data to send, if applicable
+        :type command: str
+        :return: True if send was successful, False otherwise
+        :rtype: bool
+        &#39;&#39;&#39;
+        if not self.alive:
+            self.logger.warning(f&#39;trying to send command {command} with value {value}, but device is not active.&#39;)
+            return False
+
+        if not self._connection:
+            self.logger.warning(f&#39;trying to send command {command} with value {value}, but connection is None. This shouldn\&#39;t happen...&#39;)
+            return False
+
+        if not self._connection.connected:
+            self._connection.open()
+            if not self._connection.connected:
+                self.logger.warning(f&#39;trying to send command {command} with value {value}, but connection could not be established.&#39;)
+                return False
+
+        try:
+            data_dict = self._commands.get_send_data(command, value)
+        except Exception as e:
+            self.logger.warning(f&#39;command {command} with value {value} produced error {e} on converting value, aborting&#39;)
+            return False
+
+        if data_dict[&#39;payload&#39;] is None or data_dict[&#39;payload&#39;] == &#39;&#39;:
+            self.logger.warning(f&#39;command {command} with value {value} yielded empty command payload, aborting&#39;)
+            return False
+
+        data_dict = self._transform_send_data(data_dict)
+        self.logger.debug(f&#39;command {command} with value {value} yielded send data_dict {data_dict}&#39;)
+
+        # if an error occurs on sending, an exception is thrown
+        try:
+            result = self._connection.send(data_dict)
+        except Exception as e:
+            self.logger.debug(f&#39;error on sending command {command}, error was {e}&#39;)
+            return False
+
+        if result:
+            self.logger.debug(f&#39;command {command} received result {result}&#39;)
+            try:
+                value = self._commands.get_shng_data(command, result)
+            except Exception as e:
+                self.logger.info(f&#39;command {command} received result {result}, error {e} occurred while converting. Discarding result.&#39;)
+            else:            
+                self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
+                if self._data_received_callback:
+                    self._data_received_callback(self.device, command, value)
+                else:
+                    self.logger.warning(f&#39;command {command} received result {result}, but _data_received_callback is not set. Discarding result.&#39;)
+        return True
+
+    def on_data_received(self, command, data):
+        &#39;&#39;&#39;
+        Callback function for received data e.g. from an event loop
+        Processes data and dispatches value to plugin class
+
+        :param command: the command in reply to which data was received
+        :param data: received data in &#39;raw&#39; connection format
+        :type command: str
+        &#39;&#39;&#39;
+        if command is not None:
+            self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command}&#39;)
+        else:
+            # command == None means that we got raw data from a callback and don&#39;t know yet to
+            # which command this belongs to. So find out...
+            self.logger.debug(f&#39;received data &#34;{data}&#34; without command specification&#39;)
+            command = self._commands.get_command_from_reply(data)
+            if not command:
+                self.logger.debug(f&#39;data &#34;{data}&#34; did not identify a known command, ignoring it&#39;)
+                return
+
+        try:
+            value = self._commands.get_shng_data(command, data)
+        except Exception as e:
+            self.logger.info(f&#39;received data &#34;{data}&#34; for command {command}, error {e} occurred while converting. Discarding data.&#39;)
+        else:
+            self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command} converted to value {value}&#39;)
+            if self._data_received_callback:
+                self._data_received_callback(self.device, command, value)
+            else:
+                self.logger.warning(f&#39;command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.&#39;)
+
+    def read_all_commands(self):
+        &#39;&#39;&#39;
+        Triggers all configured read commands
+        &#39;&#39;&#39;
+        for cmd in self._commands_read:
+            self.send_command(cmd)
+
+    def is_valid_command(self, command, read=None):
+        &#39;&#39;&#39;
+        Validate if &#39;command&#39; is a valid command for this device
+        Possible to check only for reading or writing
+
+        :param command: the command to test
+        :type command: str
+        :param read: check for read (True) or write (False), or both (None)
+        :type read: bool | NoneType
+        :return: True if command is valid, False otherwise
+        :rtype: bool
+        &#39;&#39;&#39;
+        if self._commands:
+            return self._commands.is_valid_command(command, read)
+        else:
+            return False
+
+    def set_runtime_data(self, **kwargs):
+        &#39;&#39;&#39;
+        Sets runtime data received from the plugin class
+        &#39;&#39;&#39;
+        try:
+            self._commands_read = kwargs[&#39;read_commands&#39;]
+            self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
+            self._commands_initial = kwargs[&#39;initial_commands&#39;]
+            self._data_received_callback = kwargs[&#39;callback&#39;]
+            self._runtime_data_set = True
+        except KeyError as e:
+            self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)
+
+    def update_device_params(self, **kwargs):
+        &#39;&#39;&#39;
+        Updates configuration parametes for device. Needs device to not be running
+
+        overload as needed.
+        &#39;&#39;&#39;
+        if self.alive:
+            self.logger.warning(f&#39;tried to update params with {kwargs}, but device is still running. Ignoring request&#39;)
+            return
+
+        if not kwargs:
+            self.logger.warning(&#39;update_device_params called without new parameters. Don\&#39;t know what to update.&#39;)
+            return
+
+        # merge new params with self._plugin_params, overwrite old values if necessary
+        self._plugin_params = {**self._plugin_params, **kwargs}
+
+        # update this class&#39; settings
+        self._set_device_params()
+
+        # update = recreate the connection with new parameters
+        self._connection = self._get_connection()
+
+    #
+    #
+    # check if overloading needed
+    #
+    #
+
+    def _transform_send_data(self, data_dict):
+        &#39;&#39;&#39;
+        This method provides a way to adjust, modify or transform all data before
+        it is sent to the device.
+        This might be to add general parameters, add/change line endings or
+        add your favourite pets&#39; name... 
+        By default, nothing happens here.
+        &#39;&#39;&#39;
+        return data_dict
+
+    def _set_device_params(self, **kwargs):
+        &#39;&#39;&#39;
+        This method parses self._parameters for parameters it needs itself and does the
+        necessary initialization.
+        Needs to be overloaded for maximum effect
+        &#39;&#39;&#39;
+        pass
+
+    def _get_connection(self):
+        &#39;&#39;&#39;
+        return connection object. Try to identify the wanted connection  and return
+        the proper subclass instead. If no decision is possible, just return an
+        instance of MD_Connection.
+
+        If you need to use other connection types for your device, implement it
+        and preselect with PLUGIN_ARG_CONNECTION in /etc/plugin.yaml, so this
+        class will never be used.
+        Otherwise, just parse them in after calling super()._set_connection_params()
+
+        HINT: If you need to modify this, just write something new.
+        The &#34;autodetect&#34;-code will probably only be used with unaltered connection
+        classes. Just return the wanted connection object and ride into the light.
+        &#39;&#39;&#39;
+        conn_type = None
+        params = self._plugin_params
+
+        # try to find out what kind of connection is wanted
+        if PLUGIN_ARG_CONNECTION in self._plugin_params and self._plugin_params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
+            conn_type = self._plugin_params[PLUGIN_ARG_CONNECTION]
+        else:
+
+            if PLUGIN_ARG_NET_PORT in self._plugin_params:
+
+                # no further information on network specifics, use basic HTTP TCP client
+                conn_type = CONN_NET_TCP_REQ
+
+            elif PLUGIN_ARG_SERIAL_PORT in self._plugin_params:
+
+                # this seems to be a serial killer application
+                conn_type = CONN_SER_CLI
+
+            if conn_type:
+                params[PLUGIN_ARG_CONNECTION] = conn_type
+
+        conn_class = &#39;MD_Connection_&#39; + &#39;_&#39;.join([tok.capitalize() for tok in conn_type.split(&#39;_&#39;)])
+        self.logger.debug(f&#39;wanting connection class named {conn_class}&#39;)
+
+        mod_str = &#39;MD_Connection&#39;
+        if not MD_standalone:
+            mod_str = &#39;.&#39;.join(self.__module__.split(&#39;.&#39;)[:-2]) + &#39;.&#39; + mod_str
+
+        module = import_module(mod_str)
+        if hasattr(module, conn_class):
+            cls = getattr(module, conn_class)
+        else:
+            cls = getattr(module, &#39;MD_Connection&#39;)
+
+        self.logger.debug(f&#39;using connection class {cls}&#39;)
+        return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+
+    #
+    #
+    # utility methods
+    #
+    #
+
+    def _create_cyclic_scheduler(self):
+        &#39;&#39;&#39;
+        Setup the scheduler to handle cyclic read commands and find the proper time for the cycle.
+        &#39;&#39;&#39;
+        if not self.alive:
+            return
+
+        # did we get the plugin instance?
+        if not self._plugin:
+            return
+
+        # find shortest cycle
+        shortestcycle = -1
+        for cmd in self._commands_cyclic:
+            cycle = self._commands_cyclic[cmd][&#39;cycle&#39;]
+            if shortestcycle == -1 or cycle &lt; shortestcycle:
+                shortestcycle = cycle
+
+        # Start the worker thread
+        if shortestcycle != -1:
+
+            # Balance unnecessary calls and precision
+            workercycle = int(shortestcycle / 2)
+
+            # just in case it already exists...
+            if self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
+                self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+            self._plugin.scheduler_add(self.device + &#39;_cyclic&#39;, self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
+            self.logger.info(f&#39;Added cyclic worker thread {self.device}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s&#39;)
+
+    def _read_initial_values(self):
+        &#39;&#39;&#39;
+        Read all values configured to be read at startup
+        &#39;&#39;&#39;
+        if self._commands_initial and self._commands_initial != [] and not self._initial_values_read:
+            self.logger.info(&#39;Starting initial read commands&#39;)
+            for cmd in self._commands_initial:
+                self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
+                self.send_command(cmd)
+            self._initial_values_read = True
+            self.logger.info(&#39;Initial read commands sent&#39;)
+        elif self._initial_values_read:
+            self.logger.debug(&#39;_read_initial_values() called, but inital values were already read. Ignoring&#39;)
+
+    def _read_cyclic_values(self):
+        &#39;&#39;&#39;
+        Recall function for cyclic scheduler. Reads all values configured to be read cyclically.
+        &#39;&#39;&#39;
+        # check if another cyclic cmd run is still active
+        if self._cyclic_update_active:
+            self.logger.warning(&#39;Triggered cyclic command read, but previous cyclic run is still active. Check device and cyclic configuration (too much/too short?)&#39;)
+            return
+        else:
+            self.logger.info(&#39;Triggering cyclic command read&#39;)
+ 
+        # set lock
+        self._cyclic_update_active = True
+        currenttime = time.time()
+        read_cmds = 0
+        todo = []
+        for cmd in self._commands_cyclic:
+ 
+            # Is the command already due?
+            if self._commands_cyclic[cmd][&#39;next&#39;] &lt;= currenttime:
+                todo.append(cmd)
+ 
+        for cmd in todo:
+            # as this loop can take considerable time, repeatedly check if shng wants to stop
+            if not self.alive:
+                self.logger.info(&#39;Stop command issued, cancelling cyclic read&#39;)
+                return
+
+            # also leave early on disconnect
+            if not self._connection.connected:
+                self.logger.info(&#39;Disconnect detected, cancelling cyclic read&#39;)
+                return
+
+            self.logger.debug(f&#39;Triggering cyclic read of command {cmd}&#39;)
+            self.send_command(cmd)
+            self._commands_cyclic[cmd][&#39;next&#39;] = currenttime + self._commands_cyclic[cmd][&#39;cycle&#39;]
+            read_cmds += 1
+ 
+        self._cyclic_update_active = False
+        if read_cmds:
+            self.logger.debug(f&#39;Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items&#39;)
+
+    def _read_configuration(self):
+        &#39;&#39;&#39;
+        This initiates reading of configuration.
+        Basically, this calls the MD_Commands object to fill itselt; but if needed,
+        this can be overloaded to do something else.
+        &#39;&#39;&#39;
+        cls = self._command_class
+        if cls is None:
+            cls = MD_Command
+        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
+        return True</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="multidevice.MD_Device.MD_Device"><code class="flex name class">
+<span>class <span class="ident">MD_Device</span></span>
+<span>(</span><span>device_id, device_name, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class is the base class for a simple device class. It can process commands
+by sending values to the device and collect data by parsing data received from
+the device.</p>
+<p>Configuration is done via dev_<device_id>/ commands.py (see there for format)</p>
+<p>:param device_id: device type as used in derived class names
+:param device_name: device name for use in item configuration and logs
+:type device_id: str
+:type device_name: str</p>
+<p>This initializes the class object.</p>
+<p>As additional device classes are expected to be implemented as subclasses,
+most initialization steps are modularized as methods which can be overloaded
+as needed.
+As all pre-implemented methods are called in hopefully-logical sequence,
+this <strong>init</strong> probably doesn't need to be changed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Device(object):
+    &#39;&#39;&#39;
+    This class is the base class for a simple device class. It can process commands
+    by sending values to the device and collect data by parsing data received from
+    the device.
+
+    Configuration is done via dev_&lt;device_id&gt;/ commands.py (see there for format)
+
+    :param device_id: device type as used in derived class names
+    :param device_name: device name for use in item configuration and logs
+    :type device_id: str
+    :type device_name: str
+    &#39;&#39;&#39;
+
+    def __init__(self, device_id, device_name, **kwargs):
+        &#39;&#39;&#39;
+        This initializes the class object.
+
+        As additional device classes are expected to be implemented as subclasses,
+        most initialization steps are modularized as methods which can be overloaded
+        as needed.
+        As all pre-implemented methods are called in hopefully-logical sequence,
+        this __init__ probably doesn&#39;t need to be changed.
+        &#39;&#39;&#39;
+        # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
+        if not hasattr(self, &#39;logger&#39;):
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;device {device_name} initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # the connection object
+        self._connection = None
+
+        # the commands object
+        self._commands = None
+
+        # set class properties
+        self._plugin_params = kwargs
+        self.device_id = device_id
+        self.device = device_name
+        self.alive = False
+        self._runtime_data_set = False
+        self._initial_values_read = False
+        self._cyclic_update_active = False
+        self._plugin = self._plugin_params.get(&#39;plugin&#39;, None)
+
+        self._data_received_callback = None
+        self._commands_read = {}
+        self._commands_initial = []
+        self._commands_cyclic = {}
+
+        self._command_class = kwargs.get(&#39;command_class&#39;, None)
+        if self._command_class is None:
+            self._command_class = MD_Command
+
+        # set device parameters, if any
+        self._set_device_params()
+
+        # try to read configuration files
+        if not self._read_configuration():
+            self.logger.error(&#39;configuration could not be read, device disabled&#39;)
+            return
+
+        # instantiate connection object
+        self._connection = self._get_connection()
+        if not self._connection:
+            self.logger.error(f&#39;could not setup connection with {kwargs}, device disabled&#39;)
+            return
+
+        # the following code should only be run if not called from subclass via super()
+        if self.__class__ is MD_Device:
+            self.logger.debug(f&#39;device initialized from {self.__class__.__name__}&#39;)
+
+    def start(self):
+        if self.alive:
+            return
+        if self._runtime_data_set:
+            self.logger.debug(&#39;start method called&#39;)
+        else:
+            self.logger.error(&#39;start method called, but runtime data not set, device disabled&#39;)
+            return
+
+        self.alive = True
+        self._connection.open()
+
+        if self._connection.connected:
+            self._read_initial_values()
+            if not MD_standalone:
+                self._create_cyclic_scheduler()
+
+    def stop(self):
+        self.logger.debug(&#39;stop method called&#39;)
+        self.alive = False
+        if self._plugin and self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
+            self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+        self._connection.close()
+
+    # def run_standalone(self):
+    #     &#39;&#39;&#39;
+    #     If you want to provide a standalone function, you&#39;ll have to implement
+    #     this function with the appropriate code. You can use all functions from
+    #     the MultiDevice class, the devices, connections and commands.
+    #     You do not have an sh object, items or web interfaces.
+    #
+    #     As the base class should not have this method, it is commented out.
+    #     &#39;&#39;&#39;
+    #     pass
+
+    def send_command(self, command, value=None):
+        &#39;&#39;&#39;
+        Sends the specified command to the device providing &lt;value&gt; as data
+
+        :param command: the command to send
+        :param value: the data to send, if applicable
+        :type command: str
+        :return: True if send was successful, False otherwise
+        :rtype: bool
+        &#39;&#39;&#39;
+        if not self.alive:
+            self.logger.warning(f&#39;trying to send command {command} with value {value}, but device is not active.&#39;)
+            return False
+
+        if not self._connection:
+            self.logger.warning(f&#39;trying to send command {command} with value {value}, but connection is None. This shouldn\&#39;t happen...&#39;)
+            return False
+
+        if not self._connection.connected:
+            self._connection.open()
+            if not self._connection.connected:
+                self.logger.warning(f&#39;trying to send command {command} with value {value}, but connection could not be established.&#39;)
+                return False
+
+        try:
+            data_dict = self._commands.get_send_data(command, value)
+        except Exception as e:
+            self.logger.warning(f&#39;command {command} with value {value} produced error {e} on converting value, aborting&#39;)
+            return False
+
+        if data_dict[&#39;payload&#39;] is None or data_dict[&#39;payload&#39;] == &#39;&#39;:
+            self.logger.warning(f&#39;command {command} with value {value} yielded empty command payload, aborting&#39;)
+            return False
+
+        data_dict = self._transform_send_data(data_dict)
+        self.logger.debug(f&#39;command {command} with value {value} yielded send data_dict {data_dict}&#39;)
+
+        # if an error occurs on sending, an exception is thrown
+        try:
+            result = self._connection.send(data_dict)
+        except Exception as e:
+            self.logger.debug(f&#39;error on sending command {command}, error was {e}&#39;)
+            return False
+
+        if result:
+            self.logger.debug(f&#39;command {command} received result {result}&#39;)
+            try:
+                value = self._commands.get_shng_data(command, result)
+            except Exception as e:
+                self.logger.info(f&#39;command {command} received result {result}, error {e} occurred while converting. Discarding result.&#39;)
+            else:            
+                self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
+                if self._data_received_callback:
+                    self._data_received_callback(self.device, command, value)
+                else:
+                    self.logger.warning(f&#39;command {command} received result {result}, but _data_received_callback is not set. Discarding result.&#39;)
+        return True
+
+    def on_data_received(self, command, data):
+        &#39;&#39;&#39;
+        Callback function for received data e.g. from an event loop
+        Processes data and dispatches value to plugin class
+
+        :param command: the command in reply to which data was received
+        :param data: received data in &#39;raw&#39; connection format
+        :type command: str
+        &#39;&#39;&#39;
+        if command is not None:
+            self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command}&#39;)
+        else:
+            # command == None means that we got raw data from a callback and don&#39;t know yet to
+            # which command this belongs to. So find out...
+            self.logger.debug(f&#39;received data &#34;{data}&#34; without command specification&#39;)
+            command = self._commands.get_command_from_reply(data)
+            if not command:
+                self.logger.debug(f&#39;data &#34;{data}&#34; did not identify a known command, ignoring it&#39;)
+                return
+
+        try:
+            value = self._commands.get_shng_data(command, data)
+        except Exception as e:
+            self.logger.info(f&#39;received data &#34;{data}&#34; for command {command}, error {e} occurred while converting. Discarding data.&#39;)
+        else:
+            self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command} converted to value {value}&#39;)
+            if self._data_received_callback:
+                self._data_received_callback(self.device, command, value)
+            else:
+                self.logger.warning(f&#39;command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.&#39;)
+
+    def read_all_commands(self):
+        &#39;&#39;&#39;
+        Triggers all configured read commands
+        &#39;&#39;&#39;
+        for cmd in self._commands_read:
+            self.send_command(cmd)
+
+    def is_valid_command(self, command, read=None):
+        &#39;&#39;&#39;
+        Validate if &#39;command&#39; is a valid command for this device
+        Possible to check only for reading or writing
+
+        :param command: the command to test
+        :type command: str
+        :param read: check for read (True) or write (False), or both (None)
+        :type read: bool | NoneType
+        :return: True if command is valid, False otherwise
+        :rtype: bool
+        &#39;&#39;&#39;
+        if self._commands:
+            return self._commands.is_valid_command(command, read)
+        else:
+            return False
+
+    def set_runtime_data(self, **kwargs):
+        &#39;&#39;&#39;
+        Sets runtime data received from the plugin class
+        &#39;&#39;&#39;
+        try:
+            self._commands_read = kwargs[&#39;read_commands&#39;]
+            self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
+            self._commands_initial = kwargs[&#39;initial_commands&#39;]
+            self._data_received_callback = kwargs[&#39;callback&#39;]
+            self._runtime_data_set = True
+        except KeyError as e:
+            self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)
+
+    def update_device_params(self, **kwargs):
+        &#39;&#39;&#39;
+        Updates configuration parametes for device. Needs device to not be running
+
+        overload as needed.
+        &#39;&#39;&#39;
+        if self.alive:
+            self.logger.warning(f&#39;tried to update params with {kwargs}, but device is still running. Ignoring request&#39;)
+            return
+
+        if not kwargs:
+            self.logger.warning(&#39;update_device_params called without new parameters. Don\&#39;t know what to update.&#39;)
+            return
+
+        # merge new params with self._plugin_params, overwrite old values if necessary
+        self._plugin_params = {**self._plugin_params, **kwargs}
+
+        # update this class&#39; settings
+        self._set_device_params()
+
+        # update = recreate the connection with new parameters
+        self._connection = self._get_connection()
+
+    #
+    #
+    # check if overloading needed
+    #
+    #
+
+    def _transform_send_data(self, data_dict):
+        &#39;&#39;&#39;
+        This method provides a way to adjust, modify or transform all data before
+        it is sent to the device.
+        This might be to add general parameters, add/change line endings or
+        add your favourite pets&#39; name... 
+        By default, nothing happens here.
+        &#39;&#39;&#39;
+        return data_dict
+
+    def _set_device_params(self, **kwargs):
+        &#39;&#39;&#39;
+        This method parses self._parameters for parameters it needs itself and does the
+        necessary initialization.
+        Needs to be overloaded for maximum effect
+        &#39;&#39;&#39;
+        pass
+
+    def _get_connection(self):
+        &#39;&#39;&#39;
+        return connection object. Try to identify the wanted connection  and return
+        the proper subclass instead. If no decision is possible, just return an
+        instance of MD_Connection.
+
+        If you need to use other connection types for your device, implement it
+        and preselect with PLUGIN_ARG_CONNECTION in /etc/plugin.yaml, so this
+        class will never be used.
+        Otherwise, just parse them in after calling super()._set_connection_params()
+
+        HINT: If you need to modify this, just write something new.
+        The &#34;autodetect&#34;-code will probably only be used with unaltered connection
+        classes. Just return the wanted connection object and ride into the light.
+        &#39;&#39;&#39;
+        conn_type = None
+        params = self._plugin_params
+
+        # try to find out what kind of connection is wanted
+        if PLUGIN_ARG_CONNECTION in self._plugin_params and self._plugin_params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
+            conn_type = self._plugin_params[PLUGIN_ARG_CONNECTION]
+        else:
+
+            if PLUGIN_ARG_NET_PORT in self._plugin_params:
+
+                # no further information on network specifics, use basic HTTP TCP client
+                conn_type = CONN_NET_TCP_REQ
+
+            elif PLUGIN_ARG_SERIAL_PORT in self._plugin_params:
+
+                # this seems to be a serial killer application
+                conn_type = CONN_SER_CLI
+
+            if conn_type:
+                params[PLUGIN_ARG_CONNECTION] = conn_type
+
+        conn_class = &#39;MD_Connection_&#39; + &#39;_&#39;.join([tok.capitalize() for tok in conn_type.split(&#39;_&#39;)])
+        self.logger.debug(f&#39;wanting connection class named {conn_class}&#39;)
+
+        mod_str = &#39;MD_Connection&#39;
+        if not MD_standalone:
+            mod_str = &#39;.&#39;.join(self.__module__.split(&#39;.&#39;)[:-2]) + &#39;.&#39; + mod_str
+
+        module = import_module(mod_str)
+        if hasattr(module, conn_class):
+            cls = getattr(module, conn_class)
+        else:
+            cls = getattr(module, &#39;MD_Connection&#39;)
+
+        self.logger.debug(f&#39;using connection class {cls}&#39;)
+        return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+
+    #
+    #
+    # utility methods
+    #
+    #
+
+    def _create_cyclic_scheduler(self):
+        &#39;&#39;&#39;
+        Setup the scheduler to handle cyclic read commands and find the proper time for the cycle.
+        &#39;&#39;&#39;
+        if not self.alive:
+            return
+
+        # did we get the plugin instance?
+        if not self._plugin:
+            return
+
+        # find shortest cycle
+        shortestcycle = -1
+        for cmd in self._commands_cyclic:
+            cycle = self._commands_cyclic[cmd][&#39;cycle&#39;]
+            if shortestcycle == -1 or cycle &lt; shortestcycle:
+                shortestcycle = cycle
+
+        # Start the worker thread
+        if shortestcycle != -1:
+
+            # Balance unnecessary calls and precision
+            workercycle = int(shortestcycle / 2)
+
+            # just in case it already exists...
+            if self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
+                self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+            self._plugin.scheduler_add(self.device + &#39;_cyclic&#39;, self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
+            self.logger.info(f&#39;Added cyclic worker thread {self.device}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s&#39;)
+
+    def _read_initial_values(self):
+        &#39;&#39;&#39;
+        Read all values configured to be read at startup
+        &#39;&#39;&#39;
+        if self._commands_initial and self._commands_initial != [] and not self._initial_values_read:
+            self.logger.info(&#39;Starting initial read commands&#39;)
+            for cmd in self._commands_initial:
+                self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
+                self.send_command(cmd)
+            self._initial_values_read = True
+            self.logger.info(&#39;Initial read commands sent&#39;)
+        elif self._initial_values_read:
+            self.logger.debug(&#39;_read_initial_values() called, but inital values were already read. Ignoring&#39;)
+
+    def _read_cyclic_values(self):
+        &#39;&#39;&#39;
+        Recall function for cyclic scheduler. Reads all values configured to be read cyclically.
+        &#39;&#39;&#39;
+        # check if another cyclic cmd run is still active
+        if self._cyclic_update_active:
+            self.logger.warning(&#39;Triggered cyclic command read, but previous cyclic run is still active. Check device and cyclic configuration (too much/too short?)&#39;)
+            return
+        else:
+            self.logger.info(&#39;Triggering cyclic command read&#39;)
+ 
+        # set lock
+        self._cyclic_update_active = True
+        currenttime = time.time()
+        read_cmds = 0
+        todo = []
+        for cmd in self._commands_cyclic:
+ 
+            # Is the command already due?
+            if self._commands_cyclic[cmd][&#39;next&#39;] &lt;= currenttime:
+                todo.append(cmd)
+ 
+        for cmd in todo:
+            # as this loop can take considerable time, repeatedly check if shng wants to stop
+            if not self.alive:
+                self.logger.info(&#39;Stop command issued, cancelling cyclic read&#39;)
+                return
+
+            # also leave early on disconnect
+            if not self._connection.connected:
+                self.logger.info(&#39;Disconnect detected, cancelling cyclic read&#39;)
+                return
+
+            self.logger.debug(f&#39;Triggering cyclic read of command {cmd}&#39;)
+            self.send_command(cmd)
+            self._commands_cyclic[cmd][&#39;next&#39;] = currenttime + self._commands_cyclic[cmd][&#39;cycle&#39;]
+            read_cmds += 1
+ 
+        self._cyclic_update_active = False
+        if read_cmds:
+            self.logger.debug(f&#39;Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items&#39;)
+
+    def _read_configuration(self):
+        &#39;&#39;&#39;
+        This initiates reading of configuration.
+        Basically, this calls the MD_Commands object to fill itselt; but if needed,
+        this can be overloaded to do something else.
+        &#39;&#39;&#39;
+        cls = self._command_class
+        if cls is None:
+            cls = MD_Command
+        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
+        return True</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="multidevice.dev_example.device.MD_Device" href="dev_example/device.html#multidevice.dev_example.device.MD_Device">MD_Device</a></li>
+<li><a title="multidevice.dev_example_http.device.MD_Device" href="dev_example_http/device.html#multidevice.dev_example_http.device.MD_Device">MD_Device</a></li>
+<li><a title="multidevice.dev_pioneer.device.MD_Device" href="dev_pioneer/device.html#multidevice.dev_pioneer.device.MD_Device">MD_Device</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="multidevice.MD_Device.MD_Device.is_valid_command"><code class="name flex">
+<span>def <span class="ident">is_valid_command</span></span>(<span>self, command, read=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Validate if 'command' is a valid command for this device
+Possible to check only for reading or writing</p>
+<p>:param command: the command to test
+:type command: str
+:param read: check for read (True) or write (False), or both (None)
+:type read: bool | NoneType
+:return: True if command is valid, False otherwise
+:rtype: bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_valid_command(self, command, read=None):
+    &#39;&#39;&#39;
+    Validate if &#39;command&#39; is a valid command for this device
+    Possible to check only for reading or writing
+
+    :param command: the command to test
+    :type command: str
+    :param read: check for read (True) or write (False), or both (None)
+    :type read: bool | NoneType
+    :return: True if command is valid, False otherwise
+    :rtype: bool
+    &#39;&#39;&#39;
+    if self._commands:
+        return self._commands.is_valid_command(command, read)
+    else:
+        return False</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.on_data_received"><code class="name flex">
+<span>def <span class="ident">on_data_received</span></span>(<span>self, command, data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Callback function for received data e.g. from an event loop
+Processes data and dispatches value to plugin class</p>
+<p>:param command: the command in reply to which data was received
+:param data: received data in 'raw' connection format
+:type command: str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_data_received(self, command, data):
+    &#39;&#39;&#39;
+    Callback function for received data e.g. from an event loop
+    Processes data and dispatches value to plugin class
+
+    :param command: the command in reply to which data was received
+    :param data: received data in &#39;raw&#39; connection format
+    :type command: str
+    &#39;&#39;&#39;
+    if command is not None:
+        self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command}&#39;)
+    else:
+        # command == None means that we got raw data from a callback and don&#39;t know yet to
+        # which command this belongs to. So find out...
+        self.logger.debug(f&#39;received data &#34;{data}&#34; without command specification&#39;)
+        command = self._commands.get_command_from_reply(data)
+        if not command:
+            self.logger.debug(f&#39;data &#34;{data}&#34; did not identify a known command, ignoring it&#39;)
+            return
+
+    try:
+        value = self._commands.get_shng_data(command, data)
+    except Exception as e:
+        self.logger.info(f&#39;received data &#34;{data}&#34; for command {command}, error {e} occurred while converting. Discarding data.&#39;)
+    else:
+        self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command} converted to value {value}&#39;)
+        if self._data_received_callback:
+            self._data_received_callback(self.device, command, value)
+        else:
+            self.logger.warning(f&#39;command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.&#39;)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.read_all_commands"><code class="name flex">
+<span>def <span class="ident">read_all_commands</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Triggers all configured read commands</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def read_all_commands(self):
+    &#39;&#39;&#39;
+    Triggers all configured read commands
+    &#39;&#39;&#39;
+    for cmd in self._commands_read:
+        self.send_command(cmd)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.send_command"><code class="name flex">
+<span>def <span class="ident">send_command</span></span>(<span>self, command, value=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sends the specified command to the device providing <value> as data</p>
+<p>:param command: the command to send
+:param value: the data to send, if applicable
+:type command: str
+:return: True if send was successful, False otherwise
+:rtype: bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_command(self, command, value=None):
+    &#39;&#39;&#39;
+    Sends the specified command to the device providing &lt;value&gt; as data
+
+    :param command: the command to send
+    :param value: the data to send, if applicable
+    :type command: str
+    :return: True if send was successful, False otherwise
+    :rtype: bool
+    &#39;&#39;&#39;
+    if not self.alive:
+        self.logger.warning(f&#39;trying to send command {command} with value {value}, but device is not active.&#39;)
+        return False
+
+    if not self._connection:
+        self.logger.warning(f&#39;trying to send command {command} with value {value}, but connection is None. This shouldn\&#39;t happen...&#39;)
+        return False
+
+    if not self._connection.connected:
+        self._connection.open()
+        if not self._connection.connected:
+            self.logger.warning(f&#39;trying to send command {command} with value {value}, but connection could not be established.&#39;)
+            return False
+
+    try:
+        data_dict = self._commands.get_send_data(command, value)
+    except Exception as e:
+        self.logger.warning(f&#39;command {command} with value {value} produced error {e} on converting value, aborting&#39;)
+        return False
+
+    if data_dict[&#39;payload&#39;] is None or data_dict[&#39;payload&#39;] == &#39;&#39;:
+        self.logger.warning(f&#39;command {command} with value {value} yielded empty command payload, aborting&#39;)
+        return False
+
+    data_dict = self._transform_send_data(data_dict)
+    self.logger.debug(f&#39;command {command} with value {value} yielded send data_dict {data_dict}&#39;)
+
+    # if an error occurs on sending, an exception is thrown
+    try:
+        result = self._connection.send(data_dict)
+    except Exception as e:
+        self.logger.debug(f&#39;error on sending command {command}, error was {e}&#39;)
+        return False
+
+    if result:
+        self.logger.debug(f&#39;command {command} received result {result}&#39;)
+        try:
+            value = self._commands.get_shng_data(command, result)
+        except Exception as e:
+            self.logger.info(f&#39;command {command} received result {result}, error {e} occurred while converting. Discarding result.&#39;)
+        else:            
+            self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
+            if self._data_received_callback:
+                self._data_received_callback(self.device, command, value)
+            else:
+                self.logger.warning(f&#39;command {command} received result {result}, but _data_received_callback is not set. Discarding result.&#39;)
+    return True</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.set_runtime_data"><code class="name flex">
+<span>def <span class="ident">set_runtime_data</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Sets runtime data received from the plugin class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_runtime_data(self, **kwargs):
+    &#39;&#39;&#39;
+    Sets runtime data received from the plugin class
+    &#39;&#39;&#39;
+    try:
+        self._commands_read = kwargs[&#39;read_commands&#39;]
+        self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
+        self._commands_initial = kwargs[&#39;initial_commands&#39;]
+        self._data_received_callback = kwargs[&#39;callback&#39;]
+        self._runtime_data_set = True
+    except KeyError as e:
+        self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.start"><code class="name flex">
+<span>def <span class="ident">start</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def start(self):
+    if self.alive:
+        return
+    if self._runtime_data_set:
+        self.logger.debug(&#39;start method called&#39;)
+    else:
+        self.logger.error(&#39;start method called, but runtime data not set, device disabled&#39;)
+        return
+
+    self.alive = True
+    self._connection.open()
+
+    if self._connection.connected:
+        self._read_initial_values()
+        if not MD_standalone:
+            self._create_cyclic_scheduler()</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.stop"><code class="name flex">
+<span>def <span class="ident">stop</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stop(self):
+    self.logger.debug(&#39;stop method called&#39;)
+    self.alive = False
+    if self._plugin and self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
+        self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+    self._connection.close()</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.update_device_params"><code class="name flex">
+<span>def <span class="ident">update_device_params</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Updates configuration parametes for device. Needs device to not be running</p>
+<p>overload as needed.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_device_params(self, **kwargs):
+    &#39;&#39;&#39;
+    Updates configuration parametes for device. Needs device to not be running
+
+    overload as needed.
+    &#39;&#39;&#39;
+    if self.alive:
+        self.logger.warning(f&#39;tried to update params with {kwargs}, but device is still running. Ignoring request&#39;)
+        return
+
+    if not kwargs:
+        self.logger.warning(&#39;update_device_params called without new parameters. Don\&#39;t know what to update.&#39;)
+        return
+
+    # merge new params with self._plugin_params, overwrite old values if necessary
+    self._plugin_params = {**self._plugin_params, **kwargs}
+
+    # update this class&#39; settings
+    self._set_device_params()
+
+    # update = recreate the connection with new parameters
+    self._connection = self._get_connection()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="multidevice" href="index.html">multidevice</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="multidevice.MD_Device.MD_Device" href="#multidevice.MD_Device.MD_Device">MD_Device</a></code></h4>
+<ul class="">
+<li><code><a title="multidevice.MD_Device.MD_Device.is_valid_command" href="#multidevice.MD_Device.MD_Device.is_valid_command">is_valid_command</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.on_data_received" href="#multidevice.MD_Device.MD_Device.on_data_received">on_data_received</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.read_all_commands" href="#multidevice.MD_Device.MD_Device.read_all_commands">read_all_commands</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.send_command" href="#multidevice.MD_Device.MD_Device.send_command">send_command</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.set_runtime_data" href="#multidevice.MD_Device.MD_Device.set_runtime_data">set_runtime_data</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.start" href="#multidevice.MD_Device.MD_Device.start">start</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.stop" href="#multidevice.MD_Device.MD_Device.stop">stop</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.update_device_params" href="#multidevice.MD_Device.MD_Device.update_device_params">update_device_params</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

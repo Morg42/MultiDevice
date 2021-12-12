@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
-<title>priv_multidevice.datatypes API documentation</title>
+<title>multidevice.datatypes API documentation</title>
 <meta name="description" content="Datatype
 …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -20,7 +20,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>priv_multidevice.datatypes</code></h1>
+<h1 class="title">Module <code>multidevice.datatypes</code></h1>
 </header>
 <section id="section-intro">
 <h2 id="datatype">Datatype</h2>
@@ -47,7 +47,7 @@ examples.</p>
 #  https://www.smarthomeNG.de
 #  https://knx-user-forum.de/forum/supportforen/smarthome-py
 #
-#  Datatypes for MultiDevice plugin
+#  MD_Datatype and derived classes for MultiDevice plugin
 #
 #  SmartHomeNG is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -87,20 +87,68 @@ examples.</p>
 
 import json
 
+if MD_standalone:
+    from MD_Globals import *
+else:
+    from .MD_Globals import *
+
+
+# default / reference datatypes
 datatypes = (
     &#39;int&#39;, &#39;num&#39;, &#39;str&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;tuple&#39;, &#39;bytes&#39;, &#39;bytearray&#39;, &#39;json&#39;
 )
 
 
 class Datatype(object):
+    &#39;&#39;&#39;
+    This class describes the basic structure of all derived datatype classes.
 
+    Basically, it defines the conversion from item value to device &#34;value&#34; and
+    vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or 
+    str &lt;-&gt; int for clear text status messages in SmartHomeNG.
+
+    To define own Datatype classes, define derived class and overload at least
+    get_shng_data() and get_send_data().
+    &#39;&#39;&#39;
     def __init__(self, fail_silent=True):
+        &#39;&#39;&#39;
+        :param fail_silent: keep silent on data conversion error or raise exception
+        :type fail_silent: bool
+        &#39;&#39;&#39;
         self._silent = fail_silent
 
     def get_send_data(self, data):
+        &#39;&#39;&#39;
+        take (item value) data and return value in a format fit for the device
+        In the base class, this just returns whatever it gets.
+
+        If errors occur while converting, raise an exception.
+
+        :param data: arbitrary data (usually item value)
+        :return: data in device-compatible format
+        &#39;&#39;&#39;
         return data
 
     def get_shng_data(self, data, type=None):
+        &#39;&#39;&#39;
+        take data from device reply and try and convert it into SmartHomeNG-
+        compatible type (item type).
+
+        By default, this returns data according to the default item type
+        associated with this Datatype class.
+        Optionally, the desired return type can be specified (as string), in
+        which case the method is expected to return the requested type. As a
+        basic &#39;casting show&#39; is implemented in the base class, derived classes
+        may call the base class&#39; get_shng_data if &#39;type&#39; is specified.
+        Beware of special needs if converting complex data types.
+
+        If errors occur while converting, raise an exception.
+
+        :param data: value to convert
+        :param type: type of return value
+        :type type: str
+        :return: converted value
+        &#39;&#39;&#39;
         if type is None or type not in datatypes:
             return data
 
@@ -189,6 +237,18 @@ class DT_raw(Datatype):
 # TODO: add error handling on conversion error to DT_ classes...?
 #
 
+class DT_bool(Datatype):
+    &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
+    def get_send_data(self, data):
+        return bool(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bool(data)
+
+        return super().get_shng_data(data, type)
+
+
 class DT_int(Datatype):
     &#39;&#39;&#39; cast to int &#39;&#39;&#39;
     def get_send_data(self, data):
@@ -202,6 +262,7 @@ class DT_int(Datatype):
 
 
 class DT_num(Datatype):
+    &#39;&#39;&#39; cast to float &#39;&#39;&#39;
     def get_send_data(self, data):
         return float(data)
 
@@ -213,6 +274,7 @@ class DT_num(Datatype):
 
 
 class DT_str(Datatype):
+    &#39;&#39;&#39; cast to str &#39;&#39;&#39;
     def get_send_data(self, data):
         return str(data)
 
@@ -223,6 +285,7 @@ class DT_str(Datatype):
 
 
 class DT_list(Datatype):
+    &#39;&#39;&#39; enlist &#39;&#39;&#39;
     def get_send_data(self, data):
         return list(data)
 
@@ -233,6 +296,7 @@ class DT_list(Datatype):
 
 
 class DT_dict(Datatype):
+    &#39;&#39;&#39; dict-ate &#39;&#39;&#39;
     def get_send_data(self, data):
         return dict(data)
 
@@ -243,6 +307,7 @@ class DT_dict(Datatype):
 
 
 class DT_tuple(Datatype):
+    &#39;&#39;&#39; toupling (meh...) &#39;&#39;&#39;
     def get_send_data(self, data):
         return tuple(data)
 
@@ -282,7 +347,8 @@ class DT_json(Datatype):
         return super().get_shng_data(data, type)
 
 
-class DT_shng_ws(Datatype):
+class DT_webservices(Datatype):
+    &#39;&#39;&#39; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#39;&#39;&#39;
     def get_send_data(self, data):
         return data
 
@@ -303,12 +369,56 @@ class DT_shng_ws(Datatype):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="priv_multidevice.datatypes.DT_bytearray"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_bool"><code class="flex name class">
+<span>class <span class="ident">DT_bool</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>cast to bool </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_bool(Datatype):
+    &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
+    def get_send_data(self, data):
+        return bool(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return bool(data)
+
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.datatypes.DT_bytearray"><code class="flex name class">
 <span>class <span class="ident">DT_bytearray</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<p>Basically, it defines the conversion from item value to device "value" and
+vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
+str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
+<p>To define own Datatype classes, define derived class and overload at least
+get_shng_data() and get_send_data().</p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -324,46 +434,31 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_bytearray.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return bytearray(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_bytearray.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return bytearray(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_bytes"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_bytes"><code class="flex name class">
 <span>class <span class="ident">DT_bytes</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<p>Basically, it defines the conversion from item value to device "value" and
+vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
+str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
+<p>To define own Datatype classes, define derived class and overload at least
+get_shng_data() and get_send_data().</p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -379,51 +474,32 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_bytes.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return bytes(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_bytes.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return bytes(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_dict"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_dict"><code class="flex name class">
 <span>class <span class="ident">DT_dict</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>dict-ate </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_dict(Datatype):
+    &#39;&#39;&#39; dict-ate &#39;&#39;&#39;
     def get_send_data(self, data):
         return dict(data)
 
@@ -434,46 +510,26 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_dict.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return dict(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_dict.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return dict(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_int"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_int"><code class="flex name class">
 <span>class <span class="ident">DT_int</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>cast to int</p></div>
+<div class="desc"><p>cast to int </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -491,47 +547,31 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_int.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return int(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_int.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return int(data)
-
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_json"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_json"><code class="flex name class">
 <span>class <span class="ident">DT_json</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<p>Basically, it defines the conversion from item value to device "value" and
+vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
+str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
+<p>To define own Datatype classes, define derived class and overload at least
+get_shng_data() and get_send_data().</p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -547,51 +587,32 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_json.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return json.dumps(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_json.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return json.loads(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_list"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_list"><code class="flex name class">
 <span>class <span class="ident">DT_list</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>enlist </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_list(Datatype):
+    &#39;&#39;&#39; enlist &#39;&#39;&#39;
     def get_send_data(self, data):
         return list(data)
 
@@ -602,51 +623,32 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_list.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return list(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_list.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return list(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_num"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_num"><code class="flex name class">
 <span>class <span class="ident">DT_num</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>cast to float </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_num(Datatype):
+    &#39;&#39;&#39; cast to float &#39;&#39;&#39;
     def get_send_data(self, data):
         return float(data)
 
@@ -658,47 +660,26 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_num.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return float(data)</code></pre>
-</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_num.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return float(data)
-
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_raw"><code class="flex name class">
+<dt id="multidevice.datatypes.DT_raw"><code class="flex name class">
 <span>class <span class="ident">DT_raw</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>pass on data, identical to base class</p></div>
+<div class="desc"><p>pass on data, identical to base class </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -709,20 +690,104 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
 </ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_shng_ws"><code class="flex name class">
-<span>class <span class="ident">DT_shng_ws</span></span>
+<dt id="multidevice.datatypes.DT_str"><code class="flex name class">
+<span>class <span class="ident">DT_str</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>cast to str </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DT_shng_ws(Datatype):
+<pre><code class="python">class DT_str(Datatype):
+    &#39;&#39;&#39; cast to str &#39;&#39;&#39;
+    def get_send_data(self, data):
+        return str(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return str(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.datatypes.DT_tuple"><code class="flex name class">
+<span>class <span class="ident">DT_tuple</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>toupling (meh&hellip;) </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_tuple(Datatype):
+    &#39;&#39;&#39; toupling (meh...) &#39;&#39;&#39;
+    def get_send_data(self, data):
+        return tuple(data)
+
+    def get_shng_data(self, data, type=None):
+        if type is None:
+            return tuple(data)
+        return super().get_shng_data(data, type)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.datatypes.DT_webservices"><code class="flex name class">
+<span>class <span class="ident">DT_webservices</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>extract value of key 'value' from json data, e.g. for webservices plugin </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_webservices(Datatype):
+    &#39;&#39;&#39; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#39;&#39;&#39;
     def get_send_data(self, data):
         return data
 
@@ -735,171 +800,85 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_shng_ws.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return data</code></pre>
-</details>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_shng_ws.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        js = json.loads(data)
-        arg = js.get(&#39;value&#39;, None)
-        return arg
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_str"><code class="flex name class">
-<span>class <span class="ident">DT_str</span></span>
-<span>(</span><span>fail_silent=True)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DT_str(Datatype):
-    def get_send_data(self, data):
-        return str(data)
-
-    def get_shng_data(self, data, type=None):
-        if type is None:
-            return str(data)
-        return super().get_shng_data(data, type)</code></pre>
-</details>
-<h3>Ancestors</h3>
+<h3>Inherited members</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_str.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return str(data)</code></pre>
-</details>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_str.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return str(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.DT_tuple"><code class="flex name class">
-<span>class <span class="ident">DT_tuple</span></span>
-<span>(</span><span>fail_silent=True)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DT_tuple(Datatype):
-    def get_send_data(self, data):
-        return tuple(data)
-
-    def get_shng_data(self, data, type=None):
-        if type is None:
-            return tuple(data)
-        return super().get_shng_data(data, type)</code></pre>
-</details>
-<h3>Ancestors</h3>
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="priv_multidevice.datatypes.DT_tuple.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_send_data(self, data):
-    return tuple(data)</code></pre>
-</details>
+</li>
+</ul>
 </dd>
-<dt id="priv_multidevice.datatypes.DT_tuple.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
-    if type is None:
-        return tuple(data)
-    return super().get_shng_data(data, type)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="priv_multidevice.datatypes.Datatype"><code class="flex name class">
+<dt id="multidevice.datatypes.Datatype"><code class="flex name class">
 <span>class <span class="ident">Datatype</span></span>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<p>Basically, it defines the conversion from item value to device "value" and
+vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
+str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
+<p>To define own Datatype classes, define derived class and overload at least
+get_shng_data() and get_send_data().</p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Datatype(object):
+    &#39;&#39;&#39;
+    This class describes the basic structure of all derived datatype classes.
 
+    Basically, it defines the conversion from item value to device &#34;value&#34; and
+    vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or 
+    str &lt;-&gt; int for clear text status messages in SmartHomeNG.
+
+    To define own Datatype classes, define derived class and overload at least
+    get_shng_data() and get_send_data().
+    &#39;&#39;&#39;
     def __init__(self, fail_silent=True):
+        &#39;&#39;&#39;
+        :param fail_silent: keep silent on data conversion error or raise exception
+        :type fail_silent: bool
+        &#39;&#39;&#39;
         self._silent = fail_silent
 
     def get_send_data(self, data):
+        &#39;&#39;&#39;
+        take (item value) data and return value in a format fit for the device
+        In the base class, this just returns whatever it gets.
+
+        If errors occur while converting, raise an exception.
+
+        :param data: arbitrary data (usually item value)
+        :return: data in device-compatible format
+        &#39;&#39;&#39;
         return data
 
     def get_shng_data(self, data, type=None):
+        &#39;&#39;&#39;
+        take data from device reply and try and convert it into SmartHomeNG-
+        compatible type (item type).
+
+        By default, this returns data according to the default item type
+        associated with this Datatype class.
+        Optionally, the desired return type can be specified (as string), in
+        which case the method is expected to return the requested type. As a
+        basic &#39;casting show&#39; is implemented in the base class, derived classes
+        may call the base class&#39; get_shng_data if &#39;type&#39; is specified.
+        Beware of special needs if converting complex data types.
+
+        If errors occur while converting, raise an exception.
+
+        :param data: value to convert
+        :param type: type of return value
+        :type type: str
+        :return: converted value
+        &#39;&#39;&#39;
         if type is None or type not in datatypes:
             return data
 
@@ -980,44 +959,94 @@ class DT_shng_ws(Datatype):
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="priv_multidevice.datatypes.DT_bytearray" href="#priv_multidevice.datatypes.DT_bytearray">DT_bytearray</a></li>
-<li><a title="priv_multidevice.datatypes.DT_bytes" href="#priv_multidevice.datatypes.DT_bytes">DT_bytes</a></li>
-<li><a title="priv_multidevice.datatypes.DT_dict" href="#priv_multidevice.datatypes.DT_dict">DT_dict</a></li>
-<li><a title="priv_multidevice.datatypes.DT_int" href="#priv_multidevice.datatypes.DT_int">DT_int</a></li>
-<li><a title="priv_multidevice.datatypes.DT_json" href="#priv_multidevice.datatypes.DT_json">DT_json</a></li>
-<li><a title="priv_multidevice.datatypes.DT_list" href="#priv_multidevice.datatypes.DT_list">DT_list</a></li>
-<li><a title="priv_multidevice.datatypes.DT_num" href="#priv_multidevice.datatypes.DT_num">DT_num</a></li>
-<li><a title="priv_multidevice.datatypes.DT_raw" href="#priv_multidevice.datatypes.DT_raw">DT_raw</a></li>
-<li><a title="priv_multidevice.datatypes.DT_shng_ws" href="#priv_multidevice.datatypes.DT_shng_ws">DT_shng_ws</a></li>
-<li><a title="priv_multidevice.datatypes.DT_str" href="#priv_multidevice.datatypes.DT_str">DT_str</a></li>
-<li><a title="priv_multidevice.datatypes.DT_tuple" href="#priv_multidevice.datatypes.DT_tuple">DT_tuple</a></li>
-<li><a title="priv_multidevice.dev_dev2.datatypes.DT_xxx" href="dev_dev2/datatypes.html#priv_multidevice.dev_dev2.datatypes.DT_xxx">DT_xxx</a></li>
+<li><a title="multidevice.datatypes.DT_bool" href="#multidevice.datatypes.DT_bool">DT_bool</a></li>
+<li><a title="multidevice.datatypes.DT_bytearray" href="#multidevice.datatypes.DT_bytearray">DT_bytearray</a></li>
+<li><a title="multidevice.datatypes.DT_bytes" href="#multidevice.datatypes.DT_bytes">DT_bytes</a></li>
+<li><a title="multidevice.datatypes.DT_dict" href="#multidevice.datatypes.DT_dict">DT_dict</a></li>
+<li><a title="multidevice.datatypes.DT_int" href="#multidevice.datatypes.DT_int">DT_int</a></li>
+<li><a title="multidevice.datatypes.DT_json" href="#multidevice.datatypes.DT_json">DT_json</a></li>
+<li><a title="multidevice.datatypes.DT_list" href="#multidevice.datatypes.DT_list">DT_list</a></li>
+<li><a title="multidevice.datatypes.DT_num" href="#multidevice.datatypes.DT_num">DT_num</a></li>
+<li><a title="multidevice.datatypes.DT_raw" href="#multidevice.datatypes.DT_raw">DT_raw</a></li>
+<li><a title="multidevice.datatypes.DT_str" href="#multidevice.datatypes.DT_str">DT_str</a></li>
+<li><a title="multidevice.datatypes.DT_tuple" href="#multidevice.datatypes.DT_tuple">DT_tuple</a></li>
+<li><a title="multidevice.datatypes.DT_webservices" href="#multidevice.datatypes.DT_webservices">DT_webservices</a></li>
+<li><a title="multidevice.dev_example.datatypes.DT_Example" href="dev_example/datatypes.html#multidevice.dev_example.datatypes.DT_Example">DT_Example</a></li>
+<li><a title="multidevice.dev_pioneer.datatypes.DT_PioMute" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioMute">DT_PioMute</a></li>
+<li><a title="multidevice.dev_pioneer.datatypes.DT_PioPwr" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioPwr">DT_PioPwr</a></li>
+<li><a title="multidevice.dev_pioneer.datatypes.DT_PioSource" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioSource">DT_PioSource</a></li>
+<li><a title="multidevice.dev_pioneer.datatypes.DT_PioVol" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioVol">DT_PioVol</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="priv_multidevice.datatypes.Datatype.get_send_data"><code class="name flex">
+<dt id="multidevice.datatypes.Datatype.get_send_data"><code class="name flex">
 <span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>take (item value) data and return value in a format fit for the device
+In the base class, this just returns whatever it gets.</p>
+<p>If errors occur while converting, raise an exception.</p>
+<p>:param data: arbitrary data (usually item value)
+:return: data in device-compatible format</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_send_data(self, data):
+    &#39;&#39;&#39;
+    take (item value) data and return value in a format fit for the device
+    In the base class, this just returns whatever it gets.
+
+    If errors occur while converting, raise an exception.
+
+    :param data: arbitrary data (usually item value)
+    :return: data in device-compatible format
+    &#39;&#39;&#39;
     return data</code></pre>
 </details>
 </dd>
-<dt id="priv_multidevice.datatypes.Datatype.get_shng_data"><code class="name flex">
+<dt id="multidevice.datatypes.Datatype.get_shng_data"><code class="name flex">
 <span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>take data from device reply and try and convert it into SmartHomeNG-
+compatible type (item type).</p>
+<p>By default, this returns data according to the default item type
+associated with this Datatype class.
+Optionally, the desired return type can be specified (as string), in
+which case the method is expected to return the requested type. As a
+basic 'casting show' is implemented in the base class, derived classes
+may call the base class' get_shng_data if 'type' is specified.
+Beware of special needs if converting complex data types.</p>
+<p>If errors occur while converting, raise an exception.</p>
+<p>:param data: value to convert
+:param type: type of return value
+:type type: str
+:return: converted value</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_shng_data(self, data, type=None):
+    &#39;&#39;&#39;
+    take data from device reply and try and convert it into SmartHomeNG-
+    compatible type (item type).
+
+    By default, this returns data according to the default item type
+    associated with this Datatype class.
+    Optionally, the desired return type can be specified (as string), in
+    which case the method is expected to return the requested type. As a
+    basic &#39;casting show&#39; is implemented in the base class, derived classes
+    may call the base class&#39; get_shng_data if &#39;type&#39; is specified.
+    Beware of special needs if converting complex data types.
+
+    If errors occur while converting, raise an exception.
+
+    :param data: value to convert
+    :param type: type of return value
+    :type type: str
+    :return: converted value
+    &#39;&#39;&#39;
     if type is None or type not in datatypes:
         return data
 
@@ -1112,89 +1141,52 @@ class DT_shng_ws(Datatype):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="priv_multidevice" href="index.html">priv_multidevice</a></code></li>
+<li><code><a title="multidevice" href="index.html">multidevice</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_bytearray" href="#priv_multidevice.datatypes.DT_bytearray">DT_bytearray</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_bytearray.get_send_data" href="#priv_multidevice.datatypes.DT_bytearray.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_bytearray.get_shng_data" href="#priv_multidevice.datatypes.DT_bytearray.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_bool" href="#multidevice.datatypes.DT_bool">DT_bool</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_bytes" href="#priv_multidevice.datatypes.DT_bytes">DT_bytes</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_bytes.get_send_data" href="#priv_multidevice.datatypes.DT_bytes.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_bytes.get_shng_data" href="#priv_multidevice.datatypes.DT_bytes.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_bytearray" href="#multidevice.datatypes.DT_bytearray">DT_bytearray</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_dict" href="#priv_multidevice.datatypes.DT_dict">DT_dict</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_dict.get_send_data" href="#priv_multidevice.datatypes.DT_dict.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_dict.get_shng_data" href="#priv_multidevice.datatypes.DT_dict.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_bytes" href="#multidevice.datatypes.DT_bytes">DT_bytes</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_int" href="#priv_multidevice.datatypes.DT_int">DT_int</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_int.get_send_data" href="#priv_multidevice.datatypes.DT_int.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_int.get_shng_data" href="#priv_multidevice.datatypes.DT_int.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_dict" href="#multidevice.datatypes.DT_dict">DT_dict</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_json" href="#priv_multidevice.datatypes.DT_json">DT_json</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_json.get_send_data" href="#priv_multidevice.datatypes.DT_json.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_json.get_shng_data" href="#priv_multidevice.datatypes.DT_json.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_int" href="#multidevice.datatypes.DT_int">DT_int</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_list" href="#priv_multidevice.datatypes.DT_list">DT_list</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_list.get_send_data" href="#priv_multidevice.datatypes.DT_list.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_list.get_shng_data" href="#priv_multidevice.datatypes.DT_list.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_json" href="#multidevice.datatypes.DT_json">DT_json</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_num" href="#priv_multidevice.datatypes.DT_num">DT_num</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_num.get_send_data" href="#priv_multidevice.datatypes.DT_num.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_num.get_shng_data" href="#priv_multidevice.datatypes.DT_num.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_list" href="#multidevice.datatypes.DT_list">DT_list</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_raw" href="#priv_multidevice.datatypes.DT_raw">DT_raw</a></code></h4>
+<h4><code><a title="multidevice.datatypes.DT_num" href="#multidevice.datatypes.DT_num">DT_num</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_shng_ws" href="#priv_multidevice.datatypes.DT_shng_ws">DT_shng_ws</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_shng_ws.get_send_data" href="#priv_multidevice.datatypes.DT_shng_ws.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_shng_ws.get_shng_data" href="#priv_multidevice.datatypes.DT_shng_ws.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_raw" href="#multidevice.datatypes.DT_raw">DT_raw</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_str" href="#priv_multidevice.datatypes.DT_str">DT_str</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_str.get_send_data" href="#priv_multidevice.datatypes.DT_str.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_str.get_shng_data" href="#priv_multidevice.datatypes.DT_str.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_str" href="#multidevice.datatypes.DT_str">DT_str</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.DT_tuple" href="#priv_multidevice.datatypes.DT_tuple">DT_tuple</a></code></h4>
-<ul class="">
-<li><code><a title="priv_multidevice.datatypes.DT_tuple.get_send_data" href="#priv_multidevice.datatypes.DT_tuple.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.DT_tuple.get_shng_data" href="#priv_multidevice.datatypes.DT_tuple.get_shng_data">get_shng_data</a></code></li>
-</ul>
+<h4><code><a title="multidevice.datatypes.DT_tuple" href="#multidevice.datatypes.DT_tuple">DT_tuple</a></code></h4>
 </li>
 <li>
-<h4><code><a title="priv_multidevice.datatypes.Datatype" href="#priv_multidevice.datatypes.Datatype">Datatype</a></code></h4>
+<h4><code><a title="multidevice.datatypes.DT_webservices" href="#multidevice.datatypes.DT_webservices">DT_webservices</a></code></h4>
+</li>
+<li>
+<h4><code><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></code></h4>
 <ul class="">
-<li><code><a title="priv_multidevice.datatypes.Datatype.get_send_data" href="#priv_multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
-<li><code><a title="priv_multidevice.datatypes.Datatype.get_shng_data" href="#priv_multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
 </ul>
 </li>
 </ul>

@@ -99,7 +99,7 @@ Public methods:
     - ``stop()``
     - ``send_command(command, value=None)``
     - ``read_all_commands()``
-    - ``data_received(command, data)``
+    - ``on_data_received(command, data)``
     - ``is_valid_command(command, read=None)``
     - ``set_runtime_data(**kwargs)``
     - ``update_device_params(**kwargs)``

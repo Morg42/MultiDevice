@@ -1,0 +1,2264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>multidevice API documentation</title>
+<meta name="description" content="The MultiDevice-Plugin (MD)
+…" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>multidevice</code></h1>
+</header>
+<section id="section-intro">
+<h1 id="the-multidevice-plugin-md">The MultiDevice-Plugin (MD)</h1>
+<p>This plugin aims to support a wide range of devices which work by sending
+commands to a device and reading data from it.
+By abstracting devices and connections, most devices will be able to be
+interfaced by this plugin.</p>
+<h1 id="general-description">General description</h1>
+<p>The whole MultiDevice-plugin is organized and abstracted into multiple levels
+of (reference) base classes and derived classes handling special implementations.</p>
+<p>The plugin manages item association and updates. For each device it handles,
+it creates an object based on MD_Device or derived classes.</p>
+<p>The device object handles starting and stopping the device and its configuration.</p>
+<p>Possible commands are bundled by the MD_Commands class which handles loading,
+validating and calling the separate MD_Command or derived objects. </p>
+<p>Each MD_Command object handles one command and is responsible for creating<br>
+command tokens/strings to/from the real device. </p>
+<p>Each command is assigned a data type, which is represented by a Datatype-
+derived class and transforms values between the real device and the command object.</p>
+<p>To actually talk to the real device, that is, send commands/values and receive
+replies, it uses a standardized interface via one of the MD_Connection or
+derived classes. </p>
+<p>Thus, the plugin, devices and commands are ignorant of physical connection
+details, the connection implementation is transparent regarding actual data
+structures or content, and only the datatype classes need to concern itself
+with validity of data sent or received.</p>
+<p>(New) devices each reside in their respective subfolder of the plugin folder,
+providing a derived device class, a command definition and - if applicable -
+additional necessary datatypes. These are automatically loaded by the plugin
+if the respective device has a configuration entry in <code>/etc/plugin.yaml</code>.</p>
+<p>This concept is meant to
+- minimize the amount of (repeating) code needed to implement a new device,
+- make it easy to adjust functionality by deriving base classes, overriding
+methods without needing to adjust the remaining code,
+- reduce implementing a new device (mostly) to properly defining the
+command API and datatypes,
+- keeping individual devices separated and independent as each is loaded into
+its own module / namespace.</p>
+<p>This comes at the cost of needing to understand the architecture of the plugin
+to be able to decide what to change/extend and what to keep.</p>
+<p>My hope is that with proper documentation and examples, this last part is
+easier to achieve than having to rewrite the whole handling code for items,
+network, serial interfaces and commands every time.</p>
+<h1 id="base-classes">Base Classes</h1>
+<h2 id="multidevice">Multidevice</h2>
+<p>The <code><a title="multidevice.MultiDevice" href="#multidevice.MultiDevice">MultiDevice</a></code>-class is derived from the SmartPlugin-class and provides
+the framework for handling item associations to the plugin, for storing
+item-command associations, for forwarding commands and the associated data
+to the device classes and receiving data from the device classes to update
+item values.
+This class will usually not need to be adjusted, but runs as the plugin itself.</p>
+<h2 id="md_device">Md_Device</h2>
+<p>The <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code>-class provides a framework for receiving (item) data values
+from the plugin and forward it to the connection class and vice versa.
+A basic framework for managing the device, i.e. (re-)configuring, starting
+and stopping the device is already implemented and can be used without code
+changed by device configuration.</p>
+<p><code>MD_Device(device_id, device_name, **kwargs)</code></p>
+<p>Public methods:</p>
+<ul>
+<li><code>start()</code></li>
+<li><code>stop()</code></li>
+<li><code>send_command(command, value=None)</code></li>
+<li><code>read_all_commands()</code></li>
+<li><code>on_data_received(command, data)</code></li>
+<li><code>is_valid_command(command, read=None)</code></li>
+<li><code>set_runtime_data(**kwargs)</code></li>
+<li><code>update_device_params(**kwargs)</code></li>
+</ul>
+<p>Methods possibly needed to overload for inherited classes:</p>
+<ul>
+<li><code>run_standalone()</code></li>
+<li><code>_transform_send_data(data_dict)</code></li>
+<li><code>_set_device_params(**kwargs)</code></li>
+<li><code>_get_connection()</code></li>
+</ul>
+<h2 id="md_connection">Md_Connection</h2>
+<p>This class and the derived classes provide frameworks for sending and receiving
+data to and from devices via serial or network connections. For both hardware
+layers implementation of query-response-connections and listening servers
+with asynchronous push-to-callback are already available.
+If more complex communication setup is needed, this can be implemented on top
+of the existing classes.</p>
+<p>Data is exchanged with <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> in a special dict format:</p>
+<pre><code>data_dict = {
+    'payload': raw data as needed by the connection}
+    'kw1': additional 'keyword' args or data specific to the connection type
+    'kw2': additional 'keyword' args or data specific to the connection type
+    '...': additional 'keyword' args or data specific to the connection type
+}
+</code></pre>
+<p><code>MD_Connection(device_id, device_name, data_received_callback, **kwargs)</code></p>
+<p>Public methods:</p>
+<ul>
+<li><code>open()</code></li>
+<li><code>close()</code></li>
+<li><code>send(data_dict)</code></li>
+</ul>
+<p>Methods necessary to overload for derived classes:</p>
+<ul>
+<li><code>_open()</code></li>
+<li><code>_close()</code></li>
+<li><code>_send(data_dict)</code></li>
+</ul>
+<p>Methods possible to overload for derived classes:</p>
+<ul>
+<li><code>_send_init_on_open()</code></li>
+<li><code>_send_init_on_send()</code></li>
+</ul>
+<p>This class has subclasses defined for the following types of connection:</p>
+<ul>
+<li><code>MD_Connection_Net_TCP_Request</code> for query-reply TCP connections</li>
+<li><code>MD_Connection_Net_TCP_Reply</code>
+for persistent TCP connections with sync replies</li>
+<li><code>MD_Connection_Net_Tcp_Client</code>
+for persistent TCP connections with async replies</li>
+<li><code>MD_Connection_Net_UDP_Server</code>
+for UDP listering server with async callback</li>
+<li><code>MD_Connection_Serial_Client</code>
+for query-reply serial connections</li>
+<li><code>MD_Connection_Serial_Async</code>
+for event-loop serial connection with async callback</li>
+</ul>
+<p>For detailed information and necessary configuration parameters, see the
+respective class definition docstring.</p>
+<h2 id="md_commands">Md_Commands</h2>
+<p>This class is a 'dict on steroids' of <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code>-objects with error checking as
+added value. In addition, it also loads command definitions from the file
+<code>commands.py</code> in the device folder and datatype sets and handles datatype association.</p>
+<p>No need to find out if <code>command</code> is defined, just call the method
+and the class will handle failure cases. Beware of NoneType-return values, though.</p>
+<p><code>MD_Commands(device_id, device_name, command_obj_class=MD_Command, **kwargs)</code></p>
+<p>Public methods:</p>
+<ul>
+<li><code>is_valid_command(command, read=None)</code></li>
+<li><code>get_send_data(command, data=None)</code></li>
+<li><code>get_shng_data(command, data)</code></li>
+<li><code>get_command_from_reply(data)</code></li>
+</ul>
+<p>Methods possible to overload:</p>
+<ul>
+<li><code>_parse_commands(device_name, commands)</code></li>
+</ul>
+<h2 id="md_command">Md_Command</h2>
+<p>This class contains information concerning the command name, the opcode or
+URL needed to issue the command, and information about datatypes expected by
+SmartHomeNG items and the device itself.</p>
+<p>Its contents will be initialized by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code>-class while reading the
+command configuration.</p>
+<p><code>MD_Command(device_name, command_name, dt_class, **kwargs)</code></p>
+<p>Public methods:</p>
+<ul>
+<li><code>get_send_data(data)</code></li>
+<li><code>get_shng_data(data)</code></li>
+</ul>
+<p>Methods possible to overload:</p>
+<ul>
+<li><code>get_send_data(data)</code></li>
+<li><code>get_shng_data(data)</code></li>
+</ul>
+<p>The class <code>MD_Command_Str</code> is an example for defining own commands according
+to your needs.
+This example utilizes strings and dicts to build request URLs as payload data
+for the <code>MD_Connection_Net_TCP_Request</code> class.
+It also demonstrates parameter substitution in command definitions.</p>
+<h2 id="md_datatype">Md_Datatype</h2>
+<p>This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.</p>
+<p>Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of <code>DT_&lt;device data type of format&gt;</code>.</p>
+<p>All default datatype classes are imported from <code>datatypes.py</code> into the 'DT' module.</p>
+<p>New devices can ship their own needed datatype classes in a file called
+<code>datatypes.py</code> in the devices' folder.</p>
+<p>For details concerning API and implementation, refer to the reference classes as
+examples.</p>
+<p><code>Datatype(fail_silent=True)</code></p>
+<p>Public methods:</p>
+<ul>
+<li><code>get_send_data(data)</code></li>
+<li><code>get_shng_data(data, type=None)</code></li>
+</ul>
+<p>Methods necessary to overload:</p>
+<ul>
+<li><code>get_send_data(data)</code></li>
+<li><code>get_shng_data(data, type=None)</code></li>
+</ul>
+<h1 id="configuration">Configuration</h1>
+<p>The plugin class is capable of handling an arbitrary number of devices
+independently. Necessary configuration include the chosen devices respectively
+the device names and possibly device parameter in <code>/etc/plugin.yaml</code>.</p>
+<p>The item configuration is supplemented by the attributes <code>md_device</code> and
+<code>md_command</code>, which designate the device name from plugin configuration and
+the command name from the device configuration, respectively.</p>
+<p>The device class needs comprehensive configuration concerning available commands,
+the associated sent and received data formats, which will be supplied by way
+of configuration files in yaml format. Furthermore, the device-dependent
+type and configuration of connection should be set in <code>/etc/plugin.yaml</code> for
+each device used.</p>
+<p>The connection classes will be chosen and configured by the device classes.
+They should not need further configuration, as all data transformation is done
+by the device classes and the connection-specific attributes are provided
+from plugin configuration.</p>
+<h1 id="new-devices">New devices</h1>
+<p>A new device type <code>gadget</code> can be implemented by providing the following:</p>
+<ul>
+<li>a device folder <code>dev_gadget</code></li>
+<li>a device configuration file defining commands <code>dev_gadget/commands.py</code></li>
+<li>specification of needed connection type in <code>/etc/plugin.yaml</code> ('conn_type')</li>
+<li>only if needed:<ul>
+<li>a device class file with a derived class <code>dev_gadget/device.py</code></li>
+<li>additional methods in the device class to handle special commands which
+do more than assign transformed item data to a single item or which need
+more complex item transformation</li>
+<li>additional methods in the connection class to handle special forms of
+connection initialization (e.g. serial sync routines)</li>
+<li>a data formats file defining data types <code>dev_gadget/datatypes.py</code> and
+additional data types in the datatype file</li>
+</ul>
+</li>
+</ul>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+#########################################################################
+#  Copyright 2020-      Sebastian Helms             Morg @ knx-user-forum
+#########################################################################
+#  This file aims to become part of SmartHomeNG.
+#  https://www.smarthomeNG.de
+#  https://knx-user-forum.de/forum/supportforen/smarthome-py
+#
+#  MultiDevice plugin for handling arbitrary devices via network or serial
+#  connection.
+#
+#  SmartHomeNG is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  SmartHomeNG is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with SmartHomeNG. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+#
+#########################################################################
+
+&#39;&#39;&#39;
+    The MultiDevice-Plugin (MD)
+    ===========================
+
+    This plugin aims to support a wide range of devices which work by sending
+    commands to a device and reading data from it.
+    By abstracting devices and connections, most devices will be able to be
+    interfaced by this plugin.
+
+    General description
+    ===================
+
+    The whole MultiDevice-plugin is organized and abstracted into multiple levels
+    of (reference) base classes and derived classes handling special implementations.
+
+    The plugin manages item association and updates. For each device it handles,
+    it creates an object based on MD_Device or derived classes.
+
+    The device object handles starting and stopping the device and its configuration.
+    
+    Possible commands are bundled by the MD_Commands class which handles loading, 
+    validating and calling the separate MD_Command or derived objects. 
+    
+    Each MD_Command object handles one command and is responsible for creating  
+    command tokens/strings to/from the real device. 
+
+    Each command is assigned a data type, which is represented by a Datatype-
+    derived class and transforms values between the real device and the command object.
+    
+    To actually talk to the real device, that is, send commands/values and receive
+    replies, it uses a standardized interface via one of the MD_Connection or 
+    derived classes. 
+
+    Thus, the plugin, devices and commands are ignorant of physical connection
+    details, the connection implementation is transparent regarding actual data
+    structures or content, and only the datatype classes need to concern itself
+    with validity of data sent or received.
+
+    (New) devices each reside in their respective subfolder of the plugin folder,
+    providing a derived device class, a command definition and - if applicable -
+    additional necessary datatypes. These are automatically loaded by the plugin
+    if the respective device has a configuration entry in ``/etc/plugin.yaml``.
+
+
+    This concept is meant to
+    - minimize the amount of (repeating) code needed to implement a new device,
+    - make it easy to adjust functionality by deriving base classes, overriding
+      methods without needing to adjust the remaining code,
+    - reduce implementing a new device (mostly) to properly defining the
+      command API and datatypes,
+    - keeping individual devices separated and independent as each is loaded into
+      its own module / namespace.
+
+    This comes at the cost of needing to understand the architecture of the plugin
+    to be able to decide what to change/extend and what to keep.
+
+    My hope is that with proper documentation and examples, this last part is
+    easier to achieve than having to rewrite the whole handling code for items,
+    network, serial interfaces and commands every time.
+
+
+    Base Classes
+    ============
+
+    MultiDevice
+    -----------
+
+    The ``MultiDevice``-class is derived from the SmartPlugin-class and provides
+    the framework for handling item associations to the plugin, for storing
+    item-command associations, for forwarding commands and the associated data
+    to the device classes and receiving data from the device classes to update
+    item values.
+    This class will usually not need to be adjusted, but runs as the plugin itself.
+
+
+    MD_Device
+    ---------
+
+    The ``MD_Device``-class provides a framework for receiving (item) data values
+    from the plugin and forward it to the connection class and vice versa.
+    A basic framework for managing the device, i.e. (re-)configuring, starting
+    and stopping the device is already implemented and can be used without code
+    changed by device configuration.
+
+    ``MD_Device(device_id, device_name, **kwargs)``
+
+    Public methods:
+
+    - ``start()``
+    - ``stop()``
+    - ``send_command(command, value=None)``
+    - ``read_all_commands()``
+    - ``on_data_received(command, data)``
+    - ``is_valid_command(command, read=None)``
+    - ``set_runtime_data(**kwargs)``
+    - ``update_device_params(**kwargs)``
+
+    Methods possibly needed to overload for inherited classes:
+
+    - ``run_standalone()``
+    - ``_transform_send_data(data_dict)``
+    - ``_set_device_params(**kwargs)``
+    - ``_get_connection()``
+
+
+    MD_Connection
+    -------------
+
+    This class and the derived classes provide frameworks for sending and receiving
+    data to and from devices via serial or network connections. For both hardware
+    layers implementation of query-response-connections and listening servers
+    with asynchronous push-to-callback are already available.
+    If more complex communication setup is needed, this can be implemented on top
+    of the existing classes.
+
+    Data is exchanged with ``MD_Device`` in a special dict format:
+
+        data_dict = {
+            &#39;payload&#39;: raw data as needed by the connection}
+            &#39;kw1&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+            &#39;kw2&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+            &#39;...&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+        }
+
+
+    ``MD_Connection(device_id, device_name, data_received_callback, **kwargs)``
+
+    Public methods:
+
+    - ``open()``
+    - ``close()``
+    - ``send(data_dict)``
+
+    Methods necessary to overload for derived classes:
+
+    - ``_open()``
+    - ``_close()``
+    - ``_send(data_dict)``
+
+
+    Methods possible to overload for derived classes:
+
+    - ``_send_init_on_open()``
+    - ``_send_init_on_send()``
+
+
+    This class has subclasses defined for the following types of connection:
+
+    - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
+    - ``MD_Connection_Net_TCP_Reply``   for persistent TCP connections with sync replies
+    - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
+    - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
+    - ``MD_Connection_Serial_Client``   for query-reply serial connections
+    - ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
+
+    For detailed information and necessary configuration parameters, see the
+    respective class definition docstring.
+
+
+    MD_Commands
+    -----------
+
+    This class is a &#39;dict on steroids&#39; of ``MD_Command``-objects with error checking as
+    added value. In addition, it also loads command definitions from the file
+    ``commands.py`` in the device folder and datatype sets and handles datatype association.
+
+    No need to find out if ``command`` is defined, just call the method
+    and the class will handle failure cases. Beware of NoneType-return values, though.
+
+    ``MD_Commands(device_id, device_name, command_obj_class=MD_Command, **kwargs)``
+
+    Public methods:
+
+    - ``is_valid_command(command, read=None)``
+    - ``get_send_data(command, data=None)``
+    - ``get_shng_data(command, data)``
+    - ``get_command_from_reply(data)``
+
+    Methods possible to overload:
+
+    - ``_parse_commands(device_name, commands)``
+
+
+    MD_Command
+    ----------
+
+    This class contains information concerning the command name, the opcode or
+    URL needed to issue the command, and information about datatypes expected by
+    SmartHomeNG items and the device itself.
+
+    Its contents will be initialized by the ``MD_Commands``-class while reading the
+    command configuration.
+
+    ``MD_Command(device_name, command_name, dt_class, **kwargs)``
+
+    Public methods:
+
+    - ``get_send_data(data)``
+    - ``get_shng_data(data)``
+
+    Methods possible to overload:
+
+    - ``get_send_data(data)``
+    - ``get_shng_data(data)``
+
+
+    The class ``MD_Command_Str`` is an example for defining own commands according
+    to your needs.
+    This example utilizes strings and dicts to build request URLs as payload data
+    for the ``MD_Connection_Net_TCP_Request`` class.
+    It also demonstrates parameter substitution in command definitions.
+
+
+    MD_Datatype
+    -----------
+
+    This is one of the most important classes. By declaration, it contains
+    information about the data type and format needed by a device and methods
+    to convert its value from selected Python data types used in items to the
+    (possibly) special data formats required by devices and vice versa.
+
+    Datatypes are specified in subclasses of Datatype with a nomenclature
+    convention of `DT_&lt;device data type of format&gt;`.
+
+    All default datatype classes are imported from ``datatypes.py`` into the &#39;DT&#39; module.
+
+    New devices can ship their own needed datatype classes in a file called
+    ``datatypes.py`` in the devices&#39; folder.
+
+    For details concerning API and implementation, refer to the reference classes as
+    examples.
+
+    ``Datatype(fail_silent=True)``
+
+    Public methods:
+
+    - ``get_send_data(data)``
+    - ``get_shng_data(data, type=None)``
+
+    Methods necessary to overload:
+
+    - ``get_send_data(data)``
+    - ``get_shng_data(data, type=None)``
+
+
+    Configuration
+    =============
+
+    The plugin class is capable of handling an arbitrary number of devices
+    independently. Necessary configuration include the chosen devices respectively
+    the device names and possibly device parameter in ``/etc/plugin.yaml``.
+
+    The item configuration is supplemented by the attributes ``md_device`` and
+    ``md_command``, which designate the device name from plugin configuration and
+    the command name from the device configuration, respectively.
+
+    The device class needs comprehensive configuration concerning available commands,
+    the associated sent and received data formats, which will be supplied by way
+    of configuration files in yaml format. Furthermore, the device-dependent
+    type and configuration of connection should be set in ``/etc/plugin.yaml`` for
+    each device used.
+
+    The connection classes will be chosen and configured by the device classes.
+    They should not need further configuration, as all data transformation is done
+    by the device classes and the connection-specific attributes are provided
+    from plugin configuration.
+
+
+    New devices
+    ===========
+
+    A new device type ``gadget`` can be implemented by providing the following:
+
+    - a device folder ``dev_gadget``
+    - a device configuration file defining commands ``dev_gadget/commands.py``
+    - specification of needed connection type in ``/etc/plugin.yaml`` (&#39;conn_type&#39;)
+    - only if needed:
+        * a device class file with a derived class ``dev_gadget/device.py``
+        * additional methods in the device class to handle special commands which
+          do more than assign transformed item data to a single item or which need
+          more complex item transformation
+        * additional methods in the connection class to handle special forms of
+          connection initialization (e.g. serial sync routines)
+        * a data formats file defining data types ``dev_gadget/datatypes.py`` and
+          additional data types in the datatype file
+&#39;&#39;&#39;
+
+from collections import OrderedDict
+import importlib
+import builtins
+import logging
+import re
+import sys
+import cherrypy
+import json
+from ast import literal_eval
+
+
+if __name__ == &#39;__main__&#39;:
+    # just needed for standalone mode
+    builtins.MD_standalone = True
+
+    class SmartPlugin():
+        pass
+
+    class SmartPluginWebIf():
+        pass
+
+    import os
+    BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
+    sys.path.insert(0, BASE)
+
+    from MD_Globals import *
+    from MD_Device import MD_Device
+
+else:
+    builtins.MD_standalone = False
+
+    from lib.item import Items
+    from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+
+    from .MD_Globals import *
+    from .MD_Device import MD_Device
+
+
+#############################################################################################################################################################################################################################################
+#
+# class MultiDevice
+#
+#############################################################################################################################################################################################################################################
+
+class MultiDevice(SmartPlugin):
+    &#39;&#39;&#39;
+    This class does the actual interface work between SmartHomeNG and the device
+    classes. Mainly it parses plugin and item configuration data, sets up associations
+    between devices and items and handles data exchange between SmartHomeNG and
+    the device classes. Furthermore, it calls all devices&#39; run() and stop() methods
+    if so instructed by SmartHomeNG.
+
+    It also looks good.
+    &#39;&#39;&#39;
+
+    PLUGIN_VERSION = &#39;0.0.3&#39;
+
+    def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
+        &#39;&#39;&#39;
+        Initalizes the plugin. For this plugin, this means collecting all device
+        modules and initializing them by instantiating the proper class.
+        &#39;&#39;&#39;
+
+        if not sh:
+            self.logger = logger
+
+        self.logger.debug(f&#39;Initializung MultiDevice-Plugin as {__name__}&#39;)
+
+        self._devices = {}              # contains all configured devices - &lt;device_name&gt;: {&#39;id&#39;: &lt;device_id&gt;, &#39;device&#39;: &lt;class-instance&gt;, &#39;logger&#39;: &lt;logger-instance&gt;, &#39;params&#39;: {&#39;param1&#39;: val1, &#39;param2&#39;: val2...}}
+        self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_name&#39;: &lt;device_name&gt;, &#39;command&#39;: &lt;command&gt;}
+        self._items_readall = {}        # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_name&gt;
+        self._commands_read = {}        # contains all commands per device with read command - &lt;device_name&gt;: {&lt;command&gt;: &lt;item_object&gt;}
+        self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_name&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
+        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {&lt;command&gt;: &lt;cycle&gt;}
+
+        # Call init code of parent class (SmartPlugin)
+        super().__init__()
+
+        if sh:
+            # get the parameters for the plugin (as defined in metadata plugin.yaml):
+            devices = self.get_parameter_value(&#39;device&#39;)
+        else:
+            # set devices to &#34;only device, kwargs set as config&#34;
+            devices = {standalone_device: kwargs}
+
+        # iterate over all items in plugin configuration &#39;device&#39; list
+        #
+        # example:
+        #
+        # multidevice:
+        #     plugin_name: multidevice
+        #     device:
+        #         - dev1                    # -&gt; case 1, name=dev1, id=dev1
+        #         - mydev: dev2             # -&gt; case 2, name=mydev, id=dev2
+        #         - my2dev:                 # -&gt; case 3, name=my2dev, id=dev3
+        #             - device: dev3
+        #             - host: somehost
+        #         - dev4:
+        #             - host: someotherhost # -&gt; case 4, name=dev4, id=dev4,
+        #                                   #    handled implicitly by case 3
+
+        for device in devices:
+            device_id = None
+            param = {}
+            if type(device) is str:
+                # case 1, device configuration is only string
+                device_id = device_name = device
+
+            elif type(device) is OrderedDict:
+
+                # either we have devname: devid or devname: (list of arg: value)
+                device_name, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
+
+                if type(conf) is str:
+                    # case 2, device_name: device_id
+                    device_id = conf
+                # dev_id: (list of OrderedDict(arg: value))?
+                elif type(conf) is list and all(type(arg) is OrderedDict for arg in conf):
+                    # case 3, get device_id from parsing conf
+                    device_id = device_name
+                    for odict in conf:
+                        for arg in odict.keys():
+
+                            # store parameters
+                            if arg == &#39;device&#39;:
+                                device_id = odict[arg]
+                            else:
+                                param[arg] = sanitize_param(odict[arg])
+
+                else:
+                    self.logger.warning(f&#39;Configuration for device {device_id} has unknown format, skipping {device_id}&#39;)
+                    device_id = device_name = None
+
+            if device_name and device_name in self._devices:
+                self.logger.warning(f&#39;Duplicate device name {device_name} configured for device_ids {device_id} and {self._devices[device_name][&#34;id&#34;]}. Skipping processing of device id {device_id}&#39;)
+                break
+
+            # did we get a device id?
+            if device_id:
+                device_instance = None
+                try:
+                    # get module
+                    mod_str = &#39;dev_&#39; + device_id + &#39;.device&#39;
+                    if not MD_standalone:
+                        mod_str = &#39;.&#39; + mod_str
+                    device_module = importlib.import_module(mod_str, __name__)
+                    # get class name
+                    device_class = getattr(device_module, &#39;MD_Device&#39;)
+                    # get class instance
+                    device_instance = device_class(device_id, device_name, plugin=self, **param)
+                except AttributeError as e:
+                    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_id + &#34;/device.py&#34;} failed. Skipping device {device_name}. Error was: {e}&#39;)
+                except (ImportError):
+                    self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_id + &#34;/device.py&#34;} for device {device_name} failed, reverting to default MD_Device class&#39;)
+                    device_instance = MD_Device(device_id, device_name, plugin=self, **param)
+
+                if device_instance:
+
+                    dev_logger = logging.getLogger(__name__ + f&#39;.{device_name}&#39;)
+                    # fill class dicts
+                    self._devices[device_name] = {&#39;id&#39;: device_id, &#39;device&#39;: device_instance, &#39;logger&#39;: dev_logger, &#39;params&#39;: param}
+                    self._commands_read[device_name] = {}
+                    self._commands_initial[device_name] = []
+                    self._commands_cyclic[device_name] = {}
+                    dev_logger = None
+
+        if not self._devices:
+            self._init_complete = False
+            return
+
+        # if plugin should start even without web interface
+        if sh:
+            self.init_webinterface(WebInterface)
+
+    def run(self):
+        &#39;&#39;&#39;
+        Run method for the plugin
+        &#39;&#39;&#39;
+        self.logger.debug(&#39;Run method called&#39;)
+
+        # self.__print_global_arrays()
+
+        # hand over relevant assigned commands and runtime-generated data
+        self._apply_on_all_devices(&#39;set_runtime_data&#39;, self._generate_runtime_data)
+
+        # start the devices
+        self.alive = True
+        self._apply_on_all_devices(&#39;start&#39;)
+
+    def stop(self):
+        &#39;&#39;&#39;
+        Stop method for the plugin
+        &#39;&#39;&#39;
+        self.logger.debug(&#39;Stop method called&#39;)
+        # self.scheduler_remove(&#39;poll_device&#39;)
+        self.alive = False
+
+        self._apply_on_all_devices(&#39;stop&#39;)
+
+    def parse_item(self, item):
+        &#39;&#39;&#39;
+        Default plugin parse_item method. Is called when the plugin is initialized.
+        The plugin can, corresponding to its attribute keywords, decide what to do with
+        the item in future, like adding it to an internal array for future reference
+        :param item:    The item to process.
+        :return:        If the plugin needs to be informed of an items change you should return a call back function
+                        like the function update_item down below. An example when this is needed is the knx plugin
+                        where parse_item returns the update_item function when the attribute knx_send is found.
+                        This means that when the items value is about to be updated, the call back function is called
+                        with the item, caller, source and dest as arguments and in case of the knx plugin the value
+                        can be sent to the knx with a knx write function within the knx plugin.
+        &#39;&#39;&#39;
+        if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
+
+            # item is marked for plugin handling.
+            device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+
+            # is device_name known?
+            if device_name and device_name not in self._devices:
+                self.logger.warning(f&#39;Item {item} requests device {device_name}, which is not configured, ignoring item&#39;)
+                return
+
+            device = self._get_device(device_name)
+            self.logger.debug(f&#39;Item {item}: parse for device {device_name}&#39;)
+
+            if self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
+
+                command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+                # command found, validate command for device
+                if not device.is_valid_command(command):
+                    self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_name}, ignoring item&#39;)
+                    return
+
+                # command marked for reading
+                if self.has_iattr(item.conf, ITEM_ATTR_READ) and self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                    if device.is_valid_command(command, COMMAND_READ):
+                        if command in self._commands_read[device_name]:
+                            self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_name}, but this is already set with item {self._commands_read[device_name][command]}, ignoring item&#39;)
+                        else:
+                            self._commands_read[device_name][command] = item
+                            self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_name}&#39;)
+                    else:
+                        self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored&#39;)
+
+                    # read on startup?
+                    if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
+                        if command not in self._commands_initial[device_name]:
+                            self._commands_initial[device_name].append(command)
+                            self.logger.debug(f&#39;Item {item} saved for startup reading command {command} on device {device_name}&#39;)
+
+                    # read cyclically?
+                    if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
+                        cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
+                        # if cycle is already set for command, use the lower value of the two
+                        self._commands_cyclic[device_name][command] = { &#39;cycle&#39;: min(cycle, self._commands_cyclic[device_name].get(command, cycle)), &#39;next&#39;: 0 }
+                        self.logger.debug(f&#39;Item {item} saved for cyclic reading command {command} on device {device_name}&#39;)
+
+                # command marked for writing
+                if self.has_iattr(item.conf, ITEM_ATTR_WRITE) and self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
+                    if device.is_valid_command(command, COMMAND_WRITE):
+                        self._items_write[item.id()] = {&#39;device_name&#39;: device_name, &#39;command&#39;: command}
+                        self.logger.debug(f&#39;Item {item} saved for writing command {command} on device {device_name}&#39;)
+                        return self.update_item
+
+            # is read_all item?
+            if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
+                self._items_readall[item.id()] = device_name
+                self.logger.debug(f&#39;Item {item} saved for read_all on device {device_name}&#39;)
+                return self.update_item
+
+    # def parse_logic(self, logic):
+    #     &#39;&#39;&#39;
+    #     Default plugin parse_logic method
+    #     &#39;&#39;&#39;
+    #     if &#39;xxx&#39; in logic.conf:
+    #         # self.function(logic[&#39;name&#39;])
+    #         pass
+
+    def update_item(self, item, caller=None, source=None, dest=None):
+        &#39;&#39;&#39;
+        Item has been updated
+
+        This method is called, if the value of an item has been updated by SmartHomeNG.
+        It should write the changed value out to the device (hardware/interface) that
+        is managed by this plugin.
+
+        :param item: item to be updated towards the plugin
+        :param caller: if given it represents the callers name
+        :param source: if given it represents the source
+        :param dest: if given it represents the dest
+        &#39;&#39;&#39;
+        if self.alive:
+
+            self.logger.debug(f&#39;Update_item was called with item &#34;{item}&#34; from caller {caller}, source {source} and dest {dest}&#39;)
+            if not self.has_iattr(item.conf, ITEM_ATTR_DEVICE) and not self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
+                self.logger.warning(f&#39;Update_item was called with item {item}, which is not configured for this plugin. This shouldn\&#39;t happen...&#39;)
+                return
+
+            device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+
+            # test if source of item change was not the item&#39;s device...
+            if caller != self.get_shortname() + &#39;.&#39; + device_name:
+
+                # from here on, use device&#39;s logger so messages are displayer for the device
+                tmp_log = self.logger
+                dev = self._devices.get(device_name, None)
+                if dev:
+                    tmp_log = dev.get(&#39;logger&#39;, self.logger)
+
+                # okay, go ahead
+                tmp_log.info(f&#39;Update item: {item.id()}: item has been changed outside this plugin&#39;)
+
+                # item in list of write-configured items?
+                if item.id() in self._items_write:
+
+                    # get data and send new value
+                    device_name = self._items_write[item.id()][&#39;device_name&#39;]
+                    device = self._get_device(device_name)
+                    command = self._items_write[item.id()][&#39;command&#39;]
+                    tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
+                    if not device.send_command(command, item()):
+                        tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
+                        item(item.property.last_value, self.get_shortname())
+                        return None
+
+                elif item.id() in self._items_readall:
+
+                    # get data and trigger read_all
+                    device_name = self._items_readall[item.id()]
+                    device = self._get_device(device_name)
+                    tmp_log.debug(f&#39;Triggering read_all&#39;)
+                    device.read_all_commands()
+
+    def on_data_received(self, device_name, command, value):
+        &#39;&#39;&#39;
+        Callback function - new data has been received from device.
+        Value is already in item-compatible format, so find appropriate item
+        and update value
+
+        :param device_name: name of the originating device
+        :param command: command for or in reply to which data was received
+        :param value: data
+        :type device_name: str
+        :type command: str
+        &#39;&#39;&#39;
+        if self.alive:
+
+            # check if combination of device_name and command is configured for reading
+            if device_name in self._commands_read and command in self._commands_read[device_name]:
+                item = self._commands_read[device_name][command]
+                self.logger.debug(f&#39;Device {device_name} updated command {command} with value {value} for item {item.id()}&#39;)
+                item(value, self.get_shortname() + &#34;.&#34; + device_name)
+            else:
+                self.logger.warning(f&#39;Device {device_name} updated command {command} with value {value}, not assigned to any item, discarding data&#39;)
+
+    def _update_device_params(self, device_name):
+        &#39;&#39;&#39;
+        hand over all device parameters to the device and tell it to do whatever
+        is necessary to apply the new values.
+        The device _will_ ignore this while it is running. To avoid accidental
+        service interruption, device.stop() is not called automatically.
+        Do. this. yourself.
+
+        :param device_name: device name (surprise!)
+        :type device:name: string
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;updating parameters for device {device_name}&#39;)
+        device = self._get_device(device_name)
+        if device:
+            device.update_device_params(**self._get_device_params(device_name))
+
+    def _apply_on_all_devices(self, method, args_function=None):
+        &#39;&#39;&#39;
+        Call &lt;method&gt; on all devices stored in self._devices. If supplied,
+        call args_function(device_name) for each device and hand over its
+        returned dict as **kwargs.
+
+        :param method: name of method to run
+        :param args_function: function to build arguments dict
+        :type method: str
+        :type args_function: function
+        &#39;&#39;&#39;
+        for device in self._devices:
+
+            kwargs = {}
+            if args_function:
+                kwargs = args_function(device)
+            getattr(self._get_device(device), method)(**kwargs)
+
+    def _generate_runtime_data(self, device_name):
+        &#39;&#39;&#39;
+        generate dict with device-specific data needed to run, which is
+        - list of all &#39;read&#39;-configured commands
+        - list of all cyclic commands with cycle times
+        - list of all initial read commands
+        - callback for returning data to the plugin
+        &#39;&#39;&#39;
+        return {
+            &#39;read_commands&#39;: self._commands_read[device_name].keys(),
+            &#39;cycle_commands&#39;: self._commands_cyclic[device_name],
+            &#39;initial_commands&#39;: self._commands_initial[device_name],
+            &#39;callback&#39;: self.on_data_received
+        }
+
+    def _get_device_id(self, device_name):
+        &#39;&#39;&#39; getter method. Really most unused. &#39;&#39;&#39;
+        dev = self._devices.get(device_name, None)
+        if dev:
+            return dev[&#39;id&#39;]
+        else:
+            return None
+
+    def _get_device(self, device_name):
+        &#39;&#39;&#39; getter method for device object &#39;&#39;&#39;
+        dev = self._devices.get(device_name, None)
+        if dev:
+            return dev[&#39;device&#39;]
+        else:
+            return None
+
+    def _get_device_params(self, device_name):
+        &#39;&#39;&#39; getter method &#39;&#39;&#39;
+        dev = self._devices.get(device_name, None)
+        if dev:
+            return dev[&#39;params&#39;]
+        else:
+            return None
+
+
+#############################################################################################################################################################################################################################################
+#
+# class WebInterface
+#
+#############################################################################################################################################################################################################################################
+
+class WebInterface(SmartPluginWebIf):
+
+    def __init__(self, webif_dir, plugin):
+        &#34;&#34;&#34;
+        Initialization of instance of class WebInterface
+
+        :param webif_dir: directory where the webinterface of the plugin resides
+        :param plugin: instance of the plugin
+        :type webif_dir: str
+        :type plugin: object
+        &#34;&#34;&#34;
+        self.logger = plugin.logger
+        self.webif_dir = webif_dir
+        self.plugin = plugin
+        self.items = Items.get_instance()
+
+        self.tplenv = self.init_template_environment()
+
+    @cherrypy.expose
+    def index(self, reload=None):
+        &#34;&#34;&#34;
+        Build index.html for cherrypy
+
+        Render the template and return the html file to be delivered to the browser
+
+        :return: contents of the template after beeing rendered
+        &#34;&#34;&#34;
+        tmpl = self.tplenv.get_template(&#39;index.html&#39;)
+        # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
+
+        plgitems = []
+        for item in self.items.return_items():
+            if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
+                plgitems.append(item)
+
+        return tmpl.render(p=self.plugin,
+                           items=sorted(self.items.return_items(), key=lambda k: str.lower(k[&#39;_path&#39;])),
+                           item_count=0,
+                           plgitems=plgitems,
+                           running={dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices},
+                           devices=self.plugin._devices)
+
+    @cherrypy.expose
+    def submit(self, button=None, param=None):
+        &#39;&#39;&#39;
+        Submit handler for Ajax
+        &#39;&#39;&#39;
+        if button is not None:
+
+            notify = None
+
+            if &#39;#&#39; in button:
+
+                # run/stop command
+                cmd, __, dev = button.partition(&#39;#&#39;)
+                device = self.plugin._get_device(dev)
+                if device:
+                    if cmd == &#39;run&#39;:
+                        self.logger.info(f&#39;Webinterface starting device {dev}&#39;)
+                        device.start()
+                    elif cmd == &#39;stop&#39;:
+                        self.logger.info(f&#39;Webinterface stopping device {dev}&#39;)
+                        device.stop()
+            elif &#39;.&#39; in button:
+
+                # set device arg - but only when stopped
+                dev, __, arg = button.partition(&#39;.&#39;)
+                if param is not None:
+                    param = sanitize_param(param)
+                    try:
+                        self.logger.info(f&#39;Webinterface setting param {arg} of device {dev} to {param}&#39;)
+                        self.plugin._devices[dev][&#39;params&#39;][arg] = param
+                        self.plugin._update_device_params(dev)
+                        notify = dev + &#39;-&#39; + arg + &#39;-notify&#39;
+                    except Exception as e:
+                        self.logger.info(f&#39;Webinterface failed to set param {arg} of device {dev} to {param} with error {e}&#39;)
+
+            # # possibly prepare data for returning
+            # read_cmd = self.plugin._commandname_by_commandcode(button)
+            # if read_cmd is not None:
+            #     self._last_read[button] = {&#39;addr&#39;: button, &#39;cmd&#39;: read_cmd, &#39;val&#39;: read_val}
+            #     self._last_read[&#39;last&#39;] = self._last_read[button]
+
+            data = {&#39;running&#39;: {dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices}, &#39;notify&#39;: notify}
+
+        # # possibly return data to WebIf
+        cherrypy.response.headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+        return json.dumps(data).encode(&#39;utf-8&#39;)
+
+    @cherrypy.expose
+    def get_data_html(self, dataSet=None):
+        &#34;&#34;&#34;
+        Return data to update the webpage
+
+        For the standard update mechanism of the web interface, the dataSet to return the data for is None
+
+        :param dataSet: Dataset for which the data should be returned (standard: None)
+        :return: dict with the data needed to update the web page.
+        &#34;&#34;&#34;
+        if dataSet is None:
+            # get the new data
+            # data = {}
+            pass
+
+            # data[&#39;item&#39;] = {}
+            # for i in self.plugin.items:
+            #     data[&#39;item&#39;][i][&#39;value&#39;] = self.plugin.getitemvalue(i)
+            #
+            # return it as json the the web page
+            # try:
+            #     return json.dumps(data)
+            # except Exception as e:
+            #     self.logger.error(&#34;get_data_html exception: {}&#34;.format(e))
+        return {}
+
+
+if __name__ == &#39;__main__&#39;:
+
+    usage = &#39;&#39;&#39;
+    Usage:
+    ----------------------------------------------------------------------------------
+
+    This plugin is meant to be used inside SmartHomeNG.
+
+    Is is generally possible to run this plugin in standalone mode, usually for
+    diagnostic purposes - IF the specified device supports this mode.
+    As devices are modular extensions, it is not possible to print a list of supported
+    devices.
+
+    You need to call this plugin with the device name as the first parameter, any
+    necessary configuration options either as arg=value pairs or as a python dict
+    (this needs to be enclosed in quotes).
+    Be aware that later parameters, be they dict or pair type, overwrite earlier
+    parameters of the same name.
+
+    ./__init__.py MD_Device host=www.smarthomeng.de port=80
+
+    or
+
+    ./__init__.py MD_Device &#39;{&#34;host&#34;: &#34;www.smarthomeng.de&#34;, &#34;port&#34;: 80}&#39;
+
+    If you call it with -v as a parameter after the device name, you get additional
+    debug information:
+
+    ./__init__.py MD_Device -v
+
+    &#39;&#39;&#39;
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.CRITICAL)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter(&#39;%(asctime)s - %(message)s  @ %(lineno)d&#39;)
+    ch.setFormatter(formatter)
+
+    # add the handlers to the logger
+    logger.addHandler(ch)
+
+    device = &#34;&#34;
+
+    if len(sys.argv) &gt; 1:
+        device = sys.argv[1]
+
+    if device:
+
+        # check for further command line arguments
+        params = {}
+        for arg in range(2, len(sys.argv)):
+
+            arg_str = sys.argv[arg]
+            if arg_str == &#39;-v&#39;:
+                print(&#39;Debug logging enabled&#39;)
+                logger.setLevel(logging.DEBUG)
+
+            else:
+                try:
+                    # convertible to dict?
+                    params.update(literal_eval(arg_str))
+                except Exception:
+                    # if not: try to parse as &#39;name=value&#39;
+                    match = re.match(&#39;([^= \n]+)=([^= ˜n])&#39;, arg_str)
+                    if match:
+                        name, value = match.groups(0)
+                        params[name] = value
+
+    else:
+        print(usage)
+        exit()
+
+    print(&#34;This is MultiDevice plugin running in standalone mode&#34;)
+    print(&#34;=====================================================&#34;)
+
+    md = MultiDevice(None, standalone_device=device, logger=logger, **params)
+
+    if md._devices:
+        dev = md._devices[list(md._devices.keys())[0]]
+        print(f&#39;Device loaded: {device} --- &#39;, end=&#39;&#39;)
+
+        if getattr(dev[&#39;device&#39;], &#39;run_standalone&#39;, &#39;&#39;):
+            print(&#39;running standalone method...&#39;)
+
+            dev[&#39;device&#39;].run_standalone()
+        else:
+            print(&#39;device doesn\&#39;t have a standalone function.&#39;)
+    else:
+        print(f&#39;Device {device} could not be loaded.&#39;)
+
+    print(&#39;Done.&#39;)</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.MD_Globals" href="MD_Globals.html">multidevice.MD_Globals</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></dt>
+<dd>
+<div class="desc"><p>Datatype
+…</p></div>
+</dd>
+<dt><code class="name"><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="multidevice.MultiDevice"><code class="flex name class">
+<span>class <span class="ident">MultiDevice</span></span>
+<span>(</span><span>sh, standalone_device='', logger=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class does the actual interface work between SmartHomeNG and the device
+classes. Mainly it parses plugin and item configuration data, sets up associations
+between devices and items and handles data exchange between SmartHomeNG and
+the device classes. Furthermore, it calls all devices' run() and stop() methods
+if so instructed by SmartHomeNG.</p>
+<p>It also looks good.</p>
+<p>Initalizes the plugin. For this plugin, this means collecting all device
+modules and initializing them by instantiating the proper class.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MultiDevice(SmartPlugin):
+    &#39;&#39;&#39;
+    This class does the actual interface work between SmartHomeNG and the device
+    classes. Mainly it parses plugin and item configuration data, sets up associations
+    between devices and items and handles data exchange between SmartHomeNG and
+    the device classes. Furthermore, it calls all devices&#39; run() and stop() methods
+    if so instructed by SmartHomeNG.
+
+    It also looks good.
+    &#39;&#39;&#39;
+
+    PLUGIN_VERSION = &#39;0.0.3&#39;
+
+    def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
+        &#39;&#39;&#39;
+        Initalizes the plugin. For this plugin, this means collecting all device
+        modules and initializing them by instantiating the proper class.
+        &#39;&#39;&#39;
+
+        if not sh:
+            self.logger = logger
+
+        self.logger.debug(f&#39;Initializung MultiDevice-Plugin as {__name__}&#39;)
+
+        self._devices = {}              # contains all configured devices - &lt;device_name&gt;: {&#39;id&#39;: &lt;device_id&gt;, &#39;device&#39;: &lt;class-instance&gt;, &#39;logger&#39;: &lt;logger-instance&gt;, &#39;params&#39;: {&#39;param1&#39;: val1, &#39;param2&#39;: val2...}}
+        self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_name&#39;: &lt;device_name&gt;, &#39;command&#39;: &lt;command&gt;}
+        self._items_readall = {}        # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_name&gt;
+        self._commands_read = {}        # contains all commands per device with read command - &lt;device_name&gt;: {&lt;command&gt;: &lt;item_object&gt;}
+        self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_name&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
+        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {&lt;command&gt;: &lt;cycle&gt;}
+
+        # Call init code of parent class (SmartPlugin)
+        super().__init__()
+
+        if sh:
+            # get the parameters for the plugin (as defined in metadata plugin.yaml):
+            devices = self.get_parameter_value(&#39;device&#39;)
+        else:
+            # set devices to &#34;only device, kwargs set as config&#34;
+            devices = {standalone_device: kwargs}
+
+        # iterate over all items in plugin configuration &#39;device&#39; list
+        #
+        # example:
+        #
+        # multidevice:
+        #     plugin_name: multidevice
+        #     device:
+        #         - dev1                    # -&gt; case 1, name=dev1, id=dev1
+        #         - mydev: dev2             # -&gt; case 2, name=mydev, id=dev2
+        #         - my2dev:                 # -&gt; case 3, name=my2dev, id=dev3
+        #             - device: dev3
+        #             - host: somehost
+        #         - dev4:
+        #             - host: someotherhost # -&gt; case 4, name=dev4, id=dev4,
+        #                                   #    handled implicitly by case 3
+
+        for device in devices:
+            device_id = None
+            param = {}
+            if type(device) is str:
+                # case 1, device configuration is only string
+                device_id = device_name = device
+
+            elif type(device) is OrderedDict:
+
+                # either we have devname: devid or devname: (list of arg: value)
+                device_name, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
+
+                if type(conf) is str:
+                    # case 2, device_name: device_id
+                    device_id = conf
+                # dev_id: (list of OrderedDict(arg: value))?
+                elif type(conf) is list and all(type(arg) is OrderedDict for arg in conf):
+                    # case 3, get device_id from parsing conf
+                    device_id = device_name
+                    for odict in conf:
+                        for arg in odict.keys():
+
+                            # store parameters
+                            if arg == &#39;device&#39;:
+                                device_id = odict[arg]
+                            else:
+                                param[arg] = sanitize_param(odict[arg])
+
+                else:
+                    self.logger.warning(f&#39;Configuration for device {device_id} has unknown format, skipping {device_id}&#39;)
+                    device_id = device_name = None
+
+            if device_name and device_name in self._devices:
+                self.logger.warning(f&#39;Duplicate device name {device_name} configured for device_ids {device_id} and {self._devices[device_name][&#34;id&#34;]}. Skipping processing of device id {device_id}&#39;)
+                break
+
+            # did we get a device id?
+            if device_id:
+                device_instance = None
+                try:
+                    # get module
+                    mod_str = &#39;dev_&#39; + device_id + &#39;.device&#39;
+                    if not MD_standalone:
+                        mod_str = &#39;.&#39; + mod_str
+                    device_module = importlib.import_module(mod_str, __name__)
+                    # get class name
+                    device_class = getattr(device_module, &#39;MD_Device&#39;)
+                    # get class instance
+                    device_instance = device_class(device_id, device_name, plugin=self, **param)
+                except AttributeError as e:
+                    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_id + &#34;/device.py&#34;} failed. Skipping device {device_name}. Error was: {e}&#39;)
+                except (ImportError):
+                    self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_id + &#34;/device.py&#34;} for device {device_name} failed, reverting to default MD_Device class&#39;)
+                    device_instance = MD_Device(device_id, device_name, plugin=self, **param)
+
+                if device_instance:
+
+                    dev_logger = logging.getLogger(__name__ + f&#39;.{device_name}&#39;)
+                    # fill class dicts
+                    self._devices[device_name] = {&#39;id&#39;: device_id, &#39;device&#39;: device_instance, &#39;logger&#39;: dev_logger, &#39;params&#39;: param}
+                    self._commands_read[device_name] = {}
+                    self._commands_initial[device_name] = []
+                    self._commands_cyclic[device_name] = {}
+                    dev_logger = None
+
+        if not self._devices:
+            self._init_complete = False
+            return
+
+        # if plugin should start even without web interface
+        if sh:
+            self.init_webinterface(WebInterface)
+
+    def run(self):
+        &#39;&#39;&#39;
+        Run method for the plugin
+        &#39;&#39;&#39;
+        self.logger.debug(&#39;Run method called&#39;)
+
+        # self.__print_global_arrays()
+
+        # hand over relevant assigned commands and runtime-generated data
+        self._apply_on_all_devices(&#39;set_runtime_data&#39;, self._generate_runtime_data)
+
+        # start the devices
+        self.alive = True
+        self._apply_on_all_devices(&#39;start&#39;)
+
+    def stop(self):
+        &#39;&#39;&#39;
+        Stop method for the plugin
+        &#39;&#39;&#39;
+        self.logger.debug(&#39;Stop method called&#39;)
+        # self.scheduler_remove(&#39;poll_device&#39;)
+        self.alive = False
+
+        self._apply_on_all_devices(&#39;stop&#39;)
+
+    def parse_item(self, item):
+        &#39;&#39;&#39;
+        Default plugin parse_item method. Is called when the plugin is initialized.
+        The plugin can, corresponding to its attribute keywords, decide what to do with
+        the item in future, like adding it to an internal array for future reference
+        :param item:    The item to process.
+        :return:        If the plugin needs to be informed of an items change you should return a call back function
+                        like the function update_item down below. An example when this is needed is the knx plugin
+                        where parse_item returns the update_item function when the attribute knx_send is found.
+                        This means that when the items value is about to be updated, the call back function is called
+                        with the item, caller, source and dest as arguments and in case of the knx plugin the value
+                        can be sent to the knx with a knx write function within the knx plugin.
+        &#39;&#39;&#39;
+        if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
+
+            # item is marked for plugin handling.
+            device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+
+            # is device_name known?
+            if device_name and device_name not in self._devices:
+                self.logger.warning(f&#39;Item {item} requests device {device_name}, which is not configured, ignoring item&#39;)
+                return
+
+            device = self._get_device(device_name)
+            self.logger.debug(f&#39;Item {item}: parse for device {device_name}&#39;)
+
+            if self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
+
+                command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+                # command found, validate command for device
+                if not device.is_valid_command(command):
+                    self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_name}, ignoring item&#39;)
+                    return
+
+                # command marked for reading
+                if self.has_iattr(item.conf, ITEM_ATTR_READ) and self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                    if device.is_valid_command(command, COMMAND_READ):
+                        if command in self._commands_read[device_name]:
+                            self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_name}, but this is already set with item {self._commands_read[device_name][command]}, ignoring item&#39;)
+                        else:
+                            self._commands_read[device_name][command] = item
+                            self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_name}&#39;)
+                    else:
+                        self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored&#39;)
+
+                    # read on startup?
+                    if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
+                        if command not in self._commands_initial[device_name]:
+                            self._commands_initial[device_name].append(command)
+                            self.logger.debug(f&#39;Item {item} saved for startup reading command {command} on device {device_name}&#39;)
+
+                    # read cyclically?
+                    if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
+                        cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
+                        # if cycle is already set for command, use the lower value of the two
+                        self._commands_cyclic[device_name][command] = { &#39;cycle&#39;: min(cycle, self._commands_cyclic[device_name].get(command, cycle)), &#39;next&#39;: 0 }
+                        self.logger.debug(f&#39;Item {item} saved for cyclic reading command {command} on device {device_name}&#39;)
+
+                # command marked for writing
+                if self.has_iattr(item.conf, ITEM_ATTR_WRITE) and self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
+                    if device.is_valid_command(command, COMMAND_WRITE):
+                        self._items_write[item.id()] = {&#39;device_name&#39;: device_name, &#39;command&#39;: command}
+                        self.logger.debug(f&#39;Item {item} saved for writing command {command} on device {device_name}&#39;)
+                        return self.update_item
+
+            # is read_all item?
+            if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
+                self._items_readall[item.id()] = device_name
+                self.logger.debug(f&#39;Item {item} saved for read_all on device {device_name}&#39;)
+                return self.update_item
+
+    # def parse_logic(self, logic):
+    #     &#39;&#39;&#39;
+    #     Default plugin parse_logic method
+    #     &#39;&#39;&#39;
+    #     if &#39;xxx&#39; in logic.conf:
+    #         # self.function(logic[&#39;name&#39;])
+    #         pass
+
+    def update_item(self, item, caller=None, source=None, dest=None):
+        &#39;&#39;&#39;
+        Item has been updated
+
+        This method is called, if the value of an item has been updated by SmartHomeNG.
+        It should write the changed value out to the device (hardware/interface) that
+        is managed by this plugin.
+
+        :param item: item to be updated towards the plugin
+        :param caller: if given it represents the callers name
+        :param source: if given it represents the source
+        :param dest: if given it represents the dest
+        &#39;&#39;&#39;
+        if self.alive:
+
+            self.logger.debug(f&#39;Update_item was called with item &#34;{item}&#34; from caller {caller}, source {source} and dest {dest}&#39;)
+            if not self.has_iattr(item.conf, ITEM_ATTR_DEVICE) and not self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
+                self.logger.warning(f&#39;Update_item was called with item {item}, which is not configured for this plugin. This shouldn\&#39;t happen...&#39;)
+                return
+
+            device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+
+            # test if source of item change was not the item&#39;s device...
+            if caller != self.get_shortname() + &#39;.&#39; + device_name:
+
+                # from here on, use device&#39;s logger so messages are displayer for the device
+                tmp_log = self.logger
+                dev = self._devices.get(device_name, None)
+                if dev:
+                    tmp_log = dev.get(&#39;logger&#39;, self.logger)
+
+                # okay, go ahead
+                tmp_log.info(f&#39;Update item: {item.id()}: item has been changed outside this plugin&#39;)
+
+                # item in list of write-configured items?
+                if item.id() in self._items_write:
+
+                    # get data and send new value
+                    device_name = self._items_write[item.id()][&#39;device_name&#39;]
+                    device = self._get_device(device_name)
+                    command = self._items_write[item.id()][&#39;command&#39;]
+                    tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
+                    if not device.send_command(command, item()):
+                        tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
+                        item(item.property.last_value, self.get_shortname())
+                        return None
+
+                elif item.id() in self._items_readall:
+
+                    # get data and trigger read_all
+                    device_name = self._items_readall[item.id()]
+                    device = self._get_device(device_name)
+                    tmp_log.debug(f&#39;Triggering read_all&#39;)
+                    device.read_all_commands()
+
+    def on_data_received(self, device_name, command, value):
+        &#39;&#39;&#39;
+        Callback function - new data has been received from device.
+        Value is already in item-compatible format, so find appropriate item
+        and update value
+
+        :param device_name: name of the originating device
+        :param command: command for or in reply to which data was received
+        :param value: data
+        :type device_name: str
+        :type command: str
+        &#39;&#39;&#39;
+        if self.alive:
+
+            # check if combination of device_name and command is configured for reading
+            if device_name in self._commands_read and command in self._commands_read[device_name]:
+                item = self._commands_read[device_name][command]
+                self.logger.debug(f&#39;Device {device_name} updated command {command} with value {value} for item {item.id()}&#39;)
+                item(value, self.get_shortname() + &#34;.&#34; + device_name)
+            else:
+                self.logger.warning(f&#39;Device {device_name} updated command {command} with value {value}, not assigned to any item, discarding data&#39;)
+
+    def _update_device_params(self, device_name):
+        &#39;&#39;&#39;
+        hand over all device parameters to the device and tell it to do whatever
+        is necessary to apply the new values.
+        The device _will_ ignore this while it is running. To avoid accidental
+        service interruption, device.stop() is not called automatically.
+        Do. this. yourself.
+
+        :param device_name: device name (surprise!)
+        :type device:name: string
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;updating parameters for device {device_name}&#39;)
+        device = self._get_device(device_name)
+        if device:
+            device.update_device_params(**self._get_device_params(device_name))
+
+    def _apply_on_all_devices(self, method, args_function=None):
+        &#39;&#39;&#39;
+        Call &lt;method&gt; on all devices stored in self._devices. If supplied,
+        call args_function(device_name) for each device and hand over its
+        returned dict as **kwargs.
+
+        :param method: name of method to run
+        :param args_function: function to build arguments dict
+        :type method: str
+        :type args_function: function
+        &#39;&#39;&#39;
+        for device in self._devices:
+
+            kwargs = {}
+            if args_function:
+                kwargs = args_function(device)
+            getattr(self._get_device(device), method)(**kwargs)
+
+    def _generate_runtime_data(self, device_name):
+        &#39;&#39;&#39;
+        generate dict with device-specific data needed to run, which is
+        - list of all &#39;read&#39;-configured commands
+        - list of all cyclic commands with cycle times
+        - list of all initial read commands
+        - callback for returning data to the plugin
+        &#39;&#39;&#39;
+        return {
+            &#39;read_commands&#39;: self._commands_read[device_name].keys(),
+            &#39;cycle_commands&#39;: self._commands_cyclic[device_name],
+            &#39;initial_commands&#39;: self._commands_initial[device_name],
+            &#39;callback&#39;: self.on_data_received
+        }
+
+    def _get_device_id(self, device_name):
+        &#39;&#39;&#39; getter method. Really most unused. &#39;&#39;&#39;
+        dev = self._devices.get(device_name, None)
+        if dev:
+            return dev[&#39;id&#39;]
+        else:
+            return None
+
+    def _get_device(self, device_name):
+        &#39;&#39;&#39; getter method for device object &#39;&#39;&#39;
+        dev = self._devices.get(device_name, None)
+        if dev:
+            return dev[&#39;device&#39;]
+        else:
+            return None
+
+    def _get_device_params(self, device_name):
+        &#39;&#39;&#39; getter method &#39;&#39;&#39;
+        dev = self._devices.get(device_name, None)
+        if dev:
+            return dev[&#39;params&#39;]
+        else:
+            return None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>lib.model.smartplugin.SmartPlugin</li>
+<li>lib.model.smartobject.SmartObject</li>
+<li>lib.utils.Utils</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="multidevice.MultiDevice.PLUGIN_VERSION"><code class="name">var <span class="ident">PLUGIN_VERSION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="multidevice.MultiDevice.on_data_received"><code class="name flex">
+<span>def <span class="ident">on_data_received</span></span>(<span>self, device_name, command, value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Callback function - new data has been received from device.
+Value is already in item-compatible format, so find appropriate item
+and update value</p>
+<p>:param device_name: name of the originating device
+:param command: command for or in reply to which data was received
+:param value: data
+:type device_name: str
+:type command: str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_data_received(self, device_name, command, value):
+    &#39;&#39;&#39;
+    Callback function - new data has been received from device.
+    Value is already in item-compatible format, so find appropriate item
+    and update value
+
+    :param device_name: name of the originating device
+    :param command: command for or in reply to which data was received
+    :param value: data
+    :type device_name: str
+    :type command: str
+    &#39;&#39;&#39;
+    if self.alive:
+
+        # check if combination of device_name and command is configured for reading
+        if device_name in self._commands_read and command in self._commands_read[device_name]:
+            item = self._commands_read[device_name][command]
+            self.logger.debug(f&#39;Device {device_name} updated command {command} with value {value} for item {item.id()}&#39;)
+            item(value, self.get_shortname() + &#34;.&#34; + device_name)
+        else:
+            self.logger.warning(f&#39;Device {device_name} updated command {command} with value {value}, not assigned to any item, discarding data&#39;)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MultiDevice.parse_item"><code class="name flex">
+<span>def <span class="ident">parse_item</span></span>(<span>self, item)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Default plugin parse_item method. Is called when the plugin is initialized.
+The plugin can, corresponding to its attribute keywords, decide what to do with
+the item in future, like adding it to an internal array for future reference
+:param item:
+The item to process.
+:return:
+If the plugin needs to be informed of an items change you should return a call back function
+like the function update_item down below. An example when this is needed is the knx plugin
+where parse_item returns the update_item function when the attribute knx_send is found.
+This means that when the items value is about to be updated, the call back function is called
+with the item, caller, source and dest as arguments and in case of the knx plugin the value
+can be sent to the knx with a knx write function within the knx plugin.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_item(self, item):
+    &#39;&#39;&#39;
+    Default plugin parse_item method. Is called when the plugin is initialized.
+    The plugin can, corresponding to its attribute keywords, decide what to do with
+    the item in future, like adding it to an internal array for future reference
+    :param item:    The item to process.
+    :return:        If the plugin needs to be informed of an items change you should return a call back function
+                    like the function update_item down below. An example when this is needed is the knx plugin
+                    where parse_item returns the update_item function when the attribute knx_send is found.
+                    This means that when the items value is about to be updated, the call back function is called
+                    with the item, caller, source and dest as arguments and in case of the knx plugin the value
+                    can be sent to the knx with a knx write function within the knx plugin.
+    &#39;&#39;&#39;
+    if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
+
+        # item is marked for plugin handling.
+        device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+
+        # is device_name known?
+        if device_name and device_name not in self._devices:
+            self.logger.warning(f&#39;Item {item} requests device {device_name}, which is not configured, ignoring item&#39;)
+            return
+
+        device = self._get_device(device_name)
+        self.logger.debug(f&#39;Item {item}: parse for device {device_name}&#39;)
+
+        if self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
+
+            command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+            # command found, validate command for device
+            if not device.is_valid_command(command):
+                self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_name}, ignoring item&#39;)
+                return
+
+            # command marked for reading
+            if self.has_iattr(item.conf, ITEM_ATTR_READ) and self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                if device.is_valid_command(command, COMMAND_READ):
+                    if command in self._commands_read[device_name]:
+                        self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_name}, but this is already set with item {self._commands_read[device_name][command]}, ignoring item&#39;)
+                    else:
+                        self._commands_read[device_name][command] = item
+                        self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_name}&#39;)
+                else:
+                    self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored&#39;)
+
+                # read on startup?
+                if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
+                    if command not in self._commands_initial[device_name]:
+                        self._commands_initial[device_name].append(command)
+                        self.logger.debug(f&#39;Item {item} saved for startup reading command {command} on device {device_name}&#39;)
+
+                # read cyclically?
+                if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
+                    cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
+                    # if cycle is already set for command, use the lower value of the two
+                    self._commands_cyclic[device_name][command] = { &#39;cycle&#39;: min(cycle, self._commands_cyclic[device_name].get(command, cycle)), &#39;next&#39;: 0 }
+                    self.logger.debug(f&#39;Item {item} saved for cyclic reading command {command} on device {device_name}&#39;)
+
+            # command marked for writing
+            if self.has_iattr(item.conf, ITEM_ATTR_WRITE) and self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
+                if device.is_valid_command(command, COMMAND_WRITE):
+                    self._items_write[item.id()] = {&#39;device_name&#39;: device_name, &#39;command&#39;: command}
+                    self.logger.debug(f&#39;Item {item} saved for writing command {command} on device {device_name}&#39;)
+                    return self.update_item
+
+        # is read_all item?
+        if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
+            self._items_readall[item.id()] = device_name
+            self.logger.debug(f&#39;Item {item} saved for read_all on device {device_name}&#39;)
+            return self.update_item</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MultiDevice.run"><code class="name flex">
+<span>def <span class="ident">run</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run method for the plugin</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def run(self):
+    &#39;&#39;&#39;
+    Run method for the plugin
+    &#39;&#39;&#39;
+    self.logger.debug(&#39;Run method called&#39;)
+
+    # self.__print_global_arrays()
+
+    # hand over relevant assigned commands and runtime-generated data
+    self._apply_on_all_devices(&#39;set_runtime_data&#39;, self._generate_runtime_data)
+
+    # start the devices
+    self.alive = True
+    self._apply_on_all_devices(&#39;start&#39;)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MultiDevice.stop"><code class="name flex">
+<span>def <span class="ident">stop</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Stop method for the plugin</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def stop(self):
+    &#39;&#39;&#39;
+    Stop method for the plugin
+    &#39;&#39;&#39;
+    self.logger.debug(&#39;Stop method called&#39;)
+    # self.scheduler_remove(&#39;poll_device&#39;)
+    self.alive = False
+
+    self._apply_on_all_devices(&#39;stop&#39;)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MultiDevice.update_item"><code class="name flex">
+<span>def <span class="ident">update_item</span></span>(<span>self, item, caller=None, source=None, dest=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Item has been updated</p>
+<p>This method is called, if the value of an item has been updated by SmartHomeNG.
+It should write the changed value out to the device (hardware/interface) that
+is managed by this plugin.</p>
+<p>:param item: item to be updated towards the plugin
+:param caller: if given it represents the callers name
+:param source: if given it represents the source
+:param dest: if given it represents the dest</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_item(self, item, caller=None, source=None, dest=None):
+    &#39;&#39;&#39;
+    Item has been updated
+
+    This method is called, if the value of an item has been updated by SmartHomeNG.
+    It should write the changed value out to the device (hardware/interface) that
+    is managed by this plugin.
+
+    :param item: item to be updated towards the plugin
+    :param caller: if given it represents the callers name
+    :param source: if given it represents the source
+    :param dest: if given it represents the dest
+    &#39;&#39;&#39;
+    if self.alive:
+
+        self.logger.debug(f&#39;Update_item was called with item &#34;{item}&#34; from caller {caller}, source {source} and dest {dest}&#39;)
+        if not self.has_iattr(item.conf, ITEM_ATTR_DEVICE) and not self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
+            self.logger.warning(f&#39;Update_item was called with item {item}, which is not configured for this plugin. This shouldn\&#39;t happen...&#39;)
+            return
+
+        device_name = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+
+        # test if source of item change was not the item&#39;s device...
+        if caller != self.get_shortname() + &#39;.&#39; + device_name:
+
+            # from here on, use device&#39;s logger so messages are displayer for the device
+            tmp_log = self.logger
+            dev = self._devices.get(device_name, None)
+            if dev:
+                tmp_log = dev.get(&#39;logger&#39;, self.logger)
+
+            # okay, go ahead
+            tmp_log.info(f&#39;Update item: {item.id()}: item has been changed outside this plugin&#39;)
+
+            # item in list of write-configured items?
+            if item.id() in self._items_write:
+
+                # get data and send new value
+                device_name = self._items_write[item.id()][&#39;device_name&#39;]
+                device = self._get_device(device_name)
+                command = self._items_write[item.id()][&#39;command&#39;]
+                tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
+                if not device.send_command(command, item()):
+                    tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
+                    item(item.property.last_value, self.get_shortname())
+                    return None
+
+            elif item.id() in self._items_readall:
+
+                # get data and trigger read_all
+                device_name = self._items_readall[item.id()]
+                device = self._get_device(device_name)
+                tmp_log.debug(f&#39;Triggering read_all&#39;)
+                device.read_all_commands()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="multidevice.WebInterface"><code class="flex name class">
+<span>class <span class="ident">WebInterface</span></span>
+<span>(</span><span>webif_dir, plugin)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initialization of instance of class WebInterface</p>
+<p>:param webif_dir: directory where the webinterface of the plugin resides
+:param plugin: instance of the plugin
+:type webif_dir: str
+:type plugin: object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WebInterface(SmartPluginWebIf):
+
+    def __init__(self, webif_dir, plugin):
+        &#34;&#34;&#34;
+        Initialization of instance of class WebInterface
+
+        :param webif_dir: directory where the webinterface of the plugin resides
+        :param plugin: instance of the plugin
+        :type webif_dir: str
+        :type plugin: object
+        &#34;&#34;&#34;
+        self.logger = plugin.logger
+        self.webif_dir = webif_dir
+        self.plugin = plugin
+        self.items = Items.get_instance()
+
+        self.tplenv = self.init_template_environment()
+
+    @cherrypy.expose
+    def index(self, reload=None):
+        &#34;&#34;&#34;
+        Build index.html for cherrypy
+
+        Render the template and return the html file to be delivered to the browser
+
+        :return: contents of the template after beeing rendered
+        &#34;&#34;&#34;
+        tmpl = self.tplenv.get_template(&#39;index.html&#39;)
+        # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
+
+        plgitems = []
+        for item in self.items.return_items():
+            if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
+                plgitems.append(item)
+
+        return tmpl.render(p=self.plugin,
+                           items=sorted(self.items.return_items(), key=lambda k: str.lower(k[&#39;_path&#39;])),
+                           item_count=0,
+                           plgitems=plgitems,
+                           running={dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices},
+                           devices=self.plugin._devices)
+
+    @cherrypy.expose
+    def submit(self, button=None, param=None):
+        &#39;&#39;&#39;
+        Submit handler for Ajax
+        &#39;&#39;&#39;
+        if button is not None:
+
+            notify = None
+
+            if &#39;#&#39; in button:
+
+                # run/stop command
+                cmd, __, dev = button.partition(&#39;#&#39;)
+                device = self.plugin._get_device(dev)
+                if device:
+                    if cmd == &#39;run&#39;:
+                        self.logger.info(f&#39;Webinterface starting device {dev}&#39;)
+                        device.start()
+                    elif cmd == &#39;stop&#39;:
+                        self.logger.info(f&#39;Webinterface stopping device {dev}&#39;)
+                        device.stop()
+            elif &#39;.&#39; in button:
+
+                # set device arg - but only when stopped
+                dev, __, arg = button.partition(&#39;.&#39;)
+                if param is not None:
+                    param = sanitize_param(param)
+                    try:
+                        self.logger.info(f&#39;Webinterface setting param {arg} of device {dev} to {param}&#39;)
+                        self.plugin._devices[dev][&#39;params&#39;][arg] = param
+                        self.plugin._update_device_params(dev)
+                        notify = dev + &#39;-&#39; + arg + &#39;-notify&#39;
+                    except Exception as e:
+                        self.logger.info(f&#39;Webinterface failed to set param {arg} of device {dev} to {param} with error {e}&#39;)
+
+            # # possibly prepare data for returning
+            # read_cmd = self.plugin._commandname_by_commandcode(button)
+            # if read_cmd is not None:
+            #     self._last_read[button] = {&#39;addr&#39;: button, &#39;cmd&#39;: read_cmd, &#39;val&#39;: read_val}
+            #     self._last_read[&#39;last&#39;] = self._last_read[button]
+
+            data = {&#39;running&#39;: {dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices}, &#39;notify&#39;: notify}
+
+        # # possibly return data to WebIf
+        cherrypy.response.headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+        return json.dumps(data).encode(&#39;utf-8&#39;)
+
+    @cherrypy.expose
+    def get_data_html(self, dataSet=None):
+        &#34;&#34;&#34;
+        Return data to update the webpage
+
+        For the standard update mechanism of the web interface, the dataSet to return the data for is None
+
+        :param dataSet: Dataset for which the data should be returned (standard: None)
+        :return: dict with the data needed to update the web page.
+        &#34;&#34;&#34;
+        if dataSet is None:
+            # get the new data
+            # data = {}
+            pass
+
+            # data[&#39;item&#39;] = {}
+            # for i in self.plugin.items:
+            #     data[&#39;item&#39;][i][&#39;value&#39;] = self.plugin.getitemvalue(i)
+            #
+            # return it as json the the web page
+            # try:
+            #     return json.dumps(data)
+            # except Exception as e:
+            #     self.logger.error(&#34;get_data_html exception: {}&#34;.format(e))
+        return {}</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>lib.model.smartplugin.SmartPluginWebIf</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="multidevice.WebInterface.get_data_html"><code class="name flex">
+<span>def <span class="ident">get_data_html</span></span>(<span>self, dataSet=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return data to update the webpage</p>
+<p>For the standard update mechanism of the web interface, the dataSet to return the data for is None</p>
+<p>:param dataSet: Dataset for which the data should be returned (standard: None)
+:return: dict with the data needed to update the web page.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@cherrypy.expose
+def get_data_html(self, dataSet=None):
+    &#34;&#34;&#34;
+    Return data to update the webpage
+
+    For the standard update mechanism of the web interface, the dataSet to return the data for is None
+
+    :param dataSet: Dataset for which the data should be returned (standard: None)
+    :return: dict with the data needed to update the web page.
+    &#34;&#34;&#34;
+    if dataSet is None:
+        # get the new data
+        # data = {}
+        pass
+
+        # data[&#39;item&#39;] = {}
+        # for i in self.plugin.items:
+        #     data[&#39;item&#39;][i][&#39;value&#39;] = self.plugin.getitemvalue(i)
+        #
+        # return it as json the the web page
+        # try:
+        #     return json.dumps(data)
+        # except Exception as e:
+        #     self.logger.error(&#34;get_data_html exception: {}&#34;.format(e))
+    return {}</code></pre>
+</details>
+</dd>
+<dt id="multidevice.WebInterface.index"><code class="name flex">
+<span>def <span class="ident">index</span></span>(<span>self, reload=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Build index.html for cherrypy</p>
+<p>Render the template and return the html file to be delivered to the browser</p>
+<p>:return: contents of the template after beeing rendered</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@cherrypy.expose
+def index(self, reload=None):
+    &#34;&#34;&#34;
+    Build index.html for cherrypy
+
+    Render the template and return the html file to be delivered to the browser
+
+    :return: contents of the template after beeing rendered
+    &#34;&#34;&#34;
+    tmpl = self.tplenv.get_template(&#39;index.html&#39;)
+    # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
+
+    plgitems = []
+    for item in self.items.return_items():
+        if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
+            plgitems.append(item)
+
+    return tmpl.render(p=self.plugin,
+                       items=sorted(self.items.return_items(), key=lambda k: str.lower(k[&#39;_path&#39;])),
+                       item_count=0,
+                       plgitems=plgitems,
+                       running={dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices},
+                       devices=self.plugin._devices)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.WebInterface.submit"><code class="name flex">
+<span>def <span class="ident">submit</span></span>(<span>self, button=None, param=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Submit handler for Ajax</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@cherrypy.expose
+def submit(self, button=None, param=None):
+    &#39;&#39;&#39;
+    Submit handler for Ajax
+    &#39;&#39;&#39;
+    if button is not None:
+
+        notify = None
+
+        if &#39;#&#39; in button:
+
+            # run/stop command
+            cmd, __, dev = button.partition(&#39;#&#39;)
+            device = self.plugin._get_device(dev)
+            if device:
+                if cmd == &#39;run&#39;:
+                    self.logger.info(f&#39;Webinterface starting device {dev}&#39;)
+                    device.start()
+                elif cmd == &#39;stop&#39;:
+                    self.logger.info(f&#39;Webinterface stopping device {dev}&#39;)
+                    device.stop()
+        elif &#39;.&#39; in button:
+
+            # set device arg - but only when stopped
+            dev, __, arg = button.partition(&#39;.&#39;)
+            if param is not None:
+                param = sanitize_param(param)
+                try:
+                    self.logger.info(f&#39;Webinterface setting param {arg} of device {dev} to {param}&#39;)
+                    self.plugin._devices[dev][&#39;params&#39;][arg] = param
+                    self.plugin._update_device_params(dev)
+                    notify = dev + &#39;-&#39; + arg + &#39;-notify&#39;
+                except Exception as e:
+                    self.logger.info(f&#39;Webinterface failed to set param {arg} of device {dev} to {param} with error {e}&#39;)
+
+        # # possibly prepare data for returning
+        # read_cmd = self.plugin._commandname_by_commandcode(button)
+        # if read_cmd is not None:
+        #     self._last_read[button] = {&#39;addr&#39;: button, &#39;cmd&#39;: read_cmd, &#39;val&#39;: read_val}
+        #     self._last_read[&#39;last&#39;] = self._last_read[button]
+
+        data = {&#39;running&#39;: {dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices}, &#39;notify&#39;: notify}
+
+    # # possibly return data to WebIf
+    cherrypy.response.headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
+    return json.dumps(data).encode(&#39;utf-8&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#the-multidevice-plugin-md">The MultiDevice-Plugin (MD)</a></li>
+<li><a href="#general-description">General description</a></li>
+<li><a href="#base-classes">Base Classes</a><ul>
+<li><a href="#multidevice">MultiDevice</a></li>
+<li><a href="#md_device">MD_Device</a></li>
+<li><a href="#md_connection">MD_Connection</a></li>
+<li><a href="#md_commands">MD_Commands</a></li>
+<li><a href="#md_command">MD_Command</a></li>
+<li><a href="#md_datatype">MD_Datatype</a></li>
+</ul>
+</li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#new-devices">New devices</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code></li>
+<li><code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code></li>
+<li><code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code></li>
+<li><code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code></li>
+<li><code><a title="multidevice.MD_Globals" href="MD_Globals.html">multidevice.MD_Globals</a></code></li>
+<li><code><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></li>
+<li><code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></li>
+<li><code><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></li>
+<li><code><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="multidevice.MultiDevice" href="#multidevice.MultiDevice">MultiDevice</a></code></h4>
+<ul class="two-column">
+<li><code><a title="multidevice.MultiDevice.PLUGIN_VERSION" href="#multidevice.MultiDevice.PLUGIN_VERSION">PLUGIN_VERSION</a></code></li>
+<li><code><a title="multidevice.MultiDevice.on_data_received" href="#multidevice.MultiDevice.on_data_received">on_data_received</a></code></li>
+<li><code><a title="multidevice.MultiDevice.parse_item" href="#multidevice.MultiDevice.parse_item">parse_item</a></code></li>
+<li><code><a title="multidevice.MultiDevice.run" href="#multidevice.MultiDevice.run">run</a></code></li>
+<li><code><a title="multidevice.MultiDevice.stop" href="#multidevice.MultiDevice.stop">stop</a></code></li>
+<li><code><a title="multidevice.MultiDevice.update_item" href="#multidevice.MultiDevice.update_item">update_item</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="multidevice.WebInterface" href="#multidevice.WebInterface">WebInterface</a></code></h4>
+<ul class="">
+<li><code><a title="multidevice.WebInterface.get_data_html" href="#multidevice.WebInterface.get_data_html">get_data_html</a></code></li>
+<li><code><a title="multidevice.WebInterface.index" href="#multidevice.WebInterface.index">index</a></code></li>
+<li><code><a title="multidevice.WebInterface.submit" href="#multidevice.WebInterface.submit">submit</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

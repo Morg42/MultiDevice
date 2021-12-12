@@ -418,7 +418,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.connected = False
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_NET_HOST: '', PLUGIN_ARG_NET_PORT: 0, 'autoreconnect': True, 'connect_retries': 1, 'connect_cycle': 3, 'disconnected_callback': None, 'timeout': 3}
+        self._params = {PLUGIN_ARG_NET_HOST: '', PLUGIN_ARG_NET_PORT: 0, 'autoreconnect': True, 'connect_retries': 1, 'connect_cycle': 3, 'disconnected_callback': None, 'timeout': 3, 'terminator': b'\r\n'}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -426,6 +426,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self._autoreconnect = self._params['autoreconnect']
         self._connect_retries = self._params['connect_retries']
         self._connect_cycle = self._params['connect_cycle']
+        self._terminator = self._params['terminator']
 
         self._data_received_callback = data_received_callback
         self._disconnected_callback = self._params['disconnected_callback']
@@ -433,9 +434,9 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         # initialize connection
         self._tcp = Tcp_client(host=self.host, port=self.port, name=f'{device_id}TcpConnection',
                                autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
-                               connect_cycle=self._connect_cycle)
-        self._tcp.set_callbacks(data_received=self._on_data_received,
-                                disconnected=self._on_disconnect)
+                               connect_cycle=self._connect_cycle, terminator=self._terminator)
+        self._tcp.set_callbacks(data_received=self.on_data_received,
+                                disconnected=self.on_disconnect)
 
         # tell someone about our actual class
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
@@ -451,13 +452,13 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__} for device {self.device} with params {self._params}')
         self._tcp.close()
 
-    def _on_disconnect(self):
+    def on_disconnect(self):
         self.logger.debug('connection was closed')
         self.connected = False
         if self._disconnected_callback:
             self._disconnected_callback()
 
-    def _on_data_received(self, tcp_cli, data):
+    def on_data_received(self, tcp_cli, data):
         data = data.strip()
         if data:
             self.logger.debug(f'received raw data "{data}" from "{tcp_cli.name}"')

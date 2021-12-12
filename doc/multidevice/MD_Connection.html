@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>multidevice.MD_Connection API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>multidevice.MD_Connection</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#!/usr/bin/env python3
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+#########################################################################
+#  Copyright 2020-      Sebastian Helms             Morg @ knx-user-forum
+#########################################################################
+#  This file aims to become part of SmartHomeNG.
+#  https://www.smarthomeNG.de
+#  https://knx-user-forum.de/forum/supportforen/smarthome-py
+#
+#  MD_Connection and derived classes for MultiDevice plugin
+#
+#  SmartHomeNG is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  SmartHomeNG is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with SmartHomeNG. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+#
+#########################################################################
+
+import logging
+from time import sleep, time
+import requests
+import socket
+from lib.network import Tcp_client
+
+if MD_standalone:
+    from MD_Globals import *
+else:
+    from .MD_Globals import *
+
+
+#############################################################################################################################################################################################################################################
+#
+# class MD_Connection and subclasses
+#
+#############################################################################################################################################################################################################################################
+
+class MD_Connection(object):
+    &#39;&#39;&#39;
+    This class is the base class for further connection classes. It can - well,
+    not much. Opening and closing of connections and writing and receiving data
+    is something to implement in the interface-specific derived classes.
+
+    :param device_id: device type as used in commands.py name
+    :param device_name: device name for use in item configuration and logs
+    :type device_id: str
+    :type device_name: str
+    &#39;&#39;&#39;
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
+        if not hasattr(self, &#39;logger&#39;):
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+
+        self._params = kwargs
+        self._data_received_callback = data_received_callback
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        # tell someone about our actual class
+        self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
+
+    def open(self):
+        self.logger.debug(&#39;open method called for connection&#39;)
+        if self._open():
+            self.connected = True
+        self._send_init_on_open()
+
+    def close(self):
+        self.logger.debug(&#39;close method called for connection&#39;)
+        self._close()
+        self.connected = False
+
+    def send(self, data_dict):
+        &#39;&#39;&#39;
+        Send data, possibly return response
+
+        :param data: dict with raw data and possible additional parameters to send
+        :type data_dict: dict
+        :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
+        &#39;&#39;&#39;
+        self._send_init_on_send()
+        response = self._send(data_dict)
+
+        return response
+
+    #
+    #
+    # overloading needed for at least some of the following methods...
+    #
+    #
+
+    def _open(self):
+        &#39;&#39;&#39;
+        Overload with opening of connection
+
+        :return: True if successful
+        :rtype: bool
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;opening connection as {__name__} for device {self.device} with params {self._params}&#39;)
+        return True
+
+    def _close(self):
+        &#39;&#39;&#39;
+        Overload with closing of connection
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;closing connection as {__name__} for device {self.device} with params {self._params}&#39;)
+
+    def _send(self, data_dict):
+        &#39;&#39;&#39;
+        Overload with sending of data and - possibly - returning response data
+        Return None if no response is received or expected.
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;device {self.device} simulating to send data {data_dict}...&#39;)
+        return None
+
+    def _send_init_on_open(self):
+        &#39;&#39;&#39;
+        This class can be overloaded if anything special is needed to make the
+        other side talk after opening the connection... ;)
+
+        Using class properties instead of arguments makes overloading easy.
+
+        It is routinely called by self.open()
+        &#39;&#39;&#39;
+        pass
+
+    def _send_init_on_send(self):
+        &#39;&#39;&#39;
+        This class can be overloaded if anything special is needed to make the
+        other side talk before sending commands... ;)
+
+        It is routinely called by self.send()
+        &#39;&#39;&#39;
+        pass
+
+    #
+    #
+    # private utility methods
+    #
+    #
+
+    def _set_connection_params(self):
+        &#39;&#39;&#39;
+        Try to set some of the common parameters.
+        Might need to be overloaded...
+        &#39;&#39;&#39;
+        for arg in PLUGIN_ARGS:
+            if arg in self._params:
+                setattr(self, arg, sanitize_param(self._params[arg]))
+
+
+class MD_Connection_Net_Tcp_Request(MD_Connection):
+    &#39;&#39;&#39;
+    This class implements a TCP connection in the query-reply matter using
+    the requests library.
+
+    The data_dict[&#39;payload&#39;]-Data needs to be the full query URL. Additional
+    parameter dicts can be added to be given to requests.request, as
+    - method: get (default) or post
+    - headers, data, cookies, files, params: passed thru to request()
+
+    Response data is returned as text. Errors raise HTTPException
+    &#39;&#39;&#39;
+    def _open(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        return True
+
+    def _close(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+
+    def _send(self, data_dict):
+        url = data_dict.get(&#39;payload&#39;, None)
+        if not url:
+            self.logger.error(f&#39;can not send without url parameter from data_dict {data_dict}, aborting&#39;)
+            return False
+
+        # default to get if not &#39;post&#39; specified
+        method = data_dict.get(&#39;method&#39;, &#39;get&#39;)
+
+        # check for additional data
+        par = {}
+        for arg in (&#39;headers&#39;, &#39;data&#39;, &#39;cookies&#39;, &#39;files&#39;, &#39;params&#39;):
+            par[arg] = data_dict.get(arg, {})
+
+        # send data
+        response = requests.request(method, url,
+                                    params=par[&#39;params&#39;],
+                                    headers=par[&#39;headers&#39;],
+                                    data=par[&#39;data&#39;],
+                                    cookies=par[&#39;cookies&#39;],
+                                    files=par[&#39;files&#39;])
+
+        if 200 &lt;= response.status_code &lt; 400:
+            return response.text
+        else:
+            try:
+                err = &#39;&#39;
+                response.raise_for_status()
+            except requests.HTTPError as e:
+                err = f&#39; and error &#34;{str(e)}&#34;&#39;
+                self.logger.warning(f&#39;TCP request returned code {response.status_code}{err}&#39;)
+                raise e
+        return None
+
+
+class MD_Connection_Net_Tcp_Reply(MD_Connection):
+    &#39;&#39;&#39;
+    This class implements a persistent TCP connection via sockets
+
+    The data_dict[&#39;payload&#39;] is sent as string 1:1; the remainder of data_dict is ignored.
+
+    Response data is returned as text, or None in case of error
+
+    NOTE: this is - as of now - not a good implementation, especially the &#34;receive&#34; part leaves quite some things to be desired. Use for testing only
+    &#39;&#39;&#39;
+
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+        self._tcp = None
+        self._buffer = b&#39;&#39;
+
+        self._params = {PLUGIN_ARG_NET_HOST: &#39;&#39;, PLUGIN_ARG_NET_PORT: 0, &#39;autoreconnect&#39;: True, &#39;connect_retries&#39;: 5, &#39;connect_cycle&#39;: 30, &#39;timeout&#39;: 3, &#39;terminator&#39;: b&#39;\x0a&#39;}
+        self._params.update(kwargs)
+        self._data_received_callback = data_received_callback
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        self._autoreconnect = self._params[&#39;autoreconnect&#39;]
+        self._connect_retries = self._params[&#39;connect_retries&#39;]
+        self._connect_cycle = self._params[&#39;connect_cycle&#39;]
+        self._terminator = self._params[&#39;terminator&#39;]
+
+        if not (self.host != &#39;&#39; and self.port &gt; 0):
+            self.logger.error(f&#39;insufficient configuration data (TCP {self.host}:{self.port}), not initializing connection&#39;) 
+            return False
+
+        # tell someone about our actual class
+        self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
+
+    def _open(self):
+        if not self.connected:
+            self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+            self._tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._tcp.setblocking(False)
+            self._tcp.settimeout(5)
+            try:
+                self._tcp.settimeout(self.timeout)
+                self._tcp.connect((f&#39;{self.host}&#39;, int(self.port)))
+                self.connected = True
+                self.logger.debug(f&#39;connection established to {self.host}:{self.port}&#39;)
+            except Exception:
+                self.logger.warning(f&#39;could not establish a connection to {self.host}:{self.port}&#39;)
+
+        return self.connected
+
+    def _close(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        if self.connected:
+            self._tcp.close()
+            self.connected = False
+
+    def _reconnect(self):
+        if not self.connected and self._autoreconnect:
+            attempt = 0
+            while attempt &lt; self._connect_retries and not self.connected:
+                attempt += 1
+                self.logger.info(f&#39;autoreconnecting, attempt {attempt}/{self._connect_retries}&#39;)
+                if self._open():
+                    break
+                sleep(self._connect_cycle)
+
+            if not self.connected:
+                self.logger.warning(f&#39;autoreconnect failed after {self._connect_retries} attempts&#39;)
+                return False
+
+    def _send(self, data_dict):
+        # extract payload
+        data = data_dict.get(&#39;payload&#39;, None)
+        if not data:
+            self.logger.error(f&#39;refusing to send empty payload from data_dict {data_dict}, aborting&#39;)
+            return None
+
+        if not self.connected and not self._reconnect():
+            self.logger.error(&#39;not connected and reconnect not requested or failed, aborting&#39;)
+            return None
+
+        # convert payload
+        if not isinstance(data, (bytes, bytearray)):
+            try:
+                data = str(data)
+            except Exception:
+                pass
+            try:
+                data = data.encode(&#39;utf-8&#39;)
+            except Exception as e:
+                self.logger.warning(f&#39;error {e} while encoding data {data} for remote {self.host}:{self.port}&#39;)
+                return None
+
+        # just send data, watch for closed socket (BrokenPipeError)
+        # raise on unknown error, don&#39;t know what else to do
+        try:
+            self.logger.debug(f&#39;sending data {data} to {self.host}:{self.port}&#39;)
+            self._tcp.send(data)
+            self.logger.debug(&#39;data sent&#39;)
+        except BrokenPipeError:
+            self.logger.warning(f&#39;detected disconnect from {self.host}, send failed.&#39;)
+            self.connected = False
+            if self._autoreconnect:
+                self.logger.debug(f&#39;Autoreconnect enabled for {self._host}&#39;)
+                self._reconnect()
+            return None
+        except Exception as e:  # log errors we are not prepared to handle and raise exception for further debugging
+            self.logger.warning(f&#39;unhandleded error on sending to {self.host}, cannot send data {data}. Error: {e}&#39;)
+            raise
+
+        # receive buffer data until
+        # - connection is gone
+        # - terminator is found
+        # - timeout is hit
+        self.logger.debug(f&#39;reading response from {self.host}:{self.port}&#39;)
+        buffer = bytearray()
+        begin = time()
+
+        # TODO: remove
+        # self.logger.debug(f&#39;starting read at {begin} from {self.host}:{self.port}&#39;)        
+        while self.connected and self._terminator not in buffer and time() - begin &lt;= self.timeout:
+            try:
+                sdata = bytearray()
+                sdata = self._tcp.recv(8192)
+                # TODO: remove
+                # self.logger.debug(f&#39;reading response part {sdata} from {self.host}:{self.port}&#39;)
+                if sdata:
+                    buffer += sdata
+                else:
+                    sleep(0.1)
+            except BrokenPipeError:
+                self.logger.warning(f&#39;detected disconnect from {self.host} while receiving.&#39;)
+                self.connected = False
+                if self._autoreconnect:
+                    self.logger.debug(f&#39;Autoreconnect enabled for {self._host}&#39;)
+                    self._reconnect()
+                return None
+            except Exception as e:
+                # TODO: remove
+                # self.logger.debug(f&#39;reading response, ignoring exception {e} from {self.host}:{self.port}&#39;)
+                pass
+
+        # TODO: remove
+        # self.logger.debug(f&#39;quit read at {time()} from {self.host}:{self.port}&#39;)        
+
+        # I&#39;ll be back...
+        if buffer and self._terminator in buffer:
+
+            # TODO: remove
+            # self.logger.debug(f&#39;checking result {buffer} for terminator {self._terminator} from {self.host}:{self.port}&#39;)        
+            # return data up to first terminator
+            tpos = buffer.find(self._terminator)
+            # TODO: remove
+            # self.logger.debug(f&#39;found terminator at {tpos} from {self.host}:{self.port}&#39;)        
+            result = buffer[:tpos].decode(&#39;utf-8&#39;).strip()
+            # TODO: store remainder in class member and use for next receive...? implement locking
+            self.logger.debug(f&#39;received response {result} from {self.host}:{self.port}&#39;)
+            return result
+        elif time() - begin &gt; self.timeout:
+            self.logger.info(f&#39;timeout while reading response from {self.host}.&#39;)
+        elif not self.connected:
+            self.logger.warning(f&#39;disconnect detected while reading response from {self.host}.&#39;)
+        else:
+            self.logger.warning(f&#39;received no reply from from {self.host}.&#39;)
+
+        return None
+
+
+class MD_Connection_Net_Tcp_Client(MD_Connection):
+    &#39;&#39;&#39;
+    This class implements a TCP connection using a single persistent connection
+    to send data and an anynchronous listener with callback for receiving data.
+
+    Data received is dispatched via callback, then send()-method does not
+    return any response data.
+    &#39;&#39;&#39;
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+
+        # make sure we have a basic set of parameters for the TCP connection
+        self._params = {PLUGIN_ARG_NET_HOST: &#39;&#39;, PLUGIN_ARG_NET_PORT: 0, &#39;autoreconnect&#39;: True, &#39;connect_retries&#39;: 1, &#39;connect_cycle&#39;: 3, &#39;disconnected_callback&#39;: None, &#39;timeout&#39;: 3, &#39;terminator&#39;: b&#39;\r\n&#39;}
+        self._params.update(kwargs)
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+        self._autoreconnect = self._params[&#39;autoreconnect&#39;]
+        self._connect_retries = self._params[&#39;connect_retries&#39;]
+        self._connect_cycle = self._params[&#39;connect_cycle&#39;]
+        self._terminator = self._params[&#39;terminator&#39;]
+
+        print(type(self._terminator))
+
+        self._data_received_callback = data_received_callback
+        self._disconnected_callback = self._params[&#39;disconnected_callback&#39;]
+
+        # initialize connection
+        self._tcp = Tcp_client(host=self.host, port=self.port, name=f&#39;{device_id}TcpConnection&#39;,
+                               autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
+                               connect_cycle=self._connect_cycle, terminator=self._terminator)
+        self._tcp.set_callbacks(data_received=self.on_data_received,
+                                disconnected=self.on_disconnect)
+
+        # tell someone about our actual class
+        self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
+
+    def _open(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        if not self._tcp.connected():
+            self._tcp.connect()
+            sleep(2)
+        return self._tcp.connected()
+
+    def _close(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self._tcp.close()
+
+    def on_disconnect(self):
+        self.logger.debug(&#39;connection was closed&#39;)
+        self.connected = False
+        if self._disconnected_callback:
+            self._disconnected_callback()
+
+    def on_data_received(self, tcp_cli, data):
+        data = data.strip()
+        if data:
+            self.logger.debug(f&#39;received raw data &#34;{data}&#34; from &#34;{tcp_cli.name}&#34;&#39;)
+
+            # as we don&#39;t know the command for which the reply was issued, we return None as command
+            # the device class has to handle this in conjunction with the commands and datatypes
+            if self._data_received_callback:
+                self._data_received_callback(None, data)
+
+    def _send(self, data_dict):
+        data = data_dict.get(&#39;payload&#39;, None)
+        if not data:
+            self.logger.error(f&#39;can not send without payload data from data_dict {data_dict}, aborting&#39;)
+            return False
+
+        if not self.connected:
+            self.open()
+
+            if not self.connected:
+                self.logger.error(f&#39;trying to send {data}, but connection can\&#39;t be opened.&#39;)
+                return False
+
+        self._tcp.send(data)
+
+        # we receive only via callback, so we return &#34;no reply&#34;.
+        return False
+
+
+class MD_Connection_Net_Udp_Server(MD_Connection):
+    pass
+
+
+class MD_Connection_Serial_Client(MD_Connection):
+    pass
+
+
+class MD_Connection_Serial_Async(MD_Connection):
+    pass</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="multidevice.MD_Connection.MD_Connection"><code class="flex name class">
+<span>class <span class="ident">MD_Connection</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+not much. Opening and closing of connections and writing and receiving data
+is something to implement in the interface-specific derived classes.</p>
+<p>:param device_id: device type as used in commands.py name
+:param device_name: device name for use in item configuration and logs
+:type device_id: str
+:type device_name: str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection(object):
+    &#39;&#39;&#39;
+    This class is the base class for further connection classes. It can - well,
+    not much. Opening and closing of connections and writing and receiving data
+    is something to implement in the interface-specific derived classes.
+
+    :param device_id: device type as used in commands.py name
+    :param device_name: device name for use in item configuration and logs
+    :type device_id: str
+    :type device_name: str
+    &#39;&#39;&#39;
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
+        if not hasattr(self, &#39;logger&#39;):
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+
+        self._params = kwargs
+        self._data_received_callback = data_received_callback
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        # tell someone about our actual class
+        self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
+
+    def open(self):
+        self.logger.debug(&#39;open method called for connection&#39;)
+        if self._open():
+            self.connected = True
+        self._send_init_on_open()
+
+    def close(self):
+        self.logger.debug(&#39;close method called for connection&#39;)
+        self._close()
+        self.connected = False
+
+    def send(self, data_dict):
+        &#39;&#39;&#39;
+        Send data, possibly return response
+
+        :param data: dict with raw data and possible additional parameters to send
+        :type data_dict: dict
+        :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
+        &#39;&#39;&#39;
+        self._send_init_on_send()
+        response = self._send(data_dict)
+
+        return response
+
+    #
+    #
+    # overloading needed for at least some of the following methods...
+    #
+    #
+
+    def _open(self):
+        &#39;&#39;&#39;
+        Overload with opening of connection
+
+        :return: True if successful
+        :rtype: bool
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;opening connection as {__name__} for device {self.device} with params {self._params}&#39;)
+        return True
+
+    def _close(self):
+        &#39;&#39;&#39;
+        Overload with closing of connection
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;closing connection as {__name__} for device {self.device} with params {self._params}&#39;)
+
+    def _send(self, data_dict):
+        &#39;&#39;&#39;
+        Overload with sending of data and - possibly - returning response data
+        Return None if no response is received or expected.
+        &#39;&#39;&#39;
+        self.logger.debug(f&#39;device {self.device} simulating to send data {data_dict}...&#39;)
+        return None
+
+    def _send_init_on_open(self):
+        &#39;&#39;&#39;
+        This class can be overloaded if anything special is needed to make the
+        other side talk after opening the connection... ;)
+
+        Using class properties instead of arguments makes overloading easy.
+
+        It is routinely called by self.open()
+        &#39;&#39;&#39;
+        pass
+
+    def _send_init_on_send(self):
+        &#39;&#39;&#39;
+        This class can be overloaded if anything special is needed to make the
+        other side talk before sending commands... ;)
+
+        It is routinely called by self.send()
+        &#39;&#39;&#39;
+        pass
+
+    #
+    #
+    # private utility methods
+    #
+    #
+
+    def _set_connection_params(self):
+        &#39;&#39;&#39;
+        Try to set some of the common parameters.
+        Might need to be overloaded...
+        &#39;&#39;&#39;
+        for arg in PLUGIN_ARGS:
+            if arg in self._params:
+                setattr(self, arg, sanitize_param(self._params[arg]))</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Client">MD_Connection_Net_Tcp_Client</a></li>
+<li><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Reply" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Reply">MD_Connection_Net_Tcp_Reply</a></li>
+<li><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Request" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Request">MD_Connection_Net_Tcp_Request</a></li>
+<li><a title="multidevice.MD_Connection.MD_Connection_Net_Udp_Server" href="#multidevice.MD_Connection.MD_Connection_Net_Udp_Server">MD_Connection_Net_Udp_Server</a></li>
+<li><a title="multidevice.MD_Connection.MD_Connection_Serial_Async" href="#multidevice.MD_Connection.MD_Connection_Serial_Async">MD_Connection_Serial_Async</a></li>
+<li><a title="multidevice.MD_Connection.MD_Connection_Serial_Client" href="#multidevice.MD_Connection.MD_Connection_Serial_Client">MD_Connection_Serial_Client</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="multidevice.MD_Connection.MD_Connection.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    self.logger.debug(&#39;close method called for connection&#39;)
+    self._close()
+    self.connected = False</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection.open"><code class="name flex">
+<span>def <span class="ident">open</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open(self):
+    self.logger.debug(&#39;open method called for connection&#39;)
+    if self._open():
+        self.connected = True
+    self._send_init_on_open()</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection.send"><code class="name flex">
+<span>def <span class="ident">send</span></span>(<span>self, data_dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Send data, possibly return response</p>
+<p>:param data: dict with raw data and possible additional parameters to send
+:type data_dict: dict
+:return: raw response data if applicable, None otherwise. Errors need to raise exceptions</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send(self, data_dict):
+    &#39;&#39;&#39;
+    Send data, possibly return response
+
+    :param data: dict with raw data and possible additional parameters to send
+    :type data_dict: dict
+    :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
+    &#39;&#39;&#39;
+    self._send_init_on_send()
+    response = self._send(data_dict)
+
+    return response</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client"><code class="flex name class">
+<span>class <span class="ident">MD_Connection_Net_Tcp_Client</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class implements a TCP connection using a single persistent connection
+to send data and an anynchronous listener with callback for receiving data.</p>
+<p>Data received is dispatched via callback, then send()-method does not
+return any response data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection_Net_Tcp_Client(MD_Connection):
+    &#39;&#39;&#39;
+    This class implements a TCP connection using a single persistent connection
+    to send data and an anynchronous listener with callback for receiving data.
+
+    Data received is dispatched via callback, then send()-method does not
+    return any response data.
+    &#39;&#39;&#39;
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+
+        # make sure we have a basic set of parameters for the TCP connection
+        self._params = {PLUGIN_ARG_NET_HOST: &#39;&#39;, PLUGIN_ARG_NET_PORT: 0, &#39;autoreconnect&#39;: True, &#39;connect_retries&#39;: 1, &#39;connect_cycle&#39;: 3, &#39;disconnected_callback&#39;: None, &#39;timeout&#39;: 3, &#39;terminator&#39;: b&#39;\r\n&#39;}
+        self._params.update(kwargs)
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+        self._autoreconnect = self._params[&#39;autoreconnect&#39;]
+        self._connect_retries = self._params[&#39;connect_retries&#39;]
+        self._connect_cycle = self._params[&#39;connect_cycle&#39;]
+        self._terminator = self._params[&#39;terminator&#39;]
+
+        print(type(self._terminator))
+
+        self._data_received_callback = data_received_callback
+        self._disconnected_callback = self._params[&#39;disconnected_callback&#39;]
+
+        # initialize connection
+        self._tcp = Tcp_client(host=self.host, port=self.port, name=f&#39;{device_id}TcpConnection&#39;,
+                               autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
+                               connect_cycle=self._connect_cycle, terminator=self._terminator)
+        self._tcp.set_callbacks(data_received=self.on_data_received,
+                                disconnected=self.on_disconnect)
+
+        # tell someone about our actual class
+        self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
+
+    def _open(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        if not self._tcp.connected():
+            self._tcp.connect()
+            sleep(2)
+        return self._tcp.connected()
+
+    def _close(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self._tcp.close()
+
+    def on_disconnect(self):
+        self.logger.debug(&#39;connection was closed&#39;)
+        self.connected = False
+        if self._disconnected_callback:
+            self._disconnected_callback()
+
+    def on_data_received(self, tcp_cli, data):
+        data = data.strip()
+        if data:
+            self.logger.debug(f&#39;received raw data &#34;{data}&#34; from &#34;{tcp_cli.name}&#34;&#39;)
+
+            # as we don&#39;t know the command for which the reply was issued, we return None as command
+            # the device class has to handle this in conjunction with the commands and datatypes
+            if self._data_received_callback:
+                self._data_received_callback(None, data)
+
+    def _send(self, data_dict):
+        data = data_dict.get(&#39;payload&#39;, None)
+        if not data:
+            self.logger.error(f&#39;can not send without payload data from data_dict {data_dict}, aborting&#39;)
+            return False
+
+        if not self.connected:
+            self.open()
+
+            if not self.connected:
+                self.logger.error(f&#39;trying to send {data}, but connection can\&#39;t be opened.&#39;)
+                return False
+
+        self._tcp.send(data)
+
+        # we receive only via callback, so we return &#34;no reply&#34;.
+        return False</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client.on_data_received"><code class="name flex">
+<span>def <span class="ident">on_data_received</span></span>(<span>self, tcp_cli, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_data_received(self, tcp_cli, data):
+    data = data.strip()
+    if data:
+        self.logger.debug(f&#39;received raw data &#34;{data}&#34; from &#34;{tcp_cli.name}&#34;&#39;)
+
+        # as we don&#39;t know the command for which the reply was issued, we return None as command
+        # the device class has to handle this in conjunction with the commands and datatypes
+        if self._data_received_callback:
+            self._data_received_callback(None, data)</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client.on_disconnect"><code class="name flex">
+<span>def <span class="ident">on_disconnect</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_disconnect(self):
+    self.logger.debug(&#39;connection was closed&#39;)
+    self.connected = False
+    if self._disconnected_callback:
+        self._disconnected_callback()</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Reply"><code class="flex name class">
+<span>class <span class="ident">MD_Connection_Net_Tcp_Reply</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class implements a persistent TCP connection via sockets</p>
+<p>The data_dict['payload'] is sent as string 1:1; the remainder of data_dict is ignored.</p>
+<p>Response data is returned as text, or None in case of error</p>
+<p>NOTE: this is - as of now - not a good implementation, especially the "receive" part leaves quite some things to be desired. Use for testing only</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection_Net_Tcp_Reply(MD_Connection):
+    &#39;&#39;&#39;
+    This class implements a persistent TCP connection via sockets
+
+    The data_dict[&#39;payload&#39;] is sent as string 1:1; the remainder of data_dict is ignored.
+
+    Response data is returned as text, or None in case of error
+
+    NOTE: this is - as of now - not a good implementation, especially the &#34;receive&#34; part leaves quite some things to be desired. Use for testing only
+    &#39;&#39;&#39;
+
+    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+
+        self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+
+        # set class properties
+        self.device_id = device_id
+        self.device = device_name
+        self.connected = False
+        self._tcp = None
+        self._buffer = b&#39;&#39;
+
+        self._params = {PLUGIN_ARG_NET_HOST: &#39;&#39;, PLUGIN_ARG_NET_PORT: 0, &#39;autoreconnect&#39;: True, &#39;connect_retries&#39;: 5, &#39;connect_cycle&#39;: 30, &#39;timeout&#39;: 3, &#39;terminator&#39;: b&#39;\x0a&#39;}
+        self._params.update(kwargs)
+        self._data_received_callback = data_received_callback
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        self._autoreconnect = self._params[&#39;autoreconnect&#39;]
+        self._connect_retries = self._params[&#39;connect_retries&#39;]
+        self._connect_cycle = self._params[&#39;connect_cycle&#39;]
+        self._terminator = self._params[&#39;terminator&#39;]
+
+        if not (self.host != &#39;&#39; and self.port &gt; 0):
+            self.logger.error(f&#39;insufficient configuration data (TCP {self.host}:{self.port}), not initializing connection&#39;) 
+            return False
+
+        # tell someone about our actual class
+        self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
+
+    def _open(self):
+        if not self.connected:
+            self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+            self._tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._tcp.setblocking(False)
+            self._tcp.settimeout(5)
+            try:
+                self._tcp.settimeout(self.timeout)
+                self._tcp.connect((f&#39;{self.host}&#39;, int(self.port)))
+                self.connected = True
+                self.logger.debug(f&#39;connection established to {self.host}:{self.port}&#39;)
+            except Exception:
+                self.logger.warning(f&#39;could not establish a connection to {self.host}:{self.port}&#39;)
+
+        return self.connected
+
+    def _close(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        if self.connected:
+            self._tcp.close()
+            self.connected = False
+
+    def _reconnect(self):
+        if not self.connected and self._autoreconnect:
+            attempt = 0
+            while attempt &lt; self._connect_retries and not self.connected:
+                attempt += 1
+                self.logger.info(f&#39;autoreconnecting, attempt {attempt}/{self._connect_retries}&#39;)
+                if self._open():
+                    break
+                sleep(self._connect_cycle)
+
+            if not self.connected:
+                self.logger.warning(f&#39;autoreconnect failed after {self._connect_retries} attempts&#39;)
+                return False
+
+    def _send(self, data_dict):
+        # extract payload
+        data = data_dict.get(&#39;payload&#39;, None)
+        if not data:
+            self.logger.error(f&#39;refusing to send empty payload from data_dict {data_dict}, aborting&#39;)
+            return None
+
+        if not self.connected and not self._reconnect():
+            self.logger.error(&#39;not connected and reconnect not requested or failed, aborting&#39;)
+            return None
+
+        # convert payload
+        if not isinstance(data, (bytes, bytearray)):
+            try:
+                data = str(data)
+            except Exception:
+                pass
+            try:
+                data = data.encode(&#39;utf-8&#39;)
+            except Exception as e:
+                self.logger.warning(f&#39;error {e} while encoding data {data} for remote {self.host}:{self.port}&#39;)
+                return None
+
+        # just send data, watch for closed socket (BrokenPipeError)
+        # raise on unknown error, don&#39;t know what else to do
+        try:
+            self.logger.debug(f&#39;sending data {data} to {self.host}:{self.port}&#39;)
+            self._tcp.send(data)
+            self.logger.debug(&#39;data sent&#39;)
+        except BrokenPipeError:
+            self.logger.warning(f&#39;detected disconnect from {self.host}, send failed.&#39;)
+            self.connected = False
+            if self._autoreconnect:
+                self.logger.debug(f&#39;Autoreconnect enabled for {self._host}&#39;)
+                self._reconnect()
+            return None
+        except Exception as e:  # log errors we are not prepared to handle and raise exception for further debugging
+            self.logger.warning(f&#39;unhandleded error on sending to {self.host}, cannot send data {data}. Error: {e}&#39;)
+            raise
+
+        # receive buffer data until
+        # - connection is gone
+        # - terminator is found
+        # - timeout is hit
+        self.logger.debug(f&#39;reading response from {self.host}:{self.port}&#39;)
+        buffer = bytearray()
+        begin = time()
+
+        # TODO: remove
+        # self.logger.debug(f&#39;starting read at {begin} from {self.host}:{self.port}&#39;)        
+        while self.connected and self._terminator not in buffer and time() - begin &lt;= self.timeout:
+            try:
+                sdata = bytearray()
+                sdata = self._tcp.recv(8192)
+                # TODO: remove
+                # self.logger.debug(f&#39;reading response part {sdata} from {self.host}:{self.port}&#39;)
+                if sdata:
+                    buffer += sdata
+                else:
+                    sleep(0.1)
+            except BrokenPipeError:
+                self.logger.warning(f&#39;detected disconnect from {self.host} while receiving.&#39;)
+                self.connected = False
+                if self._autoreconnect:
+                    self.logger.debug(f&#39;Autoreconnect enabled for {self._host}&#39;)
+                    self._reconnect()
+                return None
+            except Exception as e:
+                # TODO: remove
+                # self.logger.debug(f&#39;reading response, ignoring exception {e} from {self.host}:{self.port}&#39;)
+                pass
+
+        # TODO: remove
+        # self.logger.debug(f&#39;quit read at {time()} from {self.host}:{self.port}&#39;)        
+
+        # I&#39;ll be back...
+        if buffer and self._terminator in buffer:
+
+            # TODO: remove
+            # self.logger.debug(f&#39;checking result {buffer} for terminator {self._terminator} from {self.host}:{self.port}&#39;)        
+            # return data up to first terminator
+            tpos = buffer.find(self._terminator)
+            # TODO: remove
+            # self.logger.debug(f&#39;found terminator at {tpos} from {self.host}:{self.port}&#39;)        
+            result = buffer[:tpos].decode(&#39;utf-8&#39;).strip()
+            # TODO: store remainder in class member and use for next receive...? implement locking
+            self.logger.debug(f&#39;received response {result} from {self.host}:{self.port}&#39;)
+            return result
+        elif time() - begin &gt; self.timeout:
+            self.logger.info(f&#39;timeout while reading response from {self.host}.&#39;)
+        elif not self.connected:
+            self.logger.warning(f&#39;disconnect detected while reading response from {self.host}.&#39;)
+        else:
+            self.logger.warning(f&#39;received no reply from from {self.host}.&#39;)
+
+        return None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Request"><code class="flex name class">
+<span>class <span class="ident">MD_Connection_Net_Tcp_Request</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class implements a TCP connection in the query-reply matter using
+the requests library.</p>
+<p>The data_dict['payload']-Data needs to be the full query URL. Additional
+parameter dicts can be added to be given to requests.request, as
+- method: get (default) or post
+- headers, data, cookies, files, params: passed thru to request()</p>
+<p>Response data is returned as text. Errors raise HTTPException</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection_Net_Tcp_Request(MD_Connection):
+    &#39;&#39;&#39;
+    This class implements a TCP connection in the query-reply matter using
+    the requests library.
+
+    The data_dict[&#39;payload&#39;]-Data needs to be the full query URL. Additional
+    parameter dicts can be added to be given to requests.request, as
+    - method: get (default) or post
+    - headers, data, cookies, files, params: passed thru to request()
+
+    Response data is returned as text. Errors raise HTTPException
+    &#39;&#39;&#39;
+    def _open(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        return True
+
+    def _close(self):
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+
+    def _send(self, data_dict):
+        url = data_dict.get(&#39;payload&#39;, None)
+        if not url:
+            self.logger.error(f&#39;can not send without url parameter from data_dict {data_dict}, aborting&#39;)
+            return False
+
+        # default to get if not &#39;post&#39; specified
+        method = data_dict.get(&#39;method&#39;, &#39;get&#39;)
+
+        # check for additional data
+        par = {}
+        for arg in (&#39;headers&#39;, &#39;data&#39;, &#39;cookies&#39;, &#39;files&#39;, &#39;params&#39;):
+            par[arg] = data_dict.get(arg, {})
+
+        # send data
+        response = requests.request(method, url,
+                                    params=par[&#39;params&#39;],
+                                    headers=par[&#39;headers&#39;],
+                                    data=par[&#39;data&#39;],
+                                    cookies=par[&#39;cookies&#39;],
+                                    files=par[&#39;files&#39;])
+
+        if 200 &lt;= response.status_code &lt; 400:
+            return response.text
+        else:
+            try:
+                err = &#39;&#39;
+                response.raise_for_status()
+            except requests.HTTPError as e:
+                err = f&#39; and error &#34;{str(e)}&#34;&#39;
+                self.logger.warning(f&#39;TCP request returned code {response.status_code}{err}&#39;)
+                raise e
+        return None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Net_Udp_Server"><code class="flex name class">
+<span>class <span class="ident">MD_Connection_Net_Udp_Server</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+not much. Opening and closing of connections and writing and receiving data
+is something to implement in the interface-specific derived classes.</p>
+<p>:param device_id: device type as used in commands.py name
+:param device_name: device name for use in item configuration and logs
+:type device_id: str
+:type device_name: str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection_Net_Udp_Server(MD_Connection):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Serial_Async"><code class="flex name class">
+<span>class <span class="ident">MD_Connection_Serial_Async</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+not much. Opening and closing of connections and writing and receiving data
+is something to implement in the interface-specific derived classes.</p>
+<p>:param device_id: device type as used in commands.py name
+:param device_name: device name for use in item configuration and logs
+:type device_id: str
+:type device_name: str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection_Serial_Async(MD_Connection):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="multidevice.MD_Connection.MD_Connection_Serial_Client"><code class="flex name class">
+<span>class <span class="ident">MD_Connection_Serial_Client</span></span>
+<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+not much. Opening and closing of connections and writing and receiving data
+is something to implement in the interface-specific derived classes.</p>
+<p>:param device_id: device type as used in commands.py name
+:param device_name: device name for use in item configuration and logs
+:type device_id: str
+:type device_name: str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Connection_Serial_Client(MD_Connection):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="multidevice" href="index.html">multidevice</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></code></h4>
+<ul class="">
+<li><code><a title="multidevice.MD_Connection.MD_Connection.close" href="#multidevice.MD_Connection.MD_Connection.close">close</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection.open" href="#multidevice.MD_Connection.MD_Connection.open">open</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Client">MD_Connection_Net_Tcp_Client</a></code></h4>
+<ul class="">
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client.on_data_received" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Client.on_data_received">on_data_received</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client.on_disconnect" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Client.on_disconnect">on_disconnect</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Reply" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Reply">MD_Connection_Net_Tcp_Reply</a></code></h4>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Request" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Request">MD_Connection_Net_Tcp_Request</a></code></h4>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection_Net_Udp_Server" href="#multidevice.MD_Connection.MD_Connection_Net_Udp_Server">MD_Connection_Net_Udp_Server</a></code></h4>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection_Serial_Async" href="#multidevice.MD_Connection.MD_Connection_Serial_Async">MD_Connection_Serial_Async</a></code></h4>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Connection.MD_Connection_Serial_Client" href="#multidevice.MD_Connection.MD_Connection_Serial_Client">MD_Connection_Serial_Client</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

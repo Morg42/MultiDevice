@@ -176,7 +176,6 @@
     - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
     - ``MD_Connection_Net_TCP_Reply``   for persistent TCP connections with sync replies
     - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-    - ``MD_Connection_Net_TCP_Server``  for TCP listening server with async callback
     - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
     - ``MD_Connection_Serial_Client``   for query-reply serial connections
     - ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
@@ -617,8 +616,14 @@ class MultiDevice(SmartPlugin):
             # test if source of item change was not the item's device...
             if caller != self.get_shortname() + '.' + device_name:
 
+                # from here on, use device's logger so messages are displayer for the device
+                tmp_log = self.logger
+                dev = self._devices.get(device_name, None)
+                if dev:
+                    tmp_log = dev.get('logger', self.logger)
+
                 # okay, go ahead
-                self.logger.info(f'Update item: {item.id()} for device {device_name}: item has been changed outside this plugin')
+                tmp_log.info(f'Update item: {item.id()}: item has been changed outside this plugin')
 
                 # item in list of write-configured items?
                 if item.id() in self._items_write:
@@ -627,9 +632,9 @@ class MultiDevice(SmartPlugin):
                     device_name = self._items_write[item.id()]['device_name']
                     device = self._get_device(device_name)
                     command = self._items_write[item.id()]['command']
-                    self.logger.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ for device {device_name}')
+                    tmp_log.debug(f'Writing value "{item()}" from item {item.id()} with command "{command}"')
                     if not device.send_command(command, item()):
-                        self.logger.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ for device {device_name} failed, resetting item value')
+                        tmp_log.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ failed, resetting item value')
                         item(item.property.last_value, self.get_shortname())
                         return None
 
@@ -638,10 +643,10 @@ class MultiDevice(SmartPlugin):
                     # get data and trigger read_all
                     device_name = self._items_readall[item.id()]
                     device = self._get_device(device_name)
-                    self.logger.debug(f'Triggering read_all for device {device_name}')
+                    tmp_log.debug(f'Triggering read_all')
                     device.read_all_commands()
 
-    def data_received(self, device_name, command, value):
+    def on_data_received(self, device_name, command, value):
         '''
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item
@@ -709,7 +714,7 @@ class MultiDevice(SmartPlugin):
             'read_commands': self._commands_read[device_name].keys(),
             'cycle_commands': self._commands_cyclic[device_name],
             'initial_commands': self._commands_initial[device_name],
-            'callback': self.data_received
+            'callback': self.on_data_received
         }
 
     def _get_device_id(self, device_name):

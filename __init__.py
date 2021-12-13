@@ -499,7 +499,7 @@ class MultiDevice(SmartPlugin):
                                 self.logger.warning(f'importing structs for device {device_name} failed. Check struct definitions')
                             else:
                                 for struct_name in mod_struct:
-                                    self.logger.debug(f'adding struct {struct_name}')
+                                    self.logger.debug(f'adding struct {self.get_shortname()}.{device_name}.{struct_name}')
                                     self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_name, struct_name, mod_struct[struct_name])
 
         if not self._devices:

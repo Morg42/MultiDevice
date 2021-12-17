@@ -96,23 +96,6 @@ class MD_Commands(object):
 
         raise Exception(f'command {command} not found in commands')
 
-    # old version for reference...
-    # 
-    # # def get_command_from_reply(self, data):
-    # #     if type(data) in (bytes, bytearray):
-    # #         data = str(data.decode('utf-8'))
-    # # 
-    # #     for command in self._commands:
-    # #         tokens = getattr(self._commands[command], 'reply_token', None)
-    # #         if tokens:
-    # #             if not isinstance(tokens, list):
-    # #                 tokens = [tokens]
-    # #             for token in tokens:
-    # #                 # NOTE: if token == '', this would always match. Maybe make this a feature?
-    # #                 if token != '' and token == data[:len(token)]:
-    # #                     return command
-    # #     return None
-
     def get_command_from_reply(self, data):
         if type(data) in (bytes, bytearray):
             data = str(data.decode('utf-8'))
@@ -202,7 +185,7 @@ class MD_Commands(object):
         '''
         for cmd in commands:
             kw = {}
-            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'bounds'):
+            for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 

@@ -5,35 +5,35 @@
 
 commands = {
     'error': {
-        'opcode': '',
+        'opcode': 'MD_VALUE',
         'read': True,
         'item_type': 'str',
         'dev_datatype': 'PioError',
         'reply_token': ['E0', 'E02', 'E04']
     },
     'title': {
-        'opcode': '',
+        'opcode': 'MD_VALUE',
         'read': True,
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': ['GEH01020']
     },
     'genre': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': ['GEH05024']
     },
     'station': {
-        'opcode': '',
+        'opcode': 'MD_VALUE',
         'read': True,
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': ['GEH04022']
     },
     'display': {
-        'opcode': '',
+        'opcode': 'MD_VALUE',
         'read': True,
         'read_cmd': '?FL',
         'item_type': 'str',
@@ -41,7 +41,7 @@ commands = {
         'reply_token': ['FL']
     },
     'tone': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?TO',
@@ -50,7 +50,7 @@ commands = {
         'reply_token': ['TO']
     },
     'treble': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?TR',
@@ -71,7 +71,7 @@ commands = {
         'dev_datatype': 'raw'
     },
     'bass': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?BA',
@@ -92,7 +92,7 @@ commands = {
         'dev_datatype': 'raw'
     },
     'tunerpreset': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?PR',
@@ -113,7 +113,7 @@ commands = {
         'dev_datatype': 'raw'
     },
     'zone1_power': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?P',
@@ -122,7 +122,7 @@ commands = {
         'reply_token': ['PWR']
     },
     'zone1_mute': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?M',
@@ -131,7 +131,7 @@ commands = {
         'reply_token': ['MUT']
     },
     'zone1_volume': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?V',
@@ -155,7 +155,7 @@ commands = {
         'dev_datatype': 'raw'
     },
     'zone1_source': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?F',
@@ -176,7 +176,7 @@ commands = {
         'dev_datatype': 'raw'
     },
     'zone1_listeningmode': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?S',
@@ -185,7 +185,7 @@ commands = {
         'reply_token': ['SR']
     },
     'zone1_playingmode': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': False,
         'read_cmd': '?L',
@@ -194,7 +194,7 @@ commands = {
         'reply_token': ['LM']
     },
     'zone1_speakers': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?SPK',
@@ -203,7 +203,7 @@ commands = {
         'reply_token': ['SPK']
     },
     'zone2_power': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?AP',
@@ -212,7 +212,7 @@ commands = {
         'reply_token': ['APR']
     },
     'zone2_mute': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?Z2M',
@@ -221,7 +221,7 @@ commands = {
         'reply_token': ['Z2MUT']
     },
     'zone2_volume': {
-        'opcode': "$V",
+        'opcode': "MD_VALUE",
         'read': True,
         'write': True,
         'read_cmd': '?ZV',
@@ -245,7 +245,7 @@ commands = {
         'dev_datatype': 'raw'
     },
     'zone2_source': {
-        'opcode': '$V',
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?ZS',

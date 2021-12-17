@@ -54,8 +54,8 @@ class MD_Command(object):
     opcode = ''
     read = False
     write = False
-    read_cmd = ''
-    write_cmd = ''
+    read_cmd = None
+    write_cmd = None
     item_type = None
     reply_token = []
     reply_pattern = ''
@@ -82,7 +82,7 @@ class MD_Command(object):
         kw = kwargs['cmd']
         self._plugin_params = kwargs['plugin']
 
-        self._get_kwargs(('opcode', 'read', 'write', 'item_type', 'reply_token', 'bounds'), **kw)
+        self._get_kwargs(COMMAND_PARAMS, **kw)
 
         try:
             self._DT = dt_class()
@@ -166,9 +166,9 @@ class MD_Command_Str(MD_Command):
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
 
-    - '$C' is replaced with the opcode,
-    - '$P:attr:' is replaced with the value of the attr element from the plugin configuration,
-    - '$V' is replaced with the given value
+    - 'MD_OPCODE' is replaced with the opcode,
+    - 'MD_PARAM:attr:' is replaced with the value of the attr element from the plugin configuration,
+    - 'MD_VALUE' is replaced with the given value
 
     The returned data is only parsed by the DT_... classes.
     For the DT_json class, the read_data dict can be used to extract a specific
@@ -184,24 +184,7 @@ class MD_Command_Str(MD_Command):
 
     This class is provided as a reference implementation for the Net-Connections.
     '''
-    read_cmd = None
-    write_cmd = None
     read_data = None
-    params = {}
-    values = {}
-    bounds = {} 
-    _DT = None
-
-    def __init__(self, device_name, name, dt_class, **kwargs):
-
-        super().__init__(device_name, name, dt_class, **kwargs)
-
-        kw = kwargs['cmd']
-        self._plugin_params = kwargs['plugin']
-
-        self._get_kwargs(('read_cmd', 'write_cmd', 'read_data', 'params', 'values', 'bounds'), **kw)
-
-        self.logger.debug(f'learned command {self.name} with device datatype {dt_class.__name__}')
 
     def get_send_data(self, data):
         # create read data
@@ -221,7 +204,7 @@ class MD_Command_Str(MD_Command):
 
         data_dict = {}
         data_dict['payload'] = cmd_str
-        for k in self.params.keys():
+        for k in self._plugin_params.keys():
             data_dict[k] = self._parse_tree(self.params[k], data)
 
         return data_dict
@@ -229,9 +212,9 @@ class MD_Command_Str(MD_Command):
     def _parse_str(self, string, data=None):
         '''
         parse string and replace
-        - $C with the command opcode
-        - $P:<elem>: with the plugin parameter
-        - $V with the data value
+        - MD_OPCODE with the command opcode
+        - MD_PARAM:<elem>: with the plugin parameter
+        - MD_VALUE with the data value
 
         The replacement order ensures that $P-patterns from the opcode can be replaced
         as well as $V-pattern in any of the strings.
@@ -239,14 +222,14 @@ class MD_Command_Str(MD_Command):
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), ''))
 
-        string = string.replace('$C', self.opcode)
+        string = string.replace('MD_OPCODE', self.opcode)
 
-        regex = '(\\$P:([^:]+):)'
+        regex = '(MD_PARAM:([^:]+):)'
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, repl_func, string)
 
         if data is not None:
-            string = string.replace('$V', str(self._DT.get_send_data(data)))
+            string = string.replace('MD_VALUE', str(self._DT.get_send_data(data)))
 
         return string
 
@@ -291,6 +274,9 @@ class MD_Command_ParseStr(MD_Command_Str):
     Giving reply_pattern as '<regex>' with one (1) match group will try and 
     capture the matched group into the received value.
 
+    Giving reply_pattern as '<regex>' without capturing parentheses will return
+    the reply value as is (can possibly be converted by the DT class).
+
     HINT: If you give reply_pattern as regex and reply_token as 'REGEX', the
     reply_pattern regex will be used to identify a reply as belonging to this
     command if a match is found.
@@ -299,17 +285,6 @@ class MD_Command_ParseStr(MD_Command_Str):
     might be an easier and cleaner solution. Please make sure to understand
     MRE by JF properly :)
     '''
-
-    def __init__(self, device_name, name, dt_class, **kwargs):
-
-        super().__init__(device_name, name, dt_class, **kwargs)
-
-        kw = kwargs['cmd']
-        self._plugin_params = kwargs['plugin']
-
-        self._get_kwargs(('read_cmd', 'write_cmd', 'read_data', 'params', 'values', 'bounds', 'reply_pattern'), **kw)
-
-        self.logger.debug(f'learned command {self.name} with device datatype {dt_class.__name__}')
 
     def get_send_data(self, data):
 
@@ -338,17 +313,32 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     def get_shng_data(self, data):
         '''
-        If reply_pattern is set, try to match data to reply_pattern.
+        Try to match data to reply_pattern if reply_pattern is set.
 
-        NOTE: if no match respectively no grouping match can be achieved,
-        it is not possible to return a meaningful value. To signal the error,
-        an exception will be raised.
+        If a match is found and a value is captured, it will be returned.
+
+        If a match is found without a capturing group, the value will be
+        returned as-is, possibly to be converted by the DT class.
+
+        If no match can be achieved, it is not possible to return 
+        a meaningful value. To signal the error, an exception will be raised.
         '''
         if self.reply_pattern:
             regex = re.compile(self.reply_pattern)
             match = regex.match(data)
-            if match and len(match.groups()) == 1:
-                value = self._DT.get_shng_data(match.group(1))
+            if match:
+                if len(match.groups()) == 1:
+
+                    # one captured group - ok
+                    value = self._DT.get_shng_data(match.group(1))
+                elif len(match.groups()) > 1:
+
+                    # more than one captured group - error
+                    raise ValueError(f'reply_pattern {self.reply_pattern} has more than one pair of capturing parentheses')
+                else:
+
+                    # no captured groups = no parentheses = no extraction of value, just do the "normal" thing
+                    value = self._DT.get_shng_data(data)
             else:
                 raise ValueError(f'reply_pattern {self.reply_pattern} could not get a match on {data}')
         else:

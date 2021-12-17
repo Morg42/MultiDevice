@@ -179,7 +179,7 @@ class MD_Device(object):
         try:
             data_dict = self._commands.get_send_data(command, value)
         except Exception as e:
-            self.logger.warning(f'command {command} with value {value} produced error {e} on converting value, aborting')
+            self.logger.warning(f'command {command} with value {value} produced error on converting value, aborting. Error was: {e}')
             return False
 
         if data_dict['payload'] is None or data_dict['payload'] == '':

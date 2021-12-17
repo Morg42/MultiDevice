@@ -296,18 +296,18 @@ class MD_Connection_Net_Tcp_Reply(MD_Connection):
                 sleep(self._connect_cycle)
 
             if not self.connected:
-                self.logger.warning(f'autoreconnect failed after {self._connect_retries} attempts')
+                self.logger.warning(f'Autoreconnect failed after {self._connect_retries} attempts')
                 return False
 
     def _send(self, data_dict):
         # extract payload
         data = data_dict.get('payload', None)
         if not data:
-            self.logger.error(f'refusing to send empty payload from data_dict {data_dict}, aborting')
+            self.logger.error(f'Refusing to send empty payload from data_dict {data_dict}, aborting')
             return None
 
         if not self.connected and not self._reconnect():
-            self.logger.error('not connected and reconnect not requested or failed, aborting')
+            self.logger.error('Not connected and reconnect not requested or failed, aborting')
             return None
 
         # convert payload
@@ -319,31 +319,31 @@ class MD_Connection_Net_Tcp_Reply(MD_Connection):
             try:
                 data = data.encode('utf-8')
             except Exception as e:
-                self.logger.warning(f'error {e} while encoding data {data} for remote {self.host}:{self.port}')
+                self.logger.warning(f'Error while encoding data {data} for remote {self.host}:{self.port}. Error was: {e}')
                 return None
 
         # just send data, watch for closed socket (BrokenPipeError)
         # raise on unknown error, don't know what else to do
         try:
-            self.logger.debug(f'sending data {data} to {self.host}:{self.port}')
+            self.logger.debug(f'Sending data {data} to {self.host}:{self.port}')
             self._tcp.send(data)
-            self.logger.debug('data sent')
+            self.logger.debug('Data sent')
         except BrokenPipeError:
-            self.logger.warning(f'detected disconnect from {self.host}, send failed.')
+            self.logger.warning(f'Detected disconnect from {self.host}, send failed.')
             self.connected = False
             if self._autoreconnect:
                 self.logger.debug(f'Autoreconnect enabled for {self._host}')
                 self._reconnect()
             return None
         except Exception as e:  # log errors we are not prepared to handle and raise exception for further debugging
-            self.logger.warning(f'unhandleded error on sending to {self.host}, cannot send data {data}. Error: {e}')
+            self.logger.warning(f'Unhandleded error on sending to {self.host}, cannot send data {data}. Error was: {e}')
             raise
 
         # receive buffer data until
         # - connection is gone
         # - terminator is found
         # - timeout is hit
-        self.logger.debug(f'reading response from {self.host}:{self.port}')
+        self.logger.debug(f'Reading response from {self.host}:{self.port}')
         buffer = bytearray()
         begin = time()
 

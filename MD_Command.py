@@ -59,6 +59,7 @@ class MD_Command(object):
     item_type = None
     reply_token = []
     reply_pattern = ''
+    bounds = None
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -81,12 +82,12 @@ class MD_Command(object):
         kw = kwargs['cmd']
         self._plugin_params = kwargs['plugin']
 
-        self._get_kwargs(('opcode', 'read', 'write', 'item_type', 'reply_token'), **kw)
+        self._get_kwargs(('opcode', 'read', 'write', 'item_type', 'reply_token', 'bounds'), **kw)
 
         try:
             self._DT = dt_class()
         except Exception as e:
-            self.logger.error(f'building command {command} failed on instantiating datatype class {dt_class}. Error was {e}')
+            self.logger.error(f'building command {command} failed on instantiating datatype class {dt_class}. Error was: {e}')
             self._DT = DT.DT_raw()
 
         # only log if base class. Derived classes log their own messages
@@ -104,6 +105,9 @@ class MD_Command(object):
             else:
                 cmd = self.opcode
         else:
+            if not self._check_value(data):
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to bounds definition {self.bounds}')
+
             if self.write_cmd:
                 cmd = self.write_cmd
             else:
@@ -126,6 +130,32 @@ class MD_Command(object):
         for arg in args:
             if kwargs.get(arg, None):
                 setattr(self, arg, kwargs[arg])
+
+    def _check_value(self, data):
+        '''
+        check if value bounds are defined and if so, if they are followed
+
+        :param data: data/value to send
+        :return: True if data is valid, False else
+        :rtype: bool
+        '''
+        if self.bounds:
+            if isinstance(self.bounds, list):
+                if data not in self.bounds:
+                    self.logger.debug('Invalid data: value {} not in list {}'.format(data, self.bounds))
+                    return False
+            elif isinstance(self.bounds, tuple):
+                if not isinstance(data, type(self.bounds[0])):
+                    if type(data) is float and type(self.bounds[0]) is int:
+                        data = int(data)
+                    else:
+                        self.logger.error('Invalid data: type {} ({}) given for {} bounds {}'.format(type(data), data, type(self.bounds[0]), self.bounds))
+                        return False
+                if not self.bounds[0] <= data <= self.bounds[1]:
+                    self.logger.error('Invalid data: value {} out of bounds ({})'.format(data, self.bounds))
+                    return False
+
+        return True
 
 
 class MD_Command_Str(MD_Command):
@@ -181,6 +211,9 @@ class MD_Command_Str(MD_Command):
             else:
                 cmd_str = self._parse_str(self.opcode, data)
         else:
+            if not self._check_value(data):
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to bounds definition {self.bounds}')
+
             if self.write_cmd:
                 cmd_str = self._parse_str(self.write_cmd, data)
             else:
@@ -247,7 +280,7 @@ class MD_Command_ParseStr(MD_Command_Str):
     Default behaviour is identical to MD_Command_Str.
 
     Giving write_cmd as ':<write expression>:' (note colons) will format the
-    given string (without the colons) with 
+    given string (without the colons), replacing 'VAL' with the value by using
     write_cmd.format(VAL=data_dict['payload']), so you can immediately embed 
     the value in the command string with configurable formatting conforming 
     to str.format() syntax.
@@ -289,6 +322,9 @@ class MD_Command_ParseStr(MD_Command_Str):
             else:
                 cmd = self._parse_str(self.opcode, data)
         else:
+            if not self._check_value(data):
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to bounds definition {self.bounds}')
+
             if self.write_cmd:
                 # test if write_cmd is ':foo:' to trigger formatting/substitution
                 if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':

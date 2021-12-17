@@ -139,7 +139,8 @@ commands = {
         'item_type': 'num',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'VOL(\d{3})'
+        'reply_pattern': r'VOL(\d{3})',
+        'bounds': (0, 127)
     },
     'zone1_volumeup': {
         'write': True,
@@ -228,7 +229,8 @@ commands = {
         'item_type': 'num',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'ZV(\d{2})'
+        'reply_pattern': r'ZV(\d{2})',
+        'bounds': (0, 82)
     },
     'zone2_volumeup': {
         'write': True,

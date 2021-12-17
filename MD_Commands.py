@@ -133,7 +133,7 @@ class MD_Commands(object):
                                 self.logger.debug(f'matched reply_pattern {getattr(self._commands[command], "reply_pattern")} as regex against data {data}, found command {command}')
                                 return command
                         except Exception as e:
-                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], "reply_pattern")} from command {command} as regex failed with error {e}, ignoring')
+                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], "reply_pattern")} from command {command} as regex failed. Error was: {e}. Ignoring')
                     elif token != '' and token == data[:len(token)]:
 
                         # token ist just a string
@@ -202,7 +202,7 @@ class MD_Commands(object):
         '''
         for cmd in commands:
             kw = {}
-            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern'):
+            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'bounds'):
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 

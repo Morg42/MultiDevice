@@ -25,6 +25,7 @@
 #########################################################################
 
 import logging
+import re
 from pydoc import locate
 
 if MD_standalone:
@@ -64,6 +65,7 @@ class MD_Commands(object):
         self._cmd_class = command_obj_class
         self._plugin_params = kwargs
         self._dt = {}
+        self._return_value = None
         self._read_dt_classes(device_id)
         self._read_commands(device_name)
 
@@ -186,6 +188,36 @@ class MD_Commands(object):
             if kw.get('write', False) and kw.get('opcode', '') == '' and kw.get('write_cmd', '') == '':
                 self.logger.info(f'command {cmd} will not create a command for writing values. Check commands.py configuration...')
             if not dt_class:
-                self.logger.error(f'importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device')
+                self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
+
+class MD_CommandsRegex(MD_Commands):
+
+    def get_shng_data(self, command, data):
+        if command in self._commands:
+            return self._commands[command].get_shng_data(data, self._return_value)
+
+        raise Exception(f'command {command} not found in commands')
+
+    def get_command_from_reply(self, data):
+        if type(data) in (bytes, bytearray):
+            data = str(data.decode('utf-8'))
+
+        for command in self._commands:
+            tokens = getattr(self._commands[command], 'reply_token', None)
+            if tokens:
+                if not isinstance(tokens, list):
+                    tokens = [tokens]
+                for token in tokens:
+                    regex_test = re.match(token, data)
+                    if regex_test is not None:
+                        splitting = re.split(token, data)[1]
+                        self._return_value = splitting if splitting != '' else None
+                        self.logger.debug(f'token {token} checked against data {data}. Command: {command}, Return Value {self._return_value}')
+                    else:
+                        self._return_value = None
+                    # NOTE: if token == '', this would always match. Maybe make this a feature?
+                    if token != '' and regex_test:
+                        return command
+        return None

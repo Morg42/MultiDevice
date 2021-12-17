@@ -96,6 +96,23 @@ class MD_Commands(object):
 
         raise Exception(f'command {command} not found in commands')
 
+    # old version for reference...
+    # 
+    # # def get_command_from_reply(self, data):
+    # #     if type(data) in (bytes, bytearray):
+    # #         data = str(data.decode('utf-8'))
+    # # 
+    # #     for command in self._commands:
+    # #         tokens = getattr(self._commands[command], 'reply_token', None)
+    # #         if tokens:
+    # #             if not isinstance(tokens, list):
+    # #                 tokens = [tokens]
+    # #             for token in tokens:
+    # #                 # NOTE: if token == '', this would always match. Maybe make this a feature?
+    # #                 if token != '' and token == data[:len(token)]:
+    # #                     return command
+    # #     return None
+
     def get_command_from_reply(self, data):
         if type(data) in (bytes, bytearray):
             data = str(data.decode('utf-8'))
@@ -106,8 +123,20 @@ class MD_Commands(object):
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    # NOTE: if token == '', this would always match. Maybe make this a feature?
-                    if token != '' and token == data[:len(token)]:
+                    # TODO: make 'REGEX' literal configurable?
+                    if token == 'REGEX' and getattr(self._commands[command], 'reply_pattern', None):
+
+                        # token is "REGEX" - parse read_cmd as regex
+                        try:
+                            regex = re.compile(getattr(self._commands[command], 'reply_pattern'))
+                            if regex.match(data) is not None:
+                                self.logger.debug(f'matched reply_pattern {getattr(self._commands[command], "reply_pattern")} as regex against data {data}, found command {command}')
+                                return command
+                        except Exception as e:
+                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], "reply_pattern")} from command {command} as regex failed with error {e}, ignoring')
+                    elif token != '' and token == data[:len(token)]:
+
+                        # token ist just a string
                         return command
         return None
 
@@ -173,7 +202,7 @@ class MD_Commands(object):
         '''
         for cmd in commands:
             kw = {}
-            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token'):
+            for arg in ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern'):
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 
@@ -191,33 +220,3 @@ class MD_Commands(object):
                 self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
-
-class MD_CommandsRegex(MD_Commands):
-
-    def get_shng_data(self, command, data):
-        if command in self._commands:
-            return self._commands[command].get_shng_data(data, self._return_value)
-
-        raise Exception(f'command {command} not found in commands')
-
-    def get_command_from_reply(self, data):
-        if type(data) in (bytes, bytearray):
-            data = str(data.decode('utf-8'))
-
-        for command in self._commands:
-            tokens = getattr(self._commands[command], 'reply_token', None)
-            if tokens:
-                if not isinstance(tokens, list):
-                    tokens = [tokens]
-                for token in tokens:
-                    regex_test = re.match(token, data)
-                    if regex_test is not None:
-                        splitting = re.split(token, data)[1]
-                        self._return_value = splitting if splitting != '' else None
-                        self.logger.debug(f'token {token} checked against data {data}. Command: {command}, Return Value {self._return_value}')
-                    else:
-                        self._return_value = None
-                    # NOTE: if token == '', this would always match. Maybe make this a feature?
-                    if token != '' and regex_test:
-                        return command
-        return None

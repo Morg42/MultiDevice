@@ -659,7 +659,7 @@ class MultiDevice(SmartPlugin):
                     tmp_log.debug(f'Writing value "{item()}" from item {item.id()} with command "{command}"')
                     if not device.send_command(command, item()):
                         tmp_log.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ failed, resetting item value')
-                        item(item.property.last_value, self.get_shortname())
+                        item(item.property.last_value, self.get_shortname() + '.' + device_name)
                         return None
 
                 elif item.id() in self._items_readall:

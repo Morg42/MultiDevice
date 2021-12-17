@@ -54,8 +54,11 @@ class MD_Command(object):
     opcode = ''
     read = False
     write = False
+    read_cmd = ''
+    write_cmd = ''
     item_type = None
     reply_token = []
+    reply_pattern = ''
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -236,15 +239,82 @@ class MD_Command_Str(MD_Command):
             return node
 
 
-# class MD_Command_OnkelAndy(MD_Command_Str):
-# 
-#     def _parse_str(self, string, data=None):
-#         '''
-#         parse string with eval. Duck and cover...
-#         '''
-# 
-#         if data is not None:
-#             string = string.replace('$V', str(self._DT.get_send_data(data)))
-# 
-#         return eval(string)
-# 
+class MD_Command_ParseStr(MD_Command_Str):
+    '''
+    With this class, you can simplify the creation of read and write commands
+    containing data values. 
+
+    Default behaviour is identical to MD_Command_Str.
+
+    Giving write_cmd as ':<write expression>:' (note colons) will format the
+    given string (without the colons) with 
+    write_cmd.format(VAL=data_dict['payload']), so you can immediately embed 
+    the value in the command string with configurable formatting conforming 
+    to str.format() syntax.
+    If you have to start and end the command string with colons, just use
+    '::foo::' as write_cmd. If you absolutely HAVE to use a literal
+    ':foo{VAL}bar:', you might need to write your own class...
+
+    Giving reply_pattern as '<regex>' with one (1) match group will try and 
+    capture the matched group into the received value.
+
+    HINT: If you give reply_pattern as regex and reply_token as 'REGEX', the
+    reply_pattern regex will be used to identify a reply as belonging to this
+    command if a match is found.
+
+    Both results can be achieved with customized DT_foo classes, but this
+    might be an easier and cleaner solution. Please make sure to understand
+    MRE by JF properly :)
+    '''
+
+    def __init__(self, device_name, name, dt_class, **kwargs):
+
+        super().__init__(device_name, name, dt_class, **kwargs)
+
+        kw = kwargs['cmd']
+        self._plugin_params = kwargs['plugin']
+
+        self._get_kwargs(('read_cmd', 'write_cmd', 'read_data', 'params', 'values', 'bounds', 'reply_pattern'), **kw)
+
+        self.logger.debug(f'learned command {self.name} with device datatype {dt_class.__name__}')
+
+    def get_send_data(self, data):
+
+        cmd = None
+
+        # create read data
+        if data is None:
+            if self.read_cmd:
+                cmd = self._parse_str(self.read_cmd, data)
+            else:
+                cmd = self._parse_str(self.opcode, data)
+        else:
+            if self.write_cmd:
+                # test if write_cmd is ':foo:' to trigger formatting/substitution
+                if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
+                    cmd = self.write_cmd[1:-1].format(VAL=data)
+                else:
+                    cmd = self._parse_str(self.write_cmd, data)
+            else:
+                cmd = self._parse_str(self.opcode, data)
+
+        return {'payload': cmd, 'data': self._DT.get_send_data(data)}
+
+    def get_shng_data(self, data):
+        '''
+        If reply_pattern is set, try to match data to reply_pattern.
+
+        NOTE: if no match respectively no grouping match can be achieved,
+        it is not possible to return a meaningful value. To signal the error,
+        an exception will be raised.
+        '''
+        if self.reply_pattern:
+            regex = re.compile(self.reply_pattern)
+            match = regex.match(data)
+            if match and len(match.groups()) == 1:
+                value = self._DT.get_shng_data(match.group(1))
+            else:
+                raise ValueError(f'reply_pattern {self.reply_pattern} could not get a match on {data}')
+        else:
+            value = self._DT.get_shng_data(data)
+        return value

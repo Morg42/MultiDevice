@@ -1,0 +1,85 @@
+%YAML 1.1
+---
+# vim: expandtab:ts=4:sw=4
+
+pioneer:
+    zone1:
+        power:
+            type: bool
+            md_device: DEVICENAME
+            md_command: zone1_power
+            md_read: true
+            md_read_initial: true
+            md_write: true
+            #md_read_cycle: 10
+        mute:
+            type: bool
+            md_device: DEVICENAME
+            md_command: zone1_mute
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        volume:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone1_volume
+            md_read: true
+            md_read_initial: true
+            md_write: true
+            eval: value if sh...power() is True else 0
+            eval_trigger: ..power
+        volumeup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone1_volume+
+            md_write: true
+        volumedown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone1_volume-
+            md_write: true
+        source:
+            type: str
+            md_device: DEVICENAME
+            md_command: zone1_source
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        listeningmode:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone1_listeningmode
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        playingmode:
+            type: str
+            md_device: DEVICENAME
+            md_command: zone1_playingmode
+            md_read: true
+            md_read_initial: true
+        listeningmode:
+            type: str
+            md_device: DEVICENAME
+            md_command: zone1_listeningmode
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        speakers:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone1_speakers
+            md_read: true
+            md_read_initial: true
+            md_write: true
+            on_change:
+              - ..speakera = True if value in [1, 3] else False
+              - ..speakerb = True if value in [2, 3] else False
+        speakera:
+            type: bool
+            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+        speakerb:
+            type: bool
+            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2

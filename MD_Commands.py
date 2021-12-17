@@ -186,6 +186,6 @@ class MD_Commands(object):
             if kw.get('write', False) and kw.get('opcode', '') == '' and kw.get('write_cmd', '') == '':
                 self.logger.info(f'command {cmd} will not create a command for writing values. Check commands.py configuration...')
             if not dt_class:
-                self.logger.error(f'importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device')
+                self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})

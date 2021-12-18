@@ -38,7 +38,8 @@ commands = {
         'read_cmd': '?FL',
         'item_type': 'str',
         'dev_datatype': 'PioDisplay',
-        'reply_token': ['FL']
+        'reply_token': 'REGEX',
+        'reply_pattern': r'FL\d*'
     },
     'tone': {
         'opcode': 'MD_VALUE',
@@ -47,7 +48,8 @@ commands = {
         'read_cmd': '?TO',
         'item_type': 'bool',
         'dev_datatype': 'PioTone',
-        'reply_token': ['TO']
+        'reply_token': 'REGEX',
+        'reply_pattern': r'TO\d'
     },
     'treble': {
         'opcode': 'MD_VALUE',
@@ -55,8 +57,11 @@ commands = {
         'write': True,
         'read_cmd': '?TR',
         'item_type': 'num',
-        'dev_datatype': 'PioTreble',
-        'reply_token': ['TR']
+        'bounds': (0, 12),
+        'write_cmd': ':{VAL:02}TR:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'TR(\d{2})'
     },
     'trebleup': {
         'write': True,
@@ -76,8 +81,11 @@ commands = {
         'write': True,
         'read_cmd': '?BA',
         'item_type': 'num',
-        'dev_datatype': 'PioBass',
-        'reply_token': ['BA']
+        'bounds': (0, 12),
+        'write_cmd': ':{VAL:02}BA:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'BA(\d{2})'
     },
     'bassup': {
         'write': True,
@@ -140,7 +148,7 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'VOL(\d{3})',
-        'bounds': (0, 127)
+        'bounds': (0, 185)
     },
     'zone1_volumeup': {
         'write': True,
@@ -197,10 +205,13 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
+        'bounds': [0, 1, 2, 3, 9],
+        'write_cmd': ':{VAL:01}SPK:',
         'read_cmd': '?SPK',
         'item_type': 'num',
-        'dev_datatype': 'PioSpeakers',
-        'reply_token': ['SPK']
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SPK(\d)'
     },
     'zone2_power': {
         'opcode': 'MD_VALUE',

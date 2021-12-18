@@ -30,14 +30,14 @@ radio:
 
     tunerpresetup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: tunerpresetup
         md_write: true
 
     tunerpresetdown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: tunerpresetdown
         md_write: true
@@ -72,13 +72,13 @@ sound_settings:
         md_write: true
     trebleup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: trebleup
         md_write: true
     trebledown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: trebledown
         md_write: true
@@ -91,13 +91,13 @@ sound_settings:
         md_write: true
     bassup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: bassup
         md_write: true
     bassdown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: bassdown
         md_write: true
@@ -116,8 +116,8 @@ zone1:
         md_read_initial: true
         md_write: true
         on_change:
-          - ..volume = 0 if value is False else None
-          - ..read = True if value is True else None
+            - ..volume = 0 if value is False else None
+            - ..read = True if value is True else None
     mute:
         type: bool
         md_device: DEVICENAME
@@ -134,13 +134,13 @@ zone1:
         md_write: true
     volumeup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone1_volumeup
         md_write: true
     volumedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone1_volumedown
         md_write: true
@@ -153,13 +153,13 @@ zone1:
         md_write: true
     sourceup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone1_sourceup
         md_write: true
     sourcedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone1_sourcedown
         md_write: true
@@ -201,7 +201,7 @@ zone2:
         md_read: true
         md_read_initial: true
         md_write: true
-        #md_read_cycle: 10
+        # md_read_cycle: 10
     mute:
         type: bool
         md_device: DEVICENAME
@@ -220,13 +220,13 @@ zone2:
         eval_trigger: ..power
     volumeup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone2_volumeup
         md_write: true
     volumedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone2_volumedown
         md_write: true
@@ -239,13 +239,13 @@ zone2:
         md_write: true
     sourceup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone2_sourceup
         md_write: true
     sourcedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone2_sourcedown
         md_write: true

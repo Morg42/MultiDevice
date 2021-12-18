@@ -10,10 +10,6 @@ else:
 
 import re
 
-class DT_fstring(DT.Datatype):
-    def get_send_data(self, data, type=None):
-        return eval(data)
-
 class DT_PioDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         content = data[2:][:28]
@@ -68,11 +64,12 @@ class DT_PioSource(DT.Datatype):
 
 class DT_PioListening(DT.Datatype):
     def get_send_data(self, data):
-        try:
-            data = int(data)
-            return f"{data:04}SR"
-        except Exception:
-            return f"{lookup.SOURCE_SET.get(data.upper())}SR"
+        if data:
+            try:
+                data = int(data)
+                return f"{data:04}SR"
+            except Exception:
+                return f"{lookup.SOURCE_SET.get(data.upper())}SR"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("SR")[1]
@@ -119,12 +116,13 @@ class DT_PioBass(DT.Datatype):
 
 class DT_PioDialog(DT.Datatype):
     def get_send_data(self, data):
-        try:
-            data = int(data)
-            data = max(0,min(9,data))
-            return f"{data:01}ATH"
-        except Exception:
-            return f"{lookup.DIALOG_SET.get(data.upper())}ATH"
+        if data:
+            try:
+                data = int(data)
+                data = max(0,min(9,data))
+                return f"{data:01}ATH"
+            except Exception:
+                return f"{lookup.DIALOG_SET.get(data.upper())}ATH"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("ATH")[1]
@@ -132,11 +130,12 @@ class DT_PioDialog(DT.Datatype):
 
 class DT_PioHDMIOut(DT.Datatype):
     def get_send_data(self, data):
-        try:
-            data = int(data)
-            return f"{data:01}HO"
-        except Exception:
-            return f"{lookup.DIALOG_SET.get(data.upper())}HO"
+        if data:
+            try:
+                data = int(data)
+                return f"{data:01}HO"
+            except Exception:
+                return f"{lookup.DIALOG_SET.get(data.upper())}HO"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("HO")[1]
@@ -178,11 +177,12 @@ class DT_PioMute2(DT.Datatype):
 
 class DT_PioSource2(DT.Datatype):
     def get_send_data(self, data):
-        try:
-            data = int(data)
-            return f"{data:02}ZS"
-        except Exception:
-            return f"{lookup.SOURCE_SET.get(data.upper())}ZS"
+        if data:
+            try:
+                data = int(data)
+                return f"{data:02}ZS"
+            except Exception:
+                return f"{lookup.SOURCE_SET.get(data.upper())}ZS"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("Z2F")[1]

@@ -103,6 +103,11 @@ sound_settings:
         md_write: true
 
 zone1:
+    read:
+        type: bool
+        md_device: DEVICENAME
+        md_read_all: true
+        enforce_updates: true
     power:
         type: bool
         md_device: DEVICENAME
@@ -110,7 +115,9 @@ zone1:
         md_read: true
         md_read_initial: true
         md_write: true
-        #md_read_cycle: 10
+        on_change:
+          - ..volume = 0 if value is False else None
+          - ..read = True if value is True else None
     mute:
         type: bool
         md_device: DEVICENAME
@@ -125,8 +132,6 @@ zone1:
         md_read: true
         md_read_initial: true
         md_write: true
-        eval: value if sh...power() is True else 0
-        eval_trigger: ..power
     volumeup:
         type: bool
         enforce_updates: yes

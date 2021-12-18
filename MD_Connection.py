@@ -452,7 +452,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__} for device {self.device}')
         self._tcp.close()
 
-    def on_disconnect(self):
+    def on_disconnect(self, client):
         self.logger.debug('connection was closed')
         self.connected = False
         if self._disconnected_callback:

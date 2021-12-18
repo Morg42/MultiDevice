@@ -163,13 +163,6 @@ zone1:
         md_device: DEVICENAME
         md_command: zone1_sourcedown
         md_write: true
-    listeningmode:
-        type: num
-        md_device: DEVICENAME
-        md_command: zone1_listeningmode
-        md_read: true
-        md_read_initial: true
-        md_write: true
     playingmode:
         type: str
         md_device: DEVICENAME
@@ -191,8 +184,8 @@ zone1:
         md_read_initial: true
         md_write: true
         on_change:
-          - ..speakera = True if value in [1, 3] else False
-          - ..speakerb = True if value in [2, 3] else False
+            - ..speakera = True if value in [1, 3] else False
+            - ..speakerb = True if value in [2, 3] else False
     speakera:
         type: bool
         on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1

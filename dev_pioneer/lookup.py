@@ -1,6 +1,51 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
+ERROR = {
+        '2': 'not available now',
+        '3': 'invalid command',
+        '4': 'command error',
+        '6': 'parameter error'
+        }
+
+HDMIOUT   = {
+            'HDMI OUT 1+2 ON': '0',
+            'HDMI OUT 1 ON': '1',
+            'HDMI OUT 2 ON': '2',
+            'HDMI OUT 1/2 OFF': '3',
+            'HDMI OUT 1/2 (cyclic)': '9'
+            }
+
+HDMIOUT_SET   = {
+                '0': 'HDMI OUT 1+2 ON',
+                '1': 'HDMI OUT 1 ON',
+                '2': 'HDMI OUT 2 ON',
+                '3': 'HDMI OUT 1/2 OFF',
+                '9': 'HDMI OUT 1/2 (cyclic)'
+                }
+
+DIALOG    = {
+            'OFF': '0',
+            'FLAT': '1',
+            'UP1': '2',
+            'UP2': '3',
+            'UP3': '4',
+            'UP4': '5',
+            'DOWN (cyclic)': '8',
+            'UP (cyclic)': '9'
+            }
+
+DIALOG_SET    = {
+                '0': 'OFF',
+                '1': 'FLAT',
+                '2': 'UP1',
+                '3': 'UP2',
+                '4': 'UP3',
+                '5': 'UP4',
+                '8': 'DOWN (cyclic)',
+                '9': 'UP (cyclic)'
+                }
+
 SOURCE_SET    = {
                 'BD': '25',
                 'DVD': '04',

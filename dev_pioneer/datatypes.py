@@ -53,11 +53,14 @@ class DT_PioMute(DT.Datatype):
 
 class DT_PioSource(DT.Datatype):
     def get_send_data(self, data, type=None):
-        try:
-            data = int(data)
-            return f"{data:02}FN"
-        except Exception:
-            return f"{lookup.SOURCE_SET.get(data.upper())}FN"
+        if data:
+            try:
+                data = int(data)
+                return f"{data:02}FN"
+            except Exception:
+                return f"{lookup.SOURCE_SET.get(data.upper())}FN"
+        else:
+            return '?FN'
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("FN")[1]

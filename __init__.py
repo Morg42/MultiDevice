@@ -369,7 +369,7 @@ class MultiDevice(SmartPlugin):
     It also looks good.
     '''
 
-    PLUGIN_VERSION = '0.0.3'
+    PLUGIN_VERSION = '0.0.4'
 
     def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         '''
@@ -606,14 +606,6 @@ class MultiDevice(SmartPlugin):
                 self._items_readall[item.id()] = device_name
                 self.logger.debug(f'Item {item} saved for read_all on device {device_name}')
                 return self.update_item
-
-    # def parse_logic(self, logic):
-    #     '''
-    #     Default plugin parse_logic method
-    #     '''
-    #     if 'xxx' in logic.conf:
-    #         # self.function(logic['name'])
-    #         pass
 
     def update_item(self, item, caller=None, source=None, dest=None):
         '''

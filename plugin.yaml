@@ -15,7 +15,7 @@ plugin:
     # documentation: https://github.com/smarthomeNG/smarthome/wiki/MultiDevice-Plugin
     # support: https://knx-user-forum.de/forum/supportforen/smarthome-py
 
-    version: 0.0.3
+    version: 0.0.4
     sh_minversion: 1.8.2
     py_minversion: 3.6
     multi_instance: false
@@ -71,8 +71,8 @@ item_attributes:
     md_read_all:
         type: bool
         description:
-            de: 'Wenn diesem Item ein beliebiger Wert zugewiesen wird, werden alle zum Lesen konfigurierten Items neu vom Gerät gelesen'
-            en: 'When set to any value, all items configured for reading will update their value from the device'
+            de: 'Wenn diesem Item ein beliebiger Wert zugewiesen wird, werden alle zum Lesen konfigurierten Items neu vom Gerät gelesen. Das Item kann nicht gleichzeitig mit md_command belegt werden.'
+            en: 'When set to any value, all items configured for reading will update their value from the device. The item cannot be used with md_command in parallel.'
 
 item_structs:
     # Definition of item-structure templates for this plugin (enter 'item_structs: NONE', if section should be empty)

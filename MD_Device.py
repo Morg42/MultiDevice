@@ -415,9 +415,9 @@ class MD_Device(object):
 
     def _read_initial_values(self):
         '''
-        Read all values configured to be read at startup
+        Read all values configured to be read at startup / after reconnect
         '''
-        if self._commands_initial and self._commands_initial != [] and not self._initial_values_read:
+        if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
             self.logger.info('Starting initial read commands')
             for cmd in self._commands_initial:
                 self.logger.debug(f'Sending initial command {cmd}')

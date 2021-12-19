@@ -11,11 +11,6 @@ else:
 import re
 
 
-def dict_rev(d):
-    ''' helper routine to return inversed dict (swap key/value) '''
-    return {v: k for (k, v) in d.items()}
-
-
 class DT_PioDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         content = data[2:][:28]
@@ -96,7 +91,6 @@ class DT_PioSource(DT.Datatype):
         return_value = data.split("FN")[1]
         return lookup.SOURCE.get(return_value)
 
-
 class DT_PioSource2(DT.Datatype):
     def get_send_data(self, data):
         try:
@@ -110,8 +104,6 @@ class DT_PioSource2(DT.Datatype):
         return lookup.SOURCE.get(return_value)
 
 
-# unused classes from here on
-
 class DT_PioHDMIOut(DT.Datatype):
     def get_send_data(self, data):
         try:
@@ -123,3 +115,5 @@ class DT_PioHDMIOut(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return_value = data.split("HO")[1]
         return lookup.HDMIOUT.get(return_value)
+
+# unused classes from here on

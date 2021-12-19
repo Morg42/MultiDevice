@@ -2,7 +2,7 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 '''
-Example class for Pioneer AV Power On function.
+Device class for Pioneer AV function.
 '''
 if MD_standalone:
     from MD_Device import MD_Device

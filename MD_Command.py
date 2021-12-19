@@ -102,10 +102,11 @@ class MD_Command(object):
 
         cmd = None
 
-        try:
-            data = self._check_value(data)
-        except Exception as e:
-            raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
+        if data is not None:
+            try:
+                data = self._check_value(data)
+            except Exception as e:
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
 
         # create read data
         if data is None:

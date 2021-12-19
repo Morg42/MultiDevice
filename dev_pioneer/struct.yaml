@@ -93,6 +93,13 @@ sound_settings:
             md_command: level_subwoofer
             md_read: true
             md_write: true
+    dialog:
+        type: str
+        md_device: DEVICENAME
+        md_command: dialog
+        md_read: true
+        md_read_initial: true
+        md_write: true
     tone:
         type: bool
         md_device: DEVICENAME
@@ -104,6 +111,13 @@ sound_settings:
         type: num
         md_device: DEVICENAME
         md_command: treble
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    hdmiout:
+        type: str
+        md_device: DEVICENAME
+        md_command: hdmiout
         md_read: true
         md_read_initial: true
         md_write: true

@@ -298,3 +298,7 @@ PLAYINGMODE = {
                 '0e01': 'HDMI THROUGH',
                 '0f01': 'MULTI CH IN'
                 }
+
+def dict_rev(d):
+    ''' helper routine to return inversed dict (swap key/value) '''
+    return {v: k for (k, v) in d.items()}

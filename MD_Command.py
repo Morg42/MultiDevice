@@ -320,7 +320,6 @@ class MD_Command_ParseStr(MD_Command_Str):
         except Exception as e:
             raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
 
-
         if data is None:
             # create read data
             if self.read_cmd:

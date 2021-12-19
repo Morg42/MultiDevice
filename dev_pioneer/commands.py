@@ -9,7 +9,7 @@ commands = {
         'read': True,
         'item_type': 'str',
         'dev_datatype': 'PioError',
-        'reply_token': ['E0', 'E02', 'E04']
+        'reply_token': 'E0'
     },
     'title': {
         'opcode': 'MD_VALUE',
@@ -46,10 +46,7 @@ commands = {
         'read': True,
         'write': True,
         'read_cmd': '?ATH',
-        'settings': {
-                    'force_min': 0,
-                    'force_max': 9
-                    },
+        'settings': {'force_min': 0, 'force_max': 9},
         'item_type': 'bool',
         'dev_datatype': 'PioDialog',
         'reply_token': 'REGEX',
@@ -72,7 +69,7 @@ commands = {
         'write': True,
         'read_cmd': '?TR',
         'item_type': 'num',
-        'settings': (0, 12),
+        'settings': {'min': 0, 'max': 12},
         'write_cmd': ':{VAL:02}TR:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -96,7 +93,7 @@ commands = {
         'write': True,
         'read_cmd': '?BA',
         'item_type': 'num',
-        'settings': (0, 12),
+        'settings': {'min': 0, 'max': 12},
         'write_cmd': ':{VAL:02}BA:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -120,10 +117,7 @@ commands = {
         'write': True,
         'read_cmd': '?L__CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
+        'settings': {'force_min': 26, 'max': 74},
         'write_cmd': ':L__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -135,10 +129,7 @@ commands = {
         'write': True,
         'read_cmd': '?R__CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
+        'settings': {'force_min': 26, 'max': 74},
         'write_cmd': ':R__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -150,10 +141,7 @@ commands = {
         'write': True,
         'read_cmd': '?C__CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
+        'settings': {'force_min': 26, 'max': 74},
         'write_cmd': ':C__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -165,10 +153,7 @@ commands = {
         'write': True,
         'read_cmd': '?SL_CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
+        'settings': {'force_min': 26, 'max': 74},
         'write_cmd': ':SL_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -180,10 +165,7 @@ commands = {
         'write': True,
         'read_cmd': '?SR_CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
+        'settings': {'force_min': 26, 'max': 74},
         'write_cmd': ':SR_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -195,10 +177,7 @@ commands = {
         'write': True,
         'read_cmd': '?SW_CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
+        'settings': {'force_min': 26, 'max': 74},
         'write_cmd': ':SW_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -256,11 +235,7 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'VOL(\d{3})',
-        'settings': {
-                    'max': 185,
-                    'force_min': 0,
-                    'force_max': 110,
-                    }
+        'settings': {'force_min': 0, 'max': 185}
     },
     'zone1_volumeup': {
         'write': True,
@@ -317,9 +292,7 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {
-                    'valid_list': [0, 1, 2, 3, 9]
-                    },
+        'settings': {'valid_list': [0, 1, 2, 3, 9]},
         'write_cmd': ':{VAL:01}SPK:',
         'read_cmd': '?SPK',
         'item_type': 'num',
@@ -355,11 +328,7 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'ZV(\d{2})',
-                'settings': {
-                            'max': 82,
-                            'force_min': 0,
-                            'force_max': 70,
-                            }
+        'settings': {'force_min': 0, 'max': 82},
     },
     'zone2_volumeup': {
         'write': True,

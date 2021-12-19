@@ -158,12 +158,12 @@ commands = {
         'read': True,
         'write': True,
         'settings': {
-                    'force_min': 38,
-                    'max': 62
+                    'force_min': 38.0,
+                    'max': 62.0
                     },
         'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':CVFL {VAL}:',
+        'write_cmd': 'CVFL MD_VALUE',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVFL (\d{2,3})'
@@ -173,12 +173,12 @@ commands = {
         'read': True,
         'write': True,
         'settings': {
-                    'force_min': 38,
-                    'max': 62
+                    'force_min': 38.0,
+                    'max': 62.0
                     },
         'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':CVFR {VAL}:',
+        'write_cmd': 'CVFR MD_VALUE',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVFR (\d{2,3})'
@@ -188,12 +188,12 @@ commands = {
         'read': True,
         'write': True,
         'settings': {
-                    'force_min': 38,
-                    'max': 62
+                    'force_min': 38.0,
+                    'max': 62.0
                     },
         'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':CVC {VAL}:',
+        'write_cmd': 'CVC MD_VALUE',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVC (\d{2,3})'
@@ -203,12 +203,12 @@ commands = {
         'read': True,
         'write': True,
         'settings': {
-                    'force_min': 38,
-                    'max': 62
+                    'force_min': 38.0,
+                    'max': 62.0
                     },
         'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':CVSL {VAL}:',
+        'write_cmd': 'CVSL MD_VALUE',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVSL (\d{2,3})'
@@ -218,12 +218,12 @@ commands = {
         'read': True,
         'write': True,
         'settings': {
-                    'force_min': 38,
-                    'max': 62
+                    'force_min': 38.0,
+                    'max': 62.0
                     },
         'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':CVSR {VAL}:',
+        'write_cmd': 'CVSR MD_VALUE',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVSR (\d{2,3})'
@@ -233,12 +233,12 @@ commands = {
         'read': True,
         'write': True,
         'settings': {
-                    'force_min': 38,
-                    'max': 62
+                    'force_min': 38.0,
+                    'max': 62.0
                     },
         'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':CVSW {VAL}:',
+        'write_cmd': 'CVSW MD_VALUE',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVSW (\d{2,3})'
@@ -293,13 +293,14 @@ commands = {
         'read': True,
         'write': True,
         'read_cmd': 'MV?',
+        'write_cmd': 'MVMD_VALUE',
         'item_type': 'num',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
         'reply_pattern': r'MV(\d{2,3})',
         'settings': {
-                    'max': 98,
-                    'force_min': 0
+                    'max': 98.0,
+                    'force_min': 0.0
                     }
     },
     'zone1_volumemax': {
@@ -383,8 +384,8 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'Z2(\d{2,3})',
         'settings': {
-                    'max': 98,
-                    'force_min': 0
+                    'max': 98.0,
+                    'force_min': 0.0
                     }
     },
     'zone2_volumeup': {
@@ -445,8 +446,8 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'Z3(\d{2,3})',
         'settings': {
-                    'max': 98,
-                    'force_min': 0
+                    'max': 98.0,
+                    'force_min': 0.0
                     }
     },
     'zone3_volumeup': {

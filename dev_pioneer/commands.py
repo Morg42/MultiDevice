@@ -41,13 +41,24 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'FL\d*'
     },
+    'hdmiout': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?HO',
+        'settings': {'force_min': 0, 'force_max': 9},
+        'item_type': 'str',
+        'dev_datatype': 'PioHDMIOut',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'HO\d'
+    },
     'dialog': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?ATH',
         'settings': {'force_min': 0, 'force_max': 9},
-        'item_type': 'bool',
+        'item_type': 'str',
         'dev_datatype': 'PioDialog',
         'reply_token': 'REGEX',
         'reply_pattern': r'ATH\d'

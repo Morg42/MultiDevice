@@ -102,11 +102,7 @@ class MD_Command(object):
 
         cmd = None
 
-        if data is not None:
-            try:
-                data = self._check_value(data)
-            except Exception as e:
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
+        data = self._check_value(data)
 
         # create read data
         if data is None:
@@ -168,19 +164,24 @@ class MD_Command(object):
         :param data: data/value to send
         :return: adjusted data
         '''
+        if data is not None:
+            try:
+    
+                minmaxkeys = ['min', 'max', 'force_min', 'force_max']
+                if self.settings:
+                    if self.settings.get('read_val', None):
+                        # if data == read_val, trigger force reading value from device by not providing data to command
+                        if data == self.settings['read_val']:
+                            return None
+                    elif self.settings.get('valid_list', None):
+                        if data not in self.settings['valid_list']:
+                            raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')
+                    elif any(key in self.settings.keys() for key in minmaxkeys):
+                        for key in minmaxkeys:
+                            data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
 
-        minmaxkeys = ['min', 'max', 'force_min', 'force_max']
-        if self.settings:
-            if self.settings.get('read_val', None):
-                # if data == read_val, trigger force reading value from device by not providing data to command
-                if data == self.settings['read_val']:
-                    return None
-            elif self.settings.get('valid_list', None):
-                if data not in self.settings['valid_list']:
-                    raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')
-            elif any(key in self.settings.keys() for key in minmaxkeys):
-                for key in minmaxkeys:
-                    data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
+            except Exception as e:
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
 
         return data
 
@@ -217,12 +218,7 @@ class MD_Command_Str(MD_Command):
 
     def get_send_data(self, data):
 
-        if data is not None:
-            try:
-                data = self._check_value(data)
-            except Exception as e:
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
-
+        data = self._check_value(data)
 
         if data is None:
             # create read data
@@ -323,11 +319,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     def get_send_data(self, data):
 
-        if data is not None:
-            try:
-                data = self._check_value(data)
-            except Exception as e:
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
+        data = self._check_value(data)
 
         if data is None:
             # create read data

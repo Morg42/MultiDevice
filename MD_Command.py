@@ -156,6 +156,10 @@ class MD_Command(object):
 
         non-compliance will raise ValueError
 
+        This can be overloaded; make sure to (first?) call 
+        data = super()._check_value(data)
+        to run this code in addition to your own extension, if applicable
+
         :param data: data/value to send
         :return: adjusted data
         '''
@@ -205,16 +209,21 @@ class MD_Command_Str(MD_Command):
     read_data = None
 
     def get_send_data(self, data):
-        # create read data
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
+
+
         if data is None:
+            # create read data
             if self.read_cmd:
                 cmd_str = self._parse_str(self.read_cmd)
             else:
                 cmd_str = self._parse_str(self.opcode, data)
         else:
-            if not self._check_value(data):
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings definition {self.settings}')
-
+            # create write data
             if self.write_cmd:
                 cmd_str = self._parse_str(self.write_cmd, data)
             else:
@@ -306,28 +315,30 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     def get_send_data(self, data):
 
-        cmd = None
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
 
-        # create read data
+
         if data is None:
+            # create read data
             if self.read_cmd:
-                cmd = self._parse_str(self.read_cmd, data)
+                cmd_str = self._parse_str(self.read_cmd)
             else:
-                cmd = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data)
         else:
-            if not self._check_value(data):
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings definition {self.settings}')
-
+            # create write data
             if self.write_cmd:
                 # test if write_cmd is ':foo:' to trigger formatting/substitution
                 if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
-                    cmd = self.write_cmd[1:-1].format(VAL=data)
+                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
                 else:
-                    cmd = self._parse_str(self.write_cmd, data)
+                    cmd_str = self._parse_str(self.write_cmd, data)
             else:
-                cmd = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data)
 
-        return {'payload': cmd, 'data': self._DT.get_send_data(data)}
+        return {'payload': cmd_str, 'data': self._DT.get_send_data(data)}
 
     def get_shng_data(self, data):
         '''

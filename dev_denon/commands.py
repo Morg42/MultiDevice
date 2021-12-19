@@ -4,114 +4,116 @@
 # commands for dev pioneer
 
 commands = {
-    'error': {
-        'opcode': 'MD_VALUE',
-        'read': True,
-        'item_type': 'str',
-        'dev_datatype': 'PioError',
-        'reply_token': ['E0', 'E02', 'E04']
-    },
     'title': {
         'opcode': 'MD_VALUE',
         'read': True,
+        'read_cmd': 'NSE',
         'item_type': 'str',
         'dev_datatype': 'str',
-        'reply_token': ['GEH01020']
+        'reply_token': 'REGEX',
+        'reply_pattern': r'NSE1(.*)'
     },
-    'genre': {
+    'album': {
         'opcode': 'MD_VALUE',
         'read': True,
+        'read_cmd': 'NSE',
         'item_type': 'str',
         'dev_datatype': 'str',
-        'reply_token': ['GEH05024']
+        'reply_token': 'REGEX',
+        'reply_pattern': r'NSE4(.*)'
     },
-    'station': {
+    'artist': {
         'opcode': 'MD_VALUE',
         'read': True,
+        'read_cmd': 'NSE',
         'item_type': 'str',
         'dev_datatype': 'str',
-        'reply_token': ['GEH04022']
+        'reply_token': 'REGEX',
+        'reply_pattern': r'NSE2(.*)'
     },
     'display': {
         'opcode': 'MD_VALUE',
         'read': True,
-        'read_cmd': '?FL',
+        'read_cmd': 'NSE',
         'item_type': 'str',
-        'dev_datatype': 'PioDisplay',
+        'dev_datatype': 'DenonDisplay',
         'reply_token': 'REGEX',
-        'reply_pattern': r'FL\d*'
+        'reply_pattern': r'NSE(.*)'
     },
     'dialog': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?ATH',
-        'settings': {
-                    'force_min': 0,
-                    'force_max': 9
-                    },
+        'read_cmd': 'PSDIL ?',
+        'write_cmd': ':PSDIL {VAL}:',
         'item_type': 'bool',
-        'dev_datatype': 'PioDialog',
+        'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
-        'reply_pattern': r'ATH\d'
+        'reply_pattern': r'PSDIL (ON|OFF)'
     },
     'tone': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?TO',
+        'read_cmd': 'PSTONE CTRL ?',
+        'write_cmd': ':PSTONE CTRL {VAL}:',
         'item_type': 'bool',
-        'write_cmd': ':{VAL:01}TO:',
-        'dev_datatype': 'str',
+        'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
-        'reply_pattern': r'TO(\d)'
+        'reply_pattern': r'PSTONE CTRL (ON|OFF)'
     },
     'treble': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?TR',
+        'read_cmd': 'PSTRE ?',
         'item_type': 'num',
-        'settings': (0, 12),
-        'write_cmd': ':{VAL:02}TR:',
+        'settings': {
+                    'force_min': 44,
+                    'force_max': 56
+                    },
+        'write_cmd': ':PSTRE {VAL}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'TR(\d{2})'
+        'reply_pattern': r'PSTRE (\d{2})'
     },
     'trebleup': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'TI',
+        'write_cmd': 'PSTRE UP',
         'dev_datatype': 'raw'
     },
     'trebledown': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'TD',
+        'write_cmd': 'PSTRE DOWN',
         'dev_datatype': 'raw'
     },
     'bass': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?BA',
+        'read_cmd': 'PSBAS ?',
         'item_type': 'num',
-        'settings': (0, 12),
-        'write_cmd': ':{VAL:02}BA:',
+        'settings': {
+                    'force_min': 44,
+                    'force_max': 56
+                    },
+        'write_cmd': ':PSBAS {VAL}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'BA(\d{2})'
+        'reply_pattern': r'PSBAS (\d{2})'
     },
     'bassup': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'BI',
+        'write_cmd': 'PSBAS UP',
         'dev_datatype': 'raw'
     },
     'bassdown': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'BD',
+        'write_cmd': 'PSBAS DOWN',
         'dev_datatype': 'raw'
     },
     'level_front_left': {
@@ -120,10 +122,6 @@ commands = {
         'write': True,
         'read_cmd': '?L__CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
         'write_cmd': ':L__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -135,10 +133,6 @@ commands = {
         'write': True,
         'read_cmd': '?R__CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
         'write_cmd': ':R__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -150,10 +144,6 @@ commands = {
         'write': True,
         'read_cmd': '?C__CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
         'write_cmd': ':C__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -165,10 +155,6 @@ commands = {
         'write': True,
         'read_cmd': '?SL_CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
         'write_cmd': ':SL_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -180,10 +166,6 @@ commands = {
         'write': True,
         'read_cmd': '?SR_CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
         'write_cmd': ':SR_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -195,10 +177,6 @@ commands = {
         'write': True,
         'read_cmd': '?SW_CLV',
         'item_type': 'num',
-        'settings': {
-                    'max': 74,
-                    'force_min': 26
-                    },
         'write_cmd': ':SW_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -232,44 +210,45 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?P',
+        'read_cmd': 'PW?',
         'item_type': 'bool',
-        'dev_datatype': 'PioPwr',
-        'reply_token': ['PWR']
+        'dev_datatype': 'DenonPwr',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PW(ON|STANDBY)'
     },
     'zone1_mute': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?M',
+        'read_cmd': 'MU?',
+        'write_cmd': ':MU{VAL}:',
         'item_type': 'bool',
-        'dev_datatype': 'PioMute',
-        'reply_token': ['MUT']
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'MU(ON|OFF)'
     },
     'zone1_volume': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?V',
-        'write_cmd': ':{VAL:03}VL:',
+        'read_cmd': 'MV?',
         'item_type': 'num',
-        'dev_datatype': 'str',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'VOL(\d{3})',
+        'reply_pattern': r'MV(\d{2,3})',
         'settings': {
-                    'max': 185,
-                    'force_min': 0,
-                    'force_max': 110,
+                    'max': 98,
+                    'force_min': 0
                     }
     },
     'zone1_volumeup': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'VU',
+        'write_cmd': 'MVUP',
         'dev_datatype': 'raw'
     },
     'zone1_volumedown': {
-        'write_cmd': 'VD',
+        'write_cmd': 'MVDOWN',
         'write': True,
         'item_type': 'bool',
         'dev_datatype': 'raw'
@@ -317,9 +296,7 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {
-                    'valid_list': [0, 1, 2, 3, 9]
-                    },
+        'settings': {'valid_list': [0, 1, 2, 3, 9]},
         'write_cmd': ':{VAL:01}SPK:',
         'read_cmd': '?SPK',
         'item_type': 'num',
@@ -355,11 +332,10 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'ZV(\d{2})',
-                'settings': {
-                            'max': 82,
-                            'force_min': 0,
-                            'force_max': 70,
-                            }
+        'settings': {
+                    'max': 82,
+                    'force_min': 0
+                    }
     },
     'zone2_volumeup': {
         'write': True,

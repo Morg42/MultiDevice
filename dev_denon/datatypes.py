@@ -10,41 +10,45 @@ else:
 
 import re
 
-class DT_PioDisplay(DT.Datatype):
+class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
-        content = data[2:][:28]
-        tempvalue = "".join(list(map(lambda i: chr(int(content[2 * i:][:2], 0x10)), range(14)))).strip()
-        data = re.sub(r'^[^A-Z0-9]*', '', tempvalue)
-        return data
+        infotype = data[3:4]
+        returnvalue = None
+        if infotype.isdigit():
+            infotype = int(infotype)
+            data = data[4:] if infotype == 0 else \
+                data[5:] if infotype == 1 else data[6:]
+            returnvalue = data if infotype in [1, 2] else None
+        return returnvalue
 
-class DT_PioError(DT.Datatype):
-    def get_shng_data(self, data, type=None):
-        return_value = data.split("E0")[1]
-        return lookup.ERROR.get(return_value)
-
-class DT_PioPwr(DT.Datatype):
+class DT_DenonPwr(DT.Datatype):
     def get_send_data(self, data):
-        return 'PO' if data else 'PF'
+        return 'PWON' if data else 'PWSTANDBY'
 
     def get_shng_data(self, data, type=None):
         if type is None or type == 'bool':
-            return True if data == 'PWR0' else False
-
+            return True if data == 'ON' else False
         return super().get_shng_data(data, type)
 
-class DT_invert(DT.Datatype):
+class DT_DenonVol(DT.Datatype):
     def get_send_data(self, data):
-        return '0' if data else '1'
+        if isinstance(data, float):
+            return f"MV{str(data).replace('.', '')}"
+        else:
+            return f"MV{data}"
 
     def get_shng_data(self, data, type=None):
-        return False if data == '1' else True
+        if len(data) == 3:
+            return f"{data[0:2]}.{data[2:3]}"
+        else:
+            return data
 
-class DT_PioMute(DT.Datatype):
+class DT_onoff(DT.Datatype):
     def get_send_data(self, data):
-        return 'MO' if data else 'MF'
+        return 'ON' if data else 'OFF'
 
     def get_shng_data(self, data, type=None):
-        return True if data == 'MUT0' else False
+        return False if data == 'OFF' else True
 
 class DT_PioSource(DT.Datatype):
     def get_send_data(self, data, type=None):

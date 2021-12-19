@@ -319,7 +319,7 @@ class MD_Device(object):
 
     def _set_device_params(self, **kwargs):
         '''
-        This method parses self._parameters for parameters it needs itself and does the
+        This method parses self._plugin_params for parameters it needs itself and does the
         necessary initialization.
         Needs to be overloaded for maximum effect
         '''

@@ -59,7 +59,7 @@ class MD_Command(object):
     item_type = None
     reply_token = []
     reply_pattern = ''
-    bounds = None
+    settings = None
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -98,6 +98,11 @@ class MD_Command(object):
 
         cmd = None
 
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
+
         # create read data
         if data is None:
             if self.read_cmd:
@@ -105,9 +110,6 @@ class MD_Command(object):
             else:
                 cmd = self.opcode
         else:
-            if not self._check_value(data):
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to bounds definition {self.bounds}')
-
             if self.write_cmd:
                 cmd = self.write_cmd
             else:
@@ -131,31 +133,47 @@ class MD_Command(object):
             if kwargs.get(arg, None):
                 setattr(self, arg, kwargs[arg])
 
+    def _check_min_max(self, data, key, min=True, force=False):
+        ''' helper routine to check for min/max compliance and int/float type '''
+        if self.settings.get(key, None):
+            bound = self.settings[key]
+            if not isinstance(data, type(bound)):
+                if type(data) is float and type(bound) is int:
+                    data = int(data)
+                else:
+                    raise ValueError(f'Invalid data: type {type(data)} ({data}) given for {type(bound)} ({bound})')
+            if (min and data >= bound) or (not min and data <= bound):
+                return data
+            if force:
+                return bound
+            raise ValueError(f'Invalid data: value {data} not adhering to {"min" if min else "max"} value {bound}')
+        return data
+
     def _check_value(self, data):
         '''
-        check if value bounds are defined and if so, if they are followed
+        check if value settings are defined and if so, if they are followed
+        possibly adjust data in accordance with settings or do some magic ('read_val')
+
+        non-compliance will raise ValueError
 
         :param data: data/value to send
-        :return: True if data is valid, False else
-        :rtype: bool
+        :return: adjusted data
         '''
-        if self.bounds:
-            if isinstance(self.bounds, list):
-                if data not in self.bounds:
-                    self.logger.debug('Invalid data: value {} not in list {}'.format(data, self.bounds))
-                    return False
-            elif isinstance(self.bounds, tuple):
-                if not isinstance(data, type(self.bounds[0])):
-                    if type(data) is float and type(self.bounds[0]) is int:
-                        data = int(data)
-                    else:
-                        self.logger.error('Invalid data: type {} ({}) given for {} bounds {}'.format(type(data), data, type(self.bounds[0]), self.bounds))
-                        return False
-                if not self.bounds[0] <= data <= self.bounds[1]:
-                    self.logger.error('Invalid data: value {} out of bounds ({})'.format(data, self.bounds))
-                    return False
 
-        return True
+        minmaxkeys = ['min', 'max', 'force_min', 'force_max']
+        if self.settings:
+            if self.settings.get('read_val', None):
+                # if data == read_val, trigger force reading value from device by not providing data to command
+                if data == self.settings['read_val']:
+                    return None
+            elif self.settings.get('valid_list', None):
+                if data not in self.settings['valid_list']:
+                    raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')
+            elif any(key in self.settings.keys for key in minmaxkeys):
+                for key in minmaxkeys:
+                    data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
+
+        return data
 
 
 class MD_Command_Str(MD_Command):
@@ -195,7 +213,7 @@ class MD_Command_Str(MD_Command):
                 cmd_str = self._parse_str(self.opcode, data)
         else:
             if not self._check_value(data):
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to bounds definition {self.bounds}')
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings definition {self.settings}')
 
             if self.write_cmd:
                 cmd_str = self._parse_str(self.write_cmd, data)
@@ -298,7 +316,7 @@ class MD_Command_ParseStr(MD_Command_Str):
                 cmd = self._parse_str(self.opcode, data)
         else:
             if not self._check_value(data):
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to bounds definition {self.bounds}')
+                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings definition {self.settings}')
 
             if self.write_cmd:
                 # test if write_cmd is ':foo:' to trigger formatting/substitution

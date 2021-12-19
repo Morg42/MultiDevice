@@ -69,7 +69,7 @@ COMMAND_READ            = True
 COMMAND_WRITE           = False
 
 # commands definition parameters
-COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'bounds')
+COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings')
 
 
 #############################################################################################################################################################################################################################################

@@ -57,7 +57,7 @@ commands = {
         'write': True,
         'read_cmd': '?TR',
         'item_type': 'num',
-        'bounds': (0, 12),
+        'settings': (0, 12),
         'write_cmd': ':{VAL:02}TR:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -81,7 +81,7 @@ commands = {
         'write': True,
         'read_cmd': '?BA',
         'item_type': 'num',
-        'bounds': (0, 12),
+        'settings': (0, 12),
         'write_cmd': ':{VAL:02}BA:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -148,7 +148,7 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'VOL(\d{3})',
-        'bounds': (0, 185)
+        'settings': (0, 185)
     },
     'zone1_volumeup': {
         'write': True,
@@ -205,7 +205,7 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'bounds': [0, 1, 2, 3, 9],
+        'settings': [0, 1, 2, 3, 9],
         'write_cmd': ':{VAL:01}SPK:',
         'read_cmd': '?SPK',
         'item_type': 'num',
@@ -241,7 +241,7 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'ZV(\d{2})',
-        'bounds': (0, 82)
+        'settings': (0, 82)
     },
     'zone2_volumeup': {
         'write': True,

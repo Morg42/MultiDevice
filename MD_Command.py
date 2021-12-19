@@ -339,7 +339,7 @@ class MD_Command_ParseStr(MD_Command_Str):
             else:
                 cmd_str = self._parse_str(self.opcode, data)
 
-        return {'payload': cmd_str, 'data': self._DT.get_send_data(data)}
+        return {'payload': cmd_str, 'data': None if data is None else self._DT.get_send_data(data)}
 
     def get_shng_data(self, data):
         '''

@@ -46,7 +46,10 @@ commands = {
         'read': True,
         'write': True,
         'read_cmd': '?ATH',
-        'bounds': (0, 9),
+        'settings': {
+                    'force_min': 0,
+                    'force_max': 9
+                    },
         'item_type': 'bool',
         'dev_datatype': 'PioDialog',
         'reply_token': 'REGEX',
@@ -61,7 +64,7 @@ commands = {
         'write_cmd': ':{VAL:01}TO:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'TO\d'
+        'reply_pattern': r'TO(\d)'
     },
     'treble': {
         'opcode': 'MD_VALUE',
@@ -117,7 +120,10 @@ commands = {
         'write': True,
         'read_cmd': '?L__CLV',
         'item_type': 'num',
-        'bounds': (26, 74),
+        'settings': {
+                    'max': 74,
+                    'force_min': 26
+                    },
         'write_cmd': ':L__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -129,7 +135,10 @@ commands = {
         'write': True,
         'read_cmd': '?R__CLV',
         'item_type': 'num',
-        'bounds': (26, 74),
+        'settings': {
+                    'max': 74,
+                    'force_min': 26
+                    },
         'write_cmd': ':R__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -141,7 +150,10 @@ commands = {
         'write': True,
         'read_cmd': '?C__CLV',
         'item_type': 'num',
-        'bounds': (26, 74),
+        'settings': {
+                    'max': 74,
+                    'force_min': 26
+                    },
         'write_cmd': ':C__{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -153,7 +165,10 @@ commands = {
         'write': True,
         'read_cmd': '?SL_CLV',
         'item_type': 'num',
-        'bounds': (26, 74),
+        'settings': {
+                    'max': 74,
+                    'force_min': 26
+                    },
         'write_cmd': ':SL_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -165,7 +180,10 @@ commands = {
         'write': True,
         'read_cmd': '?SR_CLV',
         'item_type': 'num',
-        'bounds': (26, 74),
+        'settings': {
+                    'max': 74,
+                    'force_min': 26
+                    },
         'write_cmd': ':SR_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -177,7 +195,10 @@ commands = {
         'write': True,
         'read_cmd': '?SW_CLV',
         'item_type': 'num',
-        'bounds': (26, 74),
+        'settings': {
+                    'max': 74,
+                    'force_min': 26
+                    },
         'write_cmd': ':SW_{VAL:02}CLV:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -235,7 +256,11 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'VOL(\d{3})',
-        'settings': (0, 185)
+        'settings': {
+                    'max': 185,
+                    'force_min': 0,
+                    'force_max': 110,
+                    }
     },
     'zone1_volumeup': {
         'write': True,
@@ -292,7 +317,9 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': [0, 1, 2, 3, 9],
+        'settings': {
+                    'valid_list': [0, 1, 2, 3, 9]
+                    },
         'write_cmd': ':{VAL:01}SPK:',
         'read_cmd': '?SPK',
         'item_type': 'num',
@@ -328,7 +355,11 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'ZV(\d{2})',
-        'settings': (0, 82)
+                'settings': {
+                            'max': 82,
+                            'force_min': 0,
+                            'force_max': 70,
+                            }
     },
     'zone2_volumeup': {
         'write': True,

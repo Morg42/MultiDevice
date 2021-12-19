@@ -141,6 +141,8 @@ class MD_Command(object):
             if not isinstance(data, type(bound)):
                 if type(data) is float and type(bound) is int:
                     data = int(data)
+                elif type(data) is int and type(bound) is float:
+                    data = float(data)
                 else:
                     raise ValueError(f'Invalid data: type {type(data)} ({data}) given for {type(bound)} ({bound})')
             if (min and data >= bound) or (not min and data <= bound):

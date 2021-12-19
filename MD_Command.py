@@ -178,7 +178,7 @@ class MD_Command(object):
             elif self.settings.get('valid_list', None):
                 if data not in self.settings['valid_list']:
                     raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')
-            elif any(key in self.settings.keys for key in minmaxkeys):
+            elif any(key in self.settings.keys() for key in minmaxkeys):
                 for key in minmaxkeys:
                     data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
 

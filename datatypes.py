@@ -65,6 +65,11 @@ datatypes = (
 )
 
 
+def dict_rev(d):
+    ''' helper routine to return inversed dict (swap key/value) '''
+    return {v: k for (k, v) in d.items()}
+
+
 class Datatype(object):
     '''
     This class describes the basic structure of all derived datatype classes.

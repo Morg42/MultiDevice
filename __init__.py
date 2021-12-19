@@ -387,7 +387,7 @@ class MultiDevice(SmartPlugin):
         self._items_readall = {}        # contains items which trigger 'read all' - <item_id>: <device_name>
         self._commands_read = {}        # contains all commands per device with read command - <device_name>: {<command>: <item_object>}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_name>: ['command', 'command', ...]
-        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {<command>: <cycle>}
+        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {<command>: {'cycle': <cycle>, 'next': <next>}}
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()

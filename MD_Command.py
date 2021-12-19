@@ -146,6 +146,7 @@ class MD_Command(object):
             if (min and data >= bound) or (not min and data <= bound):
                 return data
             if force:
+                self.logger.debug(f'Value {data} changed to {bound} due to settings {self.settings}')
                 return bound
             raise ValueError(f'Invalid data: value {data} not adhering to {"min" if min else "max"} value {bound}')
         return data

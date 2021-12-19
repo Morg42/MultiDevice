@@ -301,21 +301,21 @@ commands = {
         'reply_pattern': r'SPK(\d)'
     },
     'zone2_power': {
-        'opcode': 'MD_VALUE',
+        'opcode': 'AMD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?AP',
         'item_type': 'bool',
-        'dev_datatype': 'PioPwr2',
+        'dev_datatype': 'PioPwr',
         'reply_token': ['APR']
     },
     'zone2_mute': {
-        'opcode': 'MD_VALUE',
+        'opcode': 'Z2MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?Z2M',
         'item_type': 'bool',
-        'dev_datatype': 'PioMute2',
+        'dev_datatype': 'PioMute',
         'reply_token': ['Z2MUT']
     },
     'zone2_volume': {

@@ -10,6 +10,12 @@ else:
 
 import re
 
+
+def dict_rev(d):
+    ''' helper routine to return inversed dict (swap key/value) '''
+    return {v: k for (k, v) in d.items()}
+
+
 class DT_PioDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         content = data[2:][:28]
@@ -17,10 +23,55 @@ class DT_PioDisplay(DT.Datatype):
         data = re.sub(r'^[^A-Z0-9]*', '', tempvalue)
         return data
 
+
+class DT_PioDialog(DT.Datatype):
+    def get_send_data(self, data):
+        try:
+            data = int(data)
+            return f"{data:01}ATH"
+        except Exception:
+            return f"{lookup.dict_rev(DIALOG).get(data.upper())}ATH"
+
+    def get_shng_data(self, data, type=None):
+        return_value = data.split("ATH")[1]
+        return lookup.DIALOG.get(return_value)
+
+
 class DT_PioError(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return_value = data.split("E0")[1]
         return lookup.ERROR.get(return_value)
+
+
+class DT_PioListening(DT.Datatype):
+    def get_send_data(self, data):
+        try:
+            data = int(data)
+            return f"{data:04}SR"
+        except Exception:
+            return f"{lookup.dict_rev(LISTENINGMODE).get(data.upper())}SR"
+
+    def get_shng_data(self, data, type=None):
+        return_value = data.split("SR")[1]
+        return lookup.LISTENINGMODE.get(return_value)
+
+
+class DT_PioMute(DT.Datatype):
+    def get_send_data(self, data):
+        return 'MO' if data else 'MF'
+
+    def get_shng_data(self, data, type=None):
+        if type is None or type == 'bool':
+            return True if data[-4:] == 'MUT0' else False
+
+        return super().get_shng_data(data, type)
+
+
+class DT_PioPlayingmode(DT.Datatype):
+    def get_shng_data(self, data, type=None):
+        return_value = data.split("LM")[1]
+        return lookup.PLAYINGMODE.get(return_value)
+
 
 class DT_PioPwr(DT.Datatype):
     def get_send_data(self, data):
@@ -28,109 +79,47 @@ class DT_PioPwr(DT.Datatype):
 
     def get_shng_data(self, data, type=None):
         if type is None or type == 'bool':
-            return True if data == 'PWR0' else False
+            return True if data in ['PWR0', 'APR0'] else False
 
         return super().get_shng_data(data, type)
 
-class DT_invert(DT.Datatype):
-    def get_send_data(self, data):
-        return '0' if data else '1'
-
-    def get_shng_data(self, data, type=None):
-        return False if data == '1' else True
-
-class DT_PioMute(DT.Datatype):
-    def get_send_data(self, data):
-        return 'MO' if data else 'MF'
-
-    def get_shng_data(self, data, type=None):
-        return True if data == 'MUT0' else False
 
 class DT_PioSource(DT.Datatype):
     def get_send_data(self, data, type=None):
-        if data:
-            try:
-                data = int(data)
-                return f"{data:02}FN"
-            except Exception:
-                return f"{lookup.SOURCE_SET.get(data.upper())}FN"
-        else:
-            return '?FN'
+        try:
+            data = int(data)
+            return f"{data:02}FN"
+        except Exception:
+            return f"{lookup.dict_rev(SOURCE).get(data.upper())}FN"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("FN")[1]
         return lookup.SOURCE.get(return_value)
 
-class DT_PioListening(DT.Datatype):
-    def get_send_data(self, data):
-        if data:
-            try:
-                data = int(data)
-                return f"{data:04}SR"
-            except Exception:
-                return f"{lookup.SOURCE_SET.get(data.upper())}SR"
-
-    def get_shng_data(self, data, type=None):
-        return_value = data.split("SR")[1]
-        return lookup.LISTENINGMODE.get(return_value)
-
-class DT_PioPlayingmode(DT.Datatype):
-    def get_shng_data(self, data, type=None):
-        return_value = data.split("LM")[1]
-        return lookup.PLAYINGMODE.get(return_value)
-
-class DT_PioDialog(DT.Datatype):
-    def get_send_data(self, data):
-        if data:
-            try:
-                data = int(data)
-                return f"{data:01}ATH"
-            except Exception:
-                return f"{lookup.DIALOG_SET.get(data.upper())}ATH"
-
-    def get_shng_data(self, data, type=None):
-        return_value = data.split("ATH")[1]
-        return lookup.DIALOG.get(return_value)
-
-class DT_PioHDMIOut(DT.Datatype):
-    def get_send_data(self, data):
-        if data:
-            try:
-                data = int(data)
-                return f"{data:01}HO"
-            except Exception:
-                return f"{lookup.DIALOG_SET.get(data.upper())}HO"
-
-    def get_shng_data(self, data, type=None):
-        return_value = data.split("HO")[1]
-        return lookup.DIALOG.get(return_value)
-
-class DT_PioPwr2(DT.Datatype):
-    def get_send_data(self, data):
-        return 'APO\rAPO' if data else 'APF'
-
-    def get_shng_data(self, data, type=None):
-        if type is None or type == 'bool':
-            return True if data == 'APR0' else False
-
-        return super().get_shng_data(data, type)
-
-class DT_PioMute2(DT.Datatype):
-    def get_send_data(self, data):
-        return 'Z2MO' if data else 'Z2MF'
-
-    def get_shng_data(self, data, type=None):
-        return True if data == 'Z2MUT0' else False
 
 class DT_PioSource2(DT.Datatype):
     def get_send_data(self, data):
-        if data:
-            try:
-                data = int(data)
-                return f"{data:02}ZS"
-            except Exception:
-                return f"{lookup.SOURCE_SET.get(data.upper())}ZS"
+        try:
+            data = int(data)
+            return f"{data:02}ZS"
+        except Exception:
+            return f"{lookup.dict_rev(SOURCE).get(data.upper())}ZS"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("Z2F")[1]
         return lookup.SOURCE.get(return_value)
+
+
+# unused classes from here on
+
+class DT_PioHDMIOut(DT.Datatype):
+    def get_send_data(self, data):
+        try:
+            data = int(data)
+            return f"{data:01}HO"
+        except Exception:
+            return f"{lookup.dict_rev(HDMIOUT).get(data.upper())}HO"
+
+    def get_shng_data(self, data, type=None):
+        return_value = data.split("HO")[1]
+        return lookup.HDMIOUT.get(return_value)

@@ -2,21 +2,13 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 ERROR = {
-        '2': 'not available now',
-        '3': 'invalid command',
-        '4': 'command error',
-        '6': 'parameter error'
+                '2': 'not available now',
+                '3': 'invalid command',
+                '4': 'command error',
+                '6': 'parameter error'
         }
 
-HDMIOUT   = {
-            'HDMI OUT 1+2 ON': '0',
-            'HDMI OUT 1 ON': '1',
-            'HDMI OUT 2 ON': '2',
-            'HDMI OUT 1/2 OFF': '3',
-            'HDMI OUT 1/2 (cyclic)': '9'
-            }
-
-HDMIOUT_SET   = {
+HDMIOUT = {
                 '0': 'HDMI OUT 1+2 ON',
                 '1': 'HDMI OUT 1 ON',
                 '2': 'HDMI OUT 2 ON',
@@ -24,63 +16,18 @@ HDMIOUT_SET   = {
                 '9': 'HDMI OUT 1/2 (cyclic)'
                 }
 
-DIALOG    = {
-            'OFF': '0',
-            'FLAT': '1',
-            'UP1': '2',
-            'UP2': '3',
-            'UP3': '4',
-            'UP4': '5',
-            'DOWN (cyclic)': '8',
-            'UP (cyclic)': '9'
+DIALOG = {
+                'OFF': '0',
+                'FLAT': '1',
+                'UP1': '2',
+                'UP2': '3',
+                'UP3': '4',
+                'UP4': '5',
+                'DOWN (cyclic)': '8',
+                'UP (cyclic)': '9'
             }
 
-DIALOG_SET    = {
-                '0': 'OFF',
-                '1': 'FLAT',
-                '2': 'UP1',
-                '3': 'UP2',
-                '4': 'UP3',
-                '5': 'UP4',
-                '8': 'DOWN (cyclic)',
-                '9': 'UP (cyclic)'
-                }
-
-SOURCE_SET    = {
-                'BD': '25',
-                'DVD': '04',
-                'SAT/CBL': '06',
-                'DVR/BDR': '15',
-                'VIDEO 1(VIDEO)': '10',
-                'VIDEO 1': '10',
-                'HDMI 1': '19',
-                'HDMI 2': '20',
-                'HDMI 3': '21',
-                'HDMI 4': '22',
-                'HDMI 5': '23',
-                'HDMI 6': '24',
-                'HDMI 7': '34',
-                'HDMI 8': '35',
-                'NETWORK (cyclic)': '26',
-                'NETWORK': '26',
-                'INTERNET RADIO': '38',
-                'PANDORA': '41',
-                'MEDIA SERVER': '44',
-                'FAVORITES': '45',
-                'iPod/USB': '17',
-                'TV': '05',
-                'CD': '01',
-                'USB-DAC': '13',
-                'TUNER': '02',
-                'PHONO': '00',
-                'MULTI CH IN': '12',
-                'ADAPTER PORT': '33',
-                'MHL': '48',
-                'HDMI (cyclic)': '31',
-                'HDMI': '31'
-                }
-
-SOURCE        = {
+SOURCE = {
                 '25': 'BD',
                 '04': 'DVD',
                 '06': 'SAT/CBL',
@@ -217,7 +164,7 @@ LISTENINGMODE = {
                 }
 
 
-PLAYINGMODE   = {
+PLAYINGMODE = {
                 '0101': 'PLIIx MOVIE',
                 '0102': 'PLII MOVIE',
                 '0103': 'PLIIx MUSIC',

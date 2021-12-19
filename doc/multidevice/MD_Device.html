@@ -78,7 +78,7 @@ class MD_Device(object):
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_&lt;device_id&gt;/ commands.py (see there for format)
+    Configuration is done via dev_&lt;device_id&gt;/commands.py (see dev_example for format)
 
     :param device_id: device type as used in derived class names
     :param device_name: device name for use in item configuration and logs
@@ -151,7 +151,7 @@ class MD_Device(object):
         if self._runtime_data_set:
             self.logger.debug(&#39;start method called&#39;)
         else:
-            self.logger.error(&#39;start method called, but runtime data not set, device disabled&#39;)
+            self.logger.error(&#39;start method called, but runtime data not set, device (still) disabled&#39;)
             return
 
         self.alive = True
@@ -173,7 +173,7 @@ class MD_Device(object):
     #     &#39;&#39;&#39;
     #     If you want to provide a standalone function, you&#39;ll have to implement
     #     this function with the appropriate code. You can use all functions from
-    #     the MultiDevice class, the devices, connections and commands.
+    #     the MultiDevice class (plugin), the devices, connections and commands.
     #     You do not have an sh object, items or web interfaces.
     #
     #     As the base class should not have this method, it is commented out.
@@ -183,6 +183,8 @@ class MD_Device(object):
     def send_command(self, command, value=None):
         &#39;&#39;&#39;
         Sends the specified command to the device providing &lt;value&gt; as data
+        Not providing data will issue a read command, trying to read the value 
+        from the device and writing it to the associated item.
 
         :param command: the command to send
         :param value: the data to send, if applicable
@@ -207,7 +209,7 @@ class MD_Device(object):
         try:
             data_dict = self._commands.get_send_data(command, value)
         except Exception as e:
-            self.logger.warning(f&#39;command {command} with value {value} produced error {e} on converting value, aborting&#39;)
+            self.logger.warning(f&#39;command {command} with value {value} produced error on converting value, aborting. Error was: {e}&#39;)
             return False
 
         if data_dict[&#39;payload&#39;] is None or data_dict[&#39;payload&#39;] == &#39;&#39;:
@@ -296,6 +298,8 @@ class MD_Device(object):
     def set_runtime_data(self, **kwargs):
         &#39;&#39;&#39;
         Sets runtime data received from the plugin class
+
+        data_received_callback takes one argument &#39;data&#39;
         &#39;&#39;&#39;
         try:
             self._commands_read = kwargs[&#39;read_commands&#39;]
@@ -347,7 +351,7 @@ class MD_Device(object):
 
     def _set_device_params(self, **kwargs):
         &#39;&#39;&#39;
-        This method parses self._parameters for parameters it needs itself and does the
+        This method parses self._plugin_params for parameters it needs itself and does the
         necessary initialization.
         Needs to be overloaded for maximum effect
         &#39;&#39;&#39;
@@ -443,9 +447,9 @@ class MD_Device(object):
 
     def _read_initial_values(self):
         &#39;&#39;&#39;
-        Read all values configured to be read at startup
+        Read all values configured to be read at startup / after reconnect
         &#39;&#39;&#39;
-        if self._commands_initial and self._commands_initial != [] and not self._initial_values_read:
+        if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
             self.logger.info(&#39;Starting initial read commands&#39;)
             for cmd in self._commands_initial:
                 self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
@@ -527,7 +531,7 @@ class MD_Device(object):
 <div class="desc"><p>This class is the base class for a simple device class. It can process commands
 by sending values to the device and collect data by parsing data received from
 the device.</p>
-<p>Configuration is done via dev_<device_id>/ commands.py (see there for format)</p>
+<p>Configuration is done via dev_<device_id>/commands.py (see dev_example for format)</p>
 <p>:param device_id: device type as used in derived class names
 :param device_name: device name for use in item configuration and logs
 :type device_id: str
@@ -548,7 +552,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_&lt;device_id&gt;/ commands.py (see there for format)
+    Configuration is done via dev_&lt;device_id&gt;/commands.py (see dev_example for format)
 
     :param device_id: device type as used in derived class names
     :param device_name: device name for use in item configuration and logs
@@ -621,7 +625,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         if self._runtime_data_set:
             self.logger.debug(&#39;start method called&#39;)
         else:
-            self.logger.error(&#39;start method called, but runtime data not set, device disabled&#39;)
+            self.logger.error(&#39;start method called, but runtime data not set, device (still) disabled&#39;)
             return
 
         self.alive = True
@@ -643,7 +647,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     #     &#39;&#39;&#39;
     #     If you want to provide a standalone function, you&#39;ll have to implement
     #     this function with the appropriate code. You can use all functions from
-    #     the MultiDevice class, the devices, connections and commands.
+    #     the MultiDevice class (plugin), the devices, connections and commands.
     #     You do not have an sh object, items or web interfaces.
     #
     #     As the base class should not have this method, it is commented out.
@@ -653,6 +657,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     def send_command(self, command, value=None):
         &#39;&#39;&#39;
         Sends the specified command to the device providing &lt;value&gt; as data
+        Not providing data will issue a read command, trying to read the value 
+        from the device and writing it to the associated item.
 
         :param command: the command to send
         :param value: the data to send, if applicable
@@ -677,7 +683,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         try:
             data_dict = self._commands.get_send_data(command, value)
         except Exception as e:
-            self.logger.warning(f&#39;command {command} with value {value} produced error {e} on converting value, aborting&#39;)
+            self.logger.warning(f&#39;command {command} with value {value} produced error on converting value, aborting. Error was: {e}&#39;)
             return False
 
         if data_dict[&#39;payload&#39;] is None or data_dict[&#39;payload&#39;] == &#39;&#39;:
@@ -766,6 +772,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     def set_runtime_data(self, **kwargs):
         &#39;&#39;&#39;
         Sets runtime data received from the plugin class
+
+        data_received_callback takes one argument &#39;data&#39;
         &#39;&#39;&#39;
         try:
             self._commands_read = kwargs[&#39;read_commands&#39;]
@@ -817,7 +825,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
     def _set_device_params(self, **kwargs):
         &#39;&#39;&#39;
-        This method parses self._parameters for parameters it needs itself and does the
+        This method parses self._plugin_params for parameters it needs itself and does the
         necessary initialization.
         Needs to be overloaded for maximum effect
         &#39;&#39;&#39;
@@ -913,9 +921,9 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
     def _read_initial_values(self):
         &#39;&#39;&#39;
-        Read all values configured to be read at startup
+        Read all values configured to be read at startup / after reconnect
         &#39;&#39;&#39;
-        if self._commands_initial and self._commands_initial != [] and not self._initial_values_read:
+        if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
             self.logger.info(&#39;Starting initial read commands&#39;)
             for cmd in self._commands_initial:
                 self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
@@ -983,7 +991,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <ul class="hlist">
 <li><a title="multidevice.dev_example.device.MD_Device" href="dev_example/device.html#multidevice.dev_example.device.MD_Device">MD_Device</a></li>
 <li><a title="multidevice.dev_example_http.device.MD_Device" href="dev_example_http/device.html#multidevice.dev_example_http.device.MD_Device">MD_Device</a></li>
-<li><a title="multidevice.dev_pioneer.device.MD_Device" href="dev_pioneer/device.html#multidevice.dev_pioneer.device.MD_Device">MD_Device</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1087,7 +1094,9 @@ Processes data and dispatches value to plugin class</p>
 <span>def <span class="ident">send_command</span></span>(<span>self, command, value=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Sends the specified command to the device providing <value> as data</p>
+<div class="desc"><p>Sends the specified command to the device providing <value> as data
+Not providing data will issue a read command, trying to read the value
+from the device and writing it to the associated item.</p>
 <p>:param command: the command to send
 :param value: the data to send, if applicable
 :type command: str
@@ -1100,6 +1109,8 @@ Processes data and dispatches value to plugin class</p>
 <pre><code class="python">def send_command(self, command, value=None):
     &#39;&#39;&#39;
     Sends the specified command to the device providing &lt;value&gt; as data
+    Not providing data will issue a read command, trying to read the value 
+    from the device and writing it to the associated item.
 
     :param command: the command to send
     :param value: the data to send, if applicable
@@ -1124,7 +1135,7 @@ Processes data and dispatches value to plugin class</p>
     try:
         data_dict = self._commands.get_send_data(command, value)
     except Exception as e:
-        self.logger.warning(f&#39;command {command} with value {value} produced error {e} on converting value, aborting&#39;)
+        self.logger.warning(f&#39;command {command} with value {value} produced error on converting value, aborting. Error was: {e}&#39;)
         return False
 
     if data_dict[&#39;payload&#39;] is None or data_dict[&#39;payload&#39;] == &#39;&#39;:
@@ -1160,7 +1171,8 @@ Processes data and dispatches value to plugin class</p>
 <span>def <span class="ident">set_runtime_data</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Sets runtime data received from the plugin class</p></div>
+<div class="desc"><p>Sets runtime data received from the plugin class</p>
+<p>data_received_callback takes one argument 'data'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1168,6 +1180,8 @@ Processes data and dispatches value to plugin class</p>
 <pre><code class="python">def set_runtime_data(self, **kwargs):
     &#39;&#39;&#39;
     Sets runtime data received from the plugin class
+
+    data_received_callback takes one argument &#39;data&#39;
     &#39;&#39;&#39;
     try:
         self._commands_read = kwargs[&#39;read_commands&#39;]
@@ -1194,7 +1208,7 @@ Processes data and dispatches value to plugin class</p>
     if self._runtime_data_set:
         self.logger.debug(&#39;start method called&#39;)
     else:
-        self.logger.error(&#39;start method called, but runtime data not set, device disabled&#39;)
+        self.logger.error(&#39;start method called, but runtime data not set, device (still) disabled&#39;)
         return
 
     self.alive = True

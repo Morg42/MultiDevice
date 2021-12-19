@@ -64,14 +64,22 @@ to be able to decide what to change/extend and what to keep.</p>
 <p>My hope is that with proper documentation and examples, this last part is
 easier to achieve than having to rewrite the whole handling code for items,
 network, serial interfaces and commands every time.</p>
+<p>Thanks to OnkelAndy for kicking my backside repeatedly; otherwise the
+development of this plugin might have stalled before being able to run ;)</p>
 <h1 id="base-classes">Base Classes</h1>
 <h2 id="multidevice">Multidevice</h2>
 <p>The <code><a title="multidevice.MultiDevice" href="#multidevice.MultiDevice">MultiDevice</a></code>-class is derived from the SmartPlugin-class and provides
 the framework for handling item associations to the plugin, for storing
 item-command associations, for forwarding commands and the associated data
 to the device classes and receiving data from the device classes to update
-item values.
-This class will usually not need to be adjusted, but runs as the plugin itself.</p>
+item values.</p>
+<p>This class will usually not need to be adjusted, but runs as the plugin itself.</p>
+<p>In addition, the plugin has a - limited - capability to run as a standalone
+program, for example to initiate a device discovery or diagnostic functions.
+To this end, it must be run from the plugin folder by issuing</p>
+<p><code>python3 __init__.py &lt;devicename&gt;</code></p>
+<p>Be advised that any functionality to provide in this mode must absolutely
+by implemented by you :)</p>
 <h2 id="md_device">Md_Device</h2>
 <p>The <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code>-class provides a framework for receiving (item) data values
 from the plugin and forward it to the connection class and vice versa.
@@ -133,8 +141,6 @@ of the existing classes.</p>
 <p>This class has subclasses defined for the following types of connection:</p>
 <ul>
 <li><code>MD_Connection_Net_TCP_Request</code> for query-reply TCP connections</li>
-<li><code>MD_Connection_Net_TCP_Reply</code>
-for persistent TCP connections with sync replies</li>
 <li><code>MD_Connection_Net_Tcp_Client</code>
 for persistent TCP connections with async replies</li>
 <li><code>MD_Connection_Net_UDP_Server</code>
@@ -180,12 +186,14 @@ command configuration.</p>
 <ul>
 <li><code>get_send_data(data)</code></li>
 <li><code>get_shng_data(data)</code></li>
+<li><code>_check_value(data)</code></li>
 </ul>
-<p>The class <code>MD_Command_Str</code> is an example for defining own commands according
-to your needs.
-This example utilizes strings and dicts to build request URLs as payload data
-for the <code>MD_Connection_Net_TCP_Request</code> class.
-It also demonstrates parameter substitution in command definitions.</p>
+<p>The classes <code>MD_Command_Str</code> and <code>MD_Command_ParseStr</code> are examples for
+defining own command classes according to your needs.
+These examples utilize strings and dicts to build request URLs as payload data
+for the <code>MD_Connection_Net_TCP_Request</code> or <code>MD_Connection_Net_Tcp_Client</code> classes.
+They also demonstrate parameter substitution in command definitions on different
+levels of complexity.</p>
 <h2 id="md_datatype">Md_Datatype</h2>
 <p>This is one of the most important classes. By declaration, it contains
 information about the data type and format needed by a device and methods
@@ -212,14 +220,14 @@ examples.</p>
 <h1 id="configuration">Configuration</h1>
 <p>The plugin class is capable of handling an arbitrary number of devices
 independently. Necessary configuration include the chosen devices respectively
-the device names and possibly device parameter in <code>/etc/plugin.yaml</code>.</p>
+the device names and possibly device parameter in <code>etc/plugin.yaml</code>.</p>
 <p>The item configuration is supplemented by the attributes <code>md_device</code> and
 <code>md_command</code>, which designate the device name from plugin configuration and
 the command name from the device configuration, respectively.</p>
 <p>The device class needs comprehensive configuration concerning available commands,
 the associated sent and received data formats, which will be supplied by way
-of configuration files in yaml format. Furthermore, the device-dependent
-type and configuration of connection should be set in <code>/etc/plugin.yaml</code> for
+of configuration files in python format. Furthermore, the device-dependent
+type and configuration of connection should be set in <code>etc/plugin.yaml</code> for
 each device used.</p>
 <p>The connection classes will be chosen and configured by the device classes.
 They should not need further configuration, as all data transformation is done
@@ -230,7 +238,7 @@ from plugin configuration.</p>
 <ul>
 <li>a device folder <code>dev_gadget</code></li>
 <li>a device configuration file defining commands <code>dev_gadget/commands.py</code></li>
-<li>specification of needed connection type in <code>/etc/plugin.yaml</code> ('conn_type')</li>
+<li>specification of needed connection type in <code>etc/plugin.yaml</code> ('conn_type')</li>
 <li>only if needed:<ul>
 <li>a device class file with a derived class <code>dev_gadget/device.py</code></li>
 <li>additional methods in the device class to handle special commands which
@@ -243,6 +251,11 @@ additional data types in the datatype file</li>
 </ul>
 </li>
 </ul>
+<p>For examples on how to implement this, take a look at the dev_example folder
+which contains simple examples as well as the reference documentation for the
+commands.py file structure.
+Also, take a look into the different existing device classes to get a feeling
+for the needed effort to implement a new device.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -334,6 +347,10 @@ additional data types in the datatype file</li>
     easier to achieve than having to rewrite the whole handling code for items,
     network, serial interfaces and commands every time.
 
+    Thanks to OnkelAndy for kicking my backside repeatedly; otherwise the
+    development of this plugin might have stalled before being able to run ;)
+
+
 
     Base Classes
     ============
@@ -346,7 +363,17 @@ additional data types in the datatype file</li>
     item-command associations, for forwarding commands and the associated data
     to the device classes and receiving data from the device classes to update
     item values.
+
     This class will usually not need to be adjusted, but runs as the plugin itself.
+
+    In addition, the plugin has a - limited - capability to run as a standalone
+    program, for example to initiate a device discovery or diagnostic functions.
+    To this end, it must be run from the plugin folder by issuing
+
+    ``python3 __init__.py &lt;devicename&gt;``
+
+    Be advised that any functionality to provide in this mode must absolutely
+    by implemented by you :)
 
 
     MD_Device
@@ -423,7 +450,6 @@ additional data types in the datatype file</li>
     This class has subclasses defined for the following types of connection:
 
     - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
-    - ``MD_Connection_Net_TCP_Reply``   for persistent TCP connections with sync replies
     - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
     - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
     - ``MD_Connection_Serial_Client``   for query-reply serial connections
@@ -478,13 +504,15 @@ additional data types in the datatype file</li>
 
     - ``get_send_data(data)``
     - ``get_shng_data(data)``
+    - ``_check_value(data)``
 
 
-    The class ``MD_Command_Str`` is an example for defining own commands according
-    to your needs.
-    This example utilizes strings and dicts to build request URLs as payload data
-    for the ``MD_Connection_Net_TCP_Request`` class.
-    It also demonstrates parameter substitution in command definitions.
+    The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for 
+    defining own command classes according to your needs.
+    These examples utilize strings and dicts to build request URLs as payload data
+    for the ``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client`` classes.
+    They also demonstrate parameter substitution in command definitions on different
+    levels of complexity.
 
 
     MD_Datatype
@@ -524,7 +552,7 @@ additional data types in the datatype file</li>
 
     The plugin class is capable of handling an arbitrary number of devices
     independently. Necessary configuration include the chosen devices respectively
-    the device names and possibly device parameter in ``/etc/plugin.yaml``.
+    the device names and possibly device parameter in ``etc/plugin.yaml``.
 
     The item configuration is supplemented by the attributes ``md_device`` and
     ``md_command``, which designate the device name from plugin configuration and
@@ -532,8 +560,8 @@ additional data types in the datatype file</li>
 
     The device class needs comprehensive configuration concerning available commands,
     the associated sent and received data formats, which will be supplied by way
-    of configuration files in yaml format. Furthermore, the device-dependent
-    type and configuration of connection should be set in ``/etc/plugin.yaml`` for
+    of configuration files in python format. Furthermore, the device-dependent
+    type and configuration of connection should be set in ``etc/plugin.yaml`` for
     each device used.
 
     The connection classes will be chosen and configured by the device classes.
@@ -549,7 +577,7 @@ additional data types in the datatype file</li>
 
     - a device folder ``dev_gadget``
     - a device configuration file defining commands ``dev_gadget/commands.py``
-    - specification of needed connection type in ``/etc/plugin.yaml`` (&#39;conn_type&#39;)
+    - specification of needed connection type in ``etc/plugin.yaml`` (&#39;conn_type&#39;)
     - only if needed:
         * a device class file with a derived class ``dev_gadget/device.py``
         * additional methods in the device class to handle special commands which
@@ -559,6 +587,12 @@ additional data types in the datatype file</li>
           connection initialization (e.g. serial sync routines)
         * a data formats file defining data types ``dev_gadget/datatypes.py`` and
           additional data types in the datatype file
+
+    For examples on how to implement this, take a look at the dev_example folder
+    which contains simple examples as well as the reference documentation for the
+    commands.py file structure.
+    Also, take a look into the different existing device classes to get a feeling
+    for the needed effort to implement a new device.
 &#39;&#39;&#39;
 
 from collections import OrderedDict
@@ -566,6 +600,7 @@ import importlib
 import builtins
 import logging
 import re
+import os
 import sys
 import cherrypy
 import json
@@ -594,6 +629,7 @@ else:
 
     from lib.item import Items
     from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+    import lib.shyaml as shyaml
 
     from .MD_Globals import *
     from .MD_Device import MD_Device
@@ -616,7 +652,7 @@ class MultiDevice(SmartPlugin):
     It also looks good.
     &#39;&#39;&#39;
 
-    PLUGIN_VERSION = &#39;0.0.3&#39;
+    PLUGIN_VERSION = &#39;0.0.4&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
         &#39;&#39;&#39;
@@ -634,7 +670,7 @@ class MultiDevice(SmartPlugin):
         self._items_readall = {}        # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_name&gt;
         self._commands_read = {}        # contains all commands per device with read command - &lt;device_name&gt;: {&lt;command&gt;: &lt;item_object&gt;}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_name&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
-        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {&lt;command&gt;: &lt;cycle&gt;}
+        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {&lt;command&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()
@@ -719,13 +755,35 @@ class MultiDevice(SmartPlugin):
 
                 if device_instance:
 
+                    # create logger for device identity to use in update_item() and store in _devices dict
                     dev_logger = logging.getLogger(__name__ + f&#39;.{device_name}&#39;)
+
                     # fill class dicts
                     self._devices[device_name] = {&#39;id&#39;: device_id, &#39;device&#39;: device_instance, &#39;logger&#39;: dev_logger, &#39;params&#39;: param}
                     self._commands_read[device_name] = {}
                     self._commands_initial[device_name] = []
                     self._commands_cyclic[device_name] = {}
                     dev_logger = None
+
+                    # check for and load struct definitions
+                    if not MD_standalone:
+                        self.logger.debug(f&#39;trying to load struct definitions for device {device_name} from folder dev_{device_id}&#39;)
+                        struct_file = os.path.join(self._plugin_dir, &#39;dev_&#39; + device_id, &#39;struct.yaml&#39;)
+                        raw_struct = shyaml.yaml_load(struct_file, ordered=True, ignore_notfound=True)
+
+                        # if valid struct definition is found
+                        if raw_struct is not None:
+
+                            self.logger.debug(f&#39;loaded {len(raw_struct.keys())} structs for processing&#39;)
+                            # replace all mentions of &#34;DEVICE&#34; with the plugin/device&#39;s name
+                            try:
+                                mod_struct = eval(str(raw_struct).replace(&#39;DEVICENAME&#39;, device_name))
+                            except Exception as e:
+                                self.logger.warning(f&#39;importing structs for device {device_name} failed. Check struct definitions&#39;)
+                            else:
+                                for struct_name in mod_struct:
+                                    self.logger.debug(f&#39;adding struct {self.get_shortname()}.{device_name}.{struct_name}&#39;)
+                                    self._sh.items.add_struct_definition(self.get_shortname() + &#39;.&#39; + device_name, struct_name, mod_struct[struct_name])
 
         if not self._devices:
             self._init_complete = False
@@ -832,14 +890,6 @@ class MultiDevice(SmartPlugin):
                 self.logger.debug(f&#39;Item {item} saved for read_all on device {device_name}&#39;)
                 return self.update_item
 
-    # def parse_logic(self, logic):
-    #     &#39;&#39;&#39;
-    #     Default plugin parse_logic method
-    #     &#39;&#39;&#39;
-    #     if &#39;xxx&#39; in logic.conf:
-    #         # self.function(logic[&#39;name&#39;])
-    #         pass
-
     def update_item(self, item, caller=None, source=None, dest=None):
         &#39;&#39;&#39;
         Item has been updated
@@ -884,7 +934,7 @@ class MultiDevice(SmartPlugin):
                     tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                     if not device.send_command(command, item()):
                         tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
-                        item(item.property.last_value, self.get_shortname())
+                        item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_name)
                         return None
 
                 elif item.id() in self._items_readall:
@@ -1245,10 +1295,6 @@ if __name__ == &#39;__main__&#39;:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 </dl>
 </section>
 <section>
@@ -1286,7 +1332,7 @@ modules and initializing them by instantiating the proper class.</p></div>
     It also looks good.
     &#39;&#39;&#39;
 
-    PLUGIN_VERSION = &#39;0.0.3&#39;
+    PLUGIN_VERSION = &#39;0.0.4&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
         &#39;&#39;&#39;
@@ -1304,7 +1350,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         self._items_readall = {}        # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_name&gt;
         self._commands_read = {}        # contains all commands per device with read command - &lt;device_name&gt;: {&lt;command&gt;: &lt;item_object&gt;}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_name&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
-        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {&lt;command&gt;: &lt;cycle&gt;}
+        self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {&lt;command&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()
@@ -1389,13 +1435,35 @@ modules and initializing them by instantiating the proper class.</p></div>
 
                 if device_instance:
 
+                    # create logger for device identity to use in update_item() and store in _devices dict
                     dev_logger = logging.getLogger(__name__ + f&#39;.{device_name}&#39;)
+
                     # fill class dicts
                     self._devices[device_name] = {&#39;id&#39;: device_id, &#39;device&#39;: device_instance, &#39;logger&#39;: dev_logger, &#39;params&#39;: param}
                     self._commands_read[device_name] = {}
                     self._commands_initial[device_name] = []
                     self._commands_cyclic[device_name] = {}
                     dev_logger = None
+
+                    # check for and load struct definitions
+                    if not MD_standalone:
+                        self.logger.debug(f&#39;trying to load struct definitions for device {device_name} from folder dev_{device_id}&#39;)
+                        struct_file = os.path.join(self._plugin_dir, &#39;dev_&#39; + device_id, &#39;struct.yaml&#39;)
+                        raw_struct = shyaml.yaml_load(struct_file, ordered=True, ignore_notfound=True)
+
+                        # if valid struct definition is found
+                        if raw_struct is not None:
+
+                            self.logger.debug(f&#39;loaded {len(raw_struct.keys())} structs for processing&#39;)
+                            # replace all mentions of &#34;DEVICE&#34; with the plugin/device&#39;s name
+                            try:
+                                mod_struct = eval(str(raw_struct).replace(&#39;DEVICENAME&#39;, device_name))
+                            except Exception as e:
+                                self.logger.warning(f&#39;importing structs for device {device_name} failed. Check struct definitions&#39;)
+                            else:
+                                for struct_name in mod_struct:
+                                    self.logger.debug(f&#39;adding struct {self.get_shortname()}.{device_name}.{struct_name}&#39;)
+                                    self._sh.items.add_struct_definition(self.get_shortname() + &#39;.&#39; + device_name, struct_name, mod_struct[struct_name])
 
         if not self._devices:
             self._init_complete = False
@@ -1502,14 +1570,6 @@ modules and initializing them by instantiating the proper class.</p></div>
                 self.logger.debug(f&#39;Item {item} saved for read_all on device {device_name}&#39;)
                 return self.update_item
 
-    # def parse_logic(self, logic):
-    #     &#39;&#39;&#39;
-    #     Default plugin parse_logic method
-    #     &#39;&#39;&#39;
-    #     if &#39;xxx&#39; in logic.conf:
-    #         # self.function(logic[&#39;name&#39;])
-    #         pass
-
     def update_item(self, item, caller=None, source=None, dest=None):
         &#39;&#39;&#39;
         Item has been updated
@@ -1554,7 +1614,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                     if not device.send_command(command, item()):
                         tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
-                        item(item.property.last_value, self.get_shortname())
+                        item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_name)
                         return None
 
                 elif item.id() in self._items_readall:
@@ -1912,7 +1972,7 @@ is managed by this plugin.</p>
                 tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                 if not device.send_command(command, item()):
                     tmp_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
-                    item(item.property.last_value, self.get_shortname())
+                    item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_name)
                     return None
 
             elif item.id() in self._items_readall:
@@ -2228,7 +2288,6 @@ def submit(self, button=None, param=None):
 <li><code><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></li>
 <li><code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></li>
 <li><code><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></li>
-<li><code><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

@@ -47,6 +47,10 @@ class MD_Command(object):
     not present, opcode as payload for the connection. Data is supplied in the
     'data'-key values in the data_dict. DT type conversion is applied with default
     values.
+
+    For attributes defined in commands.py, see explanation in the
+    dev_example/commands.py file.
+
     This class serves as a base class for further format-specific command types.
     '''
     device = ''
@@ -185,12 +189,14 @@ class MD_Command_Str(MD_Command):
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
+    Default behaviour is identical to MD_Command_Str.
+
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
 
     - 'MD_OPCODE' is replaced with the opcode,
     - 'MD_PARAM:attr:' is replaced with the value of the attr element from the plugin configuration,
-    - 'MD_VALUE' is replaced with the given value
+    - 'MD_VALUE' is replaced with the given value (converted by DT-class)
 
     The returned data is only parsed by the DT_... classes.
     For the DT_json class, the read_data dict can be used to extract a specific

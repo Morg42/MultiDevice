@@ -53,6 +53,7 @@
 #########################################################################
 
 import logging
+import re
 from pydoc import locate
 
 if MD_standalone:
@@ -92,6 +93,7 @@ class MD_Commands(object):
         self._cmd_class = command_obj_class
         self._plugin_params = kwargs
         self._dt = {}
+        self._return_value = None
         self._read_dt_classes(device_id)
         self._read_commands(device_name)
 
@@ -123,14 +125,29 @@ class MD_Commands(object):
         raise Exception(f&#39;command {command} not found in commands&#39;)
 
     def get_command_from_reply(self, data):
+        if type(data) in (bytes, bytearray):
+            data = str(data.decode(&#39;utf-8&#39;))
+
         for command in self._commands:
             tokens = getattr(self._commands[command], &#39;reply_token&#39;, None)
             if tokens:
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    # NOTE: if token == &#39;&#39;, this would always match. Maybe make this a feature?
-                    if token != &#39;&#39; and token == data[:len(token)]:
+                    # TODO: make &#39;REGEX&#39; literal configurable?
+                    if token == &#39;REGEX&#39; and getattr(self._commands[command], &#39;reply_pattern&#39;, None):
+
+                        # token is &#34;REGEX&#34; - parse read_cmd as regex
+                        try:
+                            regex = re.compile(getattr(self._commands[command], &#39;reply_pattern&#39;))
+                            if regex.match(data) is not None:
+                                self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} as regex against data {data}, found command {command}&#39;)
+                                return command
+                        except Exception as e:
+                            self.logger.warning(f&#39;parsing or matching reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} from command {command} as regex failed. Error was: {e}. Ignoring&#39;)
+                    elif token != &#39;&#39; and token == data[:len(token)]:
+
+                        # token ist just a string
                         return command
         return None
 
@@ -196,7 +213,7 @@ class MD_Commands(object):
         &#39;&#39;&#39;
         for cmd in commands:
             kw = {}
-            for arg in (&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;dev_datatype&#39;, &#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;reply_token&#39;):
+            for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 
@@ -211,7 +228,7 @@ class MD_Commands(object):
             if kw.get(&#39;write&#39;, False) and kw.get(&#39;opcode&#39;, &#39;&#39;) == &#39;&#39; and kw.get(&#39;write_cmd&#39;, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for writing values. Check commands.py configuration...&#39;)
             if not dt_class:
-                self.logger.error(f&#39;importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device&#39;)
+                self.logger.error(f&#39;importing command {cmd} found invalid datatype &#34;{dev_datatype}&#34;, replacing with DT_raw. Check function of device&#39;)
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{&#39;cmd&#39;: kw, &#39;plugin&#39;: self._plugin_params})</code></pre>
 </details>
@@ -260,6 +277,7 @@ MD_Command-object</p>
         self._cmd_class = command_obj_class
         self._plugin_params = kwargs
         self._dt = {}
+        self._return_value = None
         self._read_dt_classes(device_id)
         self._read_commands(device_name)
 
@@ -291,14 +309,29 @@ MD_Command-object</p>
         raise Exception(f&#39;command {command} not found in commands&#39;)
 
     def get_command_from_reply(self, data):
+        if type(data) in (bytes, bytearray):
+            data = str(data.decode(&#39;utf-8&#39;))
+
         for command in self._commands:
             tokens = getattr(self._commands[command], &#39;reply_token&#39;, None)
             if tokens:
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    # NOTE: if token == &#39;&#39;, this would always match. Maybe make this a feature?
-                    if token != &#39;&#39; and token == data[:len(token)]:
+                    # TODO: make &#39;REGEX&#39; literal configurable?
+                    if token == &#39;REGEX&#39; and getattr(self._commands[command], &#39;reply_pattern&#39;, None):
+
+                        # token is &#34;REGEX&#34; - parse read_cmd as regex
+                        try:
+                            regex = re.compile(getattr(self._commands[command], &#39;reply_pattern&#39;))
+                            if regex.match(data) is not None:
+                                self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} as regex against data {data}, found command {command}&#39;)
+                                return command
+                        except Exception as e:
+                            self.logger.warning(f&#39;parsing or matching reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} from command {command} as regex failed. Error was: {e}. Ignoring&#39;)
+                    elif token != &#39;&#39; and token == data[:len(token)]:
+
+                        # token ist just a string
                         return command
         return None
 
@@ -364,7 +397,7 @@ MD_Command-object</p>
         &#39;&#39;&#39;
         for cmd in commands:
             kw = {}
-            for arg in (&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;dev_datatype&#39;, &#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;reply_token&#39;):
+            for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
 
@@ -379,7 +412,7 @@ MD_Command-object</p>
             if kw.get(&#39;write&#39;, False) and kw.get(&#39;opcode&#39;, &#39;&#39;) == &#39;&#39; and kw.get(&#39;write_cmd&#39;, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for writing values. Check commands.py configuration...&#39;)
             if not dt_class:
-                self.logger.error(f&#39;importing commands found invalid datatype {dev_datatype}, replacing with DT_raw. Check function of device&#39;)
+                self.logger.error(f&#39;importing command {cmd} found invalid datatype &#34;{dev_datatype}&#34;, replacing with DT_raw. Check function of device&#39;)
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{&#39;cmd&#39;: kw, &#39;plugin&#39;: self._plugin_params})</code></pre>
 </details>
@@ -395,14 +428,29 @@ MD_Command-object</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_command_from_reply(self, data):
+    if type(data) in (bytes, bytearray):
+        data = str(data.decode(&#39;utf-8&#39;))
+
     for command in self._commands:
         tokens = getattr(self._commands[command], &#39;reply_token&#39;, None)
         if tokens:
             if not isinstance(tokens, list):
                 tokens = [tokens]
             for token in tokens:
-                # NOTE: if token == &#39;&#39;, this would always match. Maybe make this a feature?
-                if token != &#39;&#39; and token == data[:len(token)]:
+                # TODO: make &#39;REGEX&#39; literal configurable?
+                if token == &#39;REGEX&#39; and getattr(self._commands[command], &#39;reply_pattern&#39;, None):
+
+                    # token is &#34;REGEX&#34; - parse read_cmd as regex
+                    try:
+                        regex = re.compile(getattr(self._commands[command], &#39;reply_pattern&#39;))
+                        if regex.match(data) is not None:
+                            self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} as regex against data {data}, found command {command}&#39;)
+                            return command
+                    except Exception as e:
+                        self.logger.warning(f&#39;parsing or matching reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} from command {command} as regex failed. Error was: {e}. Ignoring&#39;)
+                elif token != &#39;&#39; and token == data[:len(token)]:
+
+                    # token ist just a string
                     return command
     return None</code></pre>
 </details>

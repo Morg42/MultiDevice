@@ -34,6 +34,11 @@ convention of DT_<device data type of format>.</p>
 <p>New devices probably create the need for new data types.</p>
 <p>For details concerning API and implementation, refer to the reference classes as
 examples.</p>
+<p>As nearly all return values are possible, error handling cannot be done via
+return code. In consequence, errors are transmitted via exceptions, either
+explicitly or by just letting it happen (e.g. int('abc') -&gt; ValueError)
+The whole data type conversion is enclosed in try/except higher up.
+Keep it simple here :)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -82,6 +87,12 @@ examples.</p>
 
     For details concerning API and implementation, refer to the reference classes as
     examples.
+
+    As nearly all return values are possible, error handling cannot be done via
+    return code. In consequence, errors are transmitted via exceptions, either
+    explicitly or by just letting it happen (e.g. int(&#39;abc&#39;) -&gt; ValueError)
+    The whole data type conversion is enclosed in try/except higher up.
+    Keep it simple here :)
 
 &#39;&#39;&#39;
 
@@ -232,10 +243,6 @@ class DT_raw(Datatype):
     &#39;&#39;&#39; pass on data, identical to base class &#39;&#39;&#39;
     pass
 
-
-#
-# TODO: add error handling on conversion error to DT_ classes...?
-#
 
 class DT_bool(Datatype):
     &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
@@ -972,10 +979,6 @@ get_shng_data() and get_send_data().</p>
 <li><a title="multidevice.datatypes.DT_tuple" href="#multidevice.datatypes.DT_tuple">DT_tuple</a></li>
 <li><a title="multidevice.datatypes.DT_webservices" href="#multidevice.datatypes.DT_webservices">DT_webservices</a></li>
 <li><a title="multidevice.dev_example.datatypes.DT_Example" href="dev_example/datatypes.html#multidevice.dev_example.datatypes.DT_Example">DT_Example</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_PioMute" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioMute">DT_PioMute</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_PioPwr" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioPwr">DT_PioPwr</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_PioSource" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioSource">DT_PioSource</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_PioVol" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioVol">DT_PioVol</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>

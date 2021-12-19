@@ -50,7 +50,7 @@ class MD_Device(object):
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_<device_id>/ commands.py (see there for format)
+    Configuration is done via dev_<device_id>/commands.py (see dev_example for format)
 
     :param device_id: device type as used in derived class names
     :param device_name: device name for use in item configuration and logs
@@ -123,7 +123,7 @@ class MD_Device(object):
         if self._runtime_data_set:
             self.logger.debug('start method called')
         else:
-            self.logger.error('start method called, but runtime data not set, device disabled')
+            self.logger.error('start method called, but runtime data not set, device (still) disabled')
             return
 
         self.alive = True
@@ -145,7 +145,7 @@ class MD_Device(object):
     #     '''
     #     If you want to provide a standalone function, you'll have to implement
     #     this function with the appropriate code. You can use all functions from
-    #     the MultiDevice class, the devices, connections and commands.
+    #     the MultiDevice class (plugin), the devices, connections and commands.
     #     You do not have an sh object, items or web interfaces.
     #
     #     As the base class should not have this method, it is commented out.
@@ -155,6 +155,8 @@ class MD_Device(object):
     def send_command(self, command, value=None):
         '''
         Sends the specified command to the device providing <value> as data
+        Not providing data will issue a read command, trying to read the value 
+        from the device and writing it to the associated item.
 
         :param command: the command to send
         :param value: the data to send, if applicable
@@ -268,6 +270,8 @@ class MD_Device(object):
     def set_runtime_data(self, **kwargs):
         '''
         Sets runtime data received from the plugin class
+
+        data_received_callback takes one argument 'data'
         '''
         try:
             self._commands_read = kwargs['read_commands']
@@ -480,5 +484,3 @@ class MD_Device(object):
             cls = MD_Command
         self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
         return True
-
-

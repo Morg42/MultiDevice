@@ -75,6 +75,10 @@ class MD_Command(object):
     not present, opcode as payload for the connection. Data is supplied in the
     &#39;data&#39;-key values in the data_dict. DT type conversion is applied with default
     values.
+
+    For attributes defined in commands.py, see explanation in the
+    dev_example/commands.py file.
+
     This class serves as a base class for further format-specific command types.
     &#39;&#39;&#39;
     device = &#39;&#39;
@@ -82,8 +86,12 @@ class MD_Command(object):
     opcode = &#39;&#39;
     read = False
     write = False
+    read_cmd = None
+    write_cmd = None
     item_type = None
     reply_token = []
+    reply_pattern = &#39;&#39;
+    settings = None
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -106,12 +114,12 @@ class MD_Command(object):
         kw = kwargs[&#39;cmd&#39;]
         self._plugin_params = kwargs[&#39;plugin&#39;]
 
-        self._get_kwargs((&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;reply_token&#39;), **kw)
+        self._get_kwargs(COMMAND_PARAMS, **kw)
 
         try:
             self._DT = dt_class()
         except Exception as e:
-            self.logger.error(f&#39;building command {command} failed on instantiating datatype class {dt_class}. Error was {e}&#39;)
+            self.logger.error(f&#39;building command {command} failed on instantiating datatype class {dt_class}. Error was: {e}&#39;)
             self._DT = DT.DT_raw()
 
         # only log if base class. Derived classes log their own messages
@@ -121,6 +129,11 @@ class MD_Command(object):
     def get_send_data(self, data):
 
         cmd = None
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
 
         # create read data
         if data is None:
@@ -152,18 +165,66 @@ class MD_Command(object):
             if kwargs.get(arg, None):
                 setattr(self, arg, kwargs[arg])
 
+    def _check_min_max(self, data, key, min=True, force=False):
+        &#39;&#39;&#39; helper routine to check for min/max compliance and int/float type &#39;&#39;&#39;
+        if self.settings.get(key, None):
+            bound = self.settings[key]
+            if not isinstance(data, type(bound)):
+                if type(data) is float and type(bound) is int:
+                    data = int(data)
+                else:
+                    raise ValueError(f&#39;Invalid data: type {type(data)} ({data}) given for {type(bound)} ({bound})&#39;)
+            if (min and data &gt;= bound) or (not min and data &lt;= bound):
+                return data
+            if force:
+                return bound
+            raise ValueError(f&#39;Invalid data: value {data} not adhering to {&#34;min&#34; if min else &#34;max&#34;} value {bound}&#39;)
+        return data
+
+    def _check_value(self, data):
+        &#39;&#39;&#39;
+        check if value settings are defined and if so, if they are followed
+        possibly adjust data in accordance with settings or do some magic (&#39;read_val&#39;)
+
+        non-compliance will raise ValueError
+
+        This can be overloaded; make sure to (first?) call 
+        data = super()._check_value(data)
+        to run this code in addition to your own extension, if applicable
+
+        :param data: data/value to send
+        :return: adjusted data
+        &#39;&#39;&#39;
+
+        minmaxkeys = [&#39;min&#39;, &#39;max&#39;, &#39;force_min&#39;, &#39;force_max&#39;]
+        if self.settings:
+            if self.settings.get(&#39;read_val&#39;, None):
+                # if data == read_val, trigger force reading value from device by not providing data to command
+                if data == self.settings[&#39;read_val&#39;]:
+                    return None
+            elif self.settings.get(&#39;valid_list&#39;, None):
+                if data not in self.settings[&#39;valid_list&#39;]:
+                    raise ValueError(f&#39;Invalid data: value {data} not in list {self.settings[&#34;valid_list&#34;]}&#39;)
+            elif any(key in self.settings.keys for key in minmaxkeys):
+                for key in minmaxkeys:
+                    data = self._check_min_max(data, key, key[-3:] == &#39;min&#39;, key[:5] == &#39;force&#39;)
+
+        return data
+
 
 class MD_Command_Str(MD_Command):
     &#39;&#39;&#39;
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
+    Default behaviour is identical to MD_Command_Str.
+
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
 
-    - &#39;$C&#39; is replaced with the opcode,
-    - &#39;$P:attr:&#39; is replaced with the value of the attr element from the plugin configuration,
-    - &#39;$V&#39; is replaced with the given value
+    - &#39;MD_OPCODE&#39; is replaced with the opcode,
+    - &#39;MD_PARAM:attr:&#39; is replaced with the value of the attr element from the plugin configuration,
+    - &#39;MD_VALUE&#39; is replaced with the given value (converted by DT-class)
 
     The returned data is only parsed by the DT_... classes.
     For the DT_json class, the read_data dict can be used to extract a specific
@@ -179,33 +240,24 @@ class MD_Command_Str(MD_Command):
 
     This class is provided as a reference implementation for the Net-Connections.
     &#39;&#39;&#39;
-    read_cmd = None
-    write_cmd = None
     read_data = None
-    params = {}
-    values = {}
-    bounds = {} 
-    _DT = None
-
-    def __init__(self, device_name, name, dt_class, **kwargs):
-
-        super().__init__(device_name, name, dt_class, **kwargs)
-
-        kw = kwargs[&#39;cmd&#39;]
-        self._plugin_params = kwargs[&#39;plugin&#39;]
-
-        self._get_kwargs((&#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;params&#39;, &#39;values&#39;, &#39;bounds&#39;), **kw)
-
-        self.logger.debug(f&#39;learned command {self.name} with device datatype {dt_class.__name__}&#39;)
 
     def get_send_data(self, data):
-        # create read data
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
+
+
         if data is None:
+            # create read data
             if self.read_cmd:
                 cmd_str = self._parse_str(self.read_cmd)
             else:
                 cmd_str = self._parse_str(self.opcode, data)
         else:
+            # create write data
             if self.write_cmd:
                 cmd_str = self._parse_str(self.write_cmd, data)
             else:
@@ -213,7 +265,7 @@ class MD_Command_Str(MD_Command):
 
         data_dict = {}
         data_dict[&#39;payload&#39;] = cmd_str
-        for k in self.params.keys():
+        for k in self._plugin_params.keys():
             data_dict[k] = self._parse_tree(self.params[k], data)
 
         return data_dict
@@ -221,9 +273,9 @@ class MD_Command_Str(MD_Command):
     def _parse_str(self, string, data=None):
         &#39;&#39;&#39;
         parse string and replace
-        - $C with the command opcode
-        - $P:&lt;elem&gt;: with the plugin parameter
-        - $V with the data value
+        - MD_OPCODE with the command opcode
+        - MD_PARAM:&lt;elem&gt;: with the plugin parameter
+        - MD_VALUE with the data value
 
         The replacement order ensures that $P-patterns from the opcode can be replaced
         as well as $V-pattern in any of the strings.
@@ -231,14 +283,14 @@ class MD_Command_Str(MD_Command):
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
 
-        string = string.replace(&#39;$C&#39;, self.opcode)
+        string = string.replace(&#39;MD_OPCODE&#39;, self.opcode)
 
-        regex = &#39;(\\$P:([^:]+):)&#39;
+        regex = &#39;(MD_PARAM:([^:]+):)&#39;
         while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
             string = re.sub(regex, repl_func, string)
 
         if data is not None:
-            string = string.replace(&#39;$V&#39;, str(self._DT.get_send_data(data)))
+            string = string.replace(&#39;MD_VALUE&#39;, str(self._DT.get_send_data(data)))
 
         return string
 
@@ -264,18 +316,96 @@ class MD_Command_Str(MD_Command):
             return node
 
 
-# class MD_Command_OnkelAndy(MD_Command_Str):
-# 
-#     def _parse_str(self, string, data=None):
-#         &#39;&#39;&#39;
-#         parse string with eval. Duck and cover...
-#         &#39;&#39;&#39;
-# 
-#         if data is not None:
-#             string = string.replace(&#39;$V&#39;, str(self._DT.get_send_data(data)))
-# 
-#         return eval(string)
-# </code></pre>
+class MD_Command_ParseStr(MD_Command_Str):
+    &#39;&#39;&#39;
+    With this class, you can simplify the creation of read and write commands
+    containing data values. 
+
+    Default behaviour is identical to MD_Command_Str.
+
+    Giving write_cmd as &#39;:&lt;write expression&gt;:&#39; (note colons) will format the
+    given string (without the colons), replacing &#39;VAL&#39; with the value by using
+    write_cmd.format(VAL=data_dict[&#39;payload&#39;]), so you can immediately embed 
+    the value in the command string with configurable formatting conforming 
+    to str.format() syntax.
+    If you have to start and end the command string with colons, just use
+    &#39;::foo::&#39; as write_cmd. If you absolutely HAVE to use a literal
+    &#39;:foo{VAL}bar:&#39;, you might need to write your own class...
+
+    Giving reply_pattern as &#39;&lt;regex&gt;&#39; with one (1) match group will try and 
+    capture the matched group into the received value.
+
+    Giving reply_pattern as &#39;&lt;regex&gt;&#39; without capturing parentheses will return
+    the reply value as is (can possibly be converted by the DT class).
+
+    HINT: If you give reply_pattern as regex and reply_token as &#39;REGEX&#39;, the
+    reply_pattern regex will be used to identify a reply as belonging to this
+    command if a match is found.
+
+    Both results can be achieved with customized DT_foo classes, but this
+    might be an easier and cleaner solution. Please make sure to understand
+    MRE by JF properly :)
+    &#39;&#39;&#39;
+
+    def get_send_data(self, data):
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
+
+        if data is None:
+            # create read data
+            if self.read_cmd:
+                cmd_str = self._parse_str(self.read_cmd)
+            else:
+                cmd_str = self._parse_str(self.opcode, data)
+        else:
+            # create write data
+            if self.write_cmd:
+                # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
+                if self.write_cmd[0] == &#39;:&#39; and self.write_cmd[-1] == &#39;:&#39;:
+                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
+                else:
+                    cmd_str = self._parse_str(self.write_cmd, data)
+            else:
+                cmd_str = self._parse_str(self.opcode, data)
+
+        return {&#39;payload&#39;: cmd_str, &#39;data&#39;: self._DT.get_send_data(data)}
+
+    def get_shng_data(self, data):
+        &#39;&#39;&#39;
+        Try to match data to reply_pattern if reply_pattern is set.
+
+        If a match is found and a value is captured, it will be returned.
+
+        If a match is found without a capturing group, the value will be
+        returned as-is, possibly to be converted by the DT class.
+
+        If no match can be achieved, it is not possible to return 
+        a meaningful value. To signal the error, an exception will be raised.
+        &#39;&#39;&#39;
+        if self.reply_pattern:
+            regex = re.compile(self.reply_pattern)
+            match = regex.match(data)
+            if match:
+                if len(match.groups()) == 1:
+
+                    # one captured group - ok
+                    value = self._DT.get_shng_data(match.group(1))
+                elif len(match.groups()) &gt; 1:
+
+                    # more than one captured group - error
+                    raise ValueError(f&#39;reply_pattern {self.reply_pattern} has more than one pair of capturing parentheses&#39;)
+                else:
+
+                    # no captured groups = no parentheses = no extraction of value, just do the &#34;normal&#34; thing
+                    value = self._DT.get_shng_data(data)
+            else:
+                raise ValueError(f&#39;reply_pattern {self.reply_pattern} could not get a match on {data}&#39;)
+        else:
+            value = self._DT.get_shng_data(data)
+        return value</code></pre>
 </details>
 </section>
 <section>
@@ -295,8 +425,10 @@ class MD_Command_Str(MD_Command):
 <div class="desc"><p>This class represents a general command that uses read_cmd/write_cmd or, if
 not present, opcode as payload for the connection. Data is supplied in the
 'data'-key values in the data_dict. DT type conversion is applied with default
-values.
-This class serves as a base class for further format-specific command types.</p></div>
+values.</p>
+<p>For attributes defined in commands.py, see explanation in the
+dev_example/commands.py file.</p>
+<p>This class serves as a base class for further format-specific command types.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -307,6 +439,10 @@ This class serves as a base class for further format-specific command types.</p>
     not present, opcode as payload for the connection. Data is supplied in the
     &#39;data&#39;-key values in the data_dict. DT type conversion is applied with default
     values.
+
+    For attributes defined in commands.py, see explanation in the
+    dev_example/commands.py file.
+
     This class serves as a base class for further format-specific command types.
     &#39;&#39;&#39;
     device = &#39;&#39;
@@ -314,8 +450,12 @@ This class serves as a base class for further format-specific command types.</p>
     opcode = &#39;&#39;
     read = False
     write = False
+    read_cmd = None
+    write_cmd = None
     item_type = None
     reply_token = []
+    reply_pattern = &#39;&#39;
+    settings = None
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -338,12 +478,12 @@ This class serves as a base class for further format-specific command types.</p>
         kw = kwargs[&#39;cmd&#39;]
         self._plugin_params = kwargs[&#39;plugin&#39;]
 
-        self._get_kwargs((&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;reply_token&#39;), **kw)
+        self._get_kwargs(COMMAND_PARAMS, **kw)
 
         try:
             self._DT = dt_class()
         except Exception as e:
-            self.logger.error(f&#39;building command {command} failed on instantiating datatype class {dt_class}. Error was {e}&#39;)
+            self.logger.error(f&#39;building command {command} failed on instantiating datatype class {dt_class}. Error was: {e}&#39;)
             self._DT = DT.DT_raw()
 
         # only log if base class. Derived classes log their own messages
@@ -353,6 +493,11 @@ This class serves as a base class for further format-specific command types.</p>
     def get_send_data(self, data):
 
         cmd = None
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
 
         # create read data
         if data is None:
@@ -382,7 +527,53 @@ This class serves as a base class for further format-specific command types.</p>
         &#39;&#39;&#39;
         for arg in args:
             if kwargs.get(arg, None):
-                setattr(self, arg, kwargs[arg])</code></pre>
+                setattr(self, arg, kwargs[arg])
+
+    def _check_min_max(self, data, key, min=True, force=False):
+        &#39;&#39;&#39; helper routine to check for min/max compliance and int/float type &#39;&#39;&#39;
+        if self.settings.get(key, None):
+            bound = self.settings[key]
+            if not isinstance(data, type(bound)):
+                if type(data) is float and type(bound) is int:
+                    data = int(data)
+                else:
+                    raise ValueError(f&#39;Invalid data: type {type(data)} ({data}) given for {type(bound)} ({bound})&#39;)
+            if (min and data &gt;= bound) or (not min and data &lt;= bound):
+                return data
+            if force:
+                return bound
+            raise ValueError(f&#39;Invalid data: value {data} not adhering to {&#34;min&#34; if min else &#34;max&#34;} value {bound}&#39;)
+        return data
+
+    def _check_value(self, data):
+        &#39;&#39;&#39;
+        check if value settings are defined and if so, if they are followed
+        possibly adjust data in accordance with settings or do some magic (&#39;read_val&#39;)
+
+        non-compliance will raise ValueError
+
+        This can be overloaded; make sure to (first?) call 
+        data = super()._check_value(data)
+        to run this code in addition to your own extension, if applicable
+
+        :param data: data/value to send
+        :return: adjusted data
+        &#39;&#39;&#39;
+
+        minmaxkeys = [&#39;min&#39;, &#39;max&#39;, &#39;force_min&#39;, &#39;force_max&#39;]
+        if self.settings:
+            if self.settings.get(&#39;read_val&#39;, None):
+                # if data == read_val, trigger force reading value from device by not providing data to command
+                if data == self.settings[&#39;read_val&#39;]:
+                    return None
+            elif self.settings.get(&#39;valid_list&#39;, None):
+                if data not in self.settings[&#39;valid_list&#39;]:
+                    raise ValueError(f&#39;Invalid data: value {data} not in list {self.settings[&#34;valid_list&#34;]}&#39;)
+            elif any(key in self.settings.keys for key in minmaxkeys):
+                for key in minmaxkeys:
+                    data = self._check_min_max(data, key, key[-3:] == &#39;min&#39;, key[:5] == &#39;force&#39;)
+
+        return data</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -410,11 +601,27 @@ This class serves as a base class for further format-specific command types.</p>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="multidevice.MD_Command.MD_Command.read_cmd"><code class="name">var <span class="ident">read_cmd</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="multidevice.MD_Command.MD_Command.reply_pattern"><code class="name">var <span class="ident">reply_pattern</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="multidevice.MD_Command.MD_Command.reply_token"><code class="name">var <span class="ident">reply_token</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="multidevice.MD_Command.MD_Command.settings"><code class="name">var <span class="ident">settings</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="multidevice.MD_Command.MD_Command.write"><code class="name">var <span class="ident">write</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="multidevice.MD_Command.MD_Command.write_cmd"><code class="name">var <span class="ident">write_cmd</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -433,6 +640,11 @@ This class serves as a base class for further format-specific command types.</p>
 <pre><code class="python">def get_send_data(self, data):
 
     cmd = None
+
+    try:
+        data = self._check_value(data)
+    except Exception as e:
+        raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
 
     # create read data
     if data is None:
@@ -465,19 +677,235 @@ This class serves as a base class for further format-specific command types.</p>
 </dd>
 </dl>
 </dd>
+<dt id="multidevice.MD_Command.MD_Command_ParseStr"><code class="flex name class">
+<span>class <span class="ident">MD_Command_ParseStr</span></span>
+<span>(</span><span>device_name, command, dt_class, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>With this class, you can simplify the creation of read and write commands
+containing data values. </p>
+<p>Default behaviour is identical to MD_Command_Str.</p>
+<p>Giving write_cmd as ':<write expression>:' (note colons) will format the
+given string (without the colons), replacing 'VAL' with the value by using
+write_cmd.format(VAL=data_dict['payload']), so you can immediately embed
+the value in the command string with configurable formatting conforming
+to str.format() syntax.
+If you have to start and end the command string with colons, just use
+'::foo::' as write_cmd. If you absolutely HAVE to use a literal
+':foo{VAL}bar:', you might need to write your own class&hellip;</p>
+<p>Giving reply_pattern as '<regex>' with one (1) match group will try and
+capture the matched group into the received value.</p>
+<p>Giving reply_pattern as '<regex>' without capturing parentheses will return
+the reply value as is (can possibly be converted by the DT class).</p>
+<p>HINT: If you give reply_pattern as regex and reply_token as 'REGEX', the
+reply_pattern regex will be used to identify a reply as belonging to this
+command if a match is found.</p>
+<p>Both results can be achieved with customized DT_foo classes, but this
+might be an easier and cleaner solution. Please make sure to understand
+MRE by JF properly :)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MD_Command_ParseStr(MD_Command_Str):
+    &#39;&#39;&#39;
+    With this class, you can simplify the creation of read and write commands
+    containing data values. 
+
+    Default behaviour is identical to MD_Command_Str.
+
+    Giving write_cmd as &#39;:&lt;write expression&gt;:&#39; (note colons) will format the
+    given string (without the colons), replacing &#39;VAL&#39; with the value by using
+    write_cmd.format(VAL=data_dict[&#39;payload&#39;]), so you can immediately embed 
+    the value in the command string with configurable formatting conforming 
+    to str.format() syntax.
+    If you have to start and end the command string with colons, just use
+    &#39;::foo::&#39; as write_cmd. If you absolutely HAVE to use a literal
+    &#39;:foo{VAL}bar:&#39;, you might need to write your own class...
+
+    Giving reply_pattern as &#39;&lt;regex&gt;&#39; with one (1) match group will try and 
+    capture the matched group into the received value.
+
+    Giving reply_pattern as &#39;&lt;regex&gt;&#39; without capturing parentheses will return
+    the reply value as is (can possibly be converted by the DT class).
+
+    HINT: If you give reply_pattern as regex and reply_token as &#39;REGEX&#39;, the
+    reply_pattern regex will be used to identify a reply as belonging to this
+    command if a match is found.
+
+    Both results can be achieved with customized DT_foo classes, but this
+    might be an easier and cleaner solution. Please make sure to understand
+    MRE by JF properly :)
+    &#39;&#39;&#39;
+
+    def get_send_data(self, data):
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
+
+        if data is None:
+            # create read data
+            if self.read_cmd:
+                cmd_str = self._parse_str(self.read_cmd)
+            else:
+                cmd_str = self._parse_str(self.opcode, data)
+        else:
+            # create write data
+            if self.write_cmd:
+                # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
+                if self.write_cmd[0] == &#39;:&#39; and self.write_cmd[-1] == &#39;:&#39;:
+                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
+                else:
+                    cmd_str = self._parse_str(self.write_cmd, data)
+            else:
+                cmd_str = self._parse_str(self.opcode, data)
+
+        return {&#39;payload&#39;: cmd_str, &#39;data&#39;: self._DT.get_send_data(data)}
+
+    def get_shng_data(self, data):
+        &#39;&#39;&#39;
+        Try to match data to reply_pattern if reply_pattern is set.
+
+        If a match is found and a value is captured, it will be returned.
+
+        If a match is found without a capturing group, the value will be
+        returned as-is, possibly to be converted by the DT class.
+
+        If no match can be achieved, it is not possible to return 
+        a meaningful value. To signal the error, an exception will be raised.
+        &#39;&#39;&#39;
+        if self.reply_pattern:
+            regex = re.compile(self.reply_pattern)
+            match = regex.match(data)
+            if match:
+                if len(match.groups()) == 1:
+
+                    # one captured group - ok
+                    value = self._DT.get_shng_data(match.group(1))
+                elif len(match.groups()) &gt; 1:
+
+                    # more than one captured group - error
+                    raise ValueError(f&#39;reply_pattern {self.reply_pattern} has more than one pair of capturing parentheses&#39;)
+                else:
+
+                    # no captured groups = no parentheses = no extraction of value, just do the &#34;normal&#34; thing
+                    value = self._DT.get_shng_data(data)
+            else:
+                raise ValueError(f&#39;reply_pattern {self.reply_pattern} could not get a match on {data}&#39;)
+        else:
+            value = self._DT.get_shng_data(data)
+        return value</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Command.MD_Command_Str" href="#multidevice.MD_Command.MD_Command_Str">MD_Command_Str</a></li>
+<li><a title="multidevice.MD_Command.MD_Command" href="#multidevice.MD_Command.MD_Command">MD_Command</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="multidevice.MD_Command.MD_Command_ParseStr.get_send_data"><code class="name flex">
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_send_data(self, data):
+
+    try:
+        data = self._check_value(data)
+    except Exception as e:
+        raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
+
+    if data is None:
+        # create read data
+        if self.read_cmd:
+            cmd_str = self._parse_str(self.read_cmd)
+        else:
+            cmd_str = self._parse_str(self.opcode, data)
+    else:
+        # create write data
+        if self.write_cmd:
+            # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
+            if self.write_cmd[0] == &#39;:&#39; and self.write_cmd[-1] == &#39;:&#39;:
+                cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
+            else:
+                cmd_str = self._parse_str(self.write_cmd, data)
+        else:
+            cmd_str = self._parse_str(self.opcode, data)
+
+    return {&#39;payload&#39;: cmd_str, &#39;data&#39;: self._DT.get_send_data(data)}</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Command.MD_Command_ParseStr.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Try to match data to reply_pattern if reply_pattern is set.</p>
+<p>If a match is found and a value is captured, it will be returned.</p>
+<p>If a match is found without a capturing group, the value will be
+returned as-is, possibly to be converted by the DT class.</p>
+<p>If no match can be achieved, it is not possible to return
+a meaningful value. To signal the error, an exception will be raised.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data):
+    &#39;&#39;&#39;
+    Try to match data to reply_pattern if reply_pattern is set.
+
+    If a match is found and a value is captured, it will be returned.
+
+    If a match is found without a capturing group, the value will be
+    returned as-is, possibly to be converted by the DT class.
+
+    If no match can be achieved, it is not possible to return 
+    a meaningful value. To signal the error, an exception will be raised.
+    &#39;&#39;&#39;
+    if self.reply_pattern:
+        regex = re.compile(self.reply_pattern)
+        match = regex.match(data)
+        if match:
+            if len(match.groups()) == 1:
+
+                # one captured group - ok
+                value = self._DT.get_shng_data(match.group(1))
+            elif len(match.groups()) &gt; 1:
+
+                # more than one captured group - error
+                raise ValueError(f&#39;reply_pattern {self.reply_pattern} has more than one pair of capturing parentheses&#39;)
+            else:
+
+                # no captured groups = no parentheses = no extraction of value, just do the &#34;normal&#34; thing
+                value = self._DT.get_shng_data(data)
+        else:
+            raise ValueError(f&#39;reply_pattern {self.reply_pattern} could not get a match on {data}&#39;)
+    else:
+        value = self._DT.get_shng_data(data)
+    return value</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="multidevice.MD_Command.MD_Command_Str"><code class="flex name class">
 <span>class <span class="ident">MD_Command_Str</span></span>
-<span>(</span><span>device_name, name, dt_class, **kwargs)</span>
+<span>(</span><span>device_name, command, dt_class, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class represents a command which uses a string with arguments as payload,
 for example as query URL.</p>
+<p>Default behaviour is identical to MD_Command_Str.</p>
 <p>For sending, the read_cmd/write_cmd strings, opcode and data are parsed
 (recursively), to enable the following parameters:</p>
 <ul>
-<li>'$C' is replaced with the opcode,</li>
-<li>'$P:attr:' is replaced with the value of the attr element from the plugin configuration,</li>
-<li>'$V' is replaced with the given value</li>
+<li>'MD_OPCODE' is replaced with the opcode,</li>
+<li>'MD_PARAM:attr:' is replaced with the value of the attr element from the plugin configuration,</li>
+<li>'MD_VALUE' is replaced with the given value (converted by DT-class)</li>
 </ul>
 <p>The returned data is only parsed by the DT_&hellip; classes.
 For the DT_json class, the read_data dict can be used to extract a specific
@@ -496,12 +924,14 @@ element from a json response:</p>
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
+    Default behaviour is identical to MD_Command_Str.
+
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
 
-    - &#39;$C&#39; is replaced with the opcode,
-    - &#39;$P:attr:&#39; is replaced with the value of the attr element from the plugin configuration,
-    - &#39;$V&#39; is replaced with the given value
+    - &#39;MD_OPCODE&#39; is replaced with the opcode,
+    - &#39;MD_PARAM:attr:&#39; is replaced with the value of the attr element from the plugin configuration,
+    - &#39;MD_VALUE&#39; is replaced with the given value (converted by DT-class)
 
     The returned data is only parsed by the DT_... classes.
     For the DT_json class, the read_data dict can be used to extract a specific
@@ -517,33 +947,24 @@ element from a json response:</p>
 
     This class is provided as a reference implementation for the Net-Connections.
     &#39;&#39;&#39;
-    read_cmd = None
-    write_cmd = None
     read_data = None
-    params = {}
-    values = {}
-    bounds = {} 
-    _DT = None
-
-    def __init__(self, device_name, name, dt_class, **kwargs):
-
-        super().__init__(device_name, name, dt_class, **kwargs)
-
-        kw = kwargs[&#39;cmd&#39;]
-        self._plugin_params = kwargs[&#39;plugin&#39;]
-
-        self._get_kwargs((&#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;params&#39;, &#39;values&#39;, &#39;bounds&#39;), **kw)
-
-        self.logger.debug(f&#39;learned command {self.name} with device datatype {dt_class.__name__}&#39;)
 
     def get_send_data(self, data):
-        # create read data
+
+        try:
+            data = self._check_value(data)
+        except Exception as e:
+            raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
+
+
         if data is None:
+            # create read data
             if self.read_cmd:
                 cmd_str = self._parse_str(self.read_cmd)
             else:
                 cmd_str = self._parse_str(self.opcode, data)
         else:
+            # create write data
             if self.write_cmd:
                 cmd_str = self._parse_str(self.write_cmd, data)
             else:
@@ -551,7 +972,7 @@ element from a json response:</p>
 
         data_dict = {}
         data_dict[&#39;payload&#39;] = cmd_str
-        for k in self.params.keys():
+        for k in self._plugin_params.keys():
             data_dict[k] = self._parse_tree(self.params[k], data)
 
         return data_dict
@@ -559,9 +980,9 @@ element from a json response:</p>
     def _parse_str(self, string, data=None):
         &#39;&#39;&#39;
         parse string and replace
-        - $C with the command opcode
-        - $P:&lt;elem&gt;: with the plugin parameter
-        - $V with the data value
+        - MD_OPCODE with the command opcode
+        - MD_PARAM:&lt;elem&gt;: with the plugin parameter
+        - MD_VALUE with the data value
 
         The replacement order ensures that $P-patterns from the opcode can be replaced
         as well as $V-pattern in any of the strings.
@@ -569,14 +990,14 @@ element from a json response:</p>
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
 
-        string = string.replace(&#39;$C&#39;, self.opcode)
+        string = string.replace(&#39;MD_OPCODE&#39;, self.opcode)
 
-        regex = &#39;(\\$P:([^:]+):)&#39;
+        regex = &#39;(MD_PARAM:([^:]+):)&#39;
         while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
             string = re.sub(regex, repl_func, string)
 
         if data is not None:
-            string = string.replace(&#39;$V&#39;, str(self._DT.get_send_data(data)))
+            string = string.replace(&#39;MD_VALUE&#39;, str(self._DT.get_send_data(data)))
 
         return string
 
@@ -605,29 +1026,13 @@ element from a json response:</p>
 <ul class="hlist">
 <li><a title="multidevice.MD_Command.MD_Command" href="#multidevice.MD_Command.MD_Command">MD_Command</a></li>
 </ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Command.MD_Command_ParseStr" href="#multidevice.MD_Command.MD_Command_ParseStr">MD_Command_ParseStr</a></li>
+</ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="multidevice.MD_Command.MD_Command_Str.bounds"><code class="name">var <span class="ident">bounds</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="multidevice.MD_Command.MD_Command_Str.params"><code class="name">var <span class="ident">params</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="multidevice.MD_Command.MD_Command_Str.read_cmd"><code class="name">var <span class="ident">read_cmd</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="multidevice.MD_Command.MD_Command_Str.read_data"><code class="name">var <span class="ident">read_data</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="multidevice.MD_Command.MD_Command_Str.values"><code class="name">var <span class="ident">values</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="multidevice.MD_Command.MD_Command_Str.write_cmd"><code class="name">var <span class="ident">write_cmd</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -644,13 +1049,21 @@ element from a json response:</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_send_data(self, data):
-    # create read data
+
+    try:
+        data = self._check_value(data)
+    except Exception as e:
+        raise ValueError(f&#39;Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}&#39;)
+
+
     if data is None:
+        # create read data
         if self.read_cmd:
             cmd_str = self._parse_str(self.read_cmd)
         else:
             cmd_str = self._parse_str(self.opcode, data)
     else:
+        # create write data
         if self.write_cmd:
             cmd_str = self._parse_str(self.write_cmd, data)
         else:
@@ -658,7 +1071,7 @@ element from a json response:</p>
 
     data_dict = {}
     data_dict[&#39;payload&#39;] = cmd_str
-    for k in self.params.keys():
+    for k in self._plugin_params.keys():
         data_dict[k] = self._parse_tree(self.params[k], data)
 
     return data_dict</code></pre>
@@ -692,20 +1105,26 @@ element from a json response:</p>
 <li><code><a title="multidevice.MD_Command.MD_Command.name" href="#multidevice.MD_Command.MD_Command.name">name</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.opcode" href="#multidevice.MD_Command.MD_Command.opcode">opcode</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.read" href="#multidevice.MD_Command.MD_Command.read">read</a></code></li>
+<li><code><a title="multidevice.MD_Command.MD_Command.read_cmd" href="#multidevice.MD_Command.MD_Command.read_cmd">read_cmd</a></code></li>
+<li><code><a title="multidevice.MD_Command.MD_Command.reply_pattern" href="#multidevice.MD_Command.MD_Command.reply_pattern">reply_pattern</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.reply_token" href="#multidevice.MD_Command.MD_Command.reply_token">reply_token</a></code></li>
+<li><code><a title="multidevice.MD_Command.MD_Command.settings" href="#multidevice.MD_Command.MD_Command.settings">settings</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.write" href="#multidevice.MD_Command.MD_Command.write">write</a></code></li>
+<li><code><a title="multidevice.MD_Command.MD_Command.write_cmd" href="#multidevice.MD_Command.MD_Command.write_cmd">write_cmd</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="multidevice.MD_Command.MD_Command_ParseStr" href="#multidevice.MD_Command.MD_Command_ParseStr">MD_Command_ParseStr</a></code></h4>
+<ul class="">
+<li><code><a title="multidevice.MD_Command.MD_Command_ParseStr.get_send_data" href="#multidevice.MD_Command.MD_Command_ParseStr.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.MD_Command.MD_Command_ParseStr.get_shng_data" href="#multidevice.MD_Command.MD_Command_ParseStr.get_shng_data">get_shng_data</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="multidevice.MD_Command.MD_Command_Str" href="#multidevice.MD_Command.MD_Command_Str">MD_Command_Str</a></code></h4>
-<ul class="two-column">
-<li><code><a title="multidevice.MD_Command.MD_Command_Str.bounds" href="#multidevice.MD_Command.MD_Command_Str.bounds">bounds</a></code></li>
+<ul class="">
 <li><code><a title="multidevice.MD_Command.MD_Command_Str.get_send_data" href="#multidevice.MD_Command.MD_Command_Str.get_send_data">get_send_data</a></code></li>
-<li><code><a title="multidevice.MD_Command.MD_Command_Str.params" href="#multidevice.MD_Command.MD_Command_Str.params">params</a></code></li>
-<li><code><a title="multidevice.MD_Command.MD_Command_Str.read_cmd" href="#multidevice.MD_Command.MD_Command_Str.read_cmd">read_cmd</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command_Str.read_data" href="#multidevice.MD_Command.MD_Command_Str.read_data">read_data</a></code></li>
-<li><code><a title="multidevice.MD_Command.MD_Command_Str.values" href="#multidevice.MD_Command.MD_Command_Str.values">values</a></code></li>
-<li><code><a title="multidevice.MD_Command.MD_Command_Str.write_cmd" href="#multidevice.MD_Command.MD_Command_Str.write_cmd">write_cmd</a></code></li>
 </ul>
 </li>
 </ul>

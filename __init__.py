@@ -85,6 +85,10 @@
     easier to achieve than having to rewrite the whole handling code for items,
     network, serial interfaces and commands every time.
 
+    Thanks to OnkelAndy for kicking my backside repeatedly; otherwise the
+    development of this plugin might have stalled before being able to run ;)
+
+
 
     Base Classes
     ============
@@ -97,7 +101,17 @@
     item-command associations, for forwarding commands and the associated data
     to the device classes and receiving data from the device classes to update
     item values.
+
     This class will usually not need to be adjusted, but runs as the plugin itself.
+
+    In addition, the plugin has a - limited - capability to run as a standalone
+    program, for example to initiate a device discovery or diagnostic functions.
+    To this end, it must be run from the plugin folder by issuing
+
+    ``python3 __init__.py <devicename>``
+
+    Be advised that any functionality to provide in this mode must absolutely
+    by implemented by you :)
 
 
     MD_Device
@@ -174,7 +188,6 @@
     This class has subclasses defined for the following types of connection:
 
     - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
-    - ``MD_Connection_Net_TCP_Reply``   for persistent TCP connections with sync replies
     - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
     - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
     - ``MD_Connection_Serial_Client``   for query-reply serial connections
@@ -229,13 +242,15 @@
 
     - ``get_send_data(data)``
     - ``get_shng_data(data)``
+    - ``_check_value(data)``
 
 
-    The class ``MD_Command_Str`` is an example for defining own commands according
-    to your needs.
-    This example utilizes strings and dicts to build request URLs as payload data
-    for the ``MD_Connection_Net_TCP_Request`` class.
-    It also demonstrates parameter substitution in command definitions.
+    The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for 
+    defining own command classes according to your needs.
+    These examples utilize strings and dicts to build request URLs as payload data
+    for the ``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client`` classes.
+    They also demonstrate parameter substitution in command definitions on different
+    levels of complexity.
 
 
     MD_Datatype
@@ -275,7 +290,7 @@
 
     The plugin class is capable of handling an arbitrary number of devices
     independently. Necessary configuration include the chosen devices respectively
-    the device names and possibly device parameter in ``/etc/plugin.yaml``.
+    the device names and possibly device parameter in ``etc/plugin.yaml``.
 
     The item configuration is supplemented by the attributes ``md_device`` and
     ``md_command``, which designate the device name from plugin configuration and
@@ -283,8 +298,8 @@
 
     The device class needs comprehensive configuration concerning available commands,
     the associated sent and received data formats, which will be supplied by way
-    of configuration files in yaml format. Furthermore, the device-dependent
-    type and configuration of connection should be set in ``/etc/plugin.yaml`` for
+    of configuration files in python format. Furthermore, the device-dependent
+    type and configuration of connection should be set in ``etc/plugin.yaml`` for
     each device used.
 
     The connection classes will be chosen and configured by the device classes.
@@ -300,7 +315,7 @@
 
     - a device folder ``dev_gadget``
     - a device configuration file defining commands ``dev_gadget/commands.py``
-    - specification of needed connection type in ``/etc/plugin.yaml`` ('conn_type')
+    - specification of needed connection type in ``etc/plugin.yaml`` ('conn_type')
     - only if needed:
         * a device class file with a derived class ``dev_gadget/device.py``
         * additional methods in the device class to handle special commands which
@@ -310,6 +325,12 @@
           connection initialization (e.g. serial sync routines)
         * a data formats file defining data types ``dev_gadget/datatypes.py`` and
           additional data types in the datatype file
+
+    For examples on how to implement this, take a look at the dev_example folder
+    which contains simple examples as well as the reference documentation for the
+    commands.py file structure.
+    Also, take a look into the different existing device classes to get a feeling
+    for the needed effort to implement a new device.
 '''
 
 from collections import OrderedDict

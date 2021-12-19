@@ -43,6 +43,12 @@
     For details concerning API and implementation, refer to the reference classes as
     examples.
 
+    As nearly all return values are possible, error handling cannot be done via
+    return code. In consequence, errors are transmitted via exceptions, either
+    explicitly or by just letting it happen (e.g. int('abc') -> ValueError)
+    The whole data type conversion is enclosed in try/except higher up.
+    Keep it simple here :)
+
 '''
 
 import json
@@ -192,10 +198,6 @@ class DT_raw(Datatype):
     ''' pass on data, identical to base class '''
     pass
 
-
-#
-# TODO: add error handling on conversion error to DT_ classes...?
-#
 
 class DT_bool(Datatype):
     ''' cast to bool '''

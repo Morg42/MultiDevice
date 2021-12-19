@@ -112,14 +112,14 @@ class MD_Connection(object):
         :return: True if successful
         :rtype: bool
         '''
-        self.logger.debug(f'opening connection as {__name__} for device {self.device} with params {self._params}')
+        self.logger.debug(f'simulating opening connection as {__name__} for device {self.device} with params {self._params}')
         return True
 
     def _close(self):
         '''
         Overload with closing of connection
         '''
-        self.logger.debug(f'closing connection as {__name__} for device {self.device} with params {self._params}')
+        self.logger.debug(f'simulating closing connection as {__name__} for device {self.device} with params {self._params}')
 
     def _send(self, data_dict):
         '''
@@ -167,8 +167,8 @@ class MD_Connection(object):
 
 class MD_Connection_Net_Tcp_Request(MD_Connection):
     '''
-    This class implements a TCP connection in the query-reply matter using
-    the requests library.
+    This class implements TCP connections in the query-reply matter using
+    the requests library, e.g. for HTTP communication.
 
     The data_dict['payload']-Data needs to be the full query URL. Additional
     parameter dicts can be added to be given to requests.request, as
@@ -219,191 +219,18 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
         return None
 
 
-class MD_Connection_Net_Tcp_Reply(MD_Connection):
-    '''
-    This class implements a persistent TCP connection via sockets
-
-    The data_dict['payload'] is sent as string 1:1; the remainder of data_dict is ignored.
-
-    Response data is returned as text, or None in case of error
-
-    NOTE: this is - as of now - not a good implementation, especially the "receive" part leaves quite some things to be desired. Use for testing only
-    '''
-
-    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
-
-        # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
-
-        self.logger.debug(f'connection initializing from {self.__class__.__name__} with arguments {kwargs}')
-
-        # set class properties
-        self.device_id = device_id
-        self.device = device_name
-        self.connected = False
-        self._tcp = None
-        self._buffer = b''
-
-        self._params = {PLUGIN_ARG_NET_HOST: '', PLUGIN_ARG_NET_PORT: 0, 'autoreconnect': True, 'connect_retries': 5, 'connect_cycle': 30, 'timeout': 3, 'terminator': b'\x0a'}
-        self._params.update(kwargs)
-        self._data_received_callback = data_received_callback
-
-        # check if some of the arguments are usable
-        self._set_connection_params()
-
-        self._autoreconnect = self._params['autoreconnect']
-        self._connect_retries = self._params['connect_retries']
-        self._connect_cycle = self._params['connect_cycle']
-        self._terminator = self._params['terminator']
-
-        if not (self.host != '' and self.port > 0):
-            self.logger.error(f'insufficient configuration data (TCP {self.host}:{self.port}), not initializing connection') 
-            return False
-
-        # tell someone about our actual class
-        self.logger.debug(f'connection initialized from {self.__class__.__name__}')
-
-    def _open(self):
-        if not self.connected:
-            self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} for device {self.device} with params {self._params}')
-            self._tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self._tcp.setblocking(False)
-            self._tcp.settimeout(5)
-            try:
-                self._tcp.settimeout(self.timeout)
-                self._tcp.connect((f'{self.host}', int(self.port)))
-                self.connected = True
-                self.logger.debug(f'connection established to {self.host}:{self.port}')
-            except Exception:
-                self.logger.warning(f'could not establish a connection to {self.host}:{self.port}')
-
-        return self.connected
-
-    def _close(self):
-        self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__} for device {self.device} with params {self._params}')
-        if self.connected:
-            self._tcp.close()
-            self.connected = False
-
-    def _reconnect(self):
-        if not self.connected and self._autoreconnect:
-            attempt = 0
-            while attempt < self._connect_retries and not self.connected:
-                attempt += 1
-                self.logger.info(f'autoreconnecting, attempt {attempt}/{self._connect_retries}')
-                if self._open():
-                    break
-                sleep(self._connect_cycle)
-
-            if not self.connected:
-                self.logger.warning(f'Autoreconnect failed after {self._connect_retries} attempts')
-                return False
-
-    def _send(self, data_dict):
-        # extract payload
-        data = data_dict.get('payload', None)
-        if not data:
-            self.logger.error(f'Refusing to send empty payload from data_dict {data_dict}, aborting')
-            return None
-
-        if not self.connected and not self._reconnect():
-            self.logger.error('Not connected and reconnect not requested or failed, aborting')
-            return None
-
-        # convert payload
-        if not isinstance(data, (bytes, bytearray)):
-            try:
-                data = str(data)
-            except Exception:
-                pass
-            try:
-                data = data.encode('utf-8')
-            except Exception as e:
-                self.logger.warning(f'Error while encoding data {data} for remote {self.host}:{self.port}. Error was: {e}')
-                return None
-
-        # just send data, watch for closed socket (BrokenPipeError)
-        # raise on unknown error, don't know what else to do
-        try:
-            self.logger.debug(f'Sending data {data} to {self.host}:{self.port}')
-            self._tcp.send(data)
-            self.logger.debug('Data sent')
-        except BrokenPipeError:
-            self.logger.warning(f'Detected disconnect from {self.host}, send failed.')
-            self.connected = False
-            if self._autoreconnect:
-                self.logger.debug(f'Autoreconnect enabled for {self._host}')
-                self._reconnect()
-            return None
-        except Exception as e:  # log errors we are not prepared to handle and raise exception for further debugging
-            self.logger.warning(f'Unhandleded error on sending to {self.host}, cannot send data {data}. Error was: {e}')
-            raise
-
-        # receive buffer data until
-        # - connection is gone
-        # - terminator is found
-        # - timeout is hit
-        self.logger.debug(f'Reading response from {self.host}:{self.port}')
-        buffer = bytearray()
-        begin = time()
-
-        # TODO: remove
-        # self.logger.debug(f'starting read at {begin} from {self.host}:{self.port}')        
-        while self.connected and self._terminator not in buffer and time() - begin <= self.timeout:
-            try:
-                sdata = bytearray()
-                sdata = self._tcp.recv(8192)
-                # TODO: remove
-                # self.logger.debug(f'reading response part {sdata} from {self.host}:{self.port}')
-                if sdata:
-                    buffer += sdata
-                else:
-                    sleep(0.1)
-            except BrokenPipeError:
-                self.logger.warning(f'detected disconnect from {self.host} while receiving.')
-                self.connected = False
-                if self._autoreconnect:
-                    self.logger.debug(f'Autoreconnect enabled for {self._host}')
-                    self._reconnect()
-                return None
-            except Exception as e:
-                # TODO: remove
-                # self.logger.debug(f'reading response, ignoring exception {e} from {self.host}:{self.port}')
-                pass
-
-        # TODO: remove
-        # self.logger.debug(f'quit read at {time()} from {self.host}:{self.port}')        
-
-        # I'll be back...
-        if buffer and self._terminator in buffer:
-
-            # TODO: remove
-            # self.logger.debug(f'checking result {buffer} for terminator {self._terminator} from {self.host}:{self.port}')        
-            # return data up to first terminator
-            tpos = buffer.find(self._terminator)
-            # TODO: remove
-            # self.logger.debug(f'found terminator at {tpos} from {self.host}:{self.port}')        
-            result = buffer[:tpos].decode('utf-8').strip()
-            # TODO: store remainder in class member and use for next receive...? implement locking
-            self.logger.debug(f'received response {result} from {self.host}:{self.port}')
-            return result
-        elif time() - begin > self.timeout:
-            self.logger.info(f'timeout while reading response from {self.host}.')
-        elif not self.connected:
-            self.logger.warning(f'disconnect detected while reading response from {self.host}.')
-        else:
-            self.logger.warning(f'received no reply from from {self.host}.')
-
-        return None
-
-
 class MD_Connection_Net_Tcp_Client(MD_Connection):
     '''
     This class implements a TCP connection using a single persistent connection
     to send data and an anynchronous listener with callback for receiving data.
 
-    Data received is dispatched via callback, then send()-method does not
+    Data received is dispatched via callback, thus the send()-method does not
     return any response data.
+
+    Callback syntax is:
+        def disconnected_callback()
+        def data_received_callback(command, message)
+    If callbacks are class members, they need the additional first parameter 'self'
     '''
     def __init__(self, device_id, device_name, data_received_callback, **kwargs):
 
@@ -453,7 +280,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self._tcp.close()
 
     def on_disconnect(self, client):
-        self.logger.debug('connection was closed')
+        self.logger.debug(f'connection was closed by {client.name}')
         self.connected = False
         if self._disconnected_callback:
             self._disconnected_callback()
@@ -488,12 +315,15 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
 
 
 class MD_Connection_Net_Udp_Server(MD_Connection):
+    # to be implemented
     pass
 
 
 class MD_Connection_Serial_Client(MD_Connection):
+    # to be implemented
     pass
 
 
 class MD_Connection_Serial_Async(MD_Connection):
+    # to be implemented
     pass

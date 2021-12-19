@@ -4,6 +4,16 @@
 # commands for dev pioneer
 
 commands = {
+    'power': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'PW?',
+        'item_type': 'bool',
+        'dev_datatype': 'DenonPwr',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PW(ON|STANDBY)'
+    },
     'title': {
         'opcode': 'MD_VALUE',
         'read': True,
@@ -40,23 +50,50 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'NSE(.*)'
     },
-    'dialog': {
+    'dialogtoggle': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': 'PSDIL ?',
-        'write_cmd': ':PSDIL {VAL}:',
+        'write_cmd': 'PSDIL MD_VALUE',
         'item_type': 'bool',
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
         'reply_pattern': r'PSDIL (ON|OFF)'
+    },
+    'dialog': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {
+                    'force_min': 38,
+                    'force_max': 62
+                    },
+        'read_cmd': 'PSDIL ?',
+        'write_cmd': ':PSDIL {VAL}:',
+        'item_type': 'num',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSDIL (\d{2})'
+    },
+    'dialogup': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'PSDIL UP',
+        'dev_datatype': 'raw'
+    },
+    'dialogdown': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'PSDIL DOWN',
+        'dev_datatype': 'raw'
     },
     'tone': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': 'PSTONE CTRL ?',
-        'write_cmd': ':PSTONE CTRL {VAL}:',
+        'write_cmd': 'PSTONE CTRL MD_VALUE',
         'item_type': 'bool',
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
@@ -120,108 +157,132 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?L__CLV',
+        'settings': {
+                    'force_min': 38,
+                    'max': 62
+                    },
+        'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':L__{VAL:02}CLV:',
-        'dev_datatype': 'str',
+        'write_cmd': ':CVFL {VAL}:',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'CLVL__(\d{2})'
+        'reply_pattern': r'CVFL (\d{2,3})'
     },
     'level_front_right': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?R__CLV',
+        'settings': {
+                    'force_min': 38,
+                    'max': 62
+                    },
+        'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':R__{VAL:02}CLV:',
-        'dev_datatype': 'str',
+        'write_cmd': ':CVFR {VAL}:',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'CLVR__(\d{2})'
+        'reply_pattern': r'CVFR (\d{2,3})'
     },
     'level_front_center': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?C__CLV',
+        'settings': {
+                    'force_min': 38,
+                    'max': 62
+                    },
+        'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':C__{VAL:02}CLV:',
-        'dev_datatype': 'str',
+        'write_cmd': ':CVC {VAL}:',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'CLVC__(\d{2})'
+        'reply_pattern': r'CVC (\d{2,3})'
     },
     'level_surround_left': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?SL_CLV',
+        'settings': {
+                    'force_min': 38,
+                    'max': 62
+                    },
+        'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':SL_{VAL:02}CLV:',
-        'dev_datatype': 'str',
+        'write_cmd': ':CVSL {VAL}:',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'CLVSL_(\d{2})'
+        'reply_pattern': r'CVSL (\d{2,3})'
     },
     'level_surround_right': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?SR_CLV',
+        'settings': {
+                    'force_min': 38,
+                    'max': 62
+                    },
+        'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':SR_{VAL:02}CLV:',
-        'dev_datatype': 'str',
+        'write_cmd': ':CVSR {VAL}:',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'CLVSR_(\d{2})'
+        'reply_pattern': r'CVSR (\d{2,3})'
     },
     'level_subwoofer': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?SW_CLV',
+        'settings': {
+                    'force_min': 38,
+                    'max': 62
+                    },
+        'read_cmd': 'CV?',
         'item_type': 'num',
-        'write_cmd': ':SW_{VAL:02}CLV:',
-        'dev_datatype': 'str',
+        'write_cmd': ':CVSW {VAL}:',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'CLVSW_(\d{2})'
+        'reply_pattern': r'CVSW (\d{2,3})'
     },
     'tunerpreset': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?PR',
+        'read_cmd': 'TPAN?',
         'item_type': 'num',
-        'write_cmd': ':{VAL}PR:',
-        'item_type': 'num',
+        'write_cmd': ':TPAN{VAL:02}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'PR([A-Ga-g]\d{2})'
+        'reply_pattern': r'TPAN(\d{2})'
     },
     'tunerpresetup': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'TPI',
+        'write_cmd': 'TPANUP',
         'dev_datatype': 'raw'
     },
     'tunerpresetdown': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'TPD',
+        'write_cmd': 'TPANDOWN',
         'dev_datatype': 'raw'
     },
     'zone1_power': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': 'PW?',
+        'read_cmd': 'ZM?',
+        'write_cmd': 'ZM MD_VALUE',
         'item_type': 'bool',
-        'dev_datatype': 'DenonPwr',
+        'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
-        'reply_pattern': r'PW(ON|STANDBY)'
+        'reply_pattern': r'ZM(ON|OFF)'
     },
     'zone1_mute': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': 'MU?',
-        'write_cmd': ':MU{VAL}:',
+        'write_cmd': 'MUMD_VALUE',
         'item_type': 'bool',
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
@@ -241,6 +302,15 @@ commands = {
                     'force_min': 0
                     }
     },
+    'zone1_volumemax': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': False,
+        'item_type': 'num',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'MVMAX (\d{2,3})'
+    },
     'zone1_volumeup': {
         'write': True,
         'item_type': 'bool',
@@ -257,94 +327,74 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?F',
+        'settings': {
+                    'valid_list': ['PHONO', 'CD', 'TUNER', 'DVD', 'BD', 'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER', 'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4', 'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD', 'USB', 'IPD', 'IRP', 'FVP']
+                    },
+        'read_cmd': 'SI?',
+        'write_cmd': ':SI{VAL}:',
         'item_type': 'str',
-        'dev_datatype': 'PioSource',
-        'reply_token': ['FN']
-    },
-    'zone1_sourceup': {
-        'write_cmd': 'FU',
-        'write': True,
-        'item_type': 'bool',
-        'dev_datatype': 'raw'
-    },
-    'zone1_sourcedown': {
-        'write_cmd': 'FD',
-        'write': True,
-        'item_type': 'bool',
-        'dev_datatype': 'raw'
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SI(.*)'
     },
     'zone1_listeningmode': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?S',
-        'item_type': 'num',
-        'dev_datatype': 'PioListening',
-        'reply_token': ['SR']
-    },
-    'zone1_playingmode': {
-        'opcode': 'MD_VALUE',
-        'read': True,
-        'write': False,
-        'read_cmd': '?L',
+        'settings': {
+                    'valid_list': ['MOVIE', 'MUSIC', 'GAME', 'DIRECT', 'PURE DIRECT', 'STEREO', 'AUTO', 'DOLBY DIGITAL', 'DTS SURROUND', 'AURO3D', 'AURO2DSURR', 'MCH STEREO', 'WIDE SCREEN', 'SUPER STADIUM', 'ROCK ARENA', 'JAZZ CLUB', 'CLASSIC CONCERT', 'MONO MOVIE', 'MATRIX', 'VIDEO GAME', 'VIRTUAL', 'LEFT', 'RIGHT']
+                    },
+        'read_cmd': 'MS?',
+        'write_cmd': ':MS{VAL}:',
         'item_type': 'str',
-        'dev_datatype': 'PioPlayingmode',
-        'reply_token': ['LM']
-    },
-    'zone1_speakers': {
-        'opcode': 'MD_VALUE',
-        'read': True,
-        'write': True,
-        'settings': {'valid_list': [0, 1, 2, 3, 9]},
-        'write_cmd': ':{VAL:01}SPK:',
-        'read_cmd': '?SPK',
-        'item_type': 'num',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'SPK(\d)'
+        'reply_pattern': r'MS(.*)'
     },
     'zone2_power': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?AP',
+        'read_cmd': 'Z2?',
+        'write_cmd': 'Z2MD_VALUE',
         'item_type': 'bool',
-        'dev_datatype': 'PioPwr2',
-        'reply_token': ['APR']
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z2(ON|OFF)'
     },
     'zone2_mute': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?Z2M',
+        'read_cmd': 'Z2MU?',
+        'write_cmd': 'Z2MUMD_VALUE',
         'item_type': 'bool',
-        'dev_datatype': 'PioMute2',
-        'reply_token': ['Z2MUT']
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z2MU(ON|OFF)'
     },
     'zone2_volume': {
-        'opcode': "MD_VALUE",
+        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?ZV',
-        'write_cmd': ':{VAL:02}ZV:',
+        'read_cmd': 'Z2?',
         'item_type': 'num',
-        'dev_datatype': 'str',
+        'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',
-        'reply_pattern': r'ZV(\d{2})',
+        'reply_pattern': r'Z2(\d{2,3})',
         'settings': {
-                    'max': 82,
+                    'max': 98,
                     'force_min': 0
                     }
     },
     'zone2_volumeup': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'ZU',
+        'write_cmd': 'Z2UP',
         'dev_datatype': 'raw'
     },
     'zone2_volumedown': {
-        'write_cmd': 'ZD',
+        'write_cmd': 'Z2DOWN',
         'write': True,
         'item_type': 'bool',
         'dev_datatype': 'raw'
@@ -353,21 +403,77 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'read_cmd': '?ZS',
+        'settings': {
+                    'valid_list': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD', 'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER', 'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4', 'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD', 'USB', 'IPD', 'IRP', 'FVP']
+                    },
+        'read_cmd': 'Z2?',
+        'write_cmd': ':Z2{VAL}:',
         'item_type': 'str',
-        'dev_datatype': 'PioSource2',
-        'reply_token': ['Z2F']
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z2(.*)'
     },
-    'zone2_sourceup': {
+    'zone3_power': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'Z3?',
+        'write_cmd': 'Z3MD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3(ON|OFF)'
+    },
+    'zone3_mute': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'Z3MU?',
+        'write_cmd': 'Z3MUMD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3MU(ON|OFF)'
+    },
+    'zone3_volume': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'Z3?',
+        'item_type': 'num',
+        'dev_datatype': 'DenonVol',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3(\d{2,3})',
+        'settings': {
+                    'max': 98,
+                    'force_min': 0
+                    }
+    },
+    'zone3_volumeup': {
         'write': True,
         'item_type': 'bool',
-        'write_cmd': 'ZSFU',
+        'write_cmd': 'Z3UP',
         'dev_datatype': 'raw'
     },
-    'zone2_sourcedown': {
-        'write_cmd': 'ZSFD',
+    'zone3_volumedown': {
+        'write_cmd': 'Z3DOWN',
         'write': True,
         'item_type': 'bool',
         'dev_datatype': 'raw'
+    },
+    'zone3_source': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {
+                    'valid_list': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD', 'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER', 'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4', 'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD', 'USB', 'IPD', 'IRP', 'FVP']
+                    },
+        'read_cmd': 'Z3?',
+        'write_cmd': ':Z3{VAL}:',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3(.*)'
     }
+
 }

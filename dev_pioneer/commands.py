@@ -41,13 +41,25 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'FL\d*'
     },
+    'dialog': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?ATH',
+        'bounds': (0, 9),
+        'item_type': 'bool',
+        'dev_datatype': 'PioDialog',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'ATH\d'
+    },
     'tone': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?TO',
         'item_type': 'bool',
-        'dev_datatype': 'PioTone',
+        'write_cmd': ':{VAL:01}TO:',
+        'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'TO\d'
     },
@@ -99,14 +111,89 @@ commands = {
         'write_cmd': 'BD',
         'dev_datatype': 'raw'
     },
+    'level_front_left': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?L__CLV',
+        'item_type': 'num',
+        'bounds': (26, 74),
+        'write_cmd': ':L__{VAL:02}CLV:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CLVL__(\d{2})'
+    },
+    'level_front_right': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?R__CLV',
+        'item_type': 'num',
+        'bounds': (26, 74),
+        'write_cmd': ':R__{VAL:02}CLV:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CLVR__(\d{2})'
+    },
+    'level_front_center': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?C__CLV',
+        'item_type': 'num',
+        'bounds': (26, 74),
+        'write_cmd': ':C__{VAL:02}CLV:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CLVC__(\d{2})'
+    },
+    'level_surround_left': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?SL_CLV',
+        'item_type': 'num',
+        'bounds': (26, 74),
+        'write_cmd': ':SL_{VAL:02}CLV:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CLVSL_(\d{2})'
+    },
+    'level_surround_right': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?SR_CLV',
+        'item_type': 'num',
+        'bounds': (26, 74),
+        'write_cmd': ':SR_{VAL:02}CLV:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CLVSR_(\d{2})'
+    },
+    'level_subwoofer': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': '?SW_CLV',
+        'item_type': 'num',
+        'bounds': (26, 74),
+        'write_cmd': ':SW_{VAL:02}CLV:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CLVSW_(\d{2})'
+    },
     'tunerpreset': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
         'read_cmd': '?PR',
         'item_type': 'num',
-        'dev_datatype': 'PioTunerpreset',
-        'reply_token': ['PR']
+        'write_cmd': ':{VAL}PR:',
+        'item_type': 'num',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PR([A-Ga-g]\d{2})'
     },
     'tunerpresetup': {
         'write': True,

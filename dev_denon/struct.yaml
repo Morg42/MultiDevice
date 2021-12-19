@@ -6,26 +6,26 @@ radio:
         type: str
         md_device: DEVICENAME
         md_command: title
-        md_read: true
+        md_read: false
 
-    genre:
+    album:
         type: str
         md_device: DEVICENAME
-        md_command: genre
-        md_read: true
+        md_command: album
+        md_read: false
 
-    station:
+    artist:
         type: str
         md_device: DEVICENAME
-        md_command: station
-        md_read: true
+        md_command: artist
+        md_read: false
 
     tunerpreset:
         type: str
         md_device: DEVICENAME
         md_command: tunerpreset
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
 
     tunerpresetup:
@@ -43,17 +43,12 @@ radio:
         md_write: true
 
 general:
-    error:
-        type: str
-        md_device: DEVICENAME
-        md_command: error
-        md_read: true
     display:
         type: str
         md_device: DEVICENAME
         md_command: display
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
 
 sound_settings:
     channel_level:
@@ -61,51 +56,51 @@ sound_settings:
             type: num
             md_device: DEVICENAME
             md_command: level_front_left
-            md_read: true
+            md_read: false
             md_write: true
         front_right:
             type: num
             md_device: DEVICENAME
             md_command: level_front_right
-            md_read: true
+            md_read: false
             md_write: true
         front_center:
             type: num
             md_device: DEVICENAME
             md_command: level_front_center
-            md_read: true
+            md_read: false
             md_write: true
         surround_left:
             type: num
             md_device: DEVICENAME
             md_command: level_surround_left
-            md_read: true
+            md_read: false
             md_write: true
         surround_right:
             type: num
             md_device: DEVICENAME
             md_command: level_surround_right
-            md_read: true
+            md_read: false
             md_write: true
         subwoofer:
             type: num
             md_device: DEVICENAME
             md_command: level_subwoofer
-            md_read: true
+            md_read: false
             md_write: true
     tone:
         type: num
         md_device: DEVICENAME
         md_command: tone
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     treble:
         type: num
         md_device: DEVICENAME
         md_command: treble
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     trebleup:
         type: bool
@@ -123,8 +118,8 @@ sound_settings:
         type: num
         md_device: DEVICENAME
         md_command: bass
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     bassup:
         type: bool
@@ -150,24 +145,24 @@ zone1:
         md_device: DEVICENAME
         md_command: zone1_power
         md_read: true
-        md_read_initial: true
+        md_read_initial: false
         md_write: true
         on_change:
-          - sh...volume(0, 'priv_md.pioneer') if value is False else None
+          - sh...volume(0, 'priv_md.denon') if value is False else None
           #- ..read = True if value is True else None
     mute:
         type: bool
         md_device: DEVICENAME
         md_command: zone1_mute
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     volume:
         type: num
         md_device: DEVICENAME
         md_command: zone1_volume
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     volumeup:
         type: bool
@@ -185,8 +180,8 @@ zone1:
         type: str
         md_device: DEVICENAME
         md_command: zone1_source
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     sourceup:
         type: bool
@@ -204,21 +199,21 @@ zone1:
         type: str
         md_device: DEVICENAME
         md_command: zone1_playingmode
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
     listeningmode:
         type: str
         md_device: DEVICENAME
         md_command: zone1_listeningmode
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     speakers:
         type: num
         md_device: DEVICENAME
         md_command: zone1_speakers
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
         on_change:
           - ..speakera = True if value in [1, 3] else False
@@ -240,24 +235,24 @@ zone2:
         type: bool
         md_device: DEVICENAME
         md_command: zone2_power
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
         on_change:
-          - sh...volume(0, 'priv_md.pioneer') if value is False else None
+          - sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
         md_device: DEVICENAME
         md_command: zone2_mute
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     volume:
         type: num
         md_device: DEVICENAME
         md_command: zone2_volume
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     volumeup:
         type: bool
@@ -275,8 +270,8 @@ zone2:
         type: str
         md_device: DEVICENAME
         md_command: zone2_source
-        md_read: true
-        md_read_initial: true
+        md_read: false
+        md_read_initial: false
         md_write: true
     sourceup:
         type: bool

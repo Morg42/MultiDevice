@@ -23,7 +23,7 @@ class MD_Device(MD_Device):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_name}')
 
-        super().__init__(device_id, device_name, conn_type='net_tcp_client', command_class=MD_Command_ParseStr, **kwargs)
+        super().__init__(device_id, device_name, conn_type='net_tcp_client', terminator="b'\r'", timeout=6, blocking=0, command_class=MD_Command_ParseStr, **kwargs)
 
         # log own initialization with module (i.e. folder) name
         self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')

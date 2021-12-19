@@ -10,17 +10,16 @@ else:
 
 import re
 
-class DT_PioDisplay(DT.Datatype):
+class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
-        content = data[2:][:28]
-        tempvalue = "".join(list(map(lambda i: chr(int(content[2 * i:][:2], 0x10)), range(14)))).strip()
-        data = re.sub(r'^[^A-Z0-9]*', '', tempvalue)
-        return data
-
-class DT_PioError(DT.Datatype):
-    def get_shng_data(self, data, type=None):
-        return_value = data.split("E0")[1]
-        return lookup.ERROR.get(return_value)
+        infotype = data[3:4]
+        returnvalue = None
+        if infotype.isdigit():
+            infotype = int(infotype)
+            data = data[4:] if infotype == 0 else \
+                data[5:] if infotype == 1 else data[6:]
+            returnvalue = data if infotype in [1, 2] else None
+        return returnvalue
 
 class DT_DenonPwr(DT.Datatype):
     def get_send_data(self, data):

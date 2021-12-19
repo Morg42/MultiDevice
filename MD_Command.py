@@ -212,7 +212,7 @@ class MD_Command_Str(MD_Command):
             else:
                 cmd_str = self._parse_str(self.opcode, data)
         else:
-            if not self._check_value(data):
+            if self._check_value(data) is None:
                 raise ValueError(f'Given value {data} for command {self.name} not valid according to settings definition {self.settings}')
 
             if self.write_cmd:
@@ -276,20 +276,20 @@ class MD_Command_Str(MD_Command):
 class MD_Command_ParseStr(MD_Command_Str):
     '''
     With this class, you can simplify the creation of read and write commands
-    containing data values. 
+    containing data values.
 
     Default behaviour is identical to MD_Command_Str.
 
     Giving write_cmd as ':<write expression>:' (note colons) will format the
     given string (without the colons), replacing 'VAL' with the value by using
-    write_cmd.format(VAL=data_dict['payload']), so you can immediately embed 
-    the value in the command string with configurable formatting conforming 
+    write_cmd.format(VAL=data_dict['payload']), so you can immediately embed
+    the value in the command string with configurable formatting conforming
     to str.format() syntax.
     If you have to start and end the command string with colons, just use
     '::foo::' as write_cmd. If you absolutely HAVE to use a literal
     ':foo{VAL}bar:', you might need to write your own class...
 
-    Giving reply_pattern as '<regex>' with one (1) match group will try and 
+    Giving reply_pattern as '<regex>' with one (1) match group will try and
     capture the matched group into the received value.
 
     Giving reply_pattern as '<regex>' without capturing parentheses will return
@@ -315,7 +315,7 @@ class MD_Command_ParseStr(MD_Command_Str):
             else:
                 cmd = self._parse_str(self.opcode, data)
         else:
-            if not self._check_value(data):
+            if self._check_value(data) is None:
                 raise ValueError(f'Given value {data} for command {self.name} not valid according to settings definition {self.settings}')
 
             if self.write_cmd:
@@ -338,7 +338,7 @@ class MD_Command_ParseStr(MD_Command_Str):
         If a match is found without a capturing group, the value will be
         returned as-is, possibly to be converted by the DT class.
 
-        If no match can be achieved, it is not possible to return 
+        If no match can be achieved, it is not possible to return
         a meaningful value. To signal the error, an exception will be raised.
         '''
         if self.reply_pattern:

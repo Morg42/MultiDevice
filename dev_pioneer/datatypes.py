@@ -24,7 +24,7 @@ class DT_PioError(DT.Datatype):
 
 class DT_PioPwr(DT.Datatype):
     def get_send_data(self, data):
-        return 'PO\rPO' if data else 'PF'
+        return 'PO' if data else 'PF'
 
     def get_shng_data(self, data, type=None):
         if type is None or type == 'bool':
@@ -32,13 +32,12 @@ class DT_PioPwr(DT.Datatype):
 
         return super().get_shng_data(data, type)
 
-class DT_PioVol(DT.Datatype):
+class DT_invert(DT.Datatype):
     def get_send_data(self, data):
-        data = max(10,min(160,int(data)))
-        return f"{data:03}VL"
+        return '0' if data else '1'
 
     def get_shng_data(self, data, type=None):
-        return data.split("VOL")[1]
+        return False if data == '1' else True
 
 class DT_PioMute(DT.Datatype):
     def get_send_data(self, data):
@@ -80,46 +79,11 @@ class DT_PioPlayingmode(DT.Datatype):
         return_value = data.split("LM")[1]
         return lookup.PLAYINGMODE.get(return_value)
 
-class DT_PioSpeakers(DT.Datatype):
-    def get_send_data(self, data):
-        data = data if data == '9' else max(0,min(3,int(data)))
-        return f"{data:01}SPK"
-
-    def get_shng_data(self, data, type=None):
-        return data.split("SPK")[1]
-
-class DT_PioTone(DT.Datatype):
-    def get_send_data(self, data):
-        return '1TO' if data else '0TO'
-
-    def get_shng_data(self, data, type=None):
-        if type is None or type == 'bool':
-            return True if data == 'TO0' else False
-
-        return super().get_shng_data(data, type)
-
-class DT_PioTreble(DT.Datatype):
-    def get_send_data(self, data):
-        data = max(0,min(12,int(data)))
-        return f"{data:02}TR"
-
-    def get_shng_data(self, data, type=None):
-        return data.split("TR")[1]
-
-class DT_PioBass(DT.Datatype):
-    def get_send_data(self, data):
-        data = max(0,min(12,int(data)))
-        return f"{data:02}BA"
-
-    def get_shng_data(self, data, type=None):
-        return data.split("BA")[1]
-
 class DT_PioDialog(DT.Datatype):
     def get_send_data(self, data):
         if data:
             try:
                 data = int(data)
-                data = max(0,min(9,data))
                 return f"{data:01}ATH"
             except Exception:
                 return f"{lookup.DIALOG_SET.get(data.upper())}ATH"
@@ -141,15 +105,6 @@ class DT_PioHDMIOut(DT.Datatype):
         return_value = data.split("HO")[1]
         return lookup.DIALOG.get(return_value)
 
-class DT_PioTunerpreset(DT.Datatype):
-    def get_send_data(self, data):
-        data_class = data[:1]
-        data_preset = f"{max(0,min(9,int(data[1:]))):02}"
-        return f"{data_class}{data_preset}PR"
-
-    def get_shng_data(self, data, type=None):
-        return data.split("PR")[1]
-
 class DT_PioPwr2(DT.Datatype):
     def get_send_data(self, data):
         return 'APO\rAPO' if data else 'APF'
@@ -159,14 +114,6 @@ class DT_PioPwr2(DT.Datatype):
             return True if data == 'APR0' else False
 
         return super().get_shng_data(data, type)
-
-class DT_PioVol2(DT.Datatype):
-    def get_send_data(self, data):
-        data = max(0,min(81,int(data)))
-        return f"{data:03}ZV"
-
-    def get_shng_data(self, data, type=None):
-        return data.split("ZV")[1]
 
 class DT_PioMute2(DT.Datatype):
     def get_send_data(self, data):

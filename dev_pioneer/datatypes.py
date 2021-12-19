@@ -11,6 +11,11 @@ else:
 import re
 
 
+def dict_rev(d):
+    ''' helper routine to return inversed dict (swap key/value) '''
+    return {v: k for (k, v) in d.items()}
+
+
 class DT_PioDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         content = data[2:][:28]

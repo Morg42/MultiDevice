@@ -31,9 +31,14 @@ class DT_DenonPwr(DT.Datatype):
 class DT_DenonVol(DT.Datatype):
     def get_send_data(self, data):
         if isinstance(data, float):
-            return f"MV{str(data).replace('.', '')}"
+            if data.is_integer():
+                # strip .0 from float
+                return int(data)
+            else:
+                # convert any other float to three digit value ending with 5 (=xx.5)
+                return f"{str(data)[:2]}5"
         else:
-            return f"MV{data}"
+            return data
 
     def get_shng_data(self, data, type=None):
         if len(data) == 3:

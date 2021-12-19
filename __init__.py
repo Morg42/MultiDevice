@@ -390,7 +390,7 @@ class MultiDevice(SmartPlugin):
     It also looks good.
     '''
 
-    PLUGIN_VERSION = '0.0.4'
+    PLUGIN_VERSION = '0.1.0'
 
     def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         '''

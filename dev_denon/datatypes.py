@@ -6,14 +6,19 @@ if MD_standalone:
 else:
     from .. import datatypes as DT
 
-import re
+import re  # unused as of now...
 
 
 class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         infotype = data[3:4]
         if infotype.isdigit():
-            data = data[4:] if infotype == 0 else data[5:] if infotype == 1 else data[6:]
+            if infotype == 0:
+                data = data[4:]
+            elif infotype == 1:
+                data = data[5:]
+            else:
+                data = data[6:]
             return data
 
         return None
@@ -44,9 +49,10 @@ class DT_DenonVol(DT.Datatype):
 
     def get_shng_data(self, data, type=None):
         if len(data) == 3:
-            return int(data)/10
+            return int(data) / 10
         else:
             return data
+
 
 class DT_DenonStandby(DT.Datatype):
     def get_send_data(self, data):
@@ -55,13 +61,14 @@ class DT_DenonStandby(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return 0 if data == 'OFF' else data.split('H')[0]
 
+
 class DT_onoff(DT.Datatype):
     def get_send_data(self, data):
         return 'ON' if data else 'OFF'
 
     def get_shng_data(self, data, type=None):
-        # alternative: return data == 'ON' :)
         return False if data == 'OFF' else True
+
 
 class DT_convert0(DT.Datatype):
     def get_send_data(self, data):

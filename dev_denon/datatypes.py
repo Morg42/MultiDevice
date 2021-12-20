@@ -37,15 +37,12 @@ class DT_DenonPwr(DT.Datatype):
 
 class DT_DenonVol(DT.Datatype):
     def get_send_data(self, data):
-        if isinstance(data, float):
-            if data.is_integer():
-                # strip .0 from float
-                return int(data)
-            else:
-                # convert any other float to three digit value ending with 5 (=xx.5)
-                return f"{str(data)[:2]}5"
+        if int(data) == data:
+            # "real" integer
+            return f'{int(data):02}'
         else:
-            return data
+           # float with fractional value
+           return f'{int(data):02}5'
 
     def get_shng_data(self, data, type=None):
         if len(data) == 3:

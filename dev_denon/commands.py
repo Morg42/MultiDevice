@@ -102,10 +102,7 @@ commands = {
         'write': True,
         'read_cmd': 'PSTRE ?',
         'item_type': 'num',
-        'settings': {
-                    'force_min': 44,
-                    'force_max': 56
-                    },
+        'settings': {'force_min': 44, 'force_max': 56},
         'write_cmd': ':PSTRE {VAL:02}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -129,10 +126,7 @@ commands = {
         'write': True,
         'read_cmd': 'PSBAS ?',
         'item_type': 'num',
-        'settings': {
-                    'force_min': 44,
-                    'force_max': 56
-                    },
+        'settings': {'force_min': 44, 'force_max': 56},
         'write_cmd': ':PSBAS {VAL:02}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -156,10 +150,7 @@ commands = {
         'write': True,
         'read_cmd': 'Z2PSTRE ?',
         'item_type': 'num',
-        'settings': {
-                    'force_min': 40,
-                    'force_max': 60
-                    },
+        'settings': {'force_min': 40, 'force_max': 60},
         'write_cmd': ':Z2PSTRE {VAL:02}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -183,10 +174,7 @@ commands = {
         'write': True,
         'read_cmd': 'Z2PSBAS ?',
         'item_type': 'num',
-        'settings': {
-                    'force_min': 40,
-                    'force_max': 60
-                    },
+        'settings': {'force_min': 40, 'force_max': 60},
         'write_cmd': ':Z2PSBAS {VAL:02}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
@@ -280,10 +268,7 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {
-                    'force_min': 38,
-                    'max': 62
-                    },
+        'settings': {'force_min': 38, 'max': 62},
         'read_cmd': 'Z2CV?',
         'item_type': 'num',
         'write_cmd': 'Z2CVFL MD_VALUE',
@@ -295,10 +280,7 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {
-                    'force_min': 38,
-                    'max': 62
-                    },
+        'settings': {'force_min': 38, 'max': 62},
         'read_cmd': 'Z2CV?',
         'item_type': 'num',
         'write_cmd': 'Z2CVFR MD_VALUE',
@@ -399,11 +381,11 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {'valid_list': ['PHONO', 'CD', 'TUNER', 'DVD', 'BD', 'TV', 
-                                    'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 'NET', 
-                                    'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER', 
-                                    'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4', 
-                                    'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD', 
+        'settings': {'valid_list': ['PHONO', 'CD', 'TUNER', 'DVD', 'BD', 'TV',
+                                    'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 'NET',
+                                    'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER',
+                                    'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4',
+                                    'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD',
                                     'USB', 'IPD', 'IRP', 'FVP']},
         'read_cmd': 'SI?',
         'write_cmd': ':SI{VAL}:',
@@ -416,11 +398,11 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {'valid_list': ['MOVIE', 'MUSIC', 'GAME', 'DIRECT', 'PURE DIRECT', 
-                                    'STEREO', 'AUTO', 'DOLBY DIGITAL', 'DTS SURROUND', 
-                                    'AURO3D', 'AURO2DSURR', 'MCH STEREO', 'WIDE SCREEN', 
-                                    'SUPER STADIUM', 'ROCK ARENA', 'JAZZ CLUB', 
-                                    'CLASSIC CONCERT', 'MONO MOVIE', 'MATRIX', 
+        'settings': {'valid_list': ['MOVIE', 'MUSIC', 'GAME', 'DIRECT', 'PURE DIRECT',
+                                    'STEREO', 'AUTO', 'DOLBY DIGITAL', 'DTS SURROUND',
+                                    'AURO3D', 'AURO2DSURR', 'MCH STEREO', 'WIDE SCREEN',
+                                    'SUPER STADIUM', 'ROCK ARENA', 'JAZZ CLUB',
+                                    'CLASSIC CONCERT', 'MONO MOVIE', 'MATRIX',
                                     'VIDEO GAME', 'VIRTUAL', 'LEFT', 'RIGHT']},
         'read_cmd': 'MS?',
         'write_cmd': ':MS{VAL}:',
@@ -484,10 +466,7 @@ commands = {
         'dev_datatype': 'convert0',
         'reply_token': 'REGEX',
         'reply_pattern': r'Z2SLP(\d{3}|OFF)',
-        'settings': {
-                    'force_max': 120,
-                    'force_min': 0
-                    }
+        'settings': {'force_max': 120, 'force_min': 0}
     },
     'zone2_standby': {
         'opcode': 'MD_VALUE',
@@ -498,19 +477,17 @@ commands = {
         'dev_datatype': 'DenonStandby',
         'reply_token': 'REGEX',
         'reply_pattern': r'Z2STBY(\dH|OFF)',
-        'settings': {
-                    'valid_list': [0, 2, 4, 8]
-                    }
+        'settings': {'valid_list': [0, 2, 4, 8]}
     },
     'zone2_source': {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {'valid_list': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD', 
-                                    'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 
-                                    'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER', 
-                                    'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4', 
-                                    'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD', 
+        'settings': {'valid_list': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD',
+                                    'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO',
+                                    'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER',
+                                    'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4',
+                                    'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD',
                                     'USB', 'IPD', 'IRP', 'FVP']},
         'read_cmd': 'Z2?',
         'write_cmd': ':Z2{VAL}:',
@@ -568,11 +545,11 @@ commands = {
         'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {'valid_list': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD', 
-                                    'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 
-                                    'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER', 
-                                    'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4', 
-                                    'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD', 
+        'settings': {'valid_list': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD',
+                                    'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO',
+                                    'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER',
+                                    'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4',
+                                    'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD',
                                     'USB', 'IPD', 'IRP', 'FVP']},
         'read_cmd': 'Z3?',
         'write_cmd': ':Z3{VAL}:',

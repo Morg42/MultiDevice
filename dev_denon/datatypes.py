@@ -12,21 +12,9 @@ import re
 class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         infotype = data[3:4]
-#       returnvalue = None
-#       if infotype.isdigit():
-#           infotype = int(infotype)
-#           data = data[4:] if infotype == 0 else \
-#               data[5:] if infotype == 1 else data[6:]
-#           returnvalue = data if infotype in [1, 2] else None
-#       return returnvalue
-#
-# TODO: was du geschrieben hast, mal etwas übersichtlicher:
-#       ist es Absicht, dass bei infotype == 0 nichts zurückgegeben wird? (wozu dann oben data = data[4:]?)
         if infotype.isdigit():
-            if int(infotype) == 1:
-                return data[5:]
-            elif int(infotype) == 2:
-                return data[6:]
+            data = data[4:] if infotype == 0 else data[5:] if infotype == 1 else data[6:]
+            return data
 
         return None
 
@@ -37,7 +25,6 @@ class DT_DenonPwr(DT.Datatype):
 
     def get_shng_data(self, data, type=None):
         if type is None or type == 'bool':
-            # return data == 'ON' :)
             return True if data == 'ON' else False
 
         return super().get_shng_data(data, type)
@@ -51,21 +38,19 @@ class DT_DenonVol(DT.Datatype):
                 return int(data)
             else:
                 # convert any other float to three digit value ending with 5 (=xx.5)
-                # TODO: das klappt nicht bei Werten > 9.9 .... Absicht?
                 return f"{str(data)[:2]}5"
         else:
             return data
 
     def get_shng_data(self, data, type=None):
         if len(data) == 3:
-            # TODO: soll das einen String zurückgeben? oder int(data)/100?
-            return f"{data[0:2]}.{data[2:3]}"
+            return int(data)/10
         else:
             return data
 
 class DT_DenonStandby(DT.Datatype):
     def get_send_data(self, data):
-        return 'Z2STBYOFF' if data == 0 else f"Z2STBY{data:01}H"
+        return 'OFF' if data == 0 else f"{data:01}H"
 
     def get_shng_data(self, data, type=None):
         return 0 if data == 'OFF' else data.split('H')[0]
@@ -75,7 +60,7 @@ class DT_onoff(DT.Datatype):
         return 'ON' if data else 'OFF'
 
     def get_shng_data(self, data, type=None):
-        # return data == 'ON' :)
+        # alternative: return data == 'ON' :)
         return False if data == 'OFF' else True
 
 class DT_convert0(DT.Datatype):

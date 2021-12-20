@@ -192,6 +192,54 @@ commands = {
         'write_cmd': 'Z2PSBAS DOWN',
         'dev_datatype': 'raw'
     },
+    'zone3_treble': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'Z3PSTRE ?',
+        'item_type': 'num',
+        'settings': {'force_min': 40, 'force_max': 60},
+        'write_cmd': ':Z3PSTRE {VAL:02}:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3PSTRE (\d{2})'
+    },
+    'zone3_trebleup': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'Z3PSTRE UP',
+        'dev_datatype': 'raw'
+    },
+    'zone3_trebledown': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'Z3PSTRE DOWN',
+        'dev_datatype': 'raw'
+    },
+    'zone3_bass': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'Z3PSBAS ?',
+        'item_type': 'num',
+        'settings': {'force_min': 40, 'force_max': 60},
+        'write_cmd': ':Z3PSBAS {VAL:02}:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3PSBAS (\d{2})'
+    },
+    'zone3_bassup': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'Z3PSBAS UP',
+        'dev_datatype': 'raw'
+    },
+    'zone3_bassdown': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'Z3PSBAS DOWN',
+        'dev_datatype': 'raw'
+    },
     'zone1_level_front_left': {
         'opcode': 'MD_VALUE',
         'read': True,
@@ -298,6 +346,41 @@ commands = {
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
         'reply_pattern': r'Z2HPF(ON|OFF)'
+    },
+    'zone3_level_front_left': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': 38, 'max': 62},
+        'read_cmd': 'Z3CV?',
+        'item_type': 'num',
+        'write_cmd': 'Z3CVFL MD_VALUE',
+        'dev_datatype': 'DenonVol',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3CVFL (\d{2})'
+    },
+    'zone3_level_front_right': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': 38, 'max': 62},
+        'read_cmd': 'Z3CV?',
+        'item_type': 'num',
+        'write_cmd': 'Z3CVFR MD_VALUE',
+        'dev_datatype': 'DenonVol',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3CVFR (\d{2})'
+    },
+    'zone3_HPF': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'Z3HPF?',
+        'write_cmd': 'Z3HPFMD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3HPF(ON|OFF)'
     },
     'tunerpreset': {
         'opcode': 'MD_VALUE',
@@ -474,10 +557,23 @@ commands = {
         'write': True,
         'item_type': 'num',
         'read_cmd': 'Z2STBY?',
+        'write_cmd': 'Z2STBYMD_VALUE',
         'dev_datatype': 'DenonStandby',
         'reply_token': 'REGEX',
         'reply_pattern': r'Z2STBY(\dH|OFF)',
         'settings': {'valid_list': [0, 2, 4, 8]}
+    },
+    'zone2_hdmiout': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'str',
+        'read_cmd': 'Z2HDA?',
+        'write_cmd': ':Z2HDA {VAL}:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z2HDA(THR|PCM)',
+        'settings': {'valid_list': ['THR', 'PCM']}
     },
     'zone2_source': {
         'opcode': 'MD_VALUE',
@@ -557,6 +653,29 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r"Z3(SOURCE|PHONO|CD|TUNER|DVD|BD|TV|SAT/CBL|MPLAY|GAME|HDRADIO|NET|PANDORA|SIRIUSXM|IRADIO|SERVER|FAVORITES|AUX1|AUX2|AUX3|AUX4|AUX5|AUX6|AUX7|BT|USB/IPOD|USB|IPD|IRP|FVP)"
+    },
+    'zone3_sleep': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'num',
+        'read_cmd': 'Z3SLP?',
+        'write_cmd': 'Z3SLPMD_VALUE',
+        'dev_datatype': 'convert0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3SLP(\d{3}|OFF)',
+        'settings': {'force_max': 120, 'force_min': 0}
+    },
+    'zone3_standby': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'num',
+        'read_cmd': 'Z3STBY?',
+        'write_cmd': 'Z3STBYMD_VALUE',
+        'dev_datatype': 'DenonStandby',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'Z3STBY(\dH|OFF)',
+        'settings': {'valid_list': [0, 2, 4, 8]}
     }
-
 }

@@ -71,7 +71,7 @@ zone1:
         md_read_initial: true
         md_write: true
         on_change:
-          - sh...volume(0, 'priv_md.denon') if value is False else None
+          #- sh...volume(0, 'priv_md.denon') if value is False else None
           #- ..read = True if value is True else None
     mute:
         type: bool
@@ -244,7 +244,7 @@ zone2:
         md_read_initial: true
         md_write: true
         on_change:
-          - sh...volume(0, 'priv_md.denon') if value is False else None
+          #- sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
         md_device: DEVICENAME
@@ -292,6 +292,14 @@ zone2:
         md_read: true
         md_read_initial: true
         md_write: true
+    hdmiout:
+        type: str
+        md_device: DEVICENAME
+        md_command: zone2_hdmiout
+        md_read: true
+        md_read_initial: true
+        md_write: true
+
     sound_settings:
         channel_level:
             front_left:
@@ -353,7 +361,6 @@ zone2:
             md_command: zone2_bassdown
             md_write: true
 
-
 zone3:
     read:
         type: bool
@@ -368,7 +375,7 @@ zone3:
         md_read_initial: true
         md_write: true
         on_change:
-          - sh...volume(0, 'priv_md.denon') if value is False else None
+          #- sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
         md_device: DEVICENAME
@@ -402,3 +409,78 @@ zone3:
         md_read: true
         md_read_initial: true
         md_write: true
+    sleep:
+        type: num
+        md_device: DEVICENAME
+        md_command: zone3_sleep
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    standby:
+        type: num
+        md_device: DEVICENAME
+        md_command: zone3_standby
+        md_read: true
+        md_read_initial: true
+        md_write: true
+
+    sound_settings:
+        channel_level:
+            front_left:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone3_level_front_left
+                md_read: true
+                md_write: true
+                md_read_initial: true
+            front_right:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone3_level_front_right
+                md_read: true
+                md_write: true
+        highpassfilter:
+            type: bool
+            md_device: DEVICENAME
+            md_command: zone3_HPF
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        treble:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone3_treble
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        trebleup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone3_trebleup
+            md_write: true
+        trebledown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone3_trebledown
+            md_write: true
+        bass:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone3_bass
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        bassup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone3_bassup
+            md_write: true
+        bassdown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone3_bassdown
+            md_write: true

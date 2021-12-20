@@ -57,117 +57,6 @@ general:
         md_read: true
         md_read_initial: true
 
-sound_settings:
-    channel_level:
-        front_left:
-            type: num
-            md_device: DEVICENAME
-            md_command: level_front_left
-            md_read: true
-            md_write: true
-            md_read_initial: false
-        front_right:
-            type: num
-            md_device: DEVICENAME
-            md_command: level_front_right
-            md_read: true
-            md_write: true
-        front_center:
-            type: num
-            md_device: DEVICENAME
-            md_command: level_front_center
-            md_read: true
-            md_write: true
-        surround_left:
-            type: num
-            md_device: DEVICENAME
-            md_command: level_surround_left
-            md_read: true
-            md_write: true
-        surround_right:
-            type: num
-            md_device: DEVICENAME
-            md_command: level_surround_right
-            md_read: true
-            md_write: true
-        subwoofer:
-            type: num
-            md_device: DEVICENAME
-            md_command: level_subwoofer
-            md_read: true
-            md_write: true
-    dialogtoggle:
-        type: bool
-        md_device: DEVICENAME
-        md_command: dialogtoggle
-        md_read: true
-        md_read_initial: true
-        md_write: true
-    dialog:
-        type: num
-        md_device: DEVICENAME
-        md_command: dialog
-        md_read: true
-        md_read_initial: true
-        md_write: true
-    dialogup:
-        type: bool
-        enforce_updates: yes
-        md_device: DEVICENAME
-        md_command: dialogup
-        md_write: true
-    dialogdown:
-        type: bool
-        enforce_updates: yes
-        md_device: DEVICENAME
-        md_command: dialogdown
-        md_write: true
-    tone:
-        type: num
-        md_device: DEVICENAME
-        md_command: tone
-        md_read: true
-        md_read_initial: true
-        md_write: true
-    treble:
-        type: num
-        md_device: DEVICENAME
-        md_command: treble
-        md_read: true
-        md_read_initial: true
-        md_write: true
-    trebleup:
-        type: bool
-        enforce_updates: yes
-        md_device: DEVICENAME
-        md_command: trebleup
-        md_write: true
-    trebledown:
-        type: bool
-        enforce_updates: yes
-        md_device: DEVICENAME
-        md_command: trebledown
-        md_write: true
-    bass:
-        type: num
-        md_device: DEVICENAME
-        md_command: bass
-        md_read: true
-        md_read_initial: true
-        md_write: true
-    bassup:
-        type: bool
-        enforce_updates: yes
-        md_device: DEVICENAME
-        md_command: bassup
-        md_write: true
-    bassdown:
-        type: bool
-        enforce_updates: yes
-        md_device: DEVICENAME
-        md_command: bassdown
-        md_write: true
-
 zone1:
     read:
         type: bool
@@ -230,6 +119,117 @@ zone1:
         md_read_initial: true
         md_write: true
 
+    sound_settings:
+        channel_level:
+            front_left:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone1_level_front_left
+                md_read: true
+                md_write: true
+                md_read_initial: true
+            front_right:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone1_level_front_right
+                md_read: true
+                md_write: true
+            front_center:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone1_level_front_center
+                md_read: true
+                md_write: true
+            surround_left:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone1_level_surround_left
+                md_read: true
+                md_write: true
+            surround_right:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone1_level_surround_right
+                md_read: true
+                md_write: true
+            subwoofer:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone1_level_subwoofer
+                md_read: true
+                md_write: true
+        dialogtoggle:
+            type: bool
+            md_device: DEVICENAME
+            md_command: dialogtoggle
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        dialog:
+            type: num
+            md_device: DEVICENAME
+            md_command: dialog
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        dialogup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: dialogup
+            md_write: true
+        dialogdown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: dialogdown
+            md_write: true
+        tone:
+            type: bool
+            md_device: DEVICENAME
+            md_command: tone
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        treble:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone1_treble
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        trebleup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone1_trebleup
+            md_write: true
+        trebledown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone1_trebledown
+            md_write: true
+        bass:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone1_bass
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        bassup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone1_bassup
+            md_write: true
+        bassdown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone1_bassdown
+            md_write: true
+
 zone2:
     read:
         type: bool
@@ -278,6 +278,81 @@ zone2:
         md_read: true
         md_read_initial: true
         md_write: true
+    sleep:
+        type: num
+        md_device: DEVICENAME
+        md_command: zone2_sleep
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    standby:
+        type: num
+        md_device: DEVICENAME
+        md_command: zone2_standby
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    sound_settings:
+        channel_level:
+            front_left:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone2_level_front_left
+                md_read: true
+                md_write: true
+                md_read_initial: true
+            front_right:
+                type: num
+                md_device: DEVICENAME
+                md_command: zone2_level_front_right
+                md_read: true
+                md_write: true
+        highpassfilter:
+            type: bool
+            md_device: DEVICENAME
+            md_command: zone2_HPF
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        treble:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone2_treble
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        trebleup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone2_trebleup
+            md_write: true
+        trebledown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone2_trebledown
+            md_write: true
+        bass:
+            type: num
+            md_device: DEVICENAME
+            md_command: zone2_bass
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        bassup:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone2_bassup
+            md_write: true
+        bassdown:
+            type: bool
+            enforce_updates: yes
+            md_device: DEVICENAME
+            md_command: zone2_bassdown
+            md_write: true
+
 
 zone3:
     read:

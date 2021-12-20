@@ -46,9 +46,23 @@ class DT_DenonVol(DT.Datatype):
         else:
             return data
 
+class DT_DenonStandby(DT.Datatype):
+    def get_send_data(self, data):
+        return 'Z2STBYOFF' if data == 0 else f"Z2STBY{data:01}H"
+
+    def get_shng_data(self, data, type=None):
+        return 0 if data == 'OFF' else data.split('H')[0]
+
 class DT_onoff(DT.Datatype):
     def get_send_data(self, data):
         return 'ON' if data else 'OFF'
 
     def get_shng_data(self, data, type=None):
         return False if data == 'OFF' else True
+
+class DT_convert0(DT.Datatype):
+    def get_send_data(self, data):
+        return 'OFF' if data == 0 else f"{data:03}"
+
+    def get_shng_data(self, data, type=None):
+        return 0 if data == 'OFF' else data

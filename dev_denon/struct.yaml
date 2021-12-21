@@ -104,6 +104,27 @@ zone1:
         md_device: DEVICENAME
         md_command: zone1_volumedown
         md_write: true
+    ecomode:
+        type: str
+        md_device: DEVICENAME
+        md_command: zone1_ecomode
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    audioinput:
+        type: str
+        md_device: DEVICENAME
+        md_command: zone1_audioinput
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    videoinput:
+        type: str
+        md_device: DEVICENAME
+        md_command: zone1_videoinput
+        md_read: true
+        md_read_initial: true
+        md_write: true
     source:
         type: str
         md_device: DEVICENAME
@@ -115,6 +136,20 @@ zone1:
         type: str
         md_device: DEVICENAME
         md_command: zone1_listeningmode
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    sleep:
+        type: num
+        md_device: DEVICENAME
+        md_command: zone1_sleep
+        md_read: true
+        md_read_initial: true
+        md_write: true
+    standby:
+        type: num
+        md_device: DEVICENAME
+        md_command: zone1_standby
         md_read: true
         md_read_initial: true
         md_write: true
@@ -158,10 +193,24 @@ zone1:
                 md_command: zone1_level_subwoofer
                 md_read: true
                 md_write: true
+        cinema_eq:
+            type: bool
+            md_device: DEVICENAME
+            md_command: cinema_eq
+            md_read: true
+            md_read_initial: true
+            md_write: true
         dialogtoggle:
             type: bool
             md_device: DEVICENAME
             md_command: dialogtoggle
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        dialogenhance:
+            type: num
+            md_device: DEVICENAME
+            md_command: dialogenhance
             md_read: true
             md_read_initial: true
             md_write: true

@@ -42,6 +42,7 @@ commands = {
         'reply_pattern': r'NSE2(.*)'
     },
     'display': {
+        # The display command is only working with receivers without HEOS
         'opcode': 'MD_VALUE',
         'read': True,
         'read_cmd': 'NSE',
@@ -60,6 +61,17 @@ commands = {
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
         'reply_pattern': r'PSDIL (ON|OFF)'
+    },
+    'cinema_eq': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'PSCINEMA EQ. ?',
+        'write_cmd': 'PSCINEMA EQ.MD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSCINEMA EQ.(ON|OFF)'
     },
     'dialog': {
         'opcode': 'MD_VALUE',
@@ -85,6 +97,18 @@ commands = {
         'write_cmd': 'PSDIL DOWN',
         'dev_datatype': 'raw'
     },
+    'dialogenhance': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': 0, 'force_max': 4},
+        'read_cmd': 'PSDEH ?',
+        'write_cmd': 'PSDEH MD_VALUE',
+        'item_type': 'num',
+        'dev_datatype': 'DenonDialog',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSDEH ([A-Z]{3, 4})'
+    },
     'tone': {
         'opcode': 'MD_VALUE',
         'read': True,
@@ -95,6 +119,44 @@ commands = {
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
         'reply_pattern': r'PSTONE CTRL (ON|OFF)'
+    },
+    'zone1_audioinput': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['AUTO', 'HDMI', 'DIGITAL', 'ANALOG', '7.1IN', 'NO']},
+        'read_cmd': 'SD?',
+        'write_cmd': ':SD{VAL}:',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SD(.*)'
+    },
+    'zone1_videoinput': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['DVD', 'BD', 'TV', 'SAT/CBL', 'MPLAY', 'GAME'
+                                    'AUX1', 'AUX2', 'AUX3', 'AUX4', 'AUX5',
+                                    'AUX6', 'AUX7', 'CD', 'ON', 'OFF']},
+        'read_cmd': 'SV?',
+        'write_cmd': ':SV{VAL}:',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SV(.*)'
+    },
+    'zone1_ecomode': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['ON', 'OFF', 'AUTO']},
+        'read_cmd': 'ECO?',
+        'write_cmd': ':ECO{VAL}:',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'ECO(ON|OFF|AUTO)'
     },
     'zone1_treble': {
         'opcode': 'MD_VALUE',
@@ -493,6 +555,30 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'MS(.*)'
+    },
+    'zone1_sleep': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'num',
+        'read_cmd': 'SLP?',
+        'write_cmd': 'SLPMD_VALUE',
+        'dev_datatype': 'convert0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SLP(\d{3}|OFF)',
+        'settings': {'force_max': 120, 'force_min': 0}
+    },
+    'zone1_standby': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'num',
+        'read_cmd': 'STBY?',
+        'write_cmd': 'STBYMD_VALUE',
+        'dev_datatype': 'DenonStandby1',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'STBY(\dM|OFF)',
+        'settings': {'valid_list': [0, 15, 30, 60]}
     },
     'zone2_power': {
         'opcode': 'MD_VALUE',

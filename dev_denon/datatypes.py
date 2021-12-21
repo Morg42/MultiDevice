@@ -59,6 +59,36 @@ class DT_DenonStandby(DT.Datatype):
         return 0 if data == 'OFF' else data.split('H')[0]
 
 
+class DT_DenonStandby1(DT.Datatype):
+    def get_send_data(self, data):
+        return 'OFF' if data == 0 else f"{data:02}M"
+
+    def get_shng_data(self, data, type=None):
+        return 0 if data == 'OFF' else data.split('M')[0]
+
+
+class DT_DenonDialog(DT.Datatype):
+    def get_send_data(self, data):
+        if data == 1:
+            return 'LOW'
+        elif data == 2:
+            return 'MED'
+        elif data == 3:
+            return 'HIGH'
+        else:
+            return 'OFF'
+
+    def get_shng_data(self, data, type=None):
+        if data == 'LOW':
+            return 1
+        elif data == 'MED':
+            return 2
+        elif data == 'HIGH':
+            return 3
+        else:
+            return 0
+
+
 class DT_onoff(DT.Datatype):
     def get_send_data(self, data):
         return 'ON' if data else 'OFF'

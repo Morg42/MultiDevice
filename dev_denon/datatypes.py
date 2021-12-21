@@ -67,6 +67,32 @@ class DT_DenonStandby1(DT.Datatype):
         return 0 if data == 'OFF' else data.split('M')[0]
 
 
+class DT_DenonDynam(DT.Datatype):
+    def get_send_data(self, data):
+        if data == 1:
+            return 'LOW'
+        elif data == 2:
+            return 'MID'
+        elif data == 3:
+            return 'HI'
+        elif data == 4:
+            return 'AUTO'
+        else:
+            return 'OFF'
+
+    def get_shng_data(self, data, type=None):
+        if data == 'LOW':
+            return 1
+        elif data == 'MID':
+            return 2
+        elif data == 'HI':
+            return 3
+        elif data == 'AUTO':
+            return 4
+        else:
+            return 0
+
+
 class DT_DenonDialog(DT.Datatype):
     def get_send_data(self, data):
         if data == 1:
@@ -88,7 +114,6 @@ class DT_DenonDialog(DT.Datatype):
         else:
             return 0
 
-
 class DT_onoff(DT.Datatype):
     def get_send_data(self, data):
         return 'ON' if data else 'OFF'
@@ -103,3 +128,19 @@ class DT_convert0(DT.Datatype):
 
     def get_shng_data(self, data, type=None):
         return 0 if data == 'OFF' else data
+
+
+class DT_remap50to0(DT.Datatype):
+    def get_send_data(self, data):
+        if int(data) == data:
+            # "real" integer
+            return f'{(int(data)+50):02}'
+        else:
+           # float with fractional value
+           return f'{(int(data)+50):02}5'
+
+    def get_shng_data(self, data, type=None):
+        if len(data) == 3:
+            return int(data) / 10 - 50
+        else:
+            return int(data) - 50

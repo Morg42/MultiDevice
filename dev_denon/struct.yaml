@@ -118,6 +118,13 @@ zone1:
         md_read: true
         md_read_initial: true
         md_write: true
+    digitalinput:
+        type: str
+        md_device: DEVICENAME
+        md_command: zone1_digitalinput
+        md_read: true
+        md_read_initial: true
+        md_write: true
     videoinput:
         type: str
         md_device: DEVICENAME
@@ -204,6 +211,13 @@ zone1:
             type: bool
             md_device: DEVICENAME
             md_command: dialogtoggle
+            md_read: true
+            md_read_initial: true
+            md_write: true
+        dynamicrange:
+            type: num
+            md_device: DEVICENAME
+            md_command: dynamicrange
             md_read: true
             md_read_initial: true
             md_write: true
@@ -306,7 +320,6 @@ zone2:
         md_device: DEVICENAME
         md_command: zone2_volume
         md_read: true
-        md_read_initial: true
         md_write: true
     volumeup:
         type: bool
@@ -325,7 +338,6 @@ zone2:
         md_device: DEVICENAME
         md_command: zone2_source
         md_read: true
-        md_read_initial: true
         md_write: true
     sleep:
         type: num
@@ -437,7 +449,6 @@ zone3:
         md_device: DEVICENAME
         md_command: zone3_volume
         md_read: true
-        md_read_initial: true
         md_write: true
     volumeup:
         type: bool
@@ -456,7 +467,6 @@ zone3:
         md_device: DEVICENAME
         md_command: zone3_source
         md_read: true
-        md_read_initial: true
         md_write: true
     sleep:
         type: num

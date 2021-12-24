@@ -9,6 +9,11 @@ else:
 import re  # unused as of now...
 
 
+def dict_rev(d):
+    ''' helper routine to return inversed dict (swap key/value) '''
+    return {v: k for (k, v) in d.items()}
+
+
 class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         infotype = data[3:4]
@@ -127,7 +132,7 @@ class DT_convert0(DT.Datatype):
         return 'OFF' if data == 0 else f"{data:03}"
 
     def get_shng_data(self, data, type=None):
-        return 0 if data == 'OFF' else data
+        return 0 if data in ['OFF', 'NON'] else data
 
 
 class DT_remap50to0(DT.Datatype):
@@ -144,3 +149,8 @@ class DT_remap50to0(DT.Datatype):
             return int(data) / 10 - 50
         else:
             return int(data) - 50
+
+
+class DT_DenonInputsignal(DT.Datatype):
+    def get_shng_data(self, data, type=None):
+        return lookup.INPUTSIGNAL.get(data)

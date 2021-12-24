@@ -51,6 +51,33 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'NSE(.*)'
     },
+    'inputsignal': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': False,
+        'item_type': 'str',
+        'dev_datatype': 'DenonInputsignal',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SSINFAISSIG (\d{1,2})'
+    },
+    'inputrate': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': False,
+        'item_type': 'num',
+        'dev_datatype': 'convert0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SSINFAISFSV (\d{2,3}|NON)'
+    },
+    'inputformat': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': False,
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SSINFAISFOR (.*)'
+    },
     'dialogtoggle': {
         'opcode': 'MD_VALUE',
         'read': True,
@@ -83,7 +110,7 @@ commands = {
         'write_cmd': 'PSDRC MD_VALUE',
         'dev_datatype': 'DenonDynam',
         'reply_token': 'REGEX',
-        'reply_pattern': r'PSDRC ([A-Z]{2-4})'
+        'reply_pattern': r'PSDRC ([A-Z]{2,4})'
     },
     'dialog': {
         'opcode': 'MD_VALUE',
@@ -119,7 +146,78 @@ commands = {
         'item_type': 'num',
         'dev_datatype': 'DenonDialog',
         'reply_token': 'REGEX',
-        'reply_pattern': r'PSDEH ([A-Z]{3, 4})'
+        'reply_pattern': r'PSDEH ([A-Z]{3,4})'
+    },
+    'pictureenhancer': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'PVENH ?',
+        'item_type': 'num',
+        'settings': {'force_min': 0, 'force_max': 12},
+        'write_cmd': ':PVENH {VAL:02}:',
+        'dev_datatype': 'num',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PVENH (\d{2})'
+    },
+    'subwoofertoggle': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'PSSWL ?',
+        'write_cmd': 'PSSWL MD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSSWL (ON|OFF)'
+    },
+    'subwoofer': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'PSSWL ?',
+        'item_type': 'num',
+        'settings': {'force_min': -12, 'force_max': 12},
+        'write_cmd': 'PSSWL MD_VALUE',
+        'dev_datatype': 'remap50to0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSSWL (\d{2})'
+    },
+    'subwooferup': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'PSSWL UP',
+        'dev_datatype': 'raw'
+    },
+    'subwooferdown': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'PSSWL DOWN',
+        'dev_datatype': 'raw'
+    },
+    'lfe': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'PSLFE ?',
+        'item_type': 'num',
+        'settings': {'force_min': -10, 'force_max': 0},
+        'write_cmd': ':PSLFE {VAL:02}:',
+        'dev_datatype': 'num',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSLFE (\d{2})'
+    },
+    'lfeup': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'PSLFE UP',
+        'dev_datatype': 'raw'
+    },
+    'lfedown': {
+        'write': True,
+        'item_type': 'bool',
+        'write_cmd': 'PSLFE DOWN',
+        'dev_datatype': 'raw'
     },
     'tone': {
         'opcode': 'MD_VALUE',
@@ -350,6 +448,30 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'CVFR (\d{2,3})'
     },
+    'zone1_level_front_height_left': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': -12.0, 'max': 12.0},
+        'read_cmd': 'CV?',
+        'item_type': 'num',
+        'write_cmd': 'CVFHL MD_VALUE',
+        'dev_datatype': 'remap50to0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CVFHL (\d{2,3})'
+    },
+    'zone1_level_front_height_right': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': -12.0, 'max': 12.0},
+        'read_cmd': 'CV?',
+        'item_type': 'num',
+        'write_cmd': 'CVFHR MD_VALUE',
+        'dev_datatype': 'remap50to0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CVFHR (\d{2,3})'
+    },
     'zone1_level_front_center': {
         'opcode': 'MD_VALUE',
         'read': True,
@@ -385,6 +507,30 @@ commands = {
         'dev_datatype': 'remap50to0',
         'reply_token': 'REGEX',
         'reply_pattern': r'CVSR (\d{2,3})'
+    },
+    'zone1_level_rear_height_left': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': -12.0, 'max': 12.0},
+        'read_cmd': 'CV?',
+        'item_type': 'num',
+        'write_cmd': 'CVRHL MD_VALUE',
+        'dev_datatype': 'remap50to0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CVRHL (\d{2,3})'
+    },
+    'zone1_level_rear_height_right': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': -12.0, 'max': 12.0},
+        'read_cmd': 'CV?',
+        'item_type': 'num',
+        'write_cmd': 'CVRHR MD_VALUE',
+        'dev_datatype': 'remap50to0',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'CVRHR (\d{2,3})'
     },
     'zone1_level_subwoofer': {
         'opcode': 'MD_VALUE',
@@ -496,7 +642,7 @@ commands = {
         'read': True,
         'write': True,
         'read_cmd': 'ZM?',
-        'write_cmd': 'ZM MD_VALUE',
+        'write_cmd': 'ZMMD_VALUE',
         'item_type': 'bool',
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
@@ -601,7 +747,7 @@ commands = {
         'write_cmd': 'STBYMD_VALUE',
         'dev_datatype': 'DenonStandby1',
         'reply_token': 'REGEX',
-        'reply_pattern': r'STBY(\dM|OFF)',
+        'reply_pattern': r'STBY(\d{2}M|OFF)',
         'settings': {'valid_list': [0, 15, 30, 60]}
     },
     'zone2_power': {
@@ -682,7 +828,7 @@ commands = {
         'write_cmd': ':Z2HDA {VAL}:',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': r'Z2HDA(THR|PCM)',
+        'reply_pattern': r'Z2HDA (THR|PCM)',
         'settings': {'valid_list': ['THR', 'PCM']}
     },
     'zone2_source': {

@@ -16,6 +16,11 @@ def dict_rev(d):
     return {v: k for (k, v) in d.items()}
 
 
+def dict_get_ci(input_dict, key):
+    ''' helper routine for case insensitive dictionary search '''
+    return next((value for dict_key, value in input_dict.items() if dict_key.lower() == key.lower()), None)
+
+
 class DT_PioDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         content = data[2:][:28]
@@ -30,17 +35,17 @@ class DT_PioDialog(DT.Datatype):
             data = int(data)
             return f"{data:01}ATH"
         except Exception:
-            return f"{dict_rev(lookup.DIALOG).get(data.upper())}ATH"
+            return f"{dict_get_ci(dict_rev(lookup.DIALOG), data)}ATH"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("ATH")[1]
-        return lookup.DIALOG.get(return_value)
+        return dict_get_ci(lookup.DIALOG, return_value)
 
 
 class DT_PioError(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return_value = data.split("E0")[1]
-        return lookup.ERROR.get(return_value)
+        return dict_get_ci(lookup.ERROR, return_value)
 
 
 class DT_PioListening(DT.Datatype):
@@ -49,11 +54,11 @@ class DT_PioListening(DT.Datatype):
             data = int(data)
             return f"{data:04}SR"
         except Exception:
-            return f"{dict_rev(lookup.LISTENINGMODE).get(data.upper())}SR"
+            return f"{dict_get_ci(dict_rev(lookup.LISTENINGMODE), data)}SR"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("SR")[1]
-        return lookup.LISTENINGMODE.get(return_value)
+        return dict_get_ci(lookup.LISTENINGMODE, return_value)
 
 
 class DT_PioMute(DT.Datatype):
@@ -70,7 +75,7 @@ class DT_PioMute(DT.Datatype):
 class DT_PioPlayingmode(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return_value = data.split("LM")[1]
-        return lookup.PLAYINGMODE.get(return_value)
+        return dict_get_ci(lookup.PLAYINGMODE, return_value)
 
 
 class DT_PioPwr(DT.Datatype):
@@ -90,11 +95,11 @@ class DT_PioSource(DT.Datatype):
             data = int(data)
             return f"{data:02}FN"
         except Exception:
-            return f"{dict_rev(lookup.SOURCE).get(data.upper())}FN"
+            return f"{dict_get_ci(dict_rev(lookup.SOURCE), data)}FN"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("FN")[1]
-        return lookup.SOURCE.get(return_value)
+        return dict_get_ci(lookup.SOURCE, return_value)
 
 class DT_PioSource2(DT.Datatype):
     def get_send_data(self, data):
@@ -102,11 +107,11 @@ class DT_PioSource2(DT.Datatype):
             data = int(data)
             return f"{data:02}ZS"
         except Exception:
-            return f"{dict_rev(lookup.SOURCE).get(data.upper())}ZS"
+            return f"{dict_get_ci(dict_rev(lookup.SOURCE), data)}ZS"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("Z2F")[1]
-        return lookup.SOURCE.get(return_value)
+        return dict_get_ci(lookup.SOURCE, return_value)
 
 
 class DT_PioHDMIOut(DT.Datatype):
@@ -115,10 +120,10 @@ class DT_PioHDMIOut(DT.Datatype):
             data = int(data)
             return f"{data:01}HO"
         except Exception:
-            return f"{dict_rev(lookup.HDMIOUT).get(data.upper())}HO"
+            return f"{dict_get_ci(dict_rev(lookup.HDMIOUT), data)}HO"
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("HO")[1]
-        return lookup.HDMIOUT.get(return_value)
+        return dict_get_ci(lookup.HDMIOUT, return_value)
 
 # unused classes from here on

@@ -177,6 +177,17 @@ class MD_Command(object):
                         # if data == read_val, trigger force reading value from device by not providing data to command
                         if data == self.settings['read_val']:
                             return None
+                    if self.settings.get('valid_list_ci', None):
+                        valid_list_ci = self.settings.get('valid_list_ci')
+                        if isinstance(data, str):
+                            # test case in-sensitive, return result in lower case
+                            if data.lower() in (entry.lower() for entry in valid_list_ci):
+                                data = data.lower()
+                            else:
+                                raise ValueError(f'Invalid data: value {data} not in case insensitive list {valid_list_ci}')
+                        elif data not in valid_list_ci:
+                            raise ValueError(f'Invalid data: non-string value {data} not in case insensitive list {valid_list_ci}')
+
                     elif self.settings.get('valid_list', None):
                         if data not in self.settings['valid_list']:
                             raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')

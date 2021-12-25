@@ -348,7 +348,14 @@ class MD_Command_ParseStr(MD_Command_Str):
             if self.write_cmd:
                 # test if write_cmd is ':foo:' to trigger formatting/substitution
                 if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
-                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
+                    if '{VAL_UPPER}' in self.write_cmd:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_UPPER=data.upper()))
+                    elif '{VAL_LOWER}' in self.write_cmd:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_LOWER=data.lower()))
+                    elif '{VAL_CAP}' in self.write_cmd:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_CAP=data.capitalize()))
+                    else:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
                 else:
                     cmd_str = self._parse_str(self.write_cmd, data)
             else:

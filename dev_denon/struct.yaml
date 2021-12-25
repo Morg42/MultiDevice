@@ -50,12 +50,24 @@ general:
         md_read: true
         md_read_initial: true
         md_write: true
+    setupmenu:
+        type: bool
+        md_device: DEVICENAME
+        md_command: setupmenu
+        md_read: true
+        md_read_initial: true
+        md_write: true
     display:
         type: str
         md_device: DEVICENAME
         md_command: display
         md_read: true
         md_read_initial: true
+    inputresolution:
+        type: str
+        md_device: DEVICENAME
+        md_command: inputresolution
+        md_read: true
     inputsignal:
         type: str
         md_device: DEVICENAME
@@ -185,6 +197,42 @@ zone1:
                 md_read: true
                 md_read_initial: true
                 md_write: true
+            aspectratio:
+                type: str
+                md_device: DEVICENAME
+                md_command: aspectratio
+                md_read: true
+                md_read_initial: true
+                md_write: true
+            hdmimonitor:
+                type: num
+                md_device: DEVICENAME
+                md_command: hdmimonitor
+                md_read: true
+                md_read_initial: true
+                md_write: true
+            hdmiresolution:
+                type: str
+                md_device: DEVICENAME
+                md_command: hdmiresolution
+                md_read: true
+                md_read_initial: true
+                md_write: true
+            videoresolution:
+                type: str
+                md_device: DEVICENAME
+                md_command: videoresolution
+                md_read: true
+                md_read_initial: true
+                md_write: true
+            videoprocessingmode:
+                type: str
+                md_device: DEVICENAME
+                md_command: videoprocessingmode
+                md_read: true
+                md_read_initial: true
+                md_write: true
+
         sound:
             channel_level:
                 front_left:
@@ -250,6 +298,20 @@ zone1:
                     md_command: zone1_level_subwoofer
                     md_read: true
                     md_write: true
+            hdmiaudioout:
+                type: str
+                md_device: DEVICENAME
+                md_command: hdmiaudioout
+                md_read: true
+                md_read_initial: true
+                md_write: true
+            speakersetup:
+                type: str
+                md_device: DEVICENAME
+                md_command: speakersetup
+                md_read: true
+                md_read_initial: true
+                md_write: true
             cinema_eq:
                 type: bool
                 md_device: DEVICENAME

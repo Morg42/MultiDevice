@@ -14,6 +14,17 @@ commands = {
         'reply_token': 'REGEX',
         'reply_pattern': r'PW(ON|STANDBY)'
     },
+    'setupmenu': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'MNMEN?',
+        'write_cmd': 'MNMEN MD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'onoff',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'MNMEN (ON|OFF)'
+    },
     'title': {
         'opcode': 'MD_VALUE',
         'read': True,
@@ -58,7 +69,7 @@ commands = {
         'item_type': 'str',
         'dev_datatype': 'DenonInputsignal',
         'reply_token': 'REGEX',
-        'reply_pattern': r'SSINFAISSIG (\d{1,2})'
+        'reply_pattern': r'SSINFAISSIG (\d{2})'
     },
     'inputrate': {
         'opcode': 'MD_VALUE',
@@ -77,6 +88,15 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'SSINFAISFOR (.*)'
+    },
+    'inputresolution': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': False,
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SSINFSIGRES (.*)'
     },
     'dialogtoggle': {
         'opcode': 'MD_VALUE',
@@ -99,6 +119,93 @@ commands = {
         'dev_datatype': 'onoff',
         'reply_token': 'REGEX',
         'reply_pattern': r'PSCINEMA EQ.(ON|OFF)'
+    },
+    'speakersetup': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['FL', 'HF', 'FR']},
+        'read_cmd': 'PSSP: ?',
+        'write_cmd': ':PSSP:{VAL}:',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'PSSP:(FL|HF|FR)'
+    },
+    'aspectratio': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['4:3', '16:9']},
+        'read_cmd': 'VSASP ?',
+        'write_cmd': 'VSASPMD_VALUE',
+        'item_type': 'str',
+        'dev_datatype': 'DenonAspect',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'VSASP(NRM|FUL)'
+    },
+    'hdmimonitor': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'force_min': 0, 'force_max': 2},
+        'read_cmd': 'VSMONI ?',
+        'write_cmd': 'VSMONIMD_VALUE',
+        'item_type': 'num',
+        'dev_datatype': 'convertAuto',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'VSMONI(AUTO|1|2)'
+    },
+    'hdmiresolution': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['480p/576p', '480p', '576p', '1080i',
+                    '720p', '1080p', '1080p:24Hz', '4K', '4K(60/50)', 'AUTO']},
+        'read_cmd': 'VSSCH ?',
+        'write_cmd': 'VSSCHMD_VALUE',
+        'item_type': 'str',
+        'dev_datatype': 'DenonResolution',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'VSSCH(48P|10I|72P|10P|10P24|4K|4KF|AUTO)'
+    },
+    'hdmiaudioout': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'str',
+        'read_cmd': 'VSAUDIO?',
+        'write_cmd': ':VSAUDIO {VAL}:',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'VSAUDIO (TV|AMP)',
+        'settings': {'valid_list': ['TV', 'AMP']}
+    },
+    'videoprocessingmode': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'item_type': 'str',
+        'read_cmd': 'VSVPM?',
+        'write_cmd': 'VSVPMMD_VALUE',
+        'dev_datatype': 'DenonVideoproc',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'VSVPM(AUTO|GAME|BYP|MOVI)',
+        'settings': {'valid_list': ['AUTO', 'GAME', 'BYPASS', 'MOVIE',
+                    'auto', 'game', 'bypass', 'movie']}
+    },
+    'videoresolution': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'settings': {'valid_list': ['480p/576p', '480p', '576p', '1080i',
+                    '720p', '1080p', '1080p:24Hz', '4K', '4K(60/50)', 'AUTO']},
+        'read_cmd': 'VSSC ?',
+        'write_cmd': 'VSSCMD_VALUE',
+        'item_type': 'str',
+        'dev_datatype': 'DenonResolution',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'VSSC(48P|10I|72P|10P|10P24|4K|4KF|AUTO)'
     },
     'dynamicrange': {
         'opcode': 'MD_VALUE',

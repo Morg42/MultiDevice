@@ -3,8 +3,10 @@
 
 if MD_standalone:
     import datatypes as DT
+    from dev_pioneer import lookup
 else:
     from .. import datatypes as DT
+    from . import lookup
 
 import re  # unused as of now...
 
@@ -98,6 +100,20 @@ class DT_DenonDynam(DT.Datatype):
             return 0
 
 
+class DT_DenonAspect(DT.Datatype):
+    def get_send_data(self, data):
+        if data == '4:3':
+            return 'NRM'
+        else:
+            return 'FUL'
+
+    def get_shng_data(self, data, type=None):
+        if data == 'NRM':
+            return '4:3'
+        elif data == 'FUL':
+            return '16:9'
+
+
 class DT_DenonDialog(DT.Datatype):
     def get_send_data(self, data):
         if data == 1:
@@ -135,6 +151,14 @@ class DT_convert0(DT.Datatype):
         return 0 if data in ['OFF', 'NON'] else data
 
 
+class DT_convertAuto(DT.Datatype):
+    def get_send_data(self, data):
+        return 'AUTO' if data == 0 else data
+
+    def get_shng_data(self, data, type=None):
+        return 0 if data == 'AUTO' else data
+
+
 class DT_remap50to0(DT.Datatype):
     def get_send_data(self, data):
         if int(data) == data:
@@ -154,3 +178,19 @@ class DT_remap50to0(DT.Datatype):
 class DT_DenonInputsignal(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return lookup.INPUTSIGNAL.get(data)
+
+
+class DT_DenonResolution(DT.Datatype):
+    def get_send_data(self, data):
+        return lookup.RESOLUTION.get(data)
+
+    def get_shng_data(self, data, type=None):
+        return dict_rev(lookup.RESOLUTION).get(data.upper())
+
+
+class DT_DenonVideoproc(DT.Datatype):
+    def get_send_data(self, data):
+        return lookup.VIDEOPROCESS.get(data)
+
+    def get_shng_data(self, data, type=None):
+        return dict_rev(lookup.VIDEOPROCESS).get(data.upper())

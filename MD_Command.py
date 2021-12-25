@@ -136,7 +136,8 @@ class MD_Command(object):
 
     def _check_min_max(self, data, key, min=True, force=False):
         ''' helper routine to check for min/max compliance and int/float type '''
-        if self.settings.get(key, None):
+        # if self.settings.get(key, None): this results in False if value is 0!
+        if key in self.settings:
             bound = self.settings[key]
             if not isinstance(data, type(bound)):
                 if type(data) is float and type(bound) is int:

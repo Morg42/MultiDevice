@@ -15,6 +15,10 @@ def dict_rev(d):
     ''' helper routine to return inversed dict (swap key/value) '''
     return {v: k for (k, v) in d.items()}
 
+def dict_get_ci(input_dict, key):
+    ''' helper routine for case insensitive dictionary search '''
+    return next((value for dict_key, value in input_dict.items() if dict_key.lower() == key.lower()), None)
+
 
 class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
@@ -177,20 +181,20 @@ class DT_remap50to0(DT.Datatype):
 
 class DT_DenonInputsignal(DT.Datatype):
     def get_shng_data(self, data, type=None):
-        return lookup.INPUTSIGNAL.get(data)
+        return dict_get_ci(lookup.INPUTSIGNAL, data)
 
 
 class DT_DenonResolution(DT.Datatype):
     def get_send_data(self, data):
-        return lookup.RESOLUTION.get(data)
+        return dict_get_ci(dict_rev(lookup.RESOLUTION), data)
 
     def get_shng_data(self, data, type=None):
-        return dict_rev(lookup.RESOLUTION).get(data.upper())
+        return dict_get_ci(lookup.RESOLUTION, data)
 
 
 class DT_DenonVideoproc(DT.Datatype):
     def get_send_data(self, data):
-        return lookup.VIDEOPROCESS.get(data)
+        return dict_get_ci(dict_rev(lookup.VIDEOPROCESS), data)
 
     def get_shng_data(self, data, type=None):
-        return dict_rev(lookup.VIDEOPROCESS).get(data.upper())
+        return dict_get_ci(lookup.VIDEOPROCESS, data)

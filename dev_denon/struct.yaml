@@ -7,18 +7,21 @@ radio:
         md_device: DEVICENAME
         md_command: title
         md_read: true
+        md_write: true
 
     album:
         type: str
         md_device: DEVICENAME
         md_command: album
         md_read: true
+        md_write: true
 
     artist:
         type: str
         md_device: DEVICENAME
         md_command: artist
         md_read: true
+        md_write: true
 
     tunerpreset:
         type: str
@@ -62,27 +65,36 @@ general:
         md_device: DEVICENAME
         md_command: display
         md_read: true
+        md_write: true
         md_read_initial: true
     inputresolution:
         type: str
         md_device: DEVICENAME
         md_command: inputresolution
         md_read: true
+        md_write: true
+        md_read_initial: true
     inputsignal:
         type: str
         md_device: DEVICENAME
         md_command: inputsignal
         md_read: true
+        md_write: true
+        md_read_initial: true
     inputrate:
         type: num
         md_device: DEVICENAME
         md_command: inputrate
         md_read: true
+        md_write: true
+        md_read_initial: true
     inputformat:
         type: str
         md_device: DEVICENAME
         md_command: inputformat
         md_read: true
+        md_write: true
+        md_read_initial: true
 
 zone1:
     read:

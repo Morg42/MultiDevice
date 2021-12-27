@@ -494,7 +494,7 @@ class MultiDevice(SmartPlugin):
                 if device_instance:
 
                     # create logger for device identity to use in update_item() and store in _devices dict
-                    dev_logger = logging.getLogger(__name__ + f'.{device_name}')
+                    dev_logger = logging.getLogger(f'{__name__}.{device_name}')
 
                     # fill class dicts
                     self._devices[device_name] = {'id': device_id, 'device': device_instance, 'logger': dev_logger, 'params': param}
@@ -517,7 +517,7 @@ class MultiDevice(SmartPlugin):
                             try:
                                 mod_struct = eval(str(raw_struct).replace('DEVICENAME', device_name))
                             except Exception as e:
-                                self.logger.warning(f'importing structs for device {device_name} failed. Check struct definitions')
+                                self.logger.warning(f'importing structs for device {device_name} failed, check struct definitions. Error was: {e}')
                             else:
                                 for struct_name in mod_struct:
                                     self.logger.debug(f'adding struct {self.get_shortname()}.{device_name}.{struct_name}')
@@ -653,14 +653,11 @@ class MultiDevice(SmartPlugin):
             # test if source of item change was not the item's device...
             if caller != self.get_shortname() + '.' + device_name:
 
-                # from here on, use device's logger so messages are displayer for the device
-                tmp_log = self.logger
-                dev = self._devices.get(device_name, None)
-                if dev:
-                    tmp_log = dev.get('logger', self.logger)
+                # from here on, use device's logger so messages are displayed for the device
+                dev_log = self._get_device_logger(device_name)
 
                 # okay, go ahead
-                tmp_log.info(f'Update item: {item.id()}: item has been changed outside this plugin')
+                dev_log.info(f'Update item: {item.id()}: item has been changed outside this plugin')
 
                 # item in list of write-configured items?
                 if item.id() in self._items_write:
@@ -669,9 +666,9 @@ class MultiDevice(SmartPlugin):
                     device_name = self._items_write[item.id()]['device_name']
                     device = self._get_device(device_name)
                     command = self._items_write[item.id()]['command']
-                    tmp_log.debug(f'Writing value "{item()}" from item {item.id()} with command "{command}"')
+                    dev_log.debug(f'Writing value "{item()}" from item {item.id()} with command "{command}"')
                     if not device.send_command(command, item()):
-                        tmp_log.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ failed, resetting item value')
+                        dev_log.debug(f'Writing value "{item()}" from item {item.id()} with command “{command}“ failed, resetting item value')
                         item(item.property.last_value, self.get_shortname() + '.' + device_name)
                         return None
 
@@ -680,7 +677,7 @@ class MultiDevice(SmartPlugin):
                     # get data and trigger read_all
                     device_name = self._items_readall[item.id()]
                     device = self._get_device(device_name)
-                    tmp_log.debug(f'Triggering read_all')
+                    dev_log.debug('Triggering read_all')
                     device.read_all_commands()
 
     def on_data_received(self, device_name, command, value):
@@ -697,13 +694,16 @@ class MultiDevice(SmartPlugin):
         '''
         if self.alive:
 
+            # from here on, use device's logger so messages are displayed for the device
+            dev_log = self._get_device_logger(device_name)
+
             # check if combination of device_name and command is configured for reading
             if device_name in self._commands_read and command in self._commands_read[device_name]:
                 item = self._commands_read[device_name][command]
-                self.logger.debug(f'Device {device_name} updated command {command} with value {value} for item {item.id()}')
+                dev_log.debug(f'Command {command} updated item {item.id()} with value {value}')
                 item(value, self.get_shortname() + "." + device_name)
             else:
-                self.logger.warning(f'Device {device_name} updated command {command} with value {value}, not assigned to any item, discarding data')
+                dev_log.warning(f'Command {command} yielded value {value}, not assigned to any item, discarding data')
 
     def _update_device_params(self, device_name):
         '''
@@ -777,6 +777,14 @@ class MultiDevice(SmartPlugin):
             return dev['params']
         else:
             return None
+
+    def _get_device_logger(self, device_name):
+        ''' getter for device logger, return plugin logger on error '''
+        log = self.logger
+        dev = self._devices.get(device_name, None)
+        if dev:
+            log = dev.get('logger', self.logger)
+        return log
 
 
 #############################################################################################################################################################################################################################################

@@ -351,7 +351,10 @@ class MD_Command_ParseStr(MD_Command_Str):
                 # test if write_cmd is ':foo:' to trigger formatting/substitution
                 # reminder: ':val:' replaces val with 'raw' val, 'MD_VALUE' uses DT.get_send_data(val)
                 if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
-                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
+                    if isinstance(data, str):
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
+                    else:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
                 else:
                     cmd_str = self._parse_str(self.write_cmd, data)
             else:

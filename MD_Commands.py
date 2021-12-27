@@ -59,7 +59,9 @@ class MD_Commands(object):
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
 
         self.logger.debug(f'commands initializing from {command_obj_class.__name__}')
-        self._commands = {}
+        self._commands = {}         # { 'cmd_x': MD_Command(params), ... }
+        self._lookups = {}          # { 'name_x': {'fwd': {'K1': 'V1', ...}, 'rev': {'V1': 'K1', ...}, 'rci': {'v1': 'K1', ...}}}
+        self._lookup_tables = []
         self.device = device_name
         self._device_id = device_id
         self._cmd_class = command_obj_class
@@ -67,7 +69,8 @@ class MD_Commands(object):
         self._dt = {}
         self._return_value = None
         self._read_dt_classes(device_id)
-        self._read_commands(device_name)
+        if not self._read_commands(device_name):
+            return None
 
         if self._commands:
             self.logger.debug('commands initialized')
@@ -86,13 +89,20 @@ class MD_Commands(object):
 
     def get_send_data(self, command, data=None):
         if command in self._commands:
+            lu = self._get_cmd_lookup(command)
+            if lu:
+                data = self._lookup(data, lu, rev=True)
             return self._commands[command].get_send_data(data)
 
         raise Exception(f'command {command} not found in commands')
 
     def get_shng_data(self, command, data):
         if command in self._commands:
-            return self._commands[command].get_shng_data(data)
+            result = self._commands[command].get_shng_data(data)
+            lu = self._get_cmd_lookup(command)
+            if lu:
+                result = self._lookup(result, lu)
+            return result
 
         raise Exception(f'command {command} not found in commands')
 
@@ -121,6 +131,62 @@ class MD_Commands(object):
                         # token ist just a string
                         return command
         return None
+
+    def _lookup(self, data, table, rev=False, ci=True):
+        '''
+        try to lookup data from lookup dict <table>
+
+        normal mode is device data -> shng data (rev=False, ci is ignored)
+        reverse mode is shng data -> device data (rev=True, ci=False)
+        ci mode is reverse mode, but case insensitive lookup (rev=True, ci=True, default for rev)
+
+        As data is used as key in dict lookups, it must be a hashable type (num, int, float, str)
+
+        Per definition, data can be None, e.g. for read commands. In this case, return None
+
+        On success, lookup result is returned. On error, an exception is raised.
+
+        :param data: data to look up
+        :param table: name of lookup dict
+        :param rev: reverse mode (see above)
+        :param ci: case insensitive reverse mode (see above)
+        :type table: str
+        :type rev: bool
+        :type ci: bool
+        :return: lookup result
+        '''
+        if data is None:
+            return None
+
+        mode = 'fwd'
+        if rev:
+            mode = 'rci' if ci else 'rev'
+
+        lu = self.get_lookup(table, mode)
+        if not lu:
+            raise ValueError(f'Lookup table {table} not found.')
+
+        if ci and isinstance(data, str):
+            data = data.lower()
+
+        if data in lu:
+            return lu[data]
+
+        raise ValueError(f'Lookup of value {data} in table {table} failed, entry not found.')            
+
+    def get_lookup(self, lookup, type='fwd'):
+        ''' returns the lookup table for name <lookup>, None on error '''
+        if lookup in self._lookups and type in ('fwd', 'rev', 'rci'):
+            return self._lookups[lookup][type]
+        else:
+            return None
+
+    def _get_cmd_lookup(self, command):
+        ''' returns lookup name for command or None '''
+        if command in self._commands:
+            return self._commands[command].get_lookup()
+
+        raise Exception(f'command {command} not found in commands')
 
     def _read_dt_classes(self, device_id):
         '''
@@ -166,19 +232,29 @@ class MD_Commands(object):
         try:
             # get module
             cmd_module = locate(mod_str)
-            # get content
-            commands = cmd_module.commands
         except ImportError:
-            self.logger.error(f'importing external module {"dev_" + self._device_id + "/commands.py"} failed')
+            msg = f'importing external module {"dev_" + self._device_id + "/commands.py"} failed'
+            self.logger.error(msg)
+            raise ImportError(msg)
         except Exception as e:
-            self.logger.error(f'importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}')
-        if commands and isinstance(commands, dict):
-            self._parse_commands(device_name, commands)
+            msg = f'importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}'
+            self.logger.error(msg)
+            raise SyntaxError(msg)
+
+        if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict):
+            self._parse_commands(device_name, cmd_module.commands)
+        else:
+            self.logger.warning('no command definitions found. This device probably will not work...')
+
+        if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
+            self._parse_lookups(device_name, cmd_module.lookups)
+        else:
+            self.logger.info('no lookups found')
 
     def _parse_commands(self, device_name, commands):
         '''
         This is a reference implementation for parsing the commands dict imported
-        from the device subdirectory.
+        from the commands.py file in the device subdirectory.
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         '''
@@ -207,3 +283,27 @@ class MD_Commands(object):
                 self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
             self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
+
+    def _parse_lookups(self, device_name, lookups):
+        '''
+        This is a reference implementation for parsing the lookups dict imported
+        from the commands.py file in the device subdirectory.
+        For special purposes, this can be overloaded, if you want to use your
+        own file format.
+        '''
+        for table in lookups:
+            if isinstance(lookups[table], dict):
+
+                self._lookups[table] = {}
+
+                # original dict
+                self._lookups[table]['fwd'] = lookups[table]
+                # reversed dict
+                self._lookups[table]['rev'] = {v: k for (k, v) in lookups[table].items()}
+                # reversed dict, keys are lowercase for case insensitive lookup
+                self._lookups[table]['rci'] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lookups[table].items()}
+
+                self._lookup_tables.append(table)
+                self.logger.debug(f'imported lookup table {table} with {len(lookups[table])} items')
+            else:
+                self.logger.warning(f'key {table} in lookups not in dict format, ignoring')

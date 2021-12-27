@@ -61,6 +61,7 @@ ITEM_ATTR_CYCLE         = 'md_read_cycle'
 ITEM_ATTR_READ_INIT     = 'md_read_initial'
 ITEM_ATTR_WRITE         = 'md_write'
 ITEM_ATTR_READ_ALL      = 'md_read_all'
+ITEM_ATTR_LOOKUP        = 'md_lookup'
 
 ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL)
 
@@ -69,7 +70,7 @@ COMMAND_READ            = True
 COMMAND_WRITE           = False
 
 # commands definition parameters
-COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings')
+COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings', 'lookup')
 
 # keys for min / max values for data bounds
 MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')

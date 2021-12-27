@@ -85,6 +85,7 @@ class MD_Device(object):
         self.device_id = device_id
         self.device = device_name
         self.alive = False
+        self.disabled = True
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
@@ -103,22 +104,31 @@ class MD_Device(object):
         self._set_device_params()
 
         # try to read configuration files
-        if not self._read_configuration():
-            self.logger.error('configuration could not be read, device disabled')
-            return
+        try:
+            if not self._read_configuration():
+                self.logger.error('configuration could not be read, device disabled')
+                return False
+        except Exception as e:
+            self.logger.error(f'configuration could not be read, device disabled. Original error: {e}')
+            return False
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
             self.logger.error(f'could not setup connection with {kwargs}, device disabled')
-            return
+            return False
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
             self.logger.debug(f'device initialized from {self.__class__.__name__}')
 
+        self.disabled = False
+
     def start(self):
         if self.alive:
+            return
+        if self.disabled:
+            self.logger.error('start method called, but device is disabled')
             return
         if self._runtime_data_set:
             self.logger.debug('start method called')
@@ -305,6 +315,13 @@ class MD_Device(object):
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
 
+    def get_lookup(self, lookup):
+        ''' returns the lookup table for name <lookup>, None on error '''
+        if self._commands:
+            return self._commands.get_lookup(lookup)
+        else:
+            return None
+
     #
     #
     # check if overloading needed
@@ -483,4 +500,4 @@ class MD_Device(object):
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
-        return True
+        return

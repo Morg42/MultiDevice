@@ -135,6 +135,7 @@
     - ``is_valid_command(command, read=None)``
     - ``set_runtime_data(**kwargs)``
     - ``update_device_params(**kwargs)``
+    - ``get_lookup(lookup)``
 
     Methods possibly needed to overload for inherited classes:
 
@@ -215,6 +216,7 @@
     - ``get_send_data(command, data=None)``
     - ``get_shng_data(command, data)``
     - ``get_command_from_reply(data)``
+    - ``get_lookup(lookup)``
 
     Methods possible to overload:
 
@@ -306,6 +308,27 @@
     They should not need further configuration, as all data transformation is done
     by the device classes and the connection-specific attributes are provided
     from plugin configuration.
+
+    Example:
+
+    ```
+    multidevice:
+        plugin_name: multidevice
+        device:
+            - <type>                    # id = <type>, type = <type>, folder = dev_<type>
+                - param1: <value1>      #   optional
+            - <id>:                     # id = <id>, type = <type>, folder = dev_<type>
+                - device: <type>
+                - param1: <value1>      #   optional
+                - param2: <value2>      #   optional
+            - dev1                      # id = dev1, type = dev1, folder = dev_dev1
+            - mydev: dev2               # id = mydev, type = dev2, folder = dev_dev2
+            - my2dev:                   # id = my2dev, type = dev3, folder = dev_dev3
+                - device: dev3
+                - host: somehost        #   optional
+            - dev4:                     # id = dev4, type = dev4, folder = dev_dev4
+                - host: someotherhost   #   optional
+    ```
 
 
     New devices
@@ -627,6 +650,19 @@ class MultiDevice(SmartPlugin):
                 self._items_readall[item.id()] = device_name
                 self.logger.debug(f'Item {item} saved for read_all on device {device_name}')
                 return self.update_item
+
+            # is lookup table item?
+            if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
+                table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
+                if table:
+                    lu = device.get_lookup(table)
+                    item.set(lu, 'MultiDevice.' + device_name, source='Init')
+                    if lu:
+                        self.logger.debug(f'Item {item} assigned lookup {table} from device {device_name} with contents {device.get_lookup(table)}')
+                    else:
+                        self.logger.info(f'Item {item} requested lookup {table} from device {device_name}, which was empty or non-existent')
+                else:
+                    self.logger.warning(f'Item {item} has attribute {ITEM_ATTR_LOOKUP} without a value set. Ignoring.')
 
     def update_item(self, item, caller=None, source=None, dest=None):
         '''

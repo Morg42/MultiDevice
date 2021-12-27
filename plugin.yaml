@@ -74,6 +74,12 @@ item_attributes:
             de: 'Wenn diesem Item ein beliebiger Wert zugewiesen wird, werden alle zum Lesen konfigurierten Items neu vom Gerät gelesen. Das Item kann nicht gleichzeitig mit md_command belegt werden.'
             en: 'When set to any value, all items configured for reading will update their value from the device. The item cannot be used with md_command in parallel.'
 
+    md_lookup:
+        type: str
+        description:
+            de: 'Der Inhalt der Lookup-Tabelle mit dem angegebenen Namen wird beim Start einmalig als dict in das Item geschrieben.'
+            en: 'The lookup table with the given name will be assigned to the item in dict format once on startup.'
+
 item_structs:
     # Definition of item-structure templates for this plugin (enter 'item_structs: NONE', if section should be empty)
 

@@ -64,6 +64,7 @@ class MD_Command(object):
     reply_token = []
     reply_pattern = ''
     settings = None
+    lookup = None
     _DT = None
 
     def __init__(self, device_name, command, dt_class, **kwargs):
@@ -121,6 +122,10 @@ class MD_Command(object):
     def get_shng_data(self, data):
         value = self._DT.get_shng_data(data)
         return value
+
+    def get_lookup(self):
+        ''' getter for lookup '''
+        return self.lookup
 
     def _get_kwargs(self, args, **kwargs):
         '''

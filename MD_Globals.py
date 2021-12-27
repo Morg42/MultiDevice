@@ -59,11 +59,13 @@ ITEM_ATTR_COMMAND       = 'md_command'
 ITEM_ATTR_READ          = 'md_read'
 ITEM_ATTR_CYCLE         = 'md_read_cycle'
 ITEM_ATTR_READ_INIT     = 'md_read_initial'
+ITEM_ATTR_GROUP         = 'md_read_group'
 ITEM_ATTR_WRITE         = 'md_write'
-ITEM_ATTR_READ_ALL      = 'md_read_all'
+ITEM_ATTR_READ_ALL      = 'md_read_all_trigger'
+ITEM_ATTR_READ_GRP      = 'md_read_group_trigger'
 ITEM_ATTR_LOOKUP        = 'md_lookup'
 
-ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL)
+ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP)
 
 # command definition
 COMMAND_READ            = True

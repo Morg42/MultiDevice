@@ -428,8 +428,10 @@ class MultiDevice(SmartPlugin):
 
         self._devices = {}              # contains all configured devices - <device_name>: {'id': <device_id>, 'device': <class-instance>, 'logger': <logger-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_name': <device_name>, 'command': <command>}
-        self._items_readall = {}        # contains items which trigger 'read all' - <item_id>: <device_name>
+        self._items_read_all = {}       # contains items which trigger 'read all' - <item_id>: <device_name>
+        self._items_read_grp = {}       # contains items which trigger 'read group x' - <item_id>: [<device_name>, <x>]
         self._commands_read = {}        # contains all commands per device with read command - <device_name>: {<command>: <item_object>}
+        self._commands_read_grp = {}    # contains all commands per device with read group command - <device_name>: {<group>: {<command>: <item_object>}}}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_name>: ['command', 'command', ...]
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_name: {<command>: {'cycle': <cycle>, 'next': <next>}}
 
@@ -522,6 +524,7 @@ class MultiDevice(SmartPlugin):
                     # fill class dicts
                     self._devices[device_name] = {'id': device_id, 'device': device_instance, 'logger': dev_logger, 'params': param}
                     self._commands_read[device_name] = {}
+                    self._commands_read_grp[device_name] = {}
                     self._commands_initial[device_name] = []
                     self._commands_cyclic[device_name] = {}
                     dev_logger = None
@@ -625,6 +628,17 @@ class MultiDevice(SmartPlugin):
                     else:
                         self.logger.warning(f'Item {item} requests command {command} for reading on device {device_name}, which is not allowed, read configuration is ignored')
 
+                    # read in group?
+                    if self.has_iattr(item.conf, ITEM_ATTR_GROUP):
+                        group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
+                        if group and isinstance(group, int) and group > 0:
+                            if group not in self._commands_read_grp[device_name]:
+                                self._commands_read_grp[device_name][group] = []
+                            self._commands_read_grp[device_name][group].append(command)
+                            self.logger.debug(f'Item {item} saved for reading in group {group} on device {device_name}')
+                        else:
+                            self.logger.warning(f'Item {item} wants to be read in group with invalid group identifier "{group}", ignoring.')
+
                     # read on startup?
                     if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                         if command not in self._commands_initial[device_name]:
@@ -647,9 +661,19 @@ class MultiDevice(SmartPlugin):
 
             # is read_all item?
             if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
-                self._items_readall[item.id()] = device_name
+                self._items_read_all[item.id()] = device_name
                 self.logger.debug(f'Item {item} saved for read_all on device {device_name}')
                 return self.update_item
+
+            # is read_grp item?
+            if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
+                grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
+                if grp and isinstance(grp, int) and grp > 0:
+                    self._items_read_grp[item.id()] = [device_name, grp]
+                    self.logger.debug(f'Item {item} saved for read_all on device {device_name}')
+                    return self.update_item
+                else:
+                    self.logger.warning(f'Item {item} wants to trigger group read with invalid group identifier "{grp}", ignoring.')
 
             # is lookup table item?
             if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
@@ -708,13 +732,21 @@ class MultiDevice(SmartPlugin):
                         item(item.property.last_value, self.get_shortname() + '.' + device_name)
                         return None
 
-                elif item.id() in self._items_readall:
+                elif item.id() in self._items_read_all:
 
                     # get data and trigger read_all
-                    device_name = self._items_readall[item.id()]
+                    device_name = self._items_read_all[item.id()]
                     device = self._get_device(device_name)
                     dev_log.debug('Triggering read_all')
                     device.read_all_commands()
+
+                elif item.id() in self._items_read_grp:
+
+                    # get data and trigger read_grp
+                    device_name, group = self._items_read_grp[item.id()]
+                    device = self._get_device(device_name)
+                    dev_log.debug(f'Triggering read_group {group}')
+                    device.read_all_commands(group)
 
     def on_data_received(self, device_name, command, value):
         '''
@@ -779,12 +811,14 @@ class MultiDevice(SmartPlugin):
         '''
         generate dict with device-specific data needed to run, which is
         - list of all 'read'-configured commands
+        - dict of lists of all 'read group'-configured commands, key is group no
         - list of all cyclic commands with cycle times
         - list of all initial read commands
         - callback for returning data to the plugin
         '''
         return {
             'read_commands': self._commands_read[device_name].keys(),
+            'read_commands_grp': self._commands_read_grp[device_name],
             'cycle_commands': self._commands_cyclic[device_name],
             'initial_commands': self._commands_initial[device_name],
             'callback': self.on_data_received

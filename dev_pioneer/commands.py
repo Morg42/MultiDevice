@@ -251,7 +251,7 @@ commands = {
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'VOL(\d{3})',
-        'settings': {'force_min': 0, 'valid_max': 185, 'read_val': -111}
+        'settings': {'force_min': 0, 'valid_max': 185}
     },
     'zone1_volumeup': {
         'write': True,

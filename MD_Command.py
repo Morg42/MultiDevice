@@ -161,7 +161,7 @@ class MD_Command(object):
     def _check_value(self, data):
         '''
         check if value settings are defined and if so, if they are followed
-        possibly adjust data in accordance with settings or do some magic ('read_val')
+        possibly adjust data in accordance with settings
 
         non-compliance will raise ValueError
 
@@ -177,11 +177,6 @@ class MD_Command(object):
             try:
 
                 if self.settings:
-                    if self.settings.get('read_val', None) is not None:  # read_val COULD be 0, not that it seems sensible, though...
-                        # if data == read_val, trigger force reading value from device by not providing data to command
-                        if data == self.settings['read_val']:
-                            return None
-
                     if self.settings.get('valid_list_ci', None):
                         val = data
                         if isinstance(data, str):

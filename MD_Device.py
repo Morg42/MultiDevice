@@ -93,6 +93,7 @@ class MD_Device(object):
 
         self._data_received_callback = None
         self._commands_read = {}
+        self._commands_read_grp = {}
         self._commands_initial = []
         self._commands_cyclic = {}
 
@@ -253,12 +254,17 @@ class MD_Device(object):
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
-    def read_all_commands(self):
+    def read_all_commands(self, group=0):
         '''
-        Triggers all configured read commands
+        Triggers all configured read commands or all configured commands of given group
         '''
-        for cmd in self._commands_read:
-            self.send_command(cmd)
+        if not group:
+            for cmd in self._commands_read:
+                self.send_command(cmd)
+        else:
+            if group in self._commands_read_grp:
+                for cmd in self._commands_read_grp[group]:
+                    self.send_command(cmd)
 
     def is_valid_command(self, command, read=None):
         '''
@@ -285,6 +291,7 @@ class MD_Device(object):
         '''
         try:
             self._commands_read = kwargs['read_commands']
+            self._commands_read_grp = kwargs['read_commands_grp']
             self._commands_cyclic = kwargs['cycle_commands']
             self._commands_initial = kwargs['initial_commands']
             self._data_received_callback = kwargs['callback']

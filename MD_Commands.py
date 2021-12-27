@@ -106,7 +106,6 @@ class MD_Commands(object):
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    # TODO: make 'REGEX' literal configurable?
                     if token == 'REGEX' and getattr(self._commands[command], 'reply_pattern', None):
 
                         # token is "REGEX" - parse read_cmd as regex
@@ -188,6 +187,11 @@ class MD_Commands(object):
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
+
+            # if valid_list_ci is present in settings, convert all str elements to lowercase only once
+            if 'settings' in kw:
+                if 'valid_list_ci' in kw['settings']:
+                    kw['settings']['valid_list_ci'] = [entry.lower() if isinstance(entry, str) else entry for entry in kw['settings']['valid_list_ci']]
 
             dt_class = None
             dev_datatype = kw.get('dev_datatype', '')

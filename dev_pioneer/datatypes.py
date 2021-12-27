@@ -39,6 +39,7 @@ class DT_PioDialog(DT.Datatype):
 
     def get_shng_data(self, data, type=None):
         return_value = data.split("ATH")[1]
+        # TODO: siehe Kommentar in Denon. wieso CI lookup, wenn die Datem vom Gerät immer gleich sind?
         return dict_get_ci(lookup.DIALOG, return_value)
 
 
@@ -101,6 +102,7 @@ class DT_PioSource(DT.Datatype):
         return_value = data.split("FN")[1]
         return dict_get_ci(lookup.SOURCE, return_value)
 
+
 class DT_PioSource2(DT.Datatype):
     def get_send_data(self, data):
         try:
@@ -125,5 +127,3 @@ class DT_PioHDMIOut(DT.Datatype):
     def get_shng_data(self, data, type=None):
         return_value = data.split("HO")[1]
         return dict_get_ci(lookup.HDMIOUT, return_value)
-
-# unused classes from here on

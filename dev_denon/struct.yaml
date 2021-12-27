@@ -33,14 +33,14 @@ radio:
 
     tunerpresetup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: tunerpresetup
         md_write: true
 
     tunerpresetdown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: tunerpresetdown
         md_write: true
@@ -109,7 +109,8 @@ zone1:
         md_read: true
         md_read_initial: true
         md_write: true
-        on_change:
+        # TODO: entweder Kriterien für on_change oder on_change auch löschen
+        # on_change:
           #- sh...volume(0, 'priv_md.denon') if value is False else None
           #- ..read = True if value is True else None
     mute:
@@ -133,13 +134,13 @@ zone1:
         md_read: true
     volumeup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone1_volumeup
         md_write: true
     volumedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone1_volumedown
         md_write: true
@@ -361,19 +362,19 @@ zone1:
                 md_write: true
             dialogup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: dialogup
                 md_write: true
             dialogdown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: dialogdown
                 md_write: true
             subwoofertoggle:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: subwoofertoggle
                 md_write: true
@@ -387,13 +388,13 @@ zone1:
                 md_write: true
             subwooferup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: subwooferup
                 md_write: true
             subwooferdown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: subwooferdown
                 md_write: true
@@ -406,13 +407,13 @@ zone1:
                 md_write: true
             lfeup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: lfeup
                 md_write: true
             lfedown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: lfedown
                 md_write: true
@@ -432,13 +433,13 @@ zone1:
                 md_write: true
             trebleup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone1_trebleup
                 md_write: true
             trebledown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone1_trebledown
                 md_write: true
@@ -451,13 +452,13 @@ zone1:
                 md_write: true
             bassup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone1_bassup
                 md_write: true
             bassdown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone1_bassdown
                 md_write: true
@@ -475,7 +476,8 @@ zone2:
         md_read: true
         md_read_initial: true
         md_write: true
-        on_change:
+        # TODO: siehe oben
+        # on_change:
           #- sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
@@ -492,13 +494,13 @@ zone2:
         md_write: true
     volumeup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone2_volumeup
         md_write: true
     volumedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone2_volumedown
         md_write: true
@@ -562,13 +564,13 @@ zone2:
                 md_write: true
             trebleup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone2_trebleup
                 md_write: true
             trebledown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone2_trebledown
                 md_write: true
@@ -581,13 +583,13 @@ zone2:
                 md_write: true
             bassup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone2_bassup
                 md_write: true
             bassdown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone2_bassdown
                 md_write: true
@@ -605,7 +607,7 @@ zone3:
         md_read: true
         md_read_initial: true
         md_write: true
-        on_change:
+        # TODO: on_change:
           #- sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
@@ -622,13 +624,13 @@ zone3:
         md_write: true
     volumeup:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone3_volumeup
         md_write: true
     volumedown:
         type: bool
-        enforce_updates: yes
+        enforce_updates: true
         md_device: DEVICENAME
         md_command: zone3_volumedown
         md_write: true
@@ -685,13 +687,13 @@ zone3:
                 md_write: true
             trebleup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone3_trebleup
                 md_write: true
             trebledown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone3_trebledown
                 md_write: true
@@ -704,13 +706,13 @@ zone3:
                 md_write: true
             bassup:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone3_bassup
                 md_write: true
             bassdown:
                 type: bool
-                enforce_updates: yes
+                enforce_updates: true
                 md_device: DEVICENAME
                 md_command: zone3_bassdown
                 md_write: true

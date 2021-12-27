@@ -71,6 +71,9 @@ COMMAND_WRITE           = False
 # commands definition parameters
 COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings')
 
+# keys for min / max values for data bounds
+MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')
+
 
 #############################################################################################################################################################################################################################################
 #

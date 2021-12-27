@@ -8,12 +8,11 @@ else:
     from .. import datatypes as DT
     from . import lookup
 
-import re  # unused as of now...
-
 
 def dict_rev(d):
     ''' helper routine to return inversed dict (swap key/value) '''
     return {v: k for (k, v) in d.items()}
+
 
 def dict_get_ci(input_dict, key):
     ''' helper routine for case insensitive dictionary search '''
@@ -52,8 +51,8 @@ class DT_DenonVol(DT.Datatype):
             # "real" integer
             return f'{int(data):02}'
         else:
-           # float with fractional value
-           return f'{int(data):02}5'
+            # float with fractional value
+            return f'{int(data):02}5'
 
     def get_shng_data(self, data, type=None):
         if len(data) == 3:
@@ -139,6 +138,7 @@ class DT_DenonDialog(DT.Datatype):
         else:
             return 0
 
+
 class DT_onoff(DT.Datatype):
     def get_send_data(self, data):
         return 'ON' if data else 'OFF'
@@ -169,8 +169,8 @@ class DT_remap50to0(DT.Datatype):
             # "real" integer
             return f'{(int(data)+50):02}'
         else:
-           # float with fractional value
-           return f'{(int(data)+50):02}5'
+            # float with fractional value
+            return f'{(int(data)+50):02}5'
 
     def get_shng_data(self, data, type=None):
         if len(data) == 3:
@@ -186,9 +186,11 @@ class DT_DenonInputsignal(DT.Datatype):
 
 class DT_DenonResolution(DT.Datatype):
     def get_send_data(self, data):
+        # TODO: kann ich noch verstehen, wenn - direkte - Texteingaben vom Nutzer verarbeitet werden (LC/UC/MC)
         return dict_get_ci(dict_rev(lookup.RESOLUTION), data)
 
     def get_shng_data(self, data, type=None):
+        # TODO: hier verstehe ich CI nicht - vom Gerät sollte doch immer der eindeutige Identifier (lookup: key) kommen?
         return dict_get_ci(lookup.RESOLUTION, data)
 
 

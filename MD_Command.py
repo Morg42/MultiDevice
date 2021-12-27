@@ -136,7 +136,6 @@ class MD_Command(object):
 
     def _check_min_max(self, data, key, min=True, force=False):
         ''' helper routine to check for min/max compliance and int/float type '''
-        # if self.settings.get(key, None): this results in False if value is 0!
         if key in self.settings:
             bound = self.settings[key]
             if not isinstance(data, type(bound)):
@@ -145,13 +144,13 @@ class MD_Command(object):
                 elif type(data) is int and type(bound) is float:
                     data = float(data)
                 else:
-                    raise ValueError(f'Invalid data: type {type(data)} ({data}) given for {type(bound)} ({bound})')
+                    raise ValueError(f'type {type(data)} ({data}) given for {type(bound)} ({bound})')
             if (min and data >= bound) or (not min and data <= bound):
                 return data
             if force:
                 self.logger.debug(f'Value {data} changed to {bound} due to settings {self.settings}')
                 return bound
-            raise ValueError(f'Invalid data: value {data} not adhering to {"valid_min" if min else "valid_max"} value {bound}')
+            raise ValueError(f'value {data} not adhering to {"min" if min else "max"} value {bound}')
         return data
 
     def _check_value(self, data):
@@ -161,9 +160,10 @@ class MD_Command(object):
 
         non-compliance will raise ValueError
 
-        This can be overloaded; make sure to (first?) call
+        This can be overloaded; make sure to call
         data = super()._check_value(data)
-        to run this code in addition to your own extension, if applicable
+        to run this code in addition to your own extension, if applicable.
+        Take care of the sequence of changing data, though...
 
         :param data: data/value to send
         :return: adjusted data
@@ -171,33 +171,30 @@ class MD_Command(object):
         if data is not None:
             try:
 
-                minmaxkeys = ['valid_min', 'valid_max', 'force_min', 'force_max']
                 if self.settings:
-                    if self.settings.get('read_val', None):
+                    if self.settings.get('read_val', None) is not None:  # read_val COULD be 0, not that it seems sensible, though...
                         # if data == read_val, trigger force reading value from device by not providing data to command
                         if data == self.settings['read_val']:
                             return None
-                    if self.settings.get('valid_list_ci', None):
-                        valid_list_ci = self.settings.get('valid_list_ci')
-                        if isinstance(data, str):
-                            # test case in-sensitive, return result in lower case
-                            if data.lower() in (entry.lower() for entry in valid_list_ci):
-                                data = data.lower()
-                            else:
-                                raise ValueError(f'Invalid data: value {data} not in case insensitive list {valid_list_ci}')
-                        elif data not in valid_list_ci:
-                            raise ValueError(f'Invalid data: non-string value {data} not in case insensitive list {valid_list_ci}')
 
+                    if self.settings.get('valid_list_ci', None):
+                        val = data
+                        if isinstance(data, str):
+                            val = data.lower()
+                        # TODO: old behaviour is not consistent - I would expect a valid_list_ci to be checked ci, but not to change the data!
+                        #       lowercase data needs to be explicitly converted by command str or DT type
+                        if val not in self.settings['valid_list_ci']:
+                            raise ValueError(f'value {val} not in case insensitive list {self.settings["valid_list_ci"]}')
                     elif self.settings.get('valid_list', None):
                         if data not in self.settings['valid_list']:
-                            raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')
-
-                    if any(key in self.settings.keys() for key in minmaxkeys):
-                        for key in minmaxkeys:
+                            raise ValueError(f'value {data} not in list {self.settings["valid_list"]}')
+                    # min/max not in addition to valid_list
+                    elif any(key in self.settings.keys() for key in MINMAXKEYS):
+                        for key in MINMAXKEYS:
                             data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
 
             except Exception as e:
-                raise ValueError(f'Given value {data} for command {self.name} not valid according to settings {self.settings}. Error was: {e}')
+                raise ValueError(f'Given invalid value for command {self.name} due to settings. Error was: {e}')
 
         return data
 
@@ -347,15 +344,9 @@ class MD_Command_ParseStr(MD_Command_Str):
             # create write data
             if self.write_cmd:
                 # test if write_cmd is ':foo:' to trigger formatting/substitution
+                # reminder: ':val:' replaces val with 'raw' val, 'MD_VALUE' uses DT.get_send_data(val)
                 if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
-                    if '{VAL_UPPER}' in self.write_cmd:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_UPPER=data.upper()))
-                    elif '{VAL_LOWER}' in self.write_cmd:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_LOWER=data.lower()))
-                    elif '{VAL_CAP}' in self.write_cmd:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_CAP=data.capitalize()))
-                    else:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
+                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
                 else:
                     cmd_str = self._parse_str(self.write_cmd, data)
             else:

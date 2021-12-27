@@ -136,7 +136,8 @@ class MD_Command(object):
 
     def _check_min_max(self, data, key, min=True, force=False):
         ''' helper routine to check for min/max compliance and int/float type '''
-        if self.settings.get(key, None):
+        # if self.settings.get(key, None): this results in False if value is 0!
+        if key in self.settings:
             bound = self.settings[key]
             if not isinstance(data, type(bound)):
                 if type(data) is float and type(bound) is int:
@@ -150,7 +151,7 @@ class MD_Command(object):
             if force:
                 self.logger.debug(f'Value {data} changed to {bound} due to settings {self.settings}')
                 return bound
-            raise ValueError(f'Invalid data: value {data} not adhering to {"min" if min else "max"} value {bound}')
+            raise ValueError(f'Invalid data: value {data} not adhering to {"valid_min" if min else "valid_max"} value {bound}')
         return data
 
     def _check_value(self, data):
@@ -160,7 +161,7 @@ class MD_Command(object):
 
         non-compliance will raise ValueError
 
-        This can be overloaded; make sure to (first?) call 
+        This can be overloaded; make sure to (first?) call
         data = super()._check_value(data)
         to run this code in addition to your own extension, if applicable
 
@@ -169,17 +170,29 @@ class MD_Command(object):
         '''
         if data is not None:
             try:
-    
-                minmaxkeys = ['min', 'max', 'force_min', 'force_max']
+
+                minmaxkeys = ['valid_min', 'valid_max', 'force_min', 'force_max']
                 if self.settings:
                     if self.settings.get('read_val', None):
                         # if data == read_val, trigger force reading value from device by not providing data to command
                         if data == self.settings['read_val']:
                             return None
+                    if self.settings.get('valid_list_ci', None):
+                        valid_list_ci = self.settings.get('valid_list_ci')
+                        if isinstance(data, str):
+                            # test case in-sensitive, return result in lower case
+                            if data.lower() in (entry.lower() for entry in valid_list_ci):
+                                data = data.lower()
+                            else:
+                                raise ValueError(f'Invalid data: value {data} not in case insensitive list {valid_list_ci}')
+                        elif data not in valid_list_ci:
+                            raise ValueError(f'Invalid data: non-string value {data} not in case insensitive list {valid_list_ci}')
+
                     elif self.settings.get('valid_list', None):
                         if data not in self.settings['valid_list']:
                             raise ValueError(f'Invalid data: value {data} not in list {self.settings["valid_list"]}')
-                    elif any(key in self.settings.keys() for key in minmaxkeys):
+
+                    if any(key in self.settings.keys() for key in minmaxkeys):
                         for key in minmaxkeys:
                             data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
 
@@ -292,20 +305,20 @@ class MD_Command_Str(MD_Command):
 class MD_Command_ParseStr(MD_Command_Str):
     '''
     With this class, you can simplify the creation of read and write commands
-    containing data values. 
+    containing data values.
 
     Default behaviour is identical to MD_Command_Str.
 
     Giving write_cmd as ':<write expression>:' (note colons) will format the
     given string (without the colons), replacing 'VAL' with the value by using
-    write_cmd.format(VAL=data_dict['payload']), so you can immediately embed 
-    the value in the command string with configurable formatting conforming 
+    write_cmd.format(VAL=data_dict['payload']), so you can immediately embed
+    the value in the command string with configurable formatting conforming
     to str.format() syntax.
     If you have to start and end the command string with colons, just use
     '::foo::' as write_cmd. If you absolutely HAVE to use a literal
     ':foo{VAL}bar:', you might need to write your own class...
 
-    Giving reply_pattern as '<regex>' with one (1) match group will try and 
+    Giving reply_pattern as '<regex>' with one (1) match group will try and
     capture the matched group into the received value.
 
     Giving reply_pattern as '<regex>' without capturing parentheses will return
@@ -335,7 +348,14 @@ class MD_Command_ParseStr(MD_Command_Str):
             if self.write_cmd:
                 # test if write_cmd is ':foo:' to trigger formatting/substitution
                 if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
-                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
+                    if '{VAL_UPPER}' in self.write_cmd:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_UPPER=data.upper()))
+                    elif '{VAL_LOWER}' in self.write_cmd:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_LOWER=data.lower()))
+                    elif '{VAL_CAP}' in self.write_cmd:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL_CAP=data.capitalize()))
+                    else:
+                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
                 else:
                     cmd_str = self._parse_str(self.write_cmd, data)
             else:
@@ -352,7 +372,7 @@ class MD_Command_ParseStr(MD_Command_Str):
         If a match is found without a capturing group, the value will be
         returned as-is, possibly to be converted by the DT class.
 
-        If no match can be achieved, it is not possible to return 
+        If no match can be achieved, it is not possible to return
         a meaningful value. To signal the error, an exception will be raised.
         '''
         if self.reply_pattern:

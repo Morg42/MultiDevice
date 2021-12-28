@@ -50,15 +50,15 @@ class MD_Device(object):
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_<device_id>/commands.py (see dev_example for format)
+    Configuration is done via dev_<device_type>/commands.py (see dev_example for format)
 
-    :param device_id: device type as used in derived class names
-    :param device_name: device name for use in item configuration and logs
+    :param device_type: device type as used in derived class names
+    :param device_id: device id for use in item configuration and logs
+    :type device_type: str
     :type device_id: str
-    :type device_name: str
     '''
 
-    def __init__(self, device_id, device_name, **kwargs):
+    def __init__(self, device_type, device_id, **kwargs):
         '''
         This initializes the class object.
 
@@ -70,9 +70,9 @@ class MD_Device(object):
         '''
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, 'logger'):
-            self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
+            self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
-        self.logger.debug(f'device {device_name} initializing from {self.__class__.__name__} with arguments {kwargs}')
+        self.logger.debug(f'initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # the connection object
         self._connection = None
@@ -82,8 +82,8 @@ class MD_Device(object):
 
         # set class properties
         self._plugin_params = kwargs
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.alive = False
         self.disabled = True
         self._runtime_data_set = False
@@ -148,8 +148,8 @@ class MD_Device(object):
     def stop(self):
         self.logger.debug('stop method called')
         self.alive = False
-        if self._plugin and self._plugin.scheduler_get(self.device + '_cyclic'):
-            self._plugin.scheduler_remove(self.device + '_cyclic')
+        if self._plugin and self._plugin.scheduler_get(self.device_id + '_cyclic'):
+            self._plugin.scheduler_remove(self.device_id + '_cyclic')
         self._connection.close()
 
     # def run_standalone(self):
@@ -218,7 +218,7 @@ class MD_Device(object):
             else:            
                 self.logger.debug(f'command {command} received result {result}, converted to value {value}')
                 if self._data_received_callback:
-                    self._data_received_callback(self.device, command, value)
+                    self._data_received_callback(self.device_id, command, value)
                 else:
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
         return True
@@ -250,7 +250,7 @@ class MD_Device(object):
         else:
             self.logger.debug(f'received data "{data}" for command {command} converted to value {value}')
             if self._data_received_callback:
-                self._data_received_callback(self.device, command, value)
+                self._data_received_callback(self.device_id, command, value)
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
@@ -403,7 +403,7 @@ class MD_Device(object):
             cls = getattr(module, 'MD_Connection')
 
         self.logger.debug(f'using connection class {cls}')
-        return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+        return cls(self.device_type, self.device_id, self.on_data_received, **self._plugin_params)
 
     #
     #
@@ -436,10 +436,10 @@ class MD_Device(object):
             workercycle = int(shortestcycle / 2)
 
             # just in case it already exists...
-            if self._plugin.scheduler_get(self.device + '_cyclic'):
-                self._plugin.scheduler_remove(self.device + '_cyclic')
-            self._plugin.scheduler_add(self.device + '_cyclic', self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
-            self.logger.info(f'Added cyclic worker thread {self.device}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s')
+            if self._plugin.scheduler_get(self.device_id + '_cyclic'):
+                self._plugin.scheduler_remove(self.device_id + '_cyclic')
+            self._plugin.scheduler_add(self.device_id + '_cyclic', self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
+            self.logger.info(f'Added cyclic worker thread {self.device_id}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s')
 
     def _read_initial_values(self):
         '''
@@ -506,5 +506,5 @@ class MD_Device(object):
         cls = self._command_class
         if cls is None:
             cls = MD_Command
-        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
+        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._plugin_params)
         return

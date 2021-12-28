@@ -53,7 +53,7 @@ class MD_Command(object):
 
     This class serves as a base class for further format-specific command types.
     '''
-    device = ''
+    device_id = ''
     name = ''
     opcode = ''
     read = False
@@ -67,16 +67,16 @@ class MD_Command(object):
     lookup = None
     _DT = None
 
-    def __init__(self, device_name, command, dt_class, **kwargs):
+    def __init__(self, device_id, command, dt_class, **kwargs):
 
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, 'logger'):
-            self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
+            self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
-        if not device_name:
+        if not device_id:
             self.logger.warning(f'building command {command} without a device, aborting')
         else:
-            self.device = device_name
+            self.device_id = device_id
 
         if not command:
             self.logger.warning(f'building command without a name, aborting')
@@ -175,14 +175,11 @@ class MD_Command(object):
         '''
         if data is not None:
             try:
-
                 if self.settings:
                     if self.settings.get('valid_list_ci', None):
                         val = data
                         if isinstance(data, str):
                             val = data.lower()
-                        # TODO: old behaviour is not consistent - I would expect a valid_list_ci to be checked ci, but not to change the data!
-                        #       lowercase data needs to be explicitly converted by command str or DT type
                         if val not in self.settings['valid_list_ci']:
                             raise ValueError(f'value {val} not in case insensitive list {self.settings["valid_list_ci"]}')
                     elif self.settings.get('valid_list', None):
@@ -260,8 +257,8 @@ class MD_Command_Str(MD_Command):
         - MD_PARAM:<elem>: with the plugin parameter
         - MD_VALUE with the data value
 
-        The replacement order ensures that $P-patterns from the opcode can be replaced
-        as well as $V-pattern in any of the strings.
+        The replacement order ensures that MD_PARAM-patterns from the opcode
+        can be replaced as well as MD_VALUE-pattern in any of the strings.
         '''
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), ''))

@@ -53,27 +53,27 @@ class MD_Commands(object):
 
     Furthermore, this could be overloaded if so needed for special extensions.
     '''
-    def __init__(self, device_id, device_name, command_obj_class=MD_Command, **kwargs):
+    def __init__(self, device_type, device_id, command_obj_class=MD_Command, **kwargs):
 
         # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_name}')
+        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
         self.logger.debug(f'commands initializing from {command_obj_class.__name__}')
         self._commands = {}         # { 'cmd_x': MD_Command(params), ... }
         self._lookups = {}          # { 'name_x': {'fwd': {'K1': 'V1', ...}, 'rev': {'V1': 'K1', ...}, 'rci': {'v1': 'K1', ...}}}
         self._lookup_tables = []
-        self.device = device_name
-        self._device_id = device_id
+        self.device_id = device_id
+        self._device_type = device_type
         self._cmd_class = command_obj_class
         self._plugin_params = kwargs
         self._dt = {}
         self._return_value = None
-        self._read_dt_classes(device_id)
-        if not self._read_commands(device_name):
+        self._read_dt_classes(device_type)
+        if not self._read_commands(device_id):
             return None
 
         if self._commands:
-            self.logger.debug('commands initialized')
+            self.logger.debug(f'{len(self._commands)} commands initialized')
         else:
             self.logger.error('commands could not be initialized')
 
@@ -132,6 +132,13 @@ class MD_Commands(object):
                         return command
         return None
 
+    def get_lookup(self, lookup, type='fwd'):
+        ''' returns the lookup table for name <lookup>, None on error '''
+        if lookup in self._lookups and type in ('fwd', 'rev', 'rci'):
+            return self._lookups[lookup][type]
+        else:
+            return None
+
     def _lookup(self, data, table, rev=False, ci=True):
         '''
         try to lookup data from lookup dict <table>
@@ -174,13 +181,6 @@ class MD_Commands(object):
 
         raise ValueError(f'Lookup of value {data} in table {table} failed, entry not found.')            
 
-    def get_lookup(self, lookup, type='fwd'):
-        ''' returns the lookup table for name <lookup>, None on error '''
-        if lookup in self._lookups and type in ('fwd', 'rev', 'rci'):
-            return self._lookups[lookup][type]
-        else:
-            return None
-
     def _get_cmd_lookup(self, command):
         ''' returns lookup name for command or None '''
         if command in self._commands:
@@ -188,7 +188,7 @@ class MD_Commands(object):
 
         raise Exception(f'command {command} not found in commands')
 
-    def _read_dt_classes(self, device_id):
+    def _read_dt_classes(self, device_type):
         '''
         This method enumerates all classes named 'DT_*' from the Datatypes module
         and tries to load custom 'DT_*' classes from the device's subdirectory
@@ -207,7 +207,7 @@ class MD_Commands(object):
         _enum_dt_cls(DT)
 
         # try to load datatypes.py from device directory
-        mod_str = 'dev_' + device_id + '.datatypes'
+        mod_str = 'dev_' + device_type + '.datatypes'
         if not MD_standalone:
             mod_str = '.'.join(self.__module__.split('.')[:-1]) + '.' + mod_str
 
@@ -215,16 +215,17 @@ class MD_Commands(object):
         if cust_mod:
             _enum_dt_cls(cust_mod)
 
-    def _read_commands(self, device_name):
+    def _read_commands(self, device_id):
         '''
         This is the loader portion for the commands.py file.
         '''
-        # did we get a device id?
-        if not self._device_id:
+        # did we get a device type?
+        if not self._device_type:
+            self.logger.warning('device_type not set, not reading commands')
             return
 
         # try to load commands.py from device directory
-        mod_str = 'dev_' + self._device_id + '.commands'
+        mod_str = 'dev_' + self._device_type + '.commands'
         if not MD_standalone:
             mod_str = '.'.join(self.__module__.split('.')[:-1]) + '.' + mod_str
 
@@ -233,25 +234,25 @@ class MD_Commands(object):
             # get module
             cmd_module = locate(mod_str)
         except ImportError:
-            msg = f'importing external module {"dev_" + self._device_id + "/commands.py"} failed'
+            msg = f'importing external module {"dev_" + self._device_type + "/commands.py"} failed'
             self.logger.error(msg)
             raise ImportError(msg)
         except Exception as e:
-            msg = f'importing commands from external module {"dev_" + self._device_id + "/commands.py"} failed. Error was: {e}'
+            msg = f'importing commands from external module {"dev_" + self._device_type + "/commands.py"} failed. Error was: {e}'
             self.logger.error(msg)
             raise SyntaxError(msg)
 
         if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict):
-            self._parse_commands(device_name, cmd_module.commands)
+            self._parse_commands(device_id, cmd_module.commands)
         else:
             self.logger.warning('no command definitions found. This device probably will not work...')
 
         if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
-            self._parse_lookups(device_name, cmd_module.lookups)
+            self._parse_lookups(device_id, cmd_module.lookups)
         else:
             self.logger.info('no lookups found')
 
-    def _parse_commands(self, device_name, commands):
+    def _parse_commands(self, device_id, commands):
         '''
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
@@ -282,9 +283,9 @@ class MD_Commands(object):
             if not dt_class:
                 self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
-            self._commands[cmd] = self._cmd_class(self.device, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
+            self._commands[cmd] = self._cmd_class(self.device_id, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
 
-    def _parse_lookups(self, device_name, lookups):
+    def _parse_lookups(self, device_id, lookups):
         '''
         This is a reference implementation for parsing the lookups dict imported
         from the commands.py file in the device subdirectory.

@@ -76,22 +76,22 @@ class MD_Connection(object):
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
 
-    :param device_id: device type as used in commands.py name
-    :param device_name: device name for use in item configuration and logs
+    :param device_type: device type as used in commands.py name
+    :param device_id: device id for use in item configuration and logs
+    :type device_type: str
     :type device_id: str
-    :type device_name: str
     &#39;&#39;&#39;
-    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, &#39;logger&#39;):
-            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
         self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
 
         # set class properties
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.connected = False
 
         self._params = kwargs
@@ -140,21 +140,21 @@ class MD_Connection(object):
         :return: True if successful
         :rtype: bool
         &#39;&#39;&#39;
-        self.logger.debug(f&#39;simulating opening connection as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;simulating opening connection as {__name__} with params {self._params}&#39;)
         return True
 
     def _close(self):
         &#39;&#39;&#39;
         Overload with closing of connection
         &#39;&#39;&#39;
-        self.logger.debug(f&#39;simulating closing connection as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;simulating closing connection as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
         &#39;&#39;&#39;
         Overload with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
         &#39;&#39;&#39;
-        self.logger.debug(f&#39;device {self.device} simulating to send data {data_dict}...&#39;)
+        self.logger.debug(f&#39;simulating to send data {data_dict}...&#39;)
         return None
 
     def _send_init_on_open(self):
@@ -206,11 +206,11 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
     Response data is returned as text. Errors raise HTTPException
     &#39;&#39;&#39;
     def _open(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} with params {self._params}&#39;)
         return True
 
     def _close(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
         url = data_dict.get(&#39;payload&#39;, None)
@@ -260,16 +260,16 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         def data_received_callback(command, message)
     If callbacks are class members, they need the additional first parameter &#39;self&#39;
     &#39;&#39;&#39;
-    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
-        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
         self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
 
         # set class properties
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.connected = False
 
         # make sure we have a basic set of parameters for the TCP connection
@@ -297,14 +297,14 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
 
     def _open(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} with params {self._params}&#39;)
         if not self._tcp.connected():
             self._tcp.connect()
             sleep(2)
         return self._tcp.connected()
 
     def _close(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__}&#39;)
         self._tcp.close()
 
     def on_disconnect(self, client):
@@ -368,16 +368,16 @@ class MD_Connection_Serial_Async(MD_Connection):
 <dl>
 <dt id="multidevice.MD_Connection.MD_Connection"><code class="flex name class">
 <span>class <span class="ident">MD_Connection</span></span>
-<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+<span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
-<p>:param device_id: device type as used in commands.py name
-:param device_name: device name for use in item configuration and logs
-:type device_id: str
-:type device_name: str</p></div>
+<p>:param device_type: device type as used in commands.py name
+:param device_id: device id for use in item configuration and logs
+:type device_type: str
+:type device_id: str</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -388,22 +388,22 @@ is something to implement in the interface-specific derived classes.</p>
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
 
-    :param device_id: device type as used in commands.py name
-    :param device_name: device name for use in item configuration and logs
+    :param device_type: device type as used in commands.py name
+    :param device_id: device id for use in item configuration and logs
+    :type device_type: str
     :type device_id: str
-    :type device_name: str
     &#39;&#39;&#39;
-    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, &#39;logger&#39;):
-            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
         self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
 
         # set class properties
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.connected = False
 
         self._params = kwargs
@@ -452,21 +452,21 @@ is something to implement in the interface-specific derived classes.</p>
         :return: True if successful
         :rtype: bool
         &#39;&#39;&#39;
-        self.logger.debug(f&#39;simulating opening connection as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;simulating opening connection as {__name__} with params {self._params}&#39;)
         return True
 
     def _close(self):
         &#39;&#39;&#39;
         Overload with closing of connection
         &#39;&#39;&#39;
-        self.logger.debug(f&#39;simulating closing connection as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;simulating closing connection as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
         &#39;&#39;&#39;
         Overload with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
         &#39;&#39;&#39;
-        self.logger.debug(f&#39;device {self.device} simulating to send data {data_dict}...&#39;)
+        self.logger.debug(f&#39;simulating to send data {data_dict}...&#39;)
         return None
 
     def _send_init_on_open(self):
@@ -575,7 +575,7 @@ is something to implement in the interface-specific derived classes.</p>
 </dd>
 <dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Client"><code class="flex name class">
 <span>class <span class="ident">MD_Connection_Net_Tcp_Client</span></span>
-<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+<span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class implements a TCP connection using a single persistent connection
@@ -603,16 +603,16 @@ If callbacks are class members, they need the additional first parameter 'self'<
         def data_received_callback(command, message)
     If callbacks are class members, they need the additional first parameter &#39;self&#39;
     &#39;&#39;&#39;
-    def __init__(self, device_id, device_name, data_received_callback, **kwargs):
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
-        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+        self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
         self.logger.debug(f&#39;connection initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
 
         # set class properties
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.connected = False
 
         # make sure we have a basic set of parameters for the TCP connection
@@ -640,14 +640,14 @@ If callbacks are class members, they need the additional first parameter 'self'<
         self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
 
     def _open(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} with params {self._params}&#39;)
         if not self._tcp.connected():
             self._tcp.connect()
             sleep(2)
         return self._tcp.connected()
 
     def _close(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__}&#39;)
         self._tcp.close()
 
     def on_disconnect(self, client):
@@ -738,7 +738,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
 </dd>
 <dt id="multidevice.MD_Connection.MD_Connection_Net_Tcp_Request"><code class="flex name class">
 <span>class <span class="ident">MD_Connection_Net_Tcp_Request</span></span>
-<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+<span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class implements TCP connections in the query-reply matter using
@@ -765,11 +765,11 @@ parameter dicts can be added to be given to requests.request, as
     Response data is returned as text. Errors raise HTTPException
     &#39;&#39;&#39;
     def _open(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} with params {self._params}&#39;)
         return True
 
     def _close(self):
-        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} for device {self.device} with params {self._params}&#39;)
+        self.logger.debug(f&#39;{self.__class__.__name__} &#34;closing connection&#34; as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
         url = data_dict.get(&#39;payload&#39;, None)
@@ -820,16 +820,16 @@ parameter dicts can be added to be given to requests.request, as
 </dd>
 <dt id="multidevice.MD_Connection.MD_Connection_Net_Udp_Server"><code class="flex name class">
 <span>class <span class="ident">MD_Connection_Net_Udp_Server</span></span>
-<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+<span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
-<p>:param device_id: device type as used in commands.py name
-:param device_name: device name for use in item configuration and logs
-:type device_id: str
-:type device_name: str</p></div>
+<p>:param device_type: device type as used in commands.py name
+:param device_id: device id for use in item configuration and logs
+:type device_type: str
+:type device_id: str</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -853,16 +853,16 @@ is something to implement in the interface-specific derived classes.</p>
 </dd>
 <dt id="multidevice.MD_Connection.MD_Connection_Serial_Async"><code class="flex name class">
 <span>class <span class="ident">MD_Connection_Serial_Async</span></span>
-<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+<span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
-<p>:param device_id: device type as used in commands.py name
-:param device_name: device name for use in item configuration and logs
-:type device_id: str
-:type device_name: str</p></div>
+<p>:param device_type: device type as used in commands.py name
+:param device_id: device id for use in item configuration and logs
+:type device_type: str
+:type device_id: str</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -886,16 +886,16 @@ is something to implement in the interface-specific derived classes.</p>
 </dd>
 <dt id="multidevice.MD_Connection.MD_Connection_Serial_Client"><code class="flex name class">
 <span>class <span class="ident">MD_Connection_Serial_Client</span></span>
-<span>(</span><span>device_id, device_name, data_received_callback, **kwargs)</span>
+<span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
-<p>:param device_id: device type as used in commands.py name
-:param device_name: device name for use in item configuration and logs
-:type device_id: str
-:type device_name: str</p></div>
+<p>:param device_type: device type as used in commands.py name
+:param device_id: device id for use in item configuration and logs
+:type device_type: str
+:type device_id: str</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>

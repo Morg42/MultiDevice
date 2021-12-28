@@ -54,7 +54,7 @@ CONN_SER_ASYNC          = 'serial_async'     # serial connection with async data
 CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_SYN, CONN_NET_TCP_CLI, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
 
 # item attributes (as defines in plugin.yaml)
-ITEM_ATTR_DEVICE        = 'md_device'
+ITEM_ATTR_DEVICE        = 'md_deviceid'
 ITEM_ATTR_COMMAND       = 'md_command'
 ITEM_ATTR_READ          = 'md_read'
 ITEM_ATTR_CYCLE         = 'md_read_cycle'

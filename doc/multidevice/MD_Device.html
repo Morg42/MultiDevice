@@ -78,15 +78,15 @@ class MD_Device(object):
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_&lt;device_id&gt;/commands.py (see dev_example for format)
+    Configuration is done via dev_&lt;device_type&gt;/commands.py (see dev_example for format)
 
-    :param device_id: device type as used in derived class names
-    :param device_name: device name for use in item configuration and logs
+    :param device_type: device type as used in derived class names
+    :param device_id: device id for use in item configuration and logs
+    :type device_type: str
     :type device_id: str
-    :type device_name: str
     &#39;&#39;&#39;
 
-    def __init__(self, device_id, device_name, **kwargs):
+    def __init__(self, device_type, device_id, **kwargs):
         &#39;&#39;&#39;
         This initializes the class object.
 
@@ -98,9 +98,9 @@ class MD_Device(object):
         &#39;&#39;&#39;
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, &#39;logger&#39;):
-            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
-        self.logger.debug(f&#39;device {device_name} initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+        self.logger.debug(f&#39;initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
 
         # the connection object
         self._connection = None
@@ -110,9 +110,10 @@ class MD_Device(object):
 
         # set class properties
         self._plugin_params = kwargs
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.alive = False
+        self.disabled = True
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
@@ -120,6 +121,7 @@ class MD_Device(object):
 
         self._data_received_callback = None
         self._commands_read = {}
+        self._commands_read_grp = {}
         self._commands_initial = []
         self._commands_cyclic = {}
 
@@ -131,22 +133,31 @@ class MD_Device(object):
         self._set_device_params()
 
         # try to read configuration files
-        if not self._read_configuration():
-            self.logger.error(&#39;configuration could not be read, device disabled&#39;)
-            return
+        try:
+            if not self._read_configuration():
+                self.logger.error(&#39;configuration could not be read, device disabled&#39;)
+                return False
+        except Exception as e:
+            self.logger.error(f&#39;configuration could not be read, device disabled. Original error: {e}&#39;)
+            return False
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
             self.logger.error(f&#39;could not setup connection with {kwargs}, device disabled&#39;)
-            return
+            return False
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
             self.logger.debug(f&#39;device initialized from {self.__class__.__name__}&#39;)
 
+        self.disabled = False
+
     def start(self):
         if self.alive:
+            return
+        if self.disabled:
+            self.logger.error(&#39;start method called, but device is disabled&#39;)
             return
         if self._runtime_data_set:
             self.logger.debug(&#39;start method called&#39;)
@@ -165,8 +176,8 @@ class MD_Device(object):
     def stop(self):
         self.logger.debug(&#39;stop method called&#39;)
         self.alive = False
-        if self._plugin and self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
-            self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+        if self._plugin and self._plugin.scheduler_get(self.device_id + &#39;_cyclic&#39;):
+            self._plugin.scheduler_remove(self.device_id + &#39;_cyclic&#39;)
         self._connection.close()
 
     # def run_standalone(self):
@@ -235,7 +246,7 @@ class MD_Device(object):
             else:            
                 self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
                 if self._data_received_callback:
-                    self._data_received_callback(self.device, command, value)
+                    self._data_received_callback(self.device_id, command, value)
                 else:
                     self.logger.warning(f&#39;command {command} received result {result}, but _data_received_callback is not set. Discarding result.&#39;)
         return True
@@ -267,16 +278,21 @@ class MD_Device(object):
         else:
             self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command} converted to value {value}&#39;)
             if self._data_received_callback:
-                self._data_received_callback(self.device, command, value)
+                self._data_received_callback(self.device_id, command, value)
             else:
                 self.logger.warning(f&#39;command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.&#39;)
 
-    def read_all_commands(self):
+    def read_all_commands(self, group=0):
         &#39;&#39;&#39;
-        Triggers all configured read commands
+        Triggers all configured read commands or all configured commands of given group
         &#39;&#39;&#39;
-        for cmd in self._commands_read:
-            self.send_command(cmd)
+        if not group:
+            for cmd in self._commands_read:
+                self.send_command(cmd)
+        else:
+            if group in self._commands_read_grp:
+                for cmd in self._commands_read_grp[group]:
+                    self.send_command(cmd)
 
     def is_valid_command(self, command, read=None):
         &#39;&#39;&#39;
@@ -303,6 +319,7 @@ class MD_Device(object):
         &#39;&#39;&#39;
         try:
             self._commands_read = kwargs[&#39;read_commands&#39;]
+            self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
             self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
             self._commands_initial = kwargs[&#39;initial_commands&#39;]
             self._data_received_callback = kwargs[&#39;callback&#39;]
@@ -332,6 +349,13 @@ class MD_Device(object):
 
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
+
+    def get_lookup(self, lookup):
+        &#39;&#39;&#39; returns the lookup table for name &lt;lookup&gt;, None on error &#39;&#39;&#39;
+        if self._commands:
+            return self._commands.get_lookup(lookup)
+        else:
+            return None
 
     #
     #
@@ -407,7 +431,7 @@ class MD_Device(object):
             cls = getattr(module, &#39;MD_Connection&#39;)
 
         self.logger.debug(f&#39;using connection class {cls}&#39;)
-        return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+        return cls(self.device_type, self.device_id, self.on_data_received, **self._plugin_params)
 
     #
     #
@@ -440,10 +464,10 @@ class MD_Device(object):
             workercycle = int(shortestcycle / 2)
 
             # just in case it already exists...
-            if self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
-                self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
-            self._plugin.scheduler_add(self.device + &#39;_cyclic&#39;, self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
-            self.logger.info(f&#39;Added cyclic worker thread {self.device}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s&#39;)
+            if self._plugin.scheduler_get(self.device_id + &#39;_cyclic&#39;):
+                self._plugin.scheduler_remove(self.device_id + &#39;_cyclic&#39;)
+            self._plugin.scheduler_add(self.device_id + &#39;_cyclic&#39;, self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
+            self.logger.info(f&#39;Added cyclic worker thread {self.device_id}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s&#39;)
 
     def _read_initial_values(self):
         &#39;&#39;&#39;
@@ -510,8 +534,8 @@ class MD_Device(object):
         cls = self._command_class
         if cls is None:
             cls = MD_Command
-        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
-        return True</code></pre>
+        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._plugin_params)
+        return</code></pre>
 </details>
 </section>
 <section>
@@ -525,17 +549,17 @@ class MD_Device(object):
 <dl>
 <dt id="multidevice.MD_Device.MD_Device"><code class="flex name class">
 <span>class <span class="ident">MD_Device</span></span>
-<span>(</span><span>device_id, device_name, **kwargs)</span>
+<span>(</span><span>device_type, device_id, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This class is the base class for a simple device class. It can process commands
 by sending values to the device and collect data by parsing data received from
 the device.</p>
-<p>Configuration is done via dev_<device_id>/commands.py (see dev_example for format)</p>
-<p>:param device_id: device type as used in derived class names
-:param device_name: device name for use in item configuration and logs
-:type device_id: str
-:type device_name: str</p>
+<p>Configuration is done via dev_<device_type>/commands.py (see dev_example for format)</p>
+<p>:param device_type: device type as used in derived class names
+:param device_id: device id for use in item configuration and logs
+:type device_type: str
+:type device_id: str</p>
 <p>This initializes the class object.</p>
 <p>As additional device classes are expected to be implemented as subclasses,
 most initialization steps are modularized as methods which can be overloaded
@@ -552,15 +576,15 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_&lt;device_id&gt;/commands.py (see dev_example for format)
+    Configuration is done via dev_&lt;device_type&gt;/commands.py (see dev_example for format)
 
-    :param device_id: device type as used in derived class names
-    :param device_name: device name for use in item configuration and logs
+    :param device_type: device type as used in derived class names
+    :param device_id: device id for use in item configuration and logs
+    :type device_type: str
     :type device_id: str
-    :type device_name: str
     &#39;&#39;&#39;
 
-    def __init__(self, device_id, device_name, **kwargs):
+    def __init__(self, device_type, device_id, **kwargs):
         &#39;&#39;&#39;
         This initializes the class object.
 
@@ -572,9 +596,9 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#39;&#39;&#39;
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, &#39;logger&#39;):
-            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_name}&#39;)
+            self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
-        self.logger.debug(f&#39;device {device_name} initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
+        self.logger.debug(f&#39;initializing from {self.__class__.__name__} with arguments {kwargs}&#39;)
 
         # the connection object
         self._connection = None
@@ -584,9 +608,10 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         # set class properties
         self._plugin_params = kwargs
+        self.device_type = device_type
         self.device_id = device_id
-        self.device = device_name
         self.alive = False
+        self.disabled = True
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
@@ -594,6 +619,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         self._data_received_callback = None
         self._commands_read = {}
+        self._commands_read_grp = {}
         self._commands_initial = []
         self._commands_cyclic = {}
 
@@ -605,22 +631,31 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         self._set_device_params()
 
         # try to read configuration files
-        if not self._read_configuration():
-            self.logger.error(&#39;configuration could not be read, device disabled&#39;)
-            return
+        try:
+            if not self._read_configuration():
+                self.logger.error(&#39;configuration could not be read, device disabled&#39;)
+                return False
+        except Exception as e:
+            self.logger.error(f&#39;configuration could not be read, device disabled. Original error: {e}&#39;)
+            return False
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
             self.logger.error(f&#39;could not setup connection with {kwargs}, device disabled&#39;)
-            return
+            return False
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
             self.logger.debug(f&#39;device initialized from {self.__class__.__name__}&#39;)
 
+        self.disabled = False
+
     def start(self):
         if self.alive:
+            return
+        if self.disabled:
+            self.logger.error(&#39;start method called, but device is disabled&#39;)
             return
         if self._runtime_data_set:
             self.logger.debug(&#39;start method called&#39;)
@@ -639,8 +674,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     def stop(self):
         self.logger.debug(&#39;stop method called&#39;)
         self.alive = False
-        if self._plugin and self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
-            self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+        if self._plugin and self._plugin.scheduler_get(self.device_id + &#39;_cyclic&#39;):
+            self._plugin.scheduler_remove(self.device_id + &#39;_cyclic&#39;)
         self._connection.close()
 
     # def run_standalone(self):
@@ -709,7 +744,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             else:            
                 self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
                 if self._data_received_callback:
-                    self._data_received_callback(self.device, command, value)
+                    self._data_received_callback(self.device_id, command, value)
                 else:
                     self.logger.warning(f&#39;command {command} received result {result}, but _data_received_callback is not set. Discarding result.&#39;)
         return True
@@ -741,16 +776,21 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         else:
             self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command} converted to value {value}&#39;)
             if self._data_received_callback:
-                self._data_received_callback(self.device, command, value)
+                self._data_received_callback(self.device_id, command, value)
             else:
                 self.logger.warning(f&#39;command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.&#39;)
 
-    def read_all_commands(self):
+    def read_all_commands(self, group=0):
         &#39;&#39;&#39;
-        Triggers all configured read commands
+        Triggers all configured read commands or all configured commands of given group
         &#39;&#39;&#39;
-        for cmd in self._commands_read:
-            self.send_command(cmd)
+        if not group:
+            for cmd in self._commands_read:
+                self.send_command(cmd)
+        else:
+            if group in self._commands_read_grp:
+                for cmd in self._commands_read_grp[group]:
+                    self.send_command(cmd)
 
     def is_valid_command(self, command, read=None):
         &#39;&#39;&#39;
@@ -777,6 +817,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#39;&#39;&#39;
         try:
             self._commands_read = kwargs[&#39;read_commands&#39;]
+            self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
             self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
             self._commands_initial = kwargs[&#39;initial_commands&#39;]
             self._data_received_callback = kwargs[&#39;callback&#39;]
@@ -806,6 +847,13 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
+
+    def get_lookup(self, lookup):
+        &#39;&#39;&#39; returns the lookup table for name &lt;lookup&gt;, None on error &#39;&#39;&#39;
+        if self._commands:
+            return self._commands.get_lookup(lookup)
+        else:
+            return None
 
     #
     #
@@ -881,7 +929,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             cls = getattr(module, &#39;MD_Connection&#39;)
 
         self.logger.debug(f&#39;using connection class {cls}&#39;)
-        return cls(self.device_id, self.device, self.on_data_received, **self._plugin_params)
+        return cls(self.device_type, self.device_id, self.on_data_received, **self._plugin_params)
 
     #
     #
@@ -914,10 +962,10 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             workercycle = int(shortestcycle / 2)
 
             # just in case it already exists...
-            if self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
-                self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
-            self._plugin.scheduler_add(self.device + &#39;_cyclic&#39;, self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
-            self.logger.info(f&#39;Added cyclic worker thread {self.device}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s&#39;)
+            if self._plugin.scheduler_get(self.device_id + &#39;_cyclic&#39;):
+                self._plugin.scheduler_remove(self.device_id + &#39;_cyclic&#39;)
+            self._plugin.scheduler_add(self.device_id + &#39;_cyclic&#39;, self._read_cyclic_values, cycle=workercycle, prio=5, offset=0)
+            self.logger.info(f&#39;Added cyclic worker thread {self.device_id}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s&#39;)
 
     def _read_initial_values(self):
         &#39;&#39;&#39;
@@ -984,16 +1032,35 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         cls = self._command_class
         if cls is None:
             cls = MD_Command
-        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
-        return True</code></pre>
+        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._plugin_params)
+        return</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="multidevice.dev_denon.device.MD_Device" href="dev_denon/device.html#multidevice.dev_denon.device.MD_Device">MD_Device</a></li>
 <li><a title="multidevice.dev_example.device.MD_Device" href="dev_example/device.html#multidevice.dev_example.device.MD_Device">MD_Device</a></li>
 <li><a title="multidevice.dev_example_http.device.MD_Device" href="dev_example_http/device.html#multidevice.dev_example_http.device.MD_Device">MD_Device</a></li>
+<li><a title="multidevice.dev_pioneer.device.MD_Device" href="dev_pioneer/device.html#multidevice.dev_pioneer.device.MD_Device">MD_Device</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="multidevice.MD_Device.MD_Device.get_lookup"><code class="name flex">
+<span>def <span class="ident">get_lookup</span></span>(<span>self, lookup)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>returns the lookup table for name <lookup>, None on error</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_lookup(self, lookup):
+    &#39;&#39;&#39; returns the lookup table for name &lt;lookup&gt;, None on error &#39;&#39;&#39;
+    if self._commands:
+        return self._commands.get_lookup(lookup)
+    else:
+        return None</code></pre>
+</details>
+</dd>
 <dt id="multidevice.MD_Device.MD_Device.is_valid_command"><code class="name flex">
 <span>def <span class="ident">is_valid_command</span></span>(<span>self, command, read=None)</span>
 </code></dt>
@@ -1068,26 +1135,31 @@ Processes data and dispatches value to plugin class</p>
     else:
         self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command} converted to value {value}&#39;)
         if self._data_received_callback:
-            self._data_received_callback(self.device, command, value)
+            self._data_received_callback(self.device_id, command, value)
         else:
             self.logger.warning(f&#39;command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.&#39;)</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Device.MD_Device.read_all_commands"><code class="name flex">
-<span>def <span class="ident">read_all_commands</span></span>(<span>self)</span>
+<span>def <span class="ident">read_all_commands</span></span>(<span>self, group=0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Triggers all configured read commands</p></div>
+<div class="desc"><p>Triggers all configured read commands or all configured commands of given group</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def read_all_commands(self):
+<pre><code class="python">def read_all_commands(self, group=0):
     &#39;&#39;&#39;
-    Triggers all configured read commands
+    Triggers all configured read commands or all configured commands of given group
     &#39;&#39;&#39;
-    for cmd in self._commands_read:
-        self.send_command(cmd)</code></pre>
+    if not group:
+        for cmd in self._commands_read:
+            self.send_command(cmd)
+    else:
+        if group in self._commands_read_grp:
+            for cmd in self._commands_read_grp[group]:
+                self.send_command(cmd)</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Device.MD_Device.send_command"><code class="name flex">
@@ -1161,7 +1233,7 @@ from the device and writing it to the associated item.</p>
         else:            
             self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
             if self._data_received_callback:
-                self._data_received_callback(self.device, command, value)
+                self._data_received_callback(self.device_id, command, value)
             else:
                 self.logger.warning(f&#39;command {command} received result {result}, but _data_received_callback is not set. Discarding result.&#39;)
     return True</code></pre>
@@ -1185,6 +1257,7 @@ from the device and writing it to the associated item.</p>
     &#39;&#39;&#39;
     try:
         self._commands_read = kwargs[&#39;read_commands&#39;]
+        self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
         self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
         self._commands_initial = kwargs[&#39;initial_commands&#39;]
         self._data_received_callback = kwargs[&#39;callback&#39;]
@@ -1204,6 +1277,9 @@ from the device and writing it to the associated item.</p>
 </summary>
 <pre><code class="python">def start(self):
     if self.alive:
+        return
+    if self.disabled:
+        self.logger.error(&#39;start method called, but device is disabled&#39;)
         return
     if self._runtime_data_set:
         self.logger.debug(&#39;start method called&#39;)
@@ -1232,8 +1308,8 @@ from the device and writing it to the associated item.</p>
 <pre><code class="python">def stop(self):
     self.logger.debug(&#39;stop method called&#39;)
     self.alive = False
-    if self._plugin and self._plugin.scheduler_get(self.device + &#39;_cyclic&#39;):
-        self._plugin.scheduler_remove(self.device + &#39;_cyclic&#39;)
+    if self._plugin and self._plugin.scheduler_get(self.device_id + &#39;_cyclic&#39;):
+        self._plugin.scheduler_remove(self.device_id + &#39;_cyclic&#39;)
     self._connection.close()</code></pre>
 </details>
 </dd>
@@ -1292,6 +1368,7 @@ from the device and writing it to the associated item.</p>
 <li>
 <h4><code><a title="multidevice.MD_Device.MD_Device" href="#multidevice.MD_Device.MD_Device">MD_Device</a></code></h4>
 <ul class="">
+<li><code><a title="multidevice.MD_Device.MD_Device.get_lookup" href="#multidevice.MD_Device.MD_Device.get_lookup">get_lookup</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.is_valid_command" href="#multidevice.MD_Device.MD_Device.is_valid_command">is_valid_command</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_data_received" href="#multidevice.MD_Device.MD_Device.on_data_received">on_data_received</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.read_all_commands" href="#multidevice.MD_Device.MD_Device.read_all_commands">read_all_commands</a></code></li>

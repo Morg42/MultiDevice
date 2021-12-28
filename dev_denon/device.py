@@ -18,12 +18,12 @@ import logging
 
 class MD_Device(MD_Device):
 
-    def __init__(self, device_id, device_name, **kwargs):
+    def __init__(self, device_type, device_id, **kwargs):
 
         # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_name}')
+        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
 
-        super().__init__(device_id, device_name, conn_type='net_tcp_client', terminator=b'\r', command_class=MD_Command_ParseStr, **kwargs)
+        super().__init__(device_type, device_id, conn_type='net_tcp_client', terminator=b'\r', command_class=MD_Command_ParseStr, **kwargs)
 
         # log own initialization with module (i.e. folder) name
         self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
@@ -45,5 +45,5 @@ class MD_Device(MD_Device):
         cls = self._command_class
         if cls is None:
             cls = MD_Command
-        self._commands = MD_Commands(self.device_id, self.device, cls, **self._plugin_params)
+        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._plugin_params)
         return True

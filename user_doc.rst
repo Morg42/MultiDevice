@@ -91,7 +91,7 @@ A basic framework for managing the device, i.e. (re-)configuring, starting
 and stopping the device is already implemented and can be used without code
 changed by device configuration.
 
-``MD_Device(device_id, device_name, **kwargs)``
+``MD_Device(device_type, device_id, **kwargs)``
 
 Public methods:
 
@@ -133,7 +133,7 @@ Data is exchanged with MD_Device in a special dict format:
     }
 
 
-``MD_Connection(device_id, device_name, data_received_callback, **kwargs)``
+``MD_Connection(device_type, device_id, data_received_callback, **kwargs)``
 
 Public methods:
 
@@ -176,7 +176,7 @@ and handles datatype association.
 No need to find out if ``command`` is defined, just call the methon
 and the class will handle failure cases. Beware of NoneType-return values, though.
 
-``MD_Commands(device_id, device_name, command_obj_class=MD_Command, **kwargs)``
+``MD_Commands(device_type, device_id, command_obj_class=MD_Command, **kwargs)``
 
 Public methods:
 
@@ -186,7 +186,7 @@ Public methods:
 
 Methods possible to overload:
 
-    - ``_parse_commands(device_name, commands)``
+    - ``_parse_commands(device_id, commands)``
 
 
 MD_Command
@@ -199,7 +199,7 @@ SmartHomeNG and the device itself.
 Its contents will be initialized by the MD_Commands-class while reading the
 command configuration.
 
-``MD_Command(device_name, command_name, dt_class, **kwargs)``
+``MD_Command(device_id, command_name, dt_class, **kwargs)``
 
 Public methods:
 
@@ -259,7 +259,7 @@ independently. Necessary configuration include the chosen devices respectively
 the device names and possibly device parameter in ``/etc/plugin.yaml``.
 
 The item configuration is supplemented by the attributes ``md_device`` and
-``md_command``, which designate the device name from plugin configuration and
+``md_command``, which designate the device id from plugin configuration and
 the command name from the device configuration, respectively.
 
 The device class needs comprehensive configuration concerning available commands,

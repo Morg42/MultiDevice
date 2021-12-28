@@ -82,22 +82,28 @@ CONN_SER_ASYNC          = &#39;serial_async&#39;     # serial connection with as
 CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_SYN, CONN_NET_TCP_CLI, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
 
 # item attributes (as defines in plugin.yaml)
-ITEM_ATTR_DEVICE        = &#39;md_device&#39;
+ITEM_ATTR_DEVICE        = &#39;md_deviceid&#39;
 ITEM_ATTR_COMMAND       = &#39;md_command&#39;
 ITEM_ATTR_READ          = &#39;md_read&#39;
 ITEM_ATTR_CYCLE         = &#39;md_read_cycle&#39;
 ITEM_ATTR_READ_INIT     = &#39;md_read_initial&#39;
+ITEM_ATTR_GROUP         = &#39;md_read_group&#39;
 ITEM_ATTR_WRITE         = &#39;md_write&#39;
-ITEM_ATTR_READ_ALL      = &#39;md_read_all&#39;
+ITEM_ATTR_READ_ALL      = &#39;md_read_all_trigger&#39;
+ITEM_ATTR_READ_GRP      = &#39;md_read_group_trigger&#39;
+ITEM_ATTR_LOOKUP        = &#39;md_lookup&#39;
 
-ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL)
+ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP)
 
 # command definition
 COMMAND_READ            = True
 COMMAND_WRITE           = False
 
 # commands definition parameters
-COMMAND_PARAMS          = (&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;dev_datatype&#39;, &#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;reply_token&#39;, &#39;reply_pattern&#39;, &#39;settings&#39;)
+COMMAND_PARAMS          = (&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;dev_datatype&#39;, &#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;reply_token&#39;, &#39;reply_pattern&#39;, &#39;settings&#39;, &#39;lookup&#39;)
+
+# keys for min / max values for data bounds
+MINMAXKEYS              = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_min&#39;, &#39;force_max&#39;)
 
 
 #############################################################################################################################################################################################################################################

@@ -48,6 +48,11 @@ general:
         md_deviceid: DEVICENAME
         md_command: general/error
         md_read: true
+
+        lookup:
+            type: dict
+            md_deviceid: DEVICENAME
+            md_lookup: ERROR
     display:
         type: str
         md_deviceid: DEVICENAME
@@ -116,6 +121,11 @@ zone1:
         md_write: true
         md_read_group: 1
         eval: None if sh...power() is False else value
+
+        lookup:
+            type: dict
+            md_deviceid: DEVICENAME
+            md_lookup: SOURCE
     sourceup:
         type: bool
         enforce_updates: yes
@@ -193,6 +203,11 @@ zone1:
                 md_command: zone1/playingmode
                 md_read: true
                 md_read_initial: true
+
+                lookup:
+                    type: dict
+                    md_deviceid: DEVICENAME
+                    md_lookup: PLAYINGMODE                
             listeningmode:
                 type: str
                 md_deviceid: DEVICENAME
@@ -201,6 +216,11 @@ zone1:
                 md_read_initial: true
                 md_write: true
                 md_read_group: 3
+
+                lookup:
+                    type: dict
+                    md_deviceid: DEVICENAME
+                    md_lookup: LISTENINGMODE
             speakers:
                 type: num
                 md_deviceid: DEVICENAME
@@ -226,6 +246,11 @@ zone1:
                 md_read_initial: true
                 md_write: true
                 md_read_group: 3
+
+                lookup:
+                    type: dict
+                    md_deviceid: DEVICENAME
+                    md_lookup: HDMIOUT
             dialog:
                 type: num
                 md_deviceid: DEVICENAME
@@ -261,6 +286,11 @@ zone1:
                 md_read_group: 4
                 on_change: ..tone_read = True if value is True else None
                 eval: None if sh.....power() is False else value
+
+                lookup:
+                    type: dict
+                    md_deviceid: DEVICENAME
+                    md_lookup: TONE
             treble:
                 type: num
                 md_deviceid: DEVICENAME

@@ -25,9 +25,8 @@
 #########################################################################
 
 import logging
-from time import sleep, time
+from time import sleep
 import requests
-import socket
 from lib.network import Tcp_client
 
 if MD_standalone:
@@ -162,7 +161,7 @@ class MD_Connection(object):
         '''
         for arg in PLUGIN_ARGS:
             if arg in self._params:
-                setattr(self, arg, sanitize_param(self._params[arg]))
+                setattr(self, '_' + arg, sanitize_param(self._params[arg]))
 
 
 class MD_Connection_Net_Tcp_Request(MD_Connection):
@@ -250,16 +249,16 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
 
         # check if some of the arguments are usable
         self._set_connection_params()
-        self._autoreconnect = self._params['autoreconnect']
-        self._connect_retries = self._params['connect_retries']
-        self._connect_cycle = self._params['connect_cycle']
-        self._terminator = self._params['terminator']
+        self._autoreconnect = self._params[PLUGIN_ARG_AUTORECONNECT]
+        self._connect_retries = self._params[PLUGIN_ARG_CONN_RETRIES]
+        self._connect_cycle = self._params[PLUGIN_ARG_CONN_CYCLE]
+        self._terminator = self._params[PLUGIN_ARG_TERMINATOR]
 
         self._data_received_callback = data_received_callback
         self._disconnected_callback = self._params['disconnected_callback']
 
         # initialize connection
-        self._tcp = Tcp_client(host=self.host, port=self.port, name=f'{device_id}TcpConnection',
+        self._tcp = Tcp_client(host=self._host, port=self._port, name=f'{device_id}-TcpConnection',
                                autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
                                connect_cycle=self._connect_cycle, terminator=self._terminator)
         self._tcp.set_callbacks(data_received=self.on_data_received,

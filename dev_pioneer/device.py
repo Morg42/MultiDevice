@@ -5,13 +5,13 @@
 Device class for Pioneer AV function.
 '''
 if MD_standalone:
+    from MD_Globals import *
     from MD_Device import MD_Device
-    from MD_Command import MD_Command, MD_Command_ParseStr
-    from MD_Commands import MD_Commands
+    from MD_Command import MD_Command_ParseStr
 else:
+    from ..MD_Globals import *
     from ..MD_Device import MD_Device
-    from ..MD_Command import MD_Command, MD_Command_ParseStr
-    from ..MD_Commands import MD_Commands
+    from ..MD_Command import MD_Command_ParseStr
 
 import logging
 
@@ -23,7 +23,19 @@ class MD_Device(MD_Device):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
 
-        super().__init__(device_type, device_id, conn_type='net_tcp_client', command_class=MD_Command_ParseStr, **kwargs)
+        # set parameter defaults
+        self._params = {'command_class': MD_Command_ParseStr, 
+                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI,
+                        PLUGIN_ARG_NET_HOST: '', 
+                        PLUGIN_ARG_NET_PORT: 8102, 
+                        PLUGIN_ARG_AUTORECONNECT: True,
+                        PLUGIN_ARG_CONN_RETRIES: 5, 
+                        PLUGIN_ARG_CONN_CYCLE: 3, 
+                        PLUGIN_ARG_TIMEOUT: 3, 
+                        PLUGIN_ARG_TERMINATOR: b'\r',
+                        'disconnected_callback': None}
+
+        super().__init__(device_type, device_id, **kwargs)
 
         # log own initialization with module (i.e. folder) name
         self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
@@ -35,15 +47,3 @@ class MD_Device(MD_Device):
             except Exception as e:
                 self.logger.error(f'ERROR {e}')
         return data
-
-    def _read_configuration(self):
-        '''
-        This initiates reading of configuration.
-        Basically, this calls the MD_Commands object to fill itselt; but if needed,
-        this can be overloaded to do something else.
-        '''
-        cls = self._command_class
-        if cls is None:
-            cls = MD_Command
-        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._plugin_params)
-        return True

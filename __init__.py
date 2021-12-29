@@ -435,7 +435,7 @@ class MultiDevice(SmartPlugin):
         if not sh:
             self.logger = logger
 
-        self.logger.debug(f'Initializung MultiDevice-Plugin as {__name__}')
+        self.logger.info(f'Initializung MultiDevice-Plugin as {__name__}')
 
         self._devices = {}              # contains all configured devices - <device_id>: {'device_type': <device_type>, 'device': <class-instance>, 'logger': <logger-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_id': <device_id>, 'command': <command>}

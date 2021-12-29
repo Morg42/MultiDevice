@@ -1,0 +1,51 @@
+%YAML 1.1
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+---
+
+device:
+    # TODO: was brauchen wir davon? was ist "nett", was zuviel?
+    #       es findet kein Parsing statt, das ist nur für den Nutzer...
+    description: 'Pioneer AV-Receiver'  # bleiben
+    maintainer: OnkelAndy               # sollte bleiben
+    tester: Morg                        # könnte bleiben
+    state: develop                      # raus
+    version: 0.1.0                      # raus
+
+parameters:
+    host:
+        type: str
+        description: 'Hostname oder IP-Adresse'     # zweisprachig? mMn nicht nötig
+
+    port:
+        type: int
+        default: 8102
+        description: 'Port'
+
+    timeout:
+        type: int
+        default: 3
+        description: 'Verbindungstimeout in Sekunden'
+
+    terminator:     # raus, sollte man nicht ändern...?
+        type: byte
+        default: b'\r'
+        description: 'Zeilenendezeichen für eingehende Daten'
+
+    autoreconnect:
+        type: bool
+        default: True
+        description: 'Verbindung automatisch wieder aufbauen'
+
+    connect_retries:
+        type: int
+        default: 5
+        description: 'Anzahl der Versuche beim Verbindungsaufbau'
+
+    connect_cycle:
+        type: int
+        default: 3
+        description: 'Anzahl der Verbindungsversuche'
+
+
+item_structs:
+    # Auflistung / Beschreibung (kurz! - "Nennung") der angebotenen Structs? oder weg?

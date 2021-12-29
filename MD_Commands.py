@@ -222,7 +222,7 @@ class MD_Commands(object):
         # did we get a device type?
         if not self._device_type:
             self.logger.warning('device_type not set, not reading commands')
-            return
+            return False
 
         # try to load commands.py from device directory
         mod_str = 'dev_' + self._device_type + '.commands'
@@ -236,11 +236,11 @@ class MD_Commands(object):
         except ImportError:
             msg = f'importing external module {"dev_" + self._device_type + "/commands.py"} failed'
             self.logger.error(msg)
-            raise ImportError(msg)
+            return False
         except Exception as e:
             msg = f'importing commands from external module {"dev_" + self._device_type + "/commands.py"} failed. Error was: {e}'
             self.logger.error(msg)
-            raise SyntaxError(msg)
+            return False
 
         if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict):
             self._parse_commands(device_id, cmd_module.commands)
@@ -251,6 +251,8 @@ class MD_Commands(object):
             self._parse_lookups(device_id, cmd_module.lookups)
         else:
             self.logger.info('no lookups found')
+
+        return True
 
     def _parse_commands(self, device_id, commands):
         '''

@@ -8,9 +8,11 @@ See ``commands.py`` for command usage.
 '''
 
 if MD_standalone:
+    from MD_Globals import *
     from MD_Device import MD_Device
     from MD_Command import MD_Command_Str
 else:
+    from ..MD_Globals import *
     from ..MD_Device import MD_Device
     from ..MD_Command import MD_Command_Str
 
@@ -24,7 +26,12 @@ class MD_Device(MD_Device):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
 
-        super().__init__(device_type, device_id, command_class=MD_Command_Str, **kwargs)
+        # set parameter defaults
+        # TODO: adapt these to actual requirements!
+        self._params = {'command_class': MD_Command_Str,            # remember to import the needed class!
+                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_REQ}    # check MD_Globals.py for constants
+
+        super().__init__(device_type, device_id, **kwargs)
 
         # log own initialization with module (i.e. folder) name
         self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')

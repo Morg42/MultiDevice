@@ -72,7 +72,7 @@ class MD_Device(object):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
-        self.logger.debug(f'initializing from {self.__class__.__name__} with arguments {kwargs}')
+        self.logger.info(f'initializing from class {self.__class__.__name__} with arguments {kwargs}')
 
         # the connection object
         self._connection = None
@@ -80,8 +80,16 @@ class MD_Device(object):
         # the commands object
         self._commands = None
 
+        # set parameter defaults only if not set by derived class...
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        try:
+            self._params.update({})
+        except ValueError:
+            self._params = {}
+
         # set class properties
-        self._plugin_params = kwargs
+        self._params.update(kwargs)
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -89,7 +97,7 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-        self._plugin = self._plugin_params.get('plugin', None)
+        self._plugin = self._params.get('plugin', None)
 
         self._data_received_callback = None
         self._commands_read = {}
@@ -97,9 +105,10 @@ class MD_Device(object):
         self._commands_initial = []
         self._commands_cyclic = {}
 
-        self._command_class = kwargs.get('command_class', None)
-        if self._command_class is None:
-            self._command_class = MD_Command
+        # this is only viable for the base class. All derived classes from
+        # MD_Device will probably be created towards a specific command class
+        # but, just in case, be well-behaved...
+        self._command_class = self._params.get('command_class', MD_Command)
 
         # set device parameters, if any
         self._set_device_params()
@@ -301,7 +310,7 @@ class MD_Device(object):
 
     def update_device_params(self, **kwargs):
         '''
-        Updates configuration parametes for device. Needs device to not be running
+        Updates / changes configuration parametes for device. Needs device to not be running
 
         overload as needed.
         '''
@@ -313,8 +322,8 @@ class MD_Device(object):
             self.logger.warning('update_device_params called without new parameters. Don\'t know what to update.')
             return
 
-        # merge new params with self._plugin_params, overwrite old values if necessary
-        self._plugin_params = {**self._plugin_params, **kwargs}
+        # merge new params with self._params, overwrite old values if necessary
+        self._params.update(kwargs)
 
         # update this class' settings
         self._set_device_params()
@@ -345,11 +354,11 @@ class MD_Device(object):
         '''
         return data_dict
 
-    def _set_device_params(self, **kwargs):
+    def _set_device_params(self):
         '''
-        This method parses self._plugin_params for parameters it needs itself and does the
+        This method parses self._params for parameters it needs itself and does the
         necessary initialization.
-        Needs to be overloaded for maximum effect
+        Needs to be overloaded for maximum effect...
         '''
         pass
 
@@ -369,19 +378,19 @@ class MD_Device(object):
         classes. Just return the wanted connection object and ride into the light.
         '''
         conn_type = None
-        params = self._plugin_params
+        params = self._params
 
         # try to find out what kind of connection is wanted
-        if PLUGIN_ARG_CONNECTION in self._plugin_params and self._plugin_params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
-            conn_type = self._plugin_params[PLUGIN_ARG_CONNECTION]
+        if PLUGIN_ARG_CONNECTION in self._params and self._params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
+            conn_type = self._params[PLUGIN_ARG_CONNECTION]
         else:
 
-            if PLUGIN_ARG_NET_PORT in self._plugin_params:
+            if PLUGIN_ARG_NET_PORT in self._params:
 
                 # no further information on network specifics, use basic HTTP TCP client
                 conn_type = CONN_NET_TCP_REQ
 
-            elif PLUGIN_ARG_SERIAL_PORT in self._plugin_params:
+            elif PLUGIN_ARG_SERIAL_PORT in self._params:
 
                 # this seems to be a serial killer application
                 conn_type = CONN_SER_CLI
@@ -403,7 +412,7 @@ class MD_Device(object):
             cls = getattr(module, 'MD_Connection')
 
         self.logger.debug(f'using connection class {cls}')
-        return cls(self.device_type, self.device_id, self.on_data_received, **self._plugin_params)
+        return cls(self.device_type, self.device_id, self.on_data_received, **self._params)
 
     #
     #
@@ -506,5 +515,5 @@ class MD_Device(object):
         cls = self._command_class
         if cls is None:
             cls = MD_Command
-        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._plugin_params)
-        return
+        self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
+        return True

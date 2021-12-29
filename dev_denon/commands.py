@@ -316,7 +316,7 @@ commands = {
         'write': True,
         'read_cmd': 'PSLFE ?',
         'item_type': 'num',
-        'settings': {'force_min': -10, 'force_max': 03},
+        'settings': {'force_min': -10, 'force_max': 3},
         'write_cmd': ':PSLFE {VAL:02}:',
         'dev_datatype': 'num',
         'reply_token': 'REGEX',
@@ -429,7 +429,7 @@ commands = {
         'write_cmd': 'PSBAS MD_VALUE',
         'dev_datatype': 'remap50to0',
         'reply_token': 'REGEX',
-        'reply_pattern': 'PSBAS (\d{2})'
+        'reply_pattern': r'PSBAS (\d{2})'
     },
     'zone1_bassup': {
         'write': True,

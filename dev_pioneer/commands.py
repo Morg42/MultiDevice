@@ -120,7 +120,7 @@ commands = {
         'read_cmd': '?TR',
         'item_type': 'num',
         'write_cmd': 'MD_VALUETR',
-        'dev_datatype': 'int',
+        'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'TR(\d{2})',
         'lookup': 'TONE'
@@ -143,7 +143,7 @@ commands = {
         'read_cmd': '?BA',
         'item_type': 'num',
         'write_cmd': 'MD_VALUEBA',
-        'dev_datatype': 'int',
+        'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': r'BA(\d{2})',
         'lookup': 'TONE'

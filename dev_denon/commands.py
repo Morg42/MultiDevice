@@ -75,7 +75,6 @@ commands = {
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': 'SSINFSIGRES (.*)'
     },
     'zone1/dialogtoggle': {
         'read': True,
@@ -763,21 +762,15 @@ commands = {
         'dev_datatype': 'raw'
     },
     'zone1/source': {
-        'opcode': 'MD_VALUE',
         'read': True,
         'write': True,
-        'settings': {'valid_list_ci': ['PHONO', 'CD', 'TUNER', 'DVD', 'BD', 'TV',
-                                       'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO', 'NET',
-                                       'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER',
-                                       'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4',
-                                       'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD',
-                                       'USB', 'IPD', 'IRP', 'FVP']},
         'read_cmd': 'SI?',
-        'write_cmd': ':SI{VAL_UPPER}:',
+        'write_cmd': 'SIMD_VALUE',
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': 'SI(.*)'
+        'reply_pattern': 'SI(.*)',
+        'lookup': 'SOURCE'
     },
     'zone1/listeningmode': {
         'read': True,
@@ -896,18 +889,13 @@ commands = {
     'zone2/source': {
         'read': True,
         'write': True,
-        'settings': {'valid_list_ci': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD',
-                                       'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO',
-                                       'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER',
-                                       'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4',
-                                       'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD',
-                                       'USB', 'IPD', 'IRP', 'FVP']},
         'read_cmd': 'Z2?',
-        'write_cmd': ':Z2{VAL_UPPER}:',
+        'write_cmd': 'Z2MD_VALUE',
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': 'Z2(SOURCE|PHONO|CD|TUNER|DVD|BD|TV|SAT/CBL|MPLAY|GAME|HDRADIO|NET|PANDORA|SIRIUSXM|IRADIO|SERVER|FAVORITES|AUX1|AUX2|AUX3|AUX4|AUX5|AUX6|AUX7|BT|USB/IPOD|USB|IPD|IRP|FVP)'
+        'reply_pattern': 'Z2(.*)',
+        'lookup': 'SOURCE'
     },
     'zone3/power': {
         'read': True,
@@ -954,18 +942,13 @@ commands = {
     'zone3/source': {
         'read': True,
         'write': True,
-        'settings': {'valid_list_ci': ['SOURCE', 'PHONO', 'CD', 'TUNER', 'DVD', 'BD',
-                                       'TV', 'SAT/CBL', 'MPLAY', 'GAME', 'HDRADIO',
-                                       'NET', 'PANDORA', 'SIRIUSXM', 'IRADIO', 'SERVER',
-                                       'FAVORITES', 'AUX1', 'AUX2', 'AUX3', 'AUX4',
-                                       'AUX5', 'AUX6', 'AUX7', 'BT', 'USB/IPOD',
-                                       'USB', 'IPD', 'IRP', 'FVP']},
         'read_cmd': 'Z3?',
         'write_cmd': ':Z3{VAL_UPPER}:',
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': 'Z3(SOURCE|PHONO|CD|TUNER|DVD|BD|TV|SAT/CBL|MPLAY|GAME|HDRADIO|NET|PANDORA|SIRIUSXM|IRADIO|SERVER|FAVORITES|AUX1|AUX2|AUX3|AUX4|AUX5|AUX6|AUX7|BT|USB/IPOD|USB|IPD|IRP|FVP)'
+        'reply_pattern': 'Z3(.*)',
+        'lookup': 'SOURCE'
     },
     'zone3/sleep': {
         'read': True,
@@ -1050,5 +1033,37 @@ lookups = {
         'BYP': 'Bypass',
         'GAME': 'Game',
         'AUTO': 'Auto'
+        },
+    'SOURCE': {
+        'SOURCE': 'SOURCE',
+        'PHONO': 'PHONO',
+        'CD': 'CD',
+        'TUNER': 'TUNER',
+        'DVD': 'DVD',
+        'BD': 'BD',
+        'TV': 'TV',
+        'SAT/CBL': 'SAT/CBL',
+        'MPLAY': 'MPLAY',
+        'GAME': 'GAME',
+        'HDRADIO': 'HDRADIO',
+        'NET': 'NET',
+        'PANDORA': 'PANDORA',
+        'SIRIUSXM': 'SIRIUSXM',
+        'IRADIO': 'IRADIO',
+        'SERVER': 'SERVER',
+        'FAVORITES': 'FAVORITES',
+        'AUX1': 'AUX1',
+        'AUX2': 'AUX2',
+        'AUX3': 'AUX3',
+        'AUX4': 'AUX4',
+        'AUX5': 'AUX5',
+        'AUX6': 'AUX6',
+        'AUX7': 'AUX7',
+        'BT': 'BT',
+        'USB/IPOD': 'USB/IPOD',
+        'USB': 'USB',
+        'IPD': 'IPD',
+        'IRP': 'IRP',
+        'FVP': 'FVP'
         }
 }

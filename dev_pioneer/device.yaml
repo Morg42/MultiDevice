@@ -3,18 +3,14 @@
 ---
 
 device:
-    # TODO: was brauchen wir davon? was ist "nett", was zuviel?
-    #       es findet kein Parsing statt, das ist nur für den Nutzer...
-    description: 'Pioneer AV-Receiver'  # bleiben
-    maintainer: OnkelAndy               # sollte bleiben
-    tester: Morg                        # könnte bleiben
-    state: develop                      # raus
-    version: 0.1.0                      # raus
+    description: 'Pioneer AV-Receiver'
+    maintainer: OnkelAndy
+    tester: Morg
 
 parameters:
     host:
         type: str
-        description: 'Hostname oder IP-Adresse'     # zweisprachig? mMn nicht nötig
+        description: 'Hostname oder IP-Adresse'
 
     port:
         type: int
@@ -25,11 +21,6 @@ parameters:
         type: int
         default: 3
         description: 'Verbindungstimeout in Sekunden'
-
-    terminator:     # raus, sollte man nicht ändern...?
-        type: byte
-        default: b'\r'
-        description: 'Zeilenendezeichen für eingehende Daten'
 
     autoreconnect:
         type: bool
@@ -45,7 +36,3 @@ parameters:
         type: int
         default: 3
         description: 'Anzahl der Verbindungsversuche'
-
-
-item_structs:
-    # Auflistung / Beschreibung (kurz! - "Nennung") der angebotenen Structs? oder weg?

@@ -25,8 +25,12 @@
 #########################################################################
 
 import logging
-from time import sleep
+from time import sleep, time
 import requests
+import json
+import queue
+
+from collections import OrderedDict
 from lib.network import Tcp_client
 
 if MD_standalone:
@@ -244,15 +248,19 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.connected = False
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_NET_HOST: '', PLUGIN_ARG_NET_PORT: 0, 'autoreconnect': True, 'connect_retries': 1, 'connect_cycle': 3, 'disconnected_callback': None, 'timeout': 3, 'terminator': b'\r\n'}
+        self._params = {PLUGIN_ARG_NET_HOST: '',
+                        PLUGIN_ARG_NET_PORT: 0,
+                        PLUGIN_ARG_AUTORECONNECT: True,
+                        PLUGIN_ARG_CONN_RETRIES: 1,
+                        PLUGIN_ARG_CONN_CYCLE: 3,
+                        PLUGIN_ARG_TIMEOUT: 3,
+                        PLUGIN_ARG_TERMINATOR: b'\r\n',
+                        'disconnected_callback': None}
+
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
         self._set_connection_params()
-        self._autoreconnect = self._params[PLUGIN_ARG_AUTORECONNECT]
-        self._connect_retries = self._params[PLUGIN_ARG_CONN_RETRIES]
-        self._connect_cycle = self._params[PLUGIN_ARG_CONN_CYCLE]
-        self._terminator = self._params[PLUGIN_ARG_TERMINATOR]
 
         self._data_received_callback = data_received_callback
         self._disconnected_callback = self._params['disconnected_callback']
@@ -311,6 +319,301 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
 
         # we receive only via callback, so we return "no reply".
         return False
+
+
+class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
+    '''
+    This class implements a TCP connection to send JSONRPC 2.0 compatible messages
+    and an anynchronous listener with callback for receiving data. As JSONRPC includes
+    message-ids, replies can be associated to their respective queries and reply
+    tracing and command repeat functions are implemented.
+
+    Data received is dispatched via callback, thus the send()-method does not
+    return any response data.
+
+    Callback syntax is:
+        def connected_callback(by)
+        def disconnected_callback()
+        def data_received_callback(command, message)
+    If callbacks are class members, they need the additional first parameter 'self'
+
+    :param device_type: device type as used in commands.py name
+    :param device_id: device id for use in item configuration and logs
+    :type device_type: str
+    :type device_id: str
+    '''
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
+
+        self.logger.debug(f'connection initializing from {self.__class__.__name__} with arguments {kwargs}')
+
+        # set class properties
+        self.device_type = device_type
+        self.device_id = device_id
+        self.connected = False
+        self._shutdown_active = False
+
+        self._message_id = 0
+        self._msgid_lock = threading.Lock()
+        self._send_queue = queue.Queue()
+        self._stale_lock = threading.Lock()
+
+        # make sure we have a basic set of parameters for the TCP connection
+        self._params = {PLUGIN_ARG_NET_HOST: '',
+                        PLUGIN_ARG_NET_PORT: 9090,
+                        PLUGIN_ARG_AUTORECONNECT: True,
+                        PLUGIN_ARG_CONN_RETRIES: 1,
+                        PLUGIN_ARG_CONN_CYCLE: 3,
+                        PLUGIN_ARG_TIMEOUT: 3,
+                        PLUGIN_ARG_TERMINATOR: b'\r\n',
+                        'message_timeout': 5,       # how long (seconds) to wait for a reply to a command
+                        'message_repeat': 3,        # how often to try and resend command after command_timeout
+                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
+                        PLUGIN_ARG_CB_ON_CONNECT: None}
+
+        self._params.update(kwargs)
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        # self._message_archive[str message_id] = [time() sendtime, str method, str params or None, int repeat]
+        self._message_archive = {}
+
+        self._check_stale_cycle = float(self._message_timeout) / 2
+        self._next_stale_check = 0
+        self._last_stale_check = 0
+
+        self._data_received_callback = data_received_callback
+        self._disconnected_callback = self._params['disconnected_callback']
+
+        # initialize connection
+        self._tcp = Tcp_client(host=self._host, port=self._port, name=f'{device_id}-TcpConnection',
+                               autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
+                               connect_cycle=self._connect_cycle, terminator=self._terminator)
+        self._tcp.set_callbacks(data_received=self.on_data_received,
+                                disconnected=self.on_disconnect,
+                                connected=self.on_connect)
+
+        # tell someone about our actual class
+        self.logger.debug(f'connection initialized from {self.__class__.__name__}')
+
+    def _open(self):
+        self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} with params {self._params}')
+        if not self._tcp.connected():
+            self._tcp.connect()
+            sleep(2)
+
+        return self._tcp.connected()
+
+    def _close(self):
+        self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__}')
+        self._tcp.close()
+
+    def on_connect(self, by=None):
+        '''
+        Recall method for succesful connect
+
+        :param by: caller information
+        :type by: str
+        '''
+        self.connected = True
+        if isinstance(by, (dict, Tcp_client)):
+            by = 'TCP_Connect'
+        self.logger.info(f'Connected to {self._host}, onconnect called by {by}, send queue contains {self._send_queue.qsize()} commands')
+        if self._connected_callback:
+            self._connected_callback(by)
+
+    def on_disconnect(self, obj=None):
+        ''' Recall method for TCP disconnect '''
+        self.logger.info(f'Received disconnect from {self._host}')
+        self.connected = False
+
+        # did we power down kodi? then clear queues
+        if self._shutdown_active:
+            old_queue = self._send_queue
+            self._send_queue = queue.Queue()
+            del old_queue
+            self._stale_lock.acquire()
+            self._message_archive = {}
+            self._stale_lock.release()
+            self._shutdown_active = False
+
+        if self._disconnected_callback:
+            self._disconnected_callback()
+
+    def on_data_received(self, connection, response):
+        ''' Recall method for TCP message reception '''
+        response = response.strip()
+        if response:
+            self.logger.debug(f'received raw data "{response}" from {connection.name}')
+        else:
+            return
+
+        # split multi-response data into list items
+        try:
+            datalist = response.replace('}{', '}-#-{').split('-#-')
+            datalist = list(OrderedDict((x, True) for x in datalist).keys())
+        except:
+            datalist = [response]
+
+        # process all response items
+        for data in datalist:
+            self.logger.debug(f'Processing received data item #{datalist.index(data)} ({data})')
+
+            try:
+                jdata = json.loads(data)
+            except Exception as err:
+                self.logger.warning(f'Could not json.load data item {data} with error {err}')
+                continue
+
+            # check messageid for replies
+            if 'id' in jdata:
+                response_id = jdata['id']
+
+                # reply or error received, remove command
+                if response_id in self._message_archive:
+                    # possibly the command was resent and removed before processing the reply
+                    # so let's 'try' at least...
+                    try:
+                        method = self._message_archive[response_id][1]
+                        del self._message_archive[response_id]
+                    except KeyError:
+                        method = '(deleted)' if '#' not in response_id else response_id[response_id.find('#') + 1:]
+                else:
+                    method = None
+
+                # log possible errors
+                if 'error' in jdata:
+                    self.logger.error(f'received error {jdata} in response to command {method}')
+                elif method:
+                    self.logger.debug(f'command {method} sent successfully')
+
+            # process data
+            if self._data_received_callback:
+                self._data_received_callback(method, jdata)
+
+        # check _message_archive for old commands - check time reached?
+        if self._next_stale_check < time():
+
+            # try to lock check routine, fail quickly if already locked = running
+            if self._stale_lock.acquire(False):
+
+                # we cannot deny access to self._message_archive as this would block sending
+                # instead, copy it and check the copy
+                stale_messages = self._message_archive.copy()
+                remove_ids = []
+                requeue_cmds = []
+
+                # self._message_archive[message_id] = [time(), method, params, repeat]
+                self.logger.debug('Checking for unanswered commands, last check was {} seconds ago, {} commands saved'.format(int(time()) - self._last_stale_check, len(self._message_archive)))
+                # !! self.logger.debug('Stale commands: {}'.format(stale_messages))
+                for (message_id, (send_time, method, params, repeat)) in stale_messages.items():
+
+                    if send_time + self._message_timeout < time():
+
+                        # reply timeout reached, check repeat count
+                        if repeat <= self._message_repeat:
+
+                            # send again, increase counter
+                            self.logger.info('Repeating unanswered command {} ({}), try {}'.format(method, params, repeat + 1))
+                            requeue_cmds.append([method, params, message_id, repeat + 1])
+                        else:
+                            self.logger.info('Unanswered command {} ({}) repeated {} times, giving up.'.format(method, params, repeat))
+                            remove_ids.append(message_id)
+
+                for msgid in remove_ids:
+                    # it is possible that while processing stale commands, a reply arrived
+                    # and the command was removed. So just to be sure, 'try' and delete...
+                    self.logger.debug('Removing stale msgid {} from archive'.format(msgid))
+                    try:
+                        del self._message_archive[msgid]
+                    except KeyError:
+                        pass
+
+                # resend pending repeats - after original
+                for (method, params, message_id, repeat) in requeue_cmds:
+                    self._send_rpc_message(method, params, message_id, repeat)
+
+                # set next stale check time
+                self._last_stale_check = time()
+                self._next_stale_check = self._last_stale_check + self._check_stale_cycle
+
+                del stale_messages
+                del requeue_cmds
+                del remove_ids
+                self._stale_lock.release()
+
+            else:
+                self.logger.debug(f'Skipping stale check {time() - self._last_stale_check} seconds after last check')
+
+    def _send(self, data_dict):
+        '''
+        wrapper to prepare json rpc message to send. extracts method, id, repeat and
+        params (data) from data_dict and call send_rpc_message(method, params, id, repeat)
+        '''
+        method = data_dict.get('payload', None)
+        if not method:
+            self.logger.error(f'can not send without "payload" data from data_dict {data_dict}, aborting')
+            return False
+
+        params = data_dict.get('data', None)
+        message_id = data_dict.get('message_id', None)
+        repeat = data_dict.get('repeat', 0)
+
+        self._send_rpc_message(method, params, message_id, repeat)
+
+        # we don't get a response (this goes via on_data_received), so we signal "no response"
+        return False
+
+    def _send_rpc_message(self, method, params=None, message_id=None, repeat=0):
+        '''
+        Send a JSON RPC message.
+        The  JSON string is extracted from the supplied method and the given parameters.
+
+        :param method: the Kodi method to be triggered
+        :param params: parameters dictionary
+        :param message_id: the message ID to be used. If none, use the internal counter
+        :param repeat: counter for how often the message has been repeated
+        '''
+        self.logger.debug(f'preparing message to send method {method} with data {params}, try #{repeat}')
+
+        if message_id is None:
+            # safely acquire next message_id
+            # !! self.logger.debug('Locking message id access ({})'.format(self._message_id))
+            self._msgid_lock.acquire()
+            self._message_id += 1
+            new_msgid = self._message_id
+            self._msgid_lock.release()
+            message_id = str(new_msgid) + '#' + method
+            # !! self.logger.debug('Releasing message id access ({})'.format(self._message_id))
+
+        # create message packet
+        data = {'jsonrpc': '2.0', 'id': message_id, 'method': method}
+        if params:
+            data['params'] = params
+        try:
+            send_command = json.dumps(data, separators=(',', ':'))
+        except Exception as err:
+            raise ValueError(f'problem with json.dumps: {err}, ignoring message. Error was {err}')
+
+        # push message in queue
+        # !! self.logger.debug('Queuing message {}'.format(send_command))
+        self._send_queue.put([message_id, send_command, method, params, repeat])
+        # !! self.logger.debug('Queued message {}'.format(send_command))
+
+        # try to actually send all queued messages
+# !!
+        self.logger.debug(f'processing queue - {self._send_queue.qsize()} elements')
+        while not self._send_queue.empty():
+            (message_id, data, method, params, repeat) = self._send_queue.get()
+            self.logger.debug(f'sending queued msg {message_id} - {data} (#{repeat})')
+            self._tcp.send((data + '\r\n').encode())
+            # !! self.logger.debug('Adding cmd to message archive: {} - {} (try #{})'.format(message_id, data, repeat))
+            self._message_archive[message_id] = [time(), method, params, repeat]
+            # !! self.logger.debug('Sent msg {} - {}'.format(message_id, data))
+        # !! self.logger.debug('Processing queue finished - {} elements remaining'.format(self._send_queue.qsize()))
 
 
 class MD_Connection_Net_Udp_Server(MD_Connection):

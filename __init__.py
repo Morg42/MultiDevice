@@ -520,8 +520,8 @@ class MultiDevice(SmartPlugin):
                     device_class = getattr(device_module, 'MD_Device')
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
-                except AttributeError as e:
-                    self.logger.error(f'Importing class MD_Device from external module {"dev_" + device_type + "/device.py"} failed. Skipping device {device_id}. Error was: {e}')
+                # except AttributeError as e:
+                #    self.logger.error(f'Importing class MD_Device from external module {"dev_" + device_type + "/device.py"} failed. Skipping device {device_id}. Error was: {e}')
                 except (ImportError):
                     self.logger.warning(f'Importing external module {"dev_" + device_type + "/device.py"} for device {device_id} failed, reverting to default MD_Device class')
                     device_instance = MD_Device(device_type, device_id, plugin=self, **param)

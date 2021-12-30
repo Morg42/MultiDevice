@@ -4,16 +4,106 @@
 # commands for dev pioneer
 
 commands = {
-        'general/power': {
+    'general/power': {
+    'read': True,
+    'write': True,
+    'read_cmd': 'PW?',
+    'write_cmd': 'PWMD_VALUE',
+    'item_type': 'bool',
+    'dev_datatype': 'str',
+    'reply_token': 'REGEX',
+    'reply_pattern': 'PW(ON|STANDBY)',
+    'lookup': 'POWER'
+    },
+    'general/sourcename_DVD': {
         'read': True,
-        'write': True,
-        'read_cmd': 'PW?',
-        'write_cmd': 'PWMD_VALUE',
-        'item_type': 'bool',
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
-        'reply_pattern': 'PW(ON|STANDBY)',
-        'lookup': 'POWER'
+        'reply_pattern': 'SSFUNDVD (.*)'
+    },
+    'general/sourcename_BD': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNBD (.*)'
+    },
+    'general/sourcename_TV': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNTV (.*)'
+    },
+    'general/sourcename_SAT': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNSAT/CBL (.*)'
+    },
+    'general/sourcename_MPLAY': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNMPLAY (.*)'
+    },
+    'general/sourcename_GAME': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNGAME (.*)'
+    },
+    'general/sourcename_AUX1': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNAUX1 (.*)'
+    },
+    'general/sourcename_CD': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNCD (.*)'
+    },
+    'general/sourcename_AUX2': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNAUX2 (.*)'
+    },
+    'general/sourcename_PHONO': {
+        'read': True,
+        'write': False,
+        'read_cmd': 'SSFUN ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSFUNPHONO (.*)'
     },
     'general/setupmenu': {
         'read': True,
@@ -35,6 +125,17 @@ commands = {
         'dev_datatype': 'DenonDisplay',
         'reply_token': 'REGEX',
         'reply_pattern': 'NSE(.*)'
+    },
+    'general/soundmode': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'SSSMG ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': r'SSSMG ([A-Z]{3})',
+        'lookup': 'SOUNDMODE'
     },
     'general/inputsignal': {
         'opcode': 'MD_VALUE',
@@ -75,6 +176,17 @@ commands = {
         'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
+        'reply_pattern': 'SSINFSIGRES I(.*)'
+    },
+    'general/outputresolution': {
+        'opcode': 'MD_VALUE',
+        'read': True,
+        'write': True,
+        'read_cmd': 'SSINFSIGRES ?',
+        'item_type': 'str',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'SSINFSIGRES O(.*)'
     },
     'zone1/dialogtoggle': {
         'read': True,
@@ -211,10 +323,9 @@ commands = {
     'zone1/dialogenhance': {
         'read': True,
         'write': True,
-        'settings': {'force_min': 0, 'force_max': 4},
         'read_cmd': 'PSDEH ?',
         'write_cmd': 'PSDEH MD_VALUE',
-        'item_type': 'num',
+        'item_type': 'str',
         'dev_datatype': 'str',
         'reply_token': 'REGEX',
         'reply_pattern': 'PSDEH ([A-Z]{3,4})',
@@ -979,16 +1090,16 @@ lookups = {
         '01': 'Analog',
         '02': 'PCM',
         '03': 'Dolby Digital',
-        '04': 'Dolby Digital+',
-        '05': '05',
+        '04': 'Dolby TrueHD',
+        '05': 'Dolby Atmos',
         '06': 'DTS',
         '07': '07',
-        '08': '08',
+        '08': 'DTS-HD Hi Res',
         '09': 'DTS-HD MSTR',
         '10': '10',
         '11': '11',
         '12': 'Unknown',
-        '13': '13',
+        '13': 'PCM Zero',
         '14': '14',
         '15': 'MP3',
         '16': '16',
@@ -1012,6 +1123,12 @@ lookups = {
     'POWER': {
         'ON': True,
         'STANDBY': False
+        },
+    'SOUNDMODE': {
+        'MUS': 'MUSIC',
+        'MOV': 'MOVIE',
+        'GAM': 'GAME',
+        'PUR': 'PURE DIRECT'
         },
     'DYNAM': {
         'OFF': 0,

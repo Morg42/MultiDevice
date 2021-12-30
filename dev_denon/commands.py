@@ -841,6 +841,7 @@ commands = {
         'read': True,
         'write': True,
         'read_cmd': 'Z2?',
+        'write_cmd': 'Z2MD_VALUE',
         'item_type': 'num',
         'dev_datatype': 'DenonVol',
         'reply_token': 'REGEX',

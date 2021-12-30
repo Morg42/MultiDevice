@@ -169,11 +169,13 @@ class MD_Commands(object):
         if rev:
             mode = 'rci' if ci else 'rev'
 
+        print(f'lookup: mode {mode}, data {data}, table {table}')
+
         lu = self.get_lookup(table, mode)
         if not lu:
             raise ValueError(f'Lookup table {table} not found.')
 
-        if ci and isinstance(data, str):
+        if rev and ci and isinstance(data, str):
             data = data.lower()
 
         if data in lu:

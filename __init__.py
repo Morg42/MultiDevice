@@ -149,6 +149,7 @@
     - ``_transform_send_data(data_dict)``
     - ``_set_device_params(**kwargs)``
     - ``_get_connection()``
+    - ``_send(data_dict)``
 
 
     MD_Connection

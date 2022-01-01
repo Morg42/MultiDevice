@@ -42,6 +42,6 @@ commands = {
         # - 'valid_list': list of allowed values, error if not in list
         # - 'read_val': value to trigger (forced) reading of value from device
         #               (e.g. -1, can be combined with min=0)
-        'settings': {'min': 0, 'max': 255, 'force_min': 0, 'force_max': 255, 'valid_list': [1, 2, 3, 4, 5], 'read_val': -1}
+        'settings': {'min': 0, 'max': 255, 'force_min': 0, 'force_max': 255, 'valid_list': [1, 2, 3, 4, 5]}
     }
 }

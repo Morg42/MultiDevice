@@ -213,7 +213,7 @@ class MD_Device(object):
 
         # if an error occurs on sending, an exception is thrown
         try:
-            result = self._connection.send(data_dict)
+            result = self._send(data_dict)
         except Exception as e:
             self.logger.debug(f'error on sending command {command}, error was {e}')
             return False
@@ -353,6 +353,19 @@ class MD_Device(object):
         By default, nothing happens here.
         '''
         return data_dict
+
+    def _send(self, data_dict):
+        '''
+        This method acts as a overwritable intermediate between the handling
+        logic of send_command() and the connection layer.
+        If you need any special arrangements for or reaction to events on sending,
+        you can implement this method in your derived MD_Device-class in the
+        dev_foo/device.py device file.
+
+        By default, this just forwards the data_dict to the connection instance
+        and return the result.
+        '''
+        return self._connection.send(data_dict)
 
     def _set_device_params(self):
         '''

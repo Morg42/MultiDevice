@@ -5,7 +5,7 @@ radio_dependencies:
     name: "Dependency Feature for Radio"
     remark: "Only works with respective user function. Put multidevice_uf.py in folder functions."
     tunerpreset:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
@@ -13,7 +13,7 @@ radio_dependencies:
             initial_value: ['...zone1.power == True', ['...zone1.source == "net"', '...zone1.source == "iradio"', '...zone1.source == "tuner"']]
 
     tunerpresetup:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
@@ -21,7 +21,7 @@ radio_dependencies:
             initial_value: ['...zone1.power == True', ['...zone1.source == "net"', '...zone1.source == "iradio"', '...zone1.source == "tuner"']]
 
     tunerpresetdown:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
@@ -91,35 +91,35 @@ zone1_dependencies:
     name: "Dependency Feature for Zone 1"
     remark: "Only works with respective user function. Put multidevice_uf.py in folder functions."
     source:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     sleep:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     standby:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     volume:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     mute:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
@@ -128,28 +128,28 @@ zone1_dependencies:
     settings:
         sound:
             tone:
-                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+                eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
                 dependencies:
                     type: list
                     cache: True
                     initial_value: ['.....power == True']
             treble:
-                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+                eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
                 dependencies:
                     type: list
                     cache: True
                     initial_value: ['...tone == True']
             bass:
-                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+                eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
                 dependencies:
                     type: list
                     cache: True
                     initial_value: ['...tone == True']
             speakers:
-                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+                eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
                 dependencies:
                     type: list
@@ -427,35 +427,35 @@ zone2_dependencies:
     name: "Dependency Feature for Zone 2"
     remark: "Only works with respective user function. Put multidevice_uf.py in folder functions."
     source:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     sleep:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     standby:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     volume:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list
             cache: True
             initial_value: ['...power == True']
     mute:
-        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+        eval: value if sh..self.property.last_trigger_by.startswith(('priv_md', 'Init')) or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
 
         dependencies:
             type: list

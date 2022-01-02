@@ -1,0 +1,48 @@
+%YAML 1.1
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+---
+
+device:
+    description: 'Kodi Mediacenter'
+    maintainer: Morg
+    tester: OnkelAndy
+
+parameters:
+    host:
+        type: str
+        description: 'Hostname oder IP-Adresse'
+
+    port:
+        type: int
+        default: 9090
+        description: 'Port'
+
+    timeout:
+        type: int
+        default: 3
+        description: 'Verbindungstimeout in Sekunden'
+
+    autoreconnect:
+        type: bool
+        default: True
+        description: 'Verbindung automatisch wieder aufbauen'
+
+    connect_retries:
+        type: int
+        default: 5
+        description: 'Anzahl der Versuche beim Verbindungsaufbau'
+
+    connect_cycle:
+        type: int
+        default: 3
+        description: 'Anzahl der Verbindungsversuche'
+
+    message_timeout:
+        type: int
+        default: 5
+        description: 'Zeit, nach der eine Nachricht als unbeantwortet gilt'
+
+    message_repeat:
+        type: int
+        default: 3
+        description: 'Anzahl der Versuche, eine unbeantwortete Nachricht erneut zu senden'

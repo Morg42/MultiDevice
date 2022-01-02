@@ -87,12 +87,12 @@ class MD_Commands(object):
         # if the corresponding attribute is not defined, assume False (fail safe)
         return getattr(self._commands[command], 'read' if read else 'write', False)
 
-    def get_send_data(self, command, data=None):
+    def get_send_data(self, command, data=None, **kwargs):
         if command in self._commands:
             lu = self._get_cmd_lookup(command)
             if lu:
                 data = self._lookup(data, lu, rev=True)
-            return self._commands[command].get_send_data(data)
+            return self._commands[command].get_send_data(data, **kwargs)
 
         raise Exception(f'command {command} not found in commands')
 
@@ -168,8 +168,6 @@ class MD_Commands(object):
         mode = 'fwd'
         if rev:
             mode = 'rci' if ci else 'rev'
-
-        print(f'lookup: mode {mode}, data {data}, table {table}')
 
         lu = self.get_lookup(table, mode)
         if not lu:

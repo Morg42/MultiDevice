@@ -48,10 +48,13 @@ PLUGIN_ARG_CONN_RETRIES     = 'connect_retries'
 PLUGIN_ARG_CONN_CYCLE       = 'connect_cycle'
 PLUGIN_ARG_CB_ON_CONNECT    = 'connected_callback'
 PLUGIN_ARG_CB_ON_DISCONNECT = 'disconnected_callback'
+PLUGIN_ARG_MSG_TIMEOUT      = 'message_timeout'
+PLUGIN_ARG_MSG_REPEAT       = 'message_repeat'
 
 PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT, 
                PLUGIN_ARG_TIMEOUT, PLUGIN_ARG_TERMINATOR, PLUGIN_ARG_AUTORECONNECT, PLUGIN_ARG_CONN_RETRIES,
-               PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT)
+               PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT,
+               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT)
 
 # connection types for PLUGIN_ARG_CONNECTION
 CONN_NET_TCP_REQ        = 'net_tcp_request'  # TCP client connection with URL-based requests
@@ -61,7 +64,7 @@ CONN_NET_UDP_SRV        = 'net_udp_server'   # UDP server connection with async 
 CONN_SER_CLI            = 'serial_client'    # serial connection with query-reply logic
 CONN_SER_ASYNC          = 'serial_async'     # serial connection with async data callback
 
-CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
+CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
 
 # item attributes (as defines in plugin.yaml)
 ITEM_ATTR_DEVICE        = 'md_deviceid'
@@ -82,7 +85,7 @@ COMMAND_READ            = True
 COMMAND_WRITE           = False
 
 # commands definition parameters
-COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings', 'lookup')
+COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings', 'lookup', 'params', 'param_values')
 
 # keys for min / max values for data bounds
 MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')

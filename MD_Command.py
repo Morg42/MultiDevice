@@ -99,7 +99,7 @@ class MD_Command(object):
         if self.__class__ is MD_Command:
             self.logger.debug(f'learned command {command} with device datatype {dt_class}')
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
 
         cmd = None
 
@@ -175,7 +175,7 @@ class MD_Command(object):
         '''
         if data is not None:
             try:
-                if self.settings:
+                if self.settings and not self.lookup:
                     if self.settings.get('valid_list_ci', None):
                         val = data
                         if isinstance(data, str):
@@ -226,7 +226,7 @@ class MD_Command_Str(MD_Command):
     '''
     read_data = None
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
 
         data = self._check_value(data)
 
@@ -327,7 +327,7 @@ class MD_Command_ParseStr(MD_Command_Str):
     MRE by JF properly :)
     '''
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
 
         data = self._check_value(data)
 
@@ -387,3 +387,76 @@ class MD_Command_ParseStr(MD_Command_Str):
         else:
             value = self._DT.get_shng_data(data)
         return value
+
+
+class MD_Command_JSON(MD_Command):
+    '''
+    With this class, you can send JSON-RPC commands to the device and read
+    from it.
+
+    The command is sent as 'method', the params-dict is populated from the
+    'params' attribute of the command, while the parameter values are
+    taken from the 'param-values' attribute. 'VAL' is replaced with the
+    actual item value.
+
+    params and param_value need to be None or lists of the same length.
+    '''
+
+    def get_send_data(self, data, **kwargs):
+
+        cmd = None
+        data = self._check_value(data)
+        # create read data
+        if data is None:
+            if self.read_cmd:
+                cmd = self.read_cmd
+            else:
+                cmd = self.opcode
+        else:
+            if self.write_cmd:
+                cmd = self.write_cmd
+            else:
+                cmd = self.opcode
+        ddict = self._build_dict(self._DT.get_send_data(data), **kwargs)
+        return {'payload': cmd, 'data': ddict}
+
+    def get_shng_data(self, data):
+        value = self._DT.get_shng_data(data.get('result'))
+        return value
+
+    def _build_dict(self, data, **kwargs):
+        '''
+        build param array for JSON RPC from provided value and kwargs
+
+        :param data: value for the command
+        :param kwargs: additional data
+        :return: params-dict (or None)
+        :rtype: dict
+        '''
+        params = {}
+        if not hasattr(self, 'params'):
+            return None
+
+        if not hasattr(self, 'param_values'):
+            raise SyntaxError(f'params {kwargs["params"]} given, but no param_values')
+
+        if len(self.params) != len(self.param_values):
+            raise SyntaxError(f'different number of params and values given ({self.params}/{self.param_values})')
+
+        for idx in range(len(self.params)):
+            val = self.param_values[idx]
+            if val == 'VAL':
+                val = data
+            elif isinstance(val, tuple):
+                try:
+                    expr = str(val[0]).replace('VAL', str(data))
+                    val = eval(expr)
+                except Exception as e:
+                    raise ValueError(f'invalid data: eval expression {val} with argument {data} raised error: {e}')
+
+            params[self.params[idx]] = val
+
+        if 'playerid' in params and 'playerid' in kwargs:
+            params['playerid'] = kwargs['playerid']
+
+        return params

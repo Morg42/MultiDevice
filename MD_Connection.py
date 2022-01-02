@@ -29,6 +29,7 @@ from time import sleep, time
 import requests
 import json
 import queue
+import threading
 
 from collections import OrderedDict
 from lib.network import Tcp_client
@@ -367,9 +368,8 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
                         PLUGIN_ARG_CONN_RETRIES: 1,
                         PLUGIN_ARG_CONN_CYCLE: 3,
                         PLUGIN_ARG_TIMEOUT: 3,
-                        PLUGIN_ARG_TERMINATOR: b'\r\n',
-                        'message_timeout': 5,       # how long (seconds) to wait for a reply to a command
-                        'message_repeat': 3,        # how often to try and resend command after command_timeout
+                        PLUGIN_ARG_MSG_REPEAT: 3,
+                        PLUGIN_ARG_MSG_TIMEOUT: 5,
                         PLUGIN_ARG_CB_ON_DISCONNECT: None,
                         PLUGIN_ARG_CB_ON_CONNECT: None}
 
@@ -391,7 +391,7 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
         # initialize connection
         self._tcp = Tcp_client(host=self._host, port=self._port, name=f'{device_id}-TcpConnection',
                                autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
-                               connect_cycle=self._connect_cycle, terminator=self._terminator)
+                               connect_cycle=self._connect_cycle)
         self._tcp.set_callbacks(data_received=self.on_data_received,
                                 disconnected=self.on_disconnect,
                                 connected=self.on_connect)
@@ -445,11 +445,12 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
 
     def on_data_received(self, connection, response):
         ''' Recall method for TCP message reception '''
-        response = response.strip()
         if response:
             self.logger.debug(f'received raw data "{response}" from {connection.name}')
         else:
             return
+
+        response = str(response, 'utf-8').strip()
 
         # split multi-response data into list items
         try:
@@ -468,6 +469,8 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
                 self.logger.warning(f'Could not json.load data item {data} with error {err}')
                 continue
 
+            method = None
+
             # check messageid for replies
             if 'id' in jdata:
                 response_id = jdata['id']
@@ -480,7 +483,7 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
                         method = self._message_archive[response_id][1]
                         del self._message_archive[response_id]
                     except KeyError:
-                        method = '(deleted)' if '#' not in response_id else response_id[response_id.find('#') + 1:]
+                        method = '(deleted)' if '_' not in response_id else response_id[response_id.find('_') + 1:]
                 else:
                     method = None
 
@@ -586,7 +589,7 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
             self._message_id += 1
             new_msgid = self._message_id
             self._msgid_lock.release()
-            message_id = str(new_msgid) + '#' + method
+            message_id = str(new_msgid) + '_' + method
             # !! self.logger.debug('Releasing message id access ({})'.format(self._message_id))
 
         # create message packet
@@ -604,7 +607,6 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
         # !! self.logger.debug('Queued message {}'.format(send_command))
 
         # try to actually send all queued messages
-# !!
         self.logger.debug(f'processing queue - {self._send_queue.qsize()} elements')
         while not self._send_queue.empty():
             (message_id, data, method, params, repeat) = self._send_queue.get()

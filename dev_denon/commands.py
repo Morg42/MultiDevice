@@ -5,15 +5,15 @@
 
 commands = {
     'general/power': {
-    'read': True,
-    'write': True,
-    'read_cmd': 'PW?',
-    'write_cmd': 'PWMD_VALUE',
-    'item_type': 'bool',
-    'dev_datatype': 'str',
-    'reply_token': 'REGEX',
-    'reply_pattern': 'PW(ON|STANDBY)',
-    'lookup': 'POWER'
+        'read': True,
+        'write': True,
+        'read_cmd': 'PW?',
+        'write_cmd': 'PWMD_VALUE',
+        'item_type': 'bool',
+        'dev_datatype': 'str',
+        'reply_token': 'REGEX',
+        'reply_pattern': 'PW(ON|STANDBY)',
+        'lookup': 'POWER'
     },
     'general/sourcename_DVD': {
         'read': True,

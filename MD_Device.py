@@ -172,7 +172,7 @@ class MD_Device(object):
     #     '''
     #     pass
 
-    def send_command(self, command, value=None):
+    def send_command(self, command, value=None, **kwargs):
         '''
         Sends the specified command to the device providing <value> as data
         Not providing data will issue a read command, trying to read the value 
@@ -199,7 +199,7 @@ class MD_Device(object):
                 return False
 
         try:
-            data_dict = self._commands.get_send_data(command, value)
+            data_dict = self._commands.get_send_data(command, value, **kwargs)
         except Exception as e:
             self.logger.warning(f'command {command} with value {value} produced error on converting value, aborting. Error was: {e}')
             return False
@@ -426,6 +426,14 @@ class MD_Device(object):
 
         self.logger.debug(f'using connection class {cls}')
         return cls(self.device_type, self.device_id, self.on_data_received, **self._params)
+
+    def on_connect(self, by=None):
+        ''' callback if connection is made. '''
+        pass
+
+    def on_disconnect(self, by=None):
+        ''' callback if connection is broken. '''
+        pass
 
     #
     #

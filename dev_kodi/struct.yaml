@@ -1,0 +1,207 @@
+%YAML 1.1
+---
+# vim: expandtab:ts=4:sw=4
+info:
+    name: Vorlage-Struktur für Kodi Infos, die nicht aktiv verändert werden können.
+
+    state:
+        md_deviceid: DEVICENAME
+        md_command: state
+        md_read: true
+        type: str
+        visu_acl: ro
+
+    media:
+        md_deviceid: DEVICENAME
+        md_command: media
+        md_read: true
+        type: str
+        visu_acl: ro
+
+    title:
+        md_deviceid: DEVICENAME
+        md_command: title
+        md_read: true
+        type: str
+        visu_acl: ro
+
+    audiostreams:
+        md_deviceid: DEVICENAME
+        md_command: streams
+        md_read: true
+        type: list
+        visu_acl: ro
+
+    subtitles:
+        md_deviceid: DEVICENAME
+        md_command: subtitles
+        md_read: true
+        type: list
+        visu_acl: ro
+
+    player:
+        md_deviceid: DEVICENAME
+        md_command: player
+        md_read: true
+        type: num
+        visu_acl: ro
+
+control:
+    name: Vorlage-Struktur für Kodi Befehle zum Steuern
+
+    update:
+        md_deviceid: DEVICENAME
+        md_command: update
+        md_read: true
+        md_write: true
+        type: bool
+        visu_acl: rw
+        enforce_updates: true
+        autotimer: 1 = false = latest
+
+    play:
+        type: bool
+        eval: sh...playpause() and not sh...stop()
+        enforce_updates: true
+        eval_trigger:
+            - ..stop
+            - ..playpause
+
+        play_cmd:
+            type: bool
+            enforce_updates: true
+            eval: sh....input('play') if not (sh...property.last_update_by.lower()[:4] in ('kodi', 'init', 'eval')) else None
+            eval_trigger: ..
+
+    pause:
+        type: bool
+        eval: not sh...playpause() and not sh...stop()
+        enforce_updates: true
+        eval_trigger:
+            - ..stop
+            - ..playpause
+
+        pause_cmd:
+            type: bool
+            enforce_updates: true
+            eval: sh....input('pause') if not (sh...property.last_update_by.lower()[:4] in ('kodi', 'init', 'eval')) else None
+            eval_trigger: ..
+
+    stop:
+        md_deviceid: DEVICENAME
+        md_command: stop
+        md_read: true
+        md_write: true
+        type: bool
+        visu_acl: rw
+        enforce_updates: true
+
+    playpause:
+        md_deviceid: DEVICENAME
+        md_command: playpause
+        md_read: true
+        md_write: true
+        type: bool
+        visu_acl: rw
+        enforce_updates: true
+
+    previous:
+        type: bool
+        eval: sh...input('skipprevious')
+        enforce_updates: true
+
+    next:
+        type: bool
+        eval: sh...input('skipnext')
+        enforce_updates: true
+
+    seek:
+        md_deviceid: DEVICENAME
+        md_command: seek
+        md_read: true
+        md_write: true
+        type: num
+        visu_acl: rw
+        enforce_updates: true
+
+    speed:
+        md_deviceid: DEVICENAME
+        md_command: speed
+        md_read: true
+        md_write: true
+        type: num
+        visu_acl: rw
+        enforce_updates: true
+
+    volume:
+        md_deviceid: DEVICENAME
+        md_command: volume
+        md_read: true
+        md_write: true
+        type: num
+        visu_acl: rw
+        enforce_updates: true
+
+    mute:
+        md_deviceid: DEVICENAME
+        md_command: mute
+        md_read: true
+        md_write: true
+        type: bool
+        visu_acl: rw
+        enforce_updates: true
+
+    macro:
+        md_deviceid: DEVICENAME
+        md_command: macro
+        md_read: true
+        md_write: true
+        type: str
+        visu_acl: rw
+        enforce_updates: true
+
+    on_off:
+        md_deviceid: DEVICENAME
+        md_command: power
+        md_read: true
+        md_write: true
+        enforce_updates: true
+        type: bool
+        visu_acl: rw
+
+    input:
+        md_deviceid: DEVICENAME
+        md_command: action
+        md_read: true
+        md_write: true
+        type: str
+        visu_acl: rw
+        enforce_updates: true
+
+    favourites:
+        md_deviceid: DEVICENAME
+        md_command: get_favourites
+        md_read: true
+        md_write: true
+        type: dict
+        visu_acl: rw
+        enforce_updates: true
+
+    audiostream:
+        md_deviceid: DEVICENAME
+        md_command: audio
+        md_read: true
+        md_write: true
+        type: foo
+        visu_acl: rw
+        enforce_updates: true
+
+    subtitle:
+        md_deviceid: DEVICENAME
+        md_command: subtitle
+        md_read: true
+        md_write: true
+        type: foo
+        visu_acl: rw
+        enforce_updates: true
+

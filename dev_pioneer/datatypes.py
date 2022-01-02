@@ -17,7 +17,7 @@ class DT_PioDisplay(DT.Datatype):
 
 
 class DT_PioChannelVol(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return f"{int(data * 2 + 50):02}"
 
     def get_shng_data(self, data, type=None):
@@ -25,7 +25,7 @@ class DT_PioChannelVol(DT.Datatype):
 
 
 class DT_onoff(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return 'O' if data else 'F'
 
     def get_shng_data(self, data, type=None):

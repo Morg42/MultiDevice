@@ -23,7 +23,7 @@ class DT_DenonDisplay(DT.Datatype):
 
 
 class DT_DenonVol(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         if int(data) == data:
             # "real" integer
             return f'{int(data):02}'
@@ -39,7 +39,7 @@ class DT_DenonVol(DT.Datatype):
 
 
 class DT_DenonStandby(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return 'OFF' if data == 0 else f"{data:01}H"
 
     def get_shng_data(self, data, type=None):
@@ -47,7 +47,7 @@ class DT_DenonStandby(DT.Datatype):
 
 
 class DT_DenonStandby1(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return 'OFF' if data == 0 else f"{data:02}M"
 
     def get_shng_data(self, data, type=None):
@@ -55,7 +55,7 @@ class DT_DenonStandby1(DT.Datatype):
 
 
 class DT_onoff(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return 'ON' if data else 'OFF'
 
     def get_shng_data(self, data, type=None):
@@ -63,7 +63,7 @@ class DT_onoff(DT.Datatype):
 
 
 class DT_convert0(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return 'OFF' if data == 0 else f"{data:03}"
 
     def get_shng_data(self, data, type=None):
@@ -71,7 +71,7 @@ class DT_convert0(DT.Datatype):
 
 
 class DT_convertAuto(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return 'AUTO' if data == 0 else data
 
     def get_shng_data(self, data, type=None):
@@ -79,7 +79,7 @@ class DT_convertAuto(DT.Datatype):
 
 
 class DT_remap50to0(DT.Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         if int(data) == data:
             # "real" integer
             return f'{(int(data)+50):02}'

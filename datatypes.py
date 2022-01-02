@@ -83,7 +83,7 @@ class Datatype(object):
         '''
         self._silent = fail_silent
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         '''
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
@@ -201,7 +201,7 @@ class DT_raw(Datatype):
 
 class DT_bool(Datatype):
     ''' cast to bool '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bool(data)
 
     def get_shng_data(self, data, type=None):
@@ -213,7 +213,7 @@ class DT_bool(Datatype):
 
 class DT_int(Datatype):
     ''' cast to int '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return int(data)
 
     def get_shng_data(self, data, type=None):
@@ -225,7 +225,7 @@ class DT_int(Datatype):
 
 class DT_num(Datatype):
     ''' cast to float '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return float(data)
 
     def get_shng_data(self, data, type=None):
@@ -237,7 +237,7 @@ class DT_num(Datatype):
 
 class DT_str(Datatype):
     ''' cast to str '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return str(data)
 
     def get_shng_data(self, data, type=None):
@@ -248,7 +248,7 @@ class DT_str(Datatype):
 
 class DT_list(Datatype):
     ''' enlist '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return list(data)
 
     def get_shng_data(self, data, type=None):
@@ -259,7 +259,7 @@ class DT_list(Datatype):
 
 class DT_dict(Datatype):
     ''' dict-ate '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return dict(data)
 
     def get_shng_data(self, data, type=None):
@@ -270,7 +270,7 @@ class DT_dict(Datatype):
 
 class DT_tuple(Datatype):
     ''' toupling (meh...) '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return tuple(data)
 
     def get_shng_data(self, data, type=None):
@@ -280,7 +280,7 @@ class DT_tuple(Datatype):
 
 
 class DT_bytes(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bytes(data)
 
     def get_shng_data(self, data, type=None):
@@ -290,7 +290,7 @@ class DT_bytes(Datatype):
 
 
 class DT_bytearray(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bytearray(data)
 
     def get_shng_data(self, data, type=None):
@@ -300,7 +300,7 @@ class DT_bytearray(Datatype):
 
 
 class DT_json(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return json.dumps(data)
 
     def get_shng_data(self, data, type=None):
@@ -311,7 +311,7 @@ class DT_json(Datatype):
 
 class DT_webservices(Datatype):
     ''' extract value of key 'value' from json data, e.g. for webservices plugin '''
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return data
 
     def get_shng_data(self, data, type=None):

@@ -12,7 +12,7 @@ class DT_Example(DT.Datatype):
     def __init__(self, fail_silent=True):
         super().__init__(fail_silent)
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return data
 
     def get_shng_data(self, data, type=None):

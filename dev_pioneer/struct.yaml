@@ -1,6 +1,33 @@
 %YAML 1.1
 ---
 # vim: expandtab:ts=4:sw=4
+radio_dependencies:
+    name: "Dependency Feature for Radio"
+    remark: "Only works with respective user function. Put multidevice_uf.py in folder functions."
+    tunerpreset:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...zone1.power == True', ['...zone1.source == "net"', '...zone1.source == "iradio"', '...zone1.source == "tuner"']]
+
+    tunerpresetup:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...zone1.power == True', ['...zone1.source == "net"', '...zone1.source == "iradio"', '...zone1.source == "tuner"']]
+
+    tunerpresetdown:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...zone1.power == True', ['...zone1.source == "net"', '...zone1.source == "iradio"', '...zone1.source == "tuner"']]
+
 radio:
     title:
         type: str
@@ -60,6 +87,74 @@ general:
         md_read: true
         md_read_initial: true
 
+zone1_dependencies:
+    name: "Dependency Feature for Zone 1"
+    remark: "Only works with respective user function. Put multidevice_uf.py in folder functions."
+    source:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    sleep:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    standby:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    volume:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    mute:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    settings:
+        sound:
+            tone:
+                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+                dependencies:
+                    type: list
+                    cache: True
+                    initial_value: ['.....power == True']
+            treble:
+                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+                dependencies:
+                    type: list
+                    cache: True
+                    initial_value: ['...tone == True']
+            bass:
+                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+                dependencies:
+                    type: list
+                    cache: True
+                    initial_value: ['...tone == True']
+            speakers:
+                eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+                dependencies:
+                    type: list
+                    cache: True
+                    initial_value: ['.....power == True']
 zone1:
     read:
         type: bool
@@ -90,7 +185,6 @@ zone1:
         md_read_initial: true
         md_write: true
         md_read_group: 1
-        eval: None if sh...power() is False else value
     volume:
         type: num
         md_deviceid: DEVICENAME
@@ -99,7 +193,6 @@ zone1:
         md_read_initial: true
         md_write: true
         md_read_group: 1
-        eval: 0 if sh...power() is False else value
     volumeup:
         type: bool
         enforce_updates: yes
@@ -120,7 +213,6 @@ zone1:
         md_read_initial: true
         md_write: true
         md_read_group: 1
-        eval: None if sh...power() is False else value
 
         lookup:
             type: dict
@@ -207,7 +299,7 @@ zone1:
                 lookup:
                     type: dict
                     md_deviceid: DEVICENAME
-                    md_lookup: PLAYINGMODE                
+                    md_lookup: PLAYINGMODE
             listeningmode:
                 type: str
                 md_deviceid: DEVICENAME
@@ -234,10 +326,10 @@ zone1:
                   - ..speakerb = True if value in [2, 3] else False
             speakera:
                 type: bool
-                on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+                on_change: ..speakers = None if sh..self.property.last_trigger_by.startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
             speakerb:
                 type: bool
-                on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
+                on_change: ..speakers = None if sh..self.property.last_trigger_by.startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
             hdmiout:
                 type: str
                 md_deviceid: DEVICENAME
@@ -285,7 +377,6 @@ zone1:
                 md_write: true
                 md_read_group: 4
                 on_change: ..tone_read = True if value is True else None
-                eval: None if sh.....power() is False else value
 
                 lookup:
                     type: dict
@@ -299,7 +390,6 @@ zone1:
                 md_read_initial: true
                 md_write: true
                 md_read_group: 4
-                eval: None if sh...tone() is False else value
             trebleup:
                 type: bool
                 enforce_updates: yes
@@ -320,7 +410,6 @@ zone1:
                 md_read_initial: true
                 md_write: true
                 md_read_group: 4
-                eval: None if sh...tone() is False else value
             bassup:
                 type: bool
                 enforce_updates: yes
@@ -333,6 +422,45 @@ zone1:
                 md_deviceid: DEVICENAME
                 md_command: zone1/bassdown
                 md_write: true
+
+zone2_dependencies:
+    name: "Dependency Feature for Zone 2"
+    remark: "Only works with respective user function. Put multidevice_uf.py in folder functions."
+    source:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    sleep:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    standby:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    volume:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
+    mute:
+        eval: value if sh..self.property.last_trigger_by.startswith('priv_md') or uf.multidevice_uf.checkdepencies(sh, sh..dependencies) else None
+
+        dependencies:
+            type: list
+            cache: True
+            initial_value: ['...power == True']
 
 zone2:
     read:
@@ -360,7 +488,6 @@ zone2:
         md_read_initial: true
         md_write: true
         md_read_group: 2
-        eval: None if sh...power() is False else value
     volume:
         type: num
         md_deviceid: DEVICENAME
@@ -369,7 +496,6 @@ zone2:
         md_read_initial: true
         md_write: true
         md_read_group: 2
-        eval: 0 if sh...power() is False else value
     volumeup:
         type: bool
         enforce_updates: yes
@@ -390,7 +516,6 @@ zone2:
         md_read_initial: true
         md_write: true
         md_read_group: 2
-        eval: None if sh...power() is False else value
     sourceup:
         type: bool
         enforce_updates: yes

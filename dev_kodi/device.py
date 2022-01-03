@@ -91,8 +91,8 @@ class MD_Device(MD_Device):
         except Exception as e:
             self.logger.error(f'Invalid response to command {command} received: {data}, ignoring. Error was: {e}')
             return
-        if result_data is None:
-            self.logger.error(f'Empty response to command {command} received, ignoring')
+        if 'id' in data and result_data is None:
+            self.logger.info(f'Empty response to command {command} received, ignoring')
             return
 
         query_playerinfo = []
@@ -233,11 +233,14 @@ class MD_Device(MD_Device):
                 self.logger.debug('received: activated screensaver')
                 self._data_received_callback(self.device_id, 'state', 'Screensaver')
 
-            elif data['method'] in ['Player.OnPlay', 'Player.OnAVChange']:
+            elif data['method'][:9] == 'Player.On':
                 processed = True
-                self.logger.debug('received: started/changed playback')
-                self._data_received_callback(self.device_id, 'state', 'Playing')
-                query_playerinfo.append(data['params']['data']['player']['playerid'])
+                self.logger.debug('received: player notification')
+                try:
+                    p_id = data['params']['data']['player']['playerid']
+                    query_playerinfo.append(p_id)
+                except KeyError:
+                    pass
 
             elif data['method'] == 'Application.OnVolumeChanged':
                 processed = True
@@ -248,7 +251,7 @@ class MD_Device(MD_Device):
         # if active playerid(s) was changed, update status for active player(s)
         if query_playerinfo:
             self.logger.debug(f'player info query requested for playerid(s) {query_playerinfo}')
-            for player_id in query_playerinfo:
+            for player_id in set(query_playerinfo):
                 self.logger.debug(f'getting player info for player #{player_id}')
                 self._connection._send_rpc_message('Player.GetItem', {'properties': ['title', 'artist'], 'playerid': player_id})
                 self._connection._send_rpc_message('Player.GetProperties', {'properties': ['speed', 'percentage', 'currentaudiostream', 'audiostreams', 'subtitleenabled', 'currentsubtitle', 'subtitles'], 'playerid': player_id})

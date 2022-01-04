@@ -7,6 +7,7 @@ else:
     from .. import datatypes as DT
 
 
+# read only. Depending on a status field, the result is sliced.
 class DT_DenonDisplay(DT.Datatype):
     def get_shng_data(self, data, type=None):
         infotype = data[3:4]
@@ -22,6 +23,7 @@ class DT_DenonDisplay(DT.Datatype):
         return None
 
 
+# handle pseudo-decimal values without decimal point
 class DT_DenonVol(DT.Datatype):
     def get_send_data(self, data, **kwargs):
         if int(data) == data:

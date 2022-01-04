@@ -164,6 +164,8 @@
 
     Data is exchanged with ``MD_Device`` in a special dict format:
 
+    ..code: python
+
         data_dict = {
             'payload': raw data as needed by the connection}
             'kw1': additional 'keyword' args or data specific to the connection type
@@ -377,6 +379,11 @@
     commands.py file structure.
     Also, take a look into the different existing device classes to get a feeling
     for the needed effort to implement a new device.
+    Depending on the device protocol and command complexity, implementing a new
+    device can be a quick and easy job (e.g. for simple string or byte exchanges)
+    or requiring a more complex approach, e.g. if it is not practical to store
+    all information in items immediately, or if multiple data points are trans-
+    mitted at one, which requires splitting or other means of data management.
 '''
 
 from collections import OrderedDict

@@ -3,6 +3,12 @@
 
 '''
 Device class for Pioneer AV function.
+
+Most of the work is done by the base class, so we only set default parameters
+for the connection (to be overwritten by device attributes from the plugin
+configuration) and add a fixed terminator byte to outgoing datagrams.
+
+The know-how is in the commands.py (and some DT_ classes...)
 '''
 if MD_standalone:
     from MD_Globals import *

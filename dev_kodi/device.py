@@ -3,7 +3,34 @@
 
 '''
 Device class for Kodi Mediacenter.
+
+This is a bit more complex than e.g. the Pioneer/Denon family device classes.
+
+Complex response or notification datagrams with multiple data points can not
+easily - and usefully - be crammed into a single item, so we need a logic to
+separate the data points and split them into different items (better: command
+responses). This is mostly handled in ``on_data_received()``.
+
+Due to multiple device namespaces, some responses require us to ask for
+additional specific information from the device. This is handled by
+``send_command()`` and ``_update_status()``.
+
+The "special" (a.k.a. fake) commands (as they are not a single command to send
+to the device) have to be recognized, so we also tamper with ``is_valid_command()``.
+
+NOTE: quite some of the logic in ``on_data_received()``, especially most of the
+      code for handling notifications could be achieved by adding complex commands
+      which control the ``playpause`` and ``stop`` command; the dependent settings
+      could then be accomplished by more or less complex item and eval constructs.
+
+      As this is - foremost - a port of the kodi plugin and a demonstrator for
+      how to and how not to use the MultiDevice capabilities, I've not yet changed
+      much.
+
+      Any complexity moved out of the ``device.py`` code will need to find another
+      place, in ``commands.py`` and/or the item configuration.
 '''
+
 if MD_standalone:
     from MD_Globals import *
     from MD_Device import MD_Device
@@ -13,9 +40,7 @@ else:
     from ..MD_Device import MD_Device
     from ..MD_Command import MD_Command_JSON
 
-from time import sleep
 import logging
-import json
 
 
 class MD_Device(MD_Device):

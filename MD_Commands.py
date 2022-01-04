@@ -137,7 +137,7 @@ class MD_Commands(object):
         return None
 
     def get_lookup(self, lookup, type='fwd'):
-        ''' returns the lookup table for name <lookup>, None on error '''
+        ''' returns the contents of the lookup table named <lookup>, None on error '''
         if lookup in self._lookups and type in ('fwd', 'rev', 'rci'):
             return self._lookups[lookup][type]
         else:

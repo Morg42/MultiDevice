@@ -305,6 +305,16 @@
     independently. Necessary configuration include the chosen devices respectively
     the device names and possibly device parameter in ``etc/plugin.yaml``.
 
+    Every device is identified by its type (which corresponds to the device folder
+    dev_<type>) and its id, which is the internal SmartHomeNG handle and the name
+    used in item configuration. If only one device of the same type is used, type
+    and id can be the same. The ``devices:``-attribute in ``plugin.yaml`` contains
+    a dict of all configured devices where the id is the key and the configuration
+    for the specific device is provided as "dict in value" format, if needed.
+    The configuration can include the attribute ``device_type`` to specify the type
+    of the device (if different from the id) and - optionally - the attribute
+    ``model``, if a device offers multiple model configurations.
+
     The item configuration is supplemented by the attributes ``md_deviceid`` and
     ``md_command``, which designate the device id from plugin configuration and
     the command name from the device configuration, respectively.
@@ -336,6 +346,7 @@
             - mydev: dev2               # id = mydev, type = dev2, folder = dev_dev2
             - my2dev:                   # id = my2dev, type = dev3, folder = dev_dev3
                 - device_type: dev3
+                - device_model: foo     #   optional
                 - host: somehost        #   optional
             - dev4:                     # id = dev4, type = dev4, folder = dev_dev4
                 - host: someotherhost   #   optional
@@ -436,7 +447,7 @@ class MultiDevice(SmartPlugin):
         if not sh:
             self.logger = logger
 
-        self.logger.info(f'Initializung MultiDevice-Plugin as {__name__}')
+        self.logger.info(f'Initializing MultiDevice-Plugin as {__name__}')
 
         self._devices = {}              # contains all configured devices - <device_id>: {'device_type': <device_type>, 'device': <class-instance>, 'logger': <logger-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_id': <device_id>, 'command': <command>}
@@ -505,7 +516,7 @@ class MultiDevice(SmartPlugin):
                     device_type = device_id = None
 
             if device_id and device_id in self._devices:
-                self.logger.warning(f'Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id]["device_type"]}. Skipping processing of device id {device_id}')
+                self.logger.warning(f'Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id]["device_type"]}. Skipping processing of spare device id {device_id}')
                 break
 
             # did we get a device id?
@@ -524,10 +535,10 @@ class MultiDevice(SmartPlugin):
                 # except AttributeError as e:
                 #    self.logger.error(f'Importing class MD_Device from external module {"dev_" + device_type + "/device.py"} failed. Skipping device {device_id}. Error was: {e}')
                 except (ImportError):
-                    self.logger.warning(f'Importing external module {"dev_" + device_type + "/device.py"} for device {device_id} failed, reverting to default MD_Device class')
-                    device_instance = MD_Device(device_type, device_id, plugin=self, **param)
+                    self.logger.warning(f'Importing external module {"dev_" + device_type + "/device.py"} for device {device_id} failed, disabling device')
+                    device_instance = None
 
-                if device_instance:
+                if device_instance and not device_instance.disabled:
 
                     # create logger for device identity to use in update_item() and store in _devices dict
                     dev_logger = logging.getLogger(f'{__name__}.{device_id}')
@@ -562,6 +573,7 @@ class MultiDevice(SmartPlugin):
 
         if not self._devices:
             self._init_complete = False
+            self.logger.info('no devices configured, not loading plugin')
             return
 
         # if plugin should start even without web interface

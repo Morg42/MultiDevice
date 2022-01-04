@@ -72,7 +72,7 @@ class MD_Device(object):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
-        self.logger.info(f'initializing from class {self.__class__.__name__} with arguments {kwargs}')
+        self.logger.info(f'initializing from device module {str(self.__class__).split(".")[-3]} with arguments {kwargs}')
 
         # the connection object
         self._connection = None
@@ -83,9 +83,7 @@ class MD_Device(object):
         # set parameter defaults only if not set by derived class...
         # if derived class sets defaults before calling us, they must not be
         # overwritten
-        try:
-            self._params.update({})
-        except ValueError:
+        if not hasattr(self, '_params'):
             self._params = {}
 
         # set class properties
@@ -118,7 +116,7 @@ class MD_Device(object):
             if not self._read_configuration():
                 self.logger.error('configuration could not be read, device disabled')
                 return False
-        except Exception as e:
+        except CommandsError as e:
             self.logger.error(f'configuration could not be read, device disabled. Original error: {e}')
             return False
 

@@ -41,18 +41,20 @@ class MD_Device(MD_Device):
 
         super().__init__(device_type, device_id, **kwargs)
 
-        self._activeplayers = []
-        self._playerid = 0
+        if not self.disabled:
 
-        # these commands are not meant to control the kodi device, but to
-        # communicate with the device class, e.g. triggering updating player
-        # info or returning the player_id.
-        # As these commands are not sent (directly) to the device, they should
-        # not be processed via the MD_Commands class and not listed in commands.py
-        self._special_commands = {'read': ['player'], 'write': ['update']}
+            self._activeplayers = []
+            self._playerid = 0
 
-        # log own initialization with module (i.e. folder) name
-        self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
+            # these commands are not meant to control the kodi device, but to
+            # communicate with the device class, e.g. triggering updating player
+            # info or returning the player_id.
+            # As these commands are not sent (directly) to the device, they should
+            # not be processed via the MD_Commands class and not listed in commands.py
+            self._special_commands = {'read': ['player'], 'write': ['update']}
+
+            # log own initialization with module (i.e. folder) name
+            self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
 
 #
 # further overloaded methods

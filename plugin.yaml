@@ -27,7 +27,7 @@ parameters:
     devices:
         type: list
         description:
-            de: 'Liste von Geräten (<Geräte-ID> oder <Geräte-ID>: <Gerätename> oder <Geräte-ID>: <Gerätename>, <Arg1>=<Wert1>, ...)'
+            de: 'Liste von Geräten (<Geräte-ID> oder <Geräte-ID>: <Geräte-Typ> oder <Geräte-ID>: <Gerätetyp>, <Arg1>=<Wert1>, ...)'
             en: 'List of devices (<device-id> oder <device-id>: <device-name> or <device-id>: <device-name>, <attr1>=<val1>, ...)'
 
 item_attributes:

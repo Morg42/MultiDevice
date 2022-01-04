@@ -420,7 +420,7 @@ class MD_Connection_Net_Tcp_Jsonrpc(MD_Connection):
         '''
         self.connected = True
         if isinstance(by, (dict, Tcp_client)):
-            by = 'TCP_Connect'
+            by = f'{self.device_id}-TcpConnection'
         self.logger.info(f'Connected to {self._host}, onconnect called by {by}, send queue contains {self._send_queue.qsize()} commands')
         if self._connected_callback:
             self._connected_callback(by)

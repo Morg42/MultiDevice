@@ -26,16 +26,20 @@
 
 import logging
 import time
-from importlib import import_module
+import sys
 
 if MD_standalone:
     from MD_Globals import *
     from MD_Commands import MD_Commands
     from MD_Command import MD_Command
+    from MD_Connection import MD_Connection
+    from MD_Protocol import MD_Protocol
 else:
     from .MD_Globals import *
     from .MD_Commands import MD_Commands
     from .MD_Command import MD_Command
+    from .MD_Connection import MD_Connection
+    from .MD_Protocol import MD_Protocol
 
 
 #############################################################################################################################################################################################################################################
@@ -147,7 +151,7 @@ class MD_Device(object):
         self.alive = True
         self._connection.open()
 
-        if self._connection.connected:
+        if self._connection.connected():
             self._read_initial_values()
             if not MD_standalone:
                 self._create_cyclic_scheduler()
@@ -190,9 +194,9 @@ class MD_Device(object):
             self.logger.warning(f'trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
             return False
 
-        if not self._connection.connected:
+        if not self._connection.connected():
             self._connection.open()
-            if not self._connection.connected:
+            if not self._connection.connected():
                 self.logger.warning(f'trying to send command {command} with value {value}, but connection could not be established.')
                 return False
 
@@ -230,13 +234,14 @@ class MD_Device(object):
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
         return True
 
-    def on_data_received(self, command, data):
+    def on_data_received(self, by, data, command=None):
         '''
         Callback function for received data e.g. from an event loop
         Processes data and dispatches value to plugin class
 
         :param command: the command in reply to which data was received
         :param data: received data in 'raw' connection format
+        :param by: client object / name / identifier
         :type command: str
         '''
         if command is not None:
@@ -379,6 +384,12 @@ class MD_Device(object):
         the proper subclass instead. If no decision is possible, just return an
         instance of MD_Connection.
 
+        If the PLUGIN_ARG_PROTOCOL parameter is set, we need to change something.
+        In this case, the protocol instance takes the place of the connection
+        object and instantiates the connection object itself. Instead of the name
+        of the connection class, we pass the class itself, so instantiating it
+        poses no further challenge.
+
         If you need to use other connection types for your device, implement it
         and preselect with PLUGIN_ARG_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
@@ -389,13 +400,30 @@ class MD_Device(object):
         classes. Just return the wanted connection object and ride into the light.
         '''
         conn_type = None
+        conn_classname = None
+        conn_cls = None
+        proto_type = None
+        proto_classname = None
+        proto_cls = None
         params = self._params
 
-        # try to find out what kind of connection is wanted
-        if PLUGIN_ARG_CONNECTION in self._params and self._params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
-            conn_type = self._params[PLUGIN_ARG_CONNECTION]
-        else:
+        mod_str = 'MD_Connection'
+        if not MD_standalone:
+            mod_str = '.'.join(self.__module__.split('.')[:-2]) + '.' + mod_str
+        conn_module = sys.modules.get(mod_str, '')
+        if not conn_module:
+            self.logger.error('unable to get object handle of MD_Connection module')
+            return None
 
+        # try to find out what kind of connection is wanted
+        if PLUGIN_ARG_CONNECTION in self._params:
+            if isinstance(self._params[PLUGIN_ARG_CONNECTION], type) and issubclass(self._params[PLUGIN_ARG_CONNECTION], MD_Connection):
+                conn_cls = self._params[PLUGIN_ARG_CONNECTION]
+                conn_classname = conn_cls.__name__
+            elif self._params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
+                conn_type = self._params[PLUGIN_ARG_CONNECTION]
+        
+        if not conn_type and not conn_cls:
             if PLUGIN_ARG_NET_PORT in self._params:
 
                 # no further information on network specifics, use basic HTTP TCP client
@@ -409,21 +437,59 @@ class MD_Device(object):
             if conn_type:
                 params[PLUGIN_ARG_CONNECTION] = conn_type
 
-        conn_class = 'MD_Connection_' + '_'.join([tok.capitalize() for tok in conn_type.split('_')])
-        self.logger.debug(f'wanting connection class named {conn_class}')
+        if not conn_classname:
+            conn_classname = 'MD_Connection_' + '_'.join([tok.capitalize() for tok in conn_type.split('_')])
+        self.logger.debug(f'wanting connection class named {conn_classname}')
 
-        mod_str = 'MD_Connection'
-        if not MD_standalone:
-            mod_str = '.'.join(self.__module__.split('.')[:-2]) + '.' + mod_str
+        if not conn_cls:
+            if hasattr(conn_module, conn_classname):
+                conn_cls = getattr(conn_module, conn_classname)
+            else:
+                conn_cls = getattr(conn_module, 'MD_Connection')
 
-        module = import_module(mod_str)
-        if hasattr(module, conn_class):
-            cls = getattr(module, conn_class)
-        else:
-            cls = getattr(module, 'MD_Connection')
+        self.logger.debug(f'using connection class {conn_cls}')
 
-        self.logger.debug(f'using connection class {cls}')
-        return cls(self.device_type, self.device_id, self.on_data_received, **self._params)
+        # if protocol is specified, find second class
+        if PLUGIN_ARG_PROTOCOL in self._params:
+            mod_str = 'MD_Protocol'
+            if not MD_standalone:
+                mod_str = '.'.join(self.__module__.split('.')[:-2]) + '.' + mod_str
+            proto_module = sys.modules.get(mod_str, '')
+            if not proto_module:
+                self.logger.error('unable to get object handle of MD_Protocol module')
+                return None
+
+            if isinstance(self._params[PLUGIN_ARG_PROTOCOL], type) and issubclass(self._params[PLUGIN_ARG_PROTOCOL], MD_Connection):
+                proto_cls = self._params[PLUGIN_ARG_PROTOCOL]
+            elif self._params[PLUGIN_ARG_PROTOCOL] in PROTOCOL_TYPES:
+                proto_type = self._params[PLUGIN_ARG_PROTOCOL]
+
+            if proto_type is None and not proto_cls:
+                # class not known and not provided
+                self.logger.error(f'protocol {self._params[PLUGIN_ARG_PROTOCOL]} specified, but unknown and not class type')
+                return None
+
+            if proto_type == PROTO_NULL:
+                proto_cls = MD_Protocol
+            elif proto_type:
+                proto_classname = 'MD_Protocol_' + '_'.join([tok.capitalize() for tok in proto_type.split('_')])
+
+            if not proto_cls:
+                if hasattr(proto_module, proto_classname):
+                    proto_cls = getattr(proto_module, proto_classname)
+                else:
+                    self.logger.error(f'protocol {self._params[PLUGIN_ARG_PROTOCOL]} specified, but not loadable')
+                    return None
+
+            self.logger.debug(f'using protocol class {proto_cls}')
+
+            # set connection class in _params dict for protocol class to use
+            self._params[PLUGIN_ARG_CONNECTION] = conn_cls
+
+            # return protocol instance as connection instance
+            return proto_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
+
+        return conn_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
 
     def on_connect(self, by=None):
         ''' callback if connection is made. '''
@@ -512,7 +578,7 @@ class MD_Device(object):
                 return
 
             # also leave early on disconnect
-            if not self._connection.connected:
+            if not self._connection.connected():
                 self.logger.info('Disconnect detected, cancelling cyclic read')
                 return
 

@@ -35,10 +35,12 @@ if MD_standalone:
     from MD_Globals import *
     from MD_Device import MD_Device
     from MD_Command import MD_Command_JSON
+    from MD_Protocol import MD_Protocol_Jsonrpc
 else:
     from ..MD_Globals import *
     from ..MD_Device import MD_Device
     from ..MD_Command import MD_Command_JSON
+    from ..MD_Protocol import MD_Protocol_Jsonrpc
 
 import logging
 
@@ -52,7 +54,8 @@ class MD_Device(MD_Device):
 
         # set parameter defaults
         self._params = {'command_class': MD_Command_JSON, 
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_JSONRPC,
+                        PLUGIN_ARG_PROTOCOL: PROTO_JSONRPC,
+                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI,
                         PLUGIN_ARG_NET_HOST: '', 
                         PLUGIN_ARG_NET_PORT: 9090, 
                         PLUGIN_ARG_AUTORECONNECT: True,
@@ -86,9 +89,10 @@ class MD_Device(MD_Device):
 #
 
     def on_connect(self, by=None):
+        super().on_connect(by)
         self._update_status()
 
-    def on_data_received(self, command, data):
+    def on_data_received(self, by, data, command=None):
         '''
         Callback function for received data e.g. from an event loop
         Processes data and dispatches value to plugin class

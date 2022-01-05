@@ -269,7 +269,7 @@ class MD_Commands(object):
         if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)
         else:
-            self.logger.info('no lookups found')
+            self.logger.debug('no lookups found')
 
         return True
 

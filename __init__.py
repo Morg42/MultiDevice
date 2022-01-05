@@ -176,13 +176,21 @@
 
     ``MD_Connection(device_type, device_id, data_received_callback, **kwargs)``
 
-    The callback needs to be defined as ``data_received_callback(command, data)``
+    The callbacks needs to be defined as
+
+    - ``data_received_callback(by, data, command=None)``
+    - ``connected_callback(by=None)`` (optional)
+    - ``disconnected_callback(by=None)`` (optional)
 
     Public methods:
 
     - ``open()``
     - ``close()``
     - ``send(data_dict)``
+    - ``on_data_received(by, data)``
+    - ``on_connect(by=None)``
+    - ``on_disconnect(by=None)``
+
 
     Methods necessary to overload for derived classes:
 
@@ -199,14 +207,41 @@
 
     This class has subclasses defined for the following types of connection:
 
-    - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
+    - ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
     - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-    - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
+    - ``MD_Connection_Net_Udp_Server``  for UDP listering server with async callback
     - ``MD_Connection_Serial_Client``   for query-reply serial connections
     - ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
     For detailed information and necessary configuration parameters, see the
     respective class definition docstring.
+
+
+    MD_Protocol
+    -----------
+
+    For some device communication, the need arises to add another layer of
+    protocol handling - either for special handshake, initialization or general
+    communication and data handling, e.g. send queues or command tracking.
+
+    In these cases, instead of misusing the (hardware) connection class or the
+    (command-oriented) device class, an additional protocol layer can be inserted
+    to handle this.
+
+    The ``MD_Protocol`` class is a subclass of ``MD_Connection`` and used by the
+    device instead of the actual connection class. The protocol class creates
+    the connection class instance itself and functions as a proxy.
+
+    To activate the protocol layer, configure the device with the ``protocol``
+    option, giving the name of an existing protocol class or the empty string
+    for the ``MD_Protocol`` base class, which has no additional function and can
+    be used for testing.
+
+    The methods are the same as for the ``MD_Connection`` class.
+
+    This class has subclasses defined for the following types of protocols:
+
+    - ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
 
 
     MD_Commands
@@ -413,7 +448,6 @@ if __name__ == '__main__':
     sys.path.insert(0, BASE)
 
     from MD_Globals import *
-    from MD_Device import MD_Device
 
 else:
     builtins.MD_standalone = False
@@ -423,7 +457,6 @@ else:
     import lib.shyaml as shyaml
 
     from .MD_Globals import *
-    from .MD_Device import MD_Device
 
 
 #############################################################################################################################################################################################################################################
@@ -541,8 +574,8 @@ class MultiDevice(SmartPlugin):
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
                 # except AttributeError as e:
                 #    self.logger.error(f'Importing class MD_Device from external module {"dev_" + device_type + "/device.py"} failed. Skipping device {device_id}. Error was: {e}')
-                except (ImportError):
-                    self.logger.warning(f'Importing external module {"dev_" + device_type + "/device.py"} for device {device_id} failed, disabling device')
+                except ImportError as e:
+                    self.logger.warning(f'Importing external module {"dev_" + device_type + "/device.py"} for device {device_id} failed, disabling device. Error was: {e}')
                     device_instance = None
 
                 if device_instance and not device_instance.disabled:

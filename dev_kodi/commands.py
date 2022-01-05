@@ -2,7 +2,7 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 '''
-    commands for dev kodi
+    commands for dev kodi 
 '''
 
 commands = {

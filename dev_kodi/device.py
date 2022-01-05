@@ -104,7 +104,7 @@ class MD_Device(MD_Device):
         if command is not None:
             self.logger.debug(f'received data "{data}" for command {command}')
         else:
-            self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
+            self.logger.debug(f'data "{data}" did not identify a known command')
 
         if not self._data_received_callback:
             self.logger.error('on_data_received callback not set, can not process device reply data, ignoring it')
@@ -195,7 +195,8 @@ class MD_Device(MD_Device):
                 if player_type == 'audio' and 'artist' in result_data['item']:
                     artist = 'unknown' if len(result_data['item'].get('artist')) == 0 else result_data['item'].get('artist')[0]
                     title = artist + ' - ' + title
-                self._data_received_callback(self.device_id, 'title', title)
+                if title:
+                    self._data_received_callback(self.device_id, 'title', title)
                 self.logger.debug(f'received GetItem: update player info to title={title}, type={player_type}')
 
             # got player status
@@ -272,6 +273,9 @@ class MD_Device(MD_Device):
                     query_playerinfo.append(p_id)
                 except KeyError:
                     pass
+                if 'item' in data['params']['data'] and 'channeltype' in data['params']['data']['item']:
+                    self._data_received_callback(self.device_id, 'media', data['params']['data']['item']['channeltype'])
+                    self._data_received_callback(self.device_id, 'title', data['params']['data']['item']['title'])
 
             elif data['method'] == 'Application.OnVolumeChanged':
                 processed = True

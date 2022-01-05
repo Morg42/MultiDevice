@@ -273,6 +273,7 @@ class MD_Device(MD_Device):
                     query_playerinfo.append(p_id)
                 except KeyError:
                     pass
+
                 if 'item' in data['params']['data'] and 'channeltype' in data['params']['data']['item']:
                     self._data_received_callback(self.device_id, 'media', data['params']['data']['item']['channeltype'])
                     self._data_received_callback(self.device_id, 'title', data['params']['data']['item']['title'])

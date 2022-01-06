@@ -75,6 +75,7 @@ CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CO
 # protocol types for PLUGIN_ARG_PROTOCOL
 PROTO_NULL              = ''                 # use base protocol class without added functionality (why??)
 PROTO_JSONRPC           = 'jsonrpc'          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
+PROTO_VIESS_P300        = 'viessmann_p300'   # Viessmann P300
 
 PROTOCOL_TYPES = (PROTO_NULL, PROTO_JSONRPC)
 

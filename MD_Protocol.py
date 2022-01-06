@@ -25,7 +25,6 @@
 #########################################################################
 
 import logging
-from time import time
 
 if MD_standalone:
     from MD_Globals import *
@@ -36,9 +35,11 @@ else:
 
 
 from collections import OrderedDict
+from time import time, sleep
 import threading
 import queue
 import json
+import re
 
 
 #############################################################################################################################################################################################################################################
@@ -359,3 +360,396 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
             self._message_archive[message_id] = [time(), method, params, repeat]
             # !! self.logger.debug('Sent msg {} - {}'.format(message_id, data))
         # !! self.logger.debug('Processing queue finished - {} elements remaining'.format(self._send_queue.qsize()))
+
+
+class MD_Protocol_Viessmann(MD_Protocol):
+    '''
+    This class implements a Viessmann protocol layer.
+
+    By default, this uses the P300 protocol. By supplying the 'viess_proto'
+    attribute, 'KW' protocol can be selected.
+
+    At the moment, this is oriented towards serial connections. By supplying
+    your own connection type, you could try to use it over networked connections.
+    Be advised that the necessary "reply" client and the methods needed are not
+    implemented for network access as of this time...
+    '''
+
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
+
+        # get MultiDevice.device logger
+        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
+
+        self.logger.debug(f'protocol initializing from {self.__class__.__name__} with arguments {kwargs}')
+
+        # set class properties
+        self.device_type = device_type
+        self.device_id = device_id
+        self._is_connected = False
+        self._error_count = 0
+        self._lock = threading.Lock()
+        self._is_initialized = False
+        self._data_received_callback = data_received_callback
+
+        self._controlsets = {
+            'P300': {
+                'baudrate': 4800,
+                'bytesize': 8,
+                'parity': 'E',
+                'stopbits': 2,
+                'timeout': 0.5,
+                'startbyte': 0x41,
+                'request': 0x00,
+                'response': 0x01,
+                'error': 0x03,
+                'read': 0x01,
+                'write': 0x02,
+                'functioncall': 0x7,
+                'acknowledge': 0x06,
+                'not_initiated': 0x05,
+                'init_error': 0x15,
+                'reset_command': 0x04,
+                'reset_command_response': 0x05,
+                'sync_command': 0x160000,
+                'sync_command_response': 0x06,
+                'command_bytes_read': 5,
+                'command_bytes_write': 5,
+                # init:              send'Reset_Command' receive'Reset_Command_Response' send'Sync_Command'
+                # request:           send('StartByte' 'Länge der Nutzdaten als Anzahl der Bytes zwischen diesem Byte und der Prüfsumme' 'Request' 'Read' 'addr' 'checksum')
+                # request_response:  receive('Acknowledge' 'StartByte' 'Länge der Nutzdaten als Anzahl der Bytes zwischen diesem Byte und der Prüfsumme' 'Response' 'Read' 'addr' 'Anzahl der Bytes des Wertes' 'Wert' 'checksum')
+            },
+            'KW': {
+                'baudrate': 4800,
+                'bytesize': 8,          # 'EIGHTBITS'
+                'parity': 'E',          # 'PARITY_EVEN',
+                'stopbits': 2,          # 'STOPBITS_TWO',
+                'timeout': 1,
+                'startbyte': 0x01,
+                'read': 0xF7,
+                'write': 0xF4,
+                'acknowledge': 0x01,
+                'reset_command': 0x04,
+                'not_initiated': 0x05,
+                'write_ack': 0x00,
+            },
+        }
+
+        # get protocol or default to P300
+        self._viess_proto = kwargs.get('viess_proto', 'P300')
+        if self._viess_proto not in self._controlsets:
+            self._viess_proto = 'P300'
+        # select controlset for viess_proto
+        self._controlset = self._controlsets[self._viess_proto]
+
+        # make sure we have a basic set of parameters for the TCP connection
+        self._params = {PLUGIN_ARG_SERIAL_PORT: '',
+                        PLUGIN_ARG_SERIAL_BAUD: self._controlset[PLUGIN_ARG_SERIAL_BAUD],
+                        PLUGIN_ARG_SERIAL_BSIZE: self._controlset[PLUGIN_ARG_SERIAL_BSIZE],
+                        PLUGIN_ARG_SERIAL_PARITY: self._controlset[PLUGIN_ARG_SERIAL_PARITY],
+                        PLUGIN_ARG_SERIAL_STOP: self._controlset[PLUGIN_ARG_SERIAL_STOP],
+                        PLUGIN_ARG_TIMEOUT: self._controlset[PLUGIN_ARG_TIMEOUT],
+                        PLUGIN_ARG_AUTORECONNECT: True,
+                        PLUGIN_ARG_CONN_RETRIES: 0,
+                        PLUGIN_ARG_CONN_CYCLE: 3,
+                        PLUGIN_ARG_CB_ON_CONNECT: None,
+                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
+                        PLUGIN_ARG_CONNECTION: CONN_SER_DIR}
+        self._params.update(kwargs)
+
+        # check if some of the arguments are usable
+        self._set_connection_params()
+
+        # initialize connection
+        conn_params = self._params.copy()
+        # don't supply callback, we do only reply-based work
+        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: None, PLUGIN_ARG_CB_ON_DISCONNECT: None})
+        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, None, **conn_params)
+
+        # tell someone about our actual class
+        self.logger.debug(f'protocol initialized from {self.__class__.__name__}')
+
+    def _close(self):
+        self._is_initialized = False
+        super()._close()
+
+    def _send_bytes(self, packet):
+        return self._connection._send_bytes(packet)
+
+    def _read_bytes(self, length):
+        return self._connection._read_bytes(length)
+
+    def _send_init_on_send(self):
+        '''
+        setup the communication protocol prior to sending
+
+        :return: Returns True, if communication was established successfully, False otherwise
+        :rtype: bool
+        '''
+        # just try to connect anyway; if connected, this does nothing and no harm, if not, it connects
+        if not self._is_connected:
+
+            self.logger.error('init communication not possible')
+            return False
+
+        if self._viess_proto == 'P300' and not self._is_initialized:
+
+            # init procedure is
+            # interface: 0x04 (reset)
+            #                           device: 0x05 (repeated)
+            # interface: 0x160000 (sync)
+            #                           device: 0x06 (sync ok)
+            # interface: resume communication, periodically send 0x160000 as keepalive if necessary
+
+            self.logger.debug('init communication....')
+            initstringsent = False
+            self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"])}')
+            self._send_bytes(self._int2bytes(self._controlset['reset_command']))
+            readbyte = self._read_bytes(1)
+            self.logger.debug(f'read_bytes: read {readbyte}')
+
+            for i in range(10):
+                if initstringsent and self._lastbyte == self._int2bytes(self._controlset['acknowledge']):
+                    self._is_initialized = True
+                    self.logger.debug('device acknowledged initialization')
+                    break
+                if self._lastbyte == self._int2bytes(self._controlset['not_initiated']):
+                    self._send_bytes(self._int2bytes(self._controlset['sync_command']))
+                    self.logger.debug(f'send_bytes: send sync command {self._int2bytes(self._controlset["sync_command"])}')
+                    initstringsent = True
+                elif self._lastbyte == self._int2bytes(self._controlset['init_error']):
+                    self.logger.error(f'interface reported an error (\x15), loop increment {i}')
+                    self._send_bytes(self._int2bytes(self._controlset['reset_command']))
+                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"])}')
+                    initstringsent = False
+                else:
+                    self._send_bytes(self._int2bytes(self._controlset['reset_command']))
+                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"])}')
+                    initstringsent = False
+                readbyte = self._read_bytes(1)
+                self.logger.debug(f'read_bytes: read {readbyte}, last byte is {self._lastbyte}')
+
+            self.logger.debug(f'communication initialized: {self._is_initialized}')
+
+            return self._is_initialized
+
+        elif self._viess_proto == 'KW':
+
+            retries = 5
+
+            # try to reset communication, especially if previous P300 comms is still open
+            self._send_bytes(self._int2bytes(self._controlset['reset_command']))
+
+            attempt = 0
+            while attempt < retries:
+                self.logger.debug(f'starting sync loop - attempt {attempt + 1}/{retries}')
+
+                self._connection.reset_input_buffer()
+                chunk = self._read_bytes(1)
+                # enable for 'raw' debugging
+                # self.logger.debug(f'sync loop - got {self._bytes2hexstring(chunk)}')
+                if chunk == self._int2bytes(self._controlset['not_initiated'], signed=False):
+                    self.logger.debug('got sync, commencing command send')
+                    self._is_initialized = True
+                    return True
+                sleep(.8)
+                attempt = attempt + 1
+            self.logger.error(f'sync not acquired after {attempt} attempts')
+            self._close()
+            return False
+
+        return True
+
+    def _send(self, data_dict):
+        '''
+        send data. data_dict needs to contain the following information:
+
+        data_dict['payload']: address from/to which to read/write (hex, str)
+        data_dict['data']['len']: length of command to send
+        data_dict['data']['value']: value bytes to write, None if reading
+
+        :param data_dict: send data
+        :type data_dict: dict
+        :return: Response packet (bytearray) if no error occured, None otherwise
+        '''
+        (packet, responselen) = self._build_payload(data_dict)
+
+        # send payload
+        self._lock.acquire()
+        try:
+            try:
+                self._send_bytes(packet)
+                self.logger.debug(f'successfully sent packet {self._bytes2hexstring(packet)}')
+            except IOError as e:
+                raise IOError(f'IO error: {e}')
+            except Exception as e:
+                raise Exception(f'error while sending: {e}')
+
+            # receive response
+            response_packet = bytearray()
+            self.logger.debug(f'trying to receive {responselen} bytes of the response')
+            chunk = self._read_bytes(responselen)
+
+            if self._viess_proto == 'P300':
+                self.logger.debug(f'received {len(chunk)} bytes chunk of response as hexstring {self._bytes2hexstring(chunk)} and as bytes {chunk}')
+                if len(chunk) != 0:
+                    if chunk[:1] == self._int2bytes(self._controlset['error']):
+                        self.logger.error(f'interface returned error, response was {chunk}')
+                    elif len(chunk) == 1 and chunk[:1] == self._int2bytes(self._controlset['not_initiated']):
+                        self.logger.error('received invalid chunk, connection not initialized, forcing re-initialize...')
+                        self._initialized = False
+                    elif chunk[:1] != self._int2bytes(self._controlset['acknowledge']):
+                        self.logger.error(f'received invalid chunk, not starting with ACK, response was {chunk}')
+                        self._error_count += 1
+                        if self._error_count >= 5:
+                            self.logger.warning('encountered 5 invalid chunks in sequence, maybe communication was lost, forcing re-initialize')
+                            self._initialized = False
+                    else:
+                        response_packet.extend(chunk)
+                        self._error_count = 0
+                        return response_packet
+                else:
+                    self.logger.error(f'received 0 bytes chunk - ignoring response_packet, chunk was {chunk}')
+            elif self._protocol == 'KW':
+                self.logger.debug(f'received {len(chunk)} bytes chunk of response as hexstring {self._bytes2hexstring(chunk)} and as bytes {chunk}')
+                if len(chunk) != 0:
+                    response_packet.extend(chunk)
+                    return response_packet
+                else:
+                    self.logger.error('received 0 bytes chunk - this probably is a communication error, possibly a wrong datapoint address?')
+        except IOError as e:
+            self.logger.error(f'send_command_packet failed with IO error, trying to reconnect. Error was: {e}')
+            self._disconnect()
+        except Exception as e:
+            self.logger.error(f'send_command_packet failed with error: {e}')
+        finally:
+            try:
+                self._lock.release()
+            except RuntimeError:
+                pass
+
+        # if we didn't return with data earlier, we hit an error. Act accordingly
+        return None
+
+    def _build_payload(self, data_dict):
+        ''' 
+        create payload from data_dict. Necessary data:
+
+        data_dict['payload']: address from/to which to read/write (hex, str)
+        data_dict['data']['len']: length of command to send
+        data_dict['data']['value']: value bytes to write, None if reading
+        data_dict['data']['kwseq']: packet is follow-up packet in KW
+
+        :param data_dict: data to convert
+        :type data_dict: dict
+        :return: (packet, responselen)
+        :rtype: tuple
+        '''
+        try:
+            addr = data_dict['payload'].tolower()
+            cmdlen = data_dict['data']['length']
+            valuebytes = data_dict['data']['value']
+            KWFollowUp = data_dict['data']['kwseq']
+        except Exception as e:
+            raise ValueError(f'data_dict {data_dict} not usable, data not sent. Error was: {e}')
+
+        write = valuebytes is not None
+
+        # build payload
+        payloadlength = int(self._controlset.get('command_bytes_write', 0)) + int(valuebytes)
+        self.logger.debug(f'Payload length is: {payloadlength} bytes')
+
+        packet = bytearray()
+        if not KWFollowUp:
+            packet.extend(self._int2bytes(self._controlset['startbyte']))
+        if self._viess_proto == 'P300':
+            if write:
+                packet.extend(self._int2bytes(payloadlength, 1))
+            else:
+                packet.extend(self._int2bytes(self._controlset['command_bytes_read']))
+            packet.extend(self._int2bytes(self._controlset['request']))
+
+        if write:
+            packet.extend(self._int2bytes(self._controlset['write']))
+        else:
+            packet.extend(self._int2bytes(self._controlset['read']))
+        packet.extend(bytes.fromhex(addr))
+        packet.extend(self._int2bytes(cmdlen, 1))
+        if write:
+            packet.extend(valuebytes)
+        if self._viess_proto == 'P300':
+            packet.extend(self._int2bytes(self._calc_checksum(packet)))
+
+        if self._viess_proto == 'P300':
+            responselen = int(self._controlset['command_bytes_read']) + 4 + (0 if write else int(cmdlen))
+        else:
+            responselen = 1 if write else int(cmdlen)
+
+        if write:
+            self.logger.debug(f'created payload to be sent as hexstring: {self._bytes2hexstring(packet)} and as bytes: {packet} with value {self._bytes2hexstring(valuebytes)})')
+        else:
+            self.logger.debug(f'created payload to be sent as hexstring: {self._bytes2hexstring(packet)} and as bytes: {packet}')
+
+        return (packet, responselen)
+
+    def _calc_checksum(self, packet):
+        '''
+        Calculate checksum for P300 protocol packets
+
+        :parameter packet: Data packet for which to calculate checksum
+        :type packet: bytearray
+        :return: Calculated checksum
+        :rtype: int
+        '''
+        checksum = 0
+        if len(packet) > 0:
+            if packet[:1] == b'\x41':
+                packet = packet[1:]
+                checksum = sum(packet)
+                checksum = checksum - int(checksum / 256) * 256
+            else:
+                self.logger.error('bytes to calculate checksum from not starting with start byte')
+        else:
+            self.logger.error('no bytes received to calculate checksum')
+        return checksum
+
+    def _int2bytes(self, value, length=0, signed=False):
+        '''
+        Convert value to bytearray with respect to defined length and sign format.
+        Value exceeding limit set by length and sign will be truncated
+
+        :parameter value: Value to convert
+        :type value: int
+        :parameter length: number of bytes to create
+        :type length: int
+        :parameter signed: True if result should be a signed int, False for unsigned
+        :type signed: bool
+        :return: Converted value
+        :rtype: bytearray
+        '''
+        if not length:
+            length = len(value)
+        value = value % (2 ** (length * 8))
+        return value.to_bytes(length, byteorder='big', signed=signed)
+
+    def _bytes2int(self, rawbytes, signed):
+        '''
+        Convert bytearray to value with respect to sign format
+
+        :parameter rawbytes: Bytes to convert
+        :type value: bytearray
+        :parameter signed: True if result should be a signed int, False for unsigned
+        :type signed: bool
+        :return: Converted value
+        :rtype: int
+        '''
+        return int.from_bytes(rawbytes, byteorder='little', signed=signed)
+
+    def _bytes2hexstring(self, bytesvalue):
+        '''
+        Create hex-formatted string from bytearray
+        :param bytesvalue: Bytes to convert
+        :type bytesvalue: bytearray
+        :return: Converted hex string
+        :rtype: str
+        '''
+        return ''.join(f'{c:02x}' for c in bytesvalue)

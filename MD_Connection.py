@@ -87,7 +87,7 @@ class MD_Connection(object):
         self.logger.debug('open method called for connection')
         if self._open():
             self._is_connected = True
-        self._send_init_on_open()
+            self._send_init_on_open()
 
     def close(self):
         ''' wrapper method provides stable interface and allows overloading '''
@@ -107,8 +107,8 @@ class MD_Connection(object):
         if not data:
             raise ValueError('send provided with empty data_dict["payload"], aborting')
 
-        self._send_init_on_send()
-        response = self._send(data_dict)
+        if self._send_init_on_send():
+            response = self._send(data_dict)
 
         return response
 
@@ -183,9 +183,11 @@ class MD_Connection(object):
         This class can be overloaded if anything special is needed to make the
         other side talk before sending commands... ;)
 
+        Cancel sending if it returns False...
+
         It is routinely called by self.send()
         '''
-        pass
+        return True
 
     #
     #
@@ -355,7 +357,7 @@ class MD_Connection_Serial(MD_Connection):
     to send data and receive immediate answers.
 
     The data_dict provided to send() need the data to send in data_dict['payload']
-    and the required response read mode in data_dict['response']:
+    and the required response read mode in data_dict['data']['response']:
 
 
     If callbacks are provided, they are utilized; data_received_callback will be
@@ -420,7 +422,7 @@ class MD_Connection_Serial(MD_Connection):
         if self._is_connected:
             return True
 
-        while not self._is_connected and self._connection_attempts < self._connect_retries:
+        while not self._is_connected and self._connection_attempts <= self._connect_retries:
 
             self._connection_attempts += 1
             self._lock.acquire()
@@ -459,9 +461,10 @@ class MD_Connection_Serial(MD_Connection):
 
     def _send(self, data_dict):
         '''
-        send data_dict['payload']. If response should be read, data_dict['response']
-        must be set to number of expected bytes, the terminator byte(s) to use, 0 for
-        "open" read (until timeout) or None for no reading.
+        send data. data_dict needs to contain the following information:
+
+        data_dict['payload']: data to send
+        data_dict['data']['response']: number of bytes to read as response
 
         On errors, exceptions are raised
 
@@ -489,7 +492,9 @@ class MD_Connection_Serial(MD_Connection):
             self.is_connected = False
             raise serial.SerialError(f'data {data} could not be sent')
 
-        rlen = data_dict.get('response', None)
+        rlen = None
+        if 'data' in data_dict:
+            rlen = data_dict['data'].get('response', None)
         if rlen is None:
             return b''
         else:
@@ -556,6 +561,10 @@ class MD_Connection_Serial(MD_Connection):
 
         # return what we got so far, might be b''
         return totalreadbytes
+
+    def reset_input_buffer(self):
+        if self._connection:
+            self._connection.reset_input_buffer()
 
 
 class MD_Connection_Serial_Async(MD_Connection):

@@ -27,11 +27,9 @@
 import logging
 from time import sleep, time
 import requests
-import json
-import queue
-import threading
+import serial
+from threading import Lock
 
-from collections import OrderedDict
 from lib.network import Tcp_client
 
 if MD_standalone:
@@ -351,17 +349,22 @@ class MD_Connection_Net_Udp_Server(MD_Connection):
     pass
 
 
-class MD_Connection_Serial_Client(MD_Connection):
+class MD_Connection_Serial(MD_Connection):
     '''
     This class implements a serial connection using a single persistent connection
-    to send data and an anynchronous listener with callback for receiving data.
+    to send data and receive immediate answers.
 
-    Data received is dispatched via callback, thus the send()-method does not
-    return any response data.
+    The data_dict provided to send() need the data to send in data_dict['payload']
+    and the required response read mode in data_dict['response']:
+
+
+    If callbacks are provided, they are utilized; data_received_callback will be
+    called in addition to returning the result to send() calls.
 
     Callback syntax is:
-        def disconnected_callback()
-        def data_received_callback(command, message)
+        def connected_callback(by=None)
+        def disconnected_callback(by=None)
+        def data_received_callback(by, message)
     If callbacks are class members, they need the additional first parameter 'self'
     '''
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
@@ -375,78 +378,184 @@ class MD_Connection_Serial_Client(MD_Connection):
         self.device_type = device_type
         self.device_id = device_id
         self._is_connected = False
+        self._lock = Lock()
+        self._lastbyte = b''
+        self._lastbytetime = 0
+        self._connection_attempts = 0
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ARG_SERIAL_PORT: '',
+                        PLUGIN_ARG_SERIAL_BAUD: 9600,
+                        PLUGIN_ARG_SERIAL_BSIZE: 8,
+                        PLUGIN_ARG_SERIAL_PARITY: 'N',
+                        PLUGIN_ARG_SERIAL_STOP: 1,
                         PLUGIN_ARG_PROTOCOL: None,
-                        PLUGIN_ARG_TIMEOUT: 3,
+                        PLUGIN_ARG_TIMEOUT: 1,
                         PLUGIN_ARG_AUTORECONNECT: True,
                         PLUGIN_ARG_CONN_RETRIES: 1,
                         PLUGIN_ARG_CONN_CYCLE: 3,
-                        'disconnected_callback': None}
+                        PLUGIN_ARG_CB_ON_CONNECT: None,
+                        PLUGIN_ARG_CB_ON_DISCONNECT: None}
 
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
         self._set_connection_params()
 
-        self._data_received_callback = data_received_callback
-        self._disconnected_callback = self._params['disconnected_callback']
-
         # initialize connection
-        self._tcp = Tcp_client(host=self._host, port=self._port, name=f'{device_id}-TcpConnection',
-                               autoreconnect=self._autoreconnect, connect_retries=self._connect_retries,
-                               connect_cycle=self._connect_cycle, terminator=self._terminator)
-        self._tcp.set_callbacks(data_received=self.on_data_received,
-                                disconnected=self.on_disconnect)
+        self._connection = serial.Serial()
+        self._connection.baudrate = self._baudrate
+        self._connection.parity = self._parity
+        self._connection.bytesize = self._bytesize
+        self._connection.stopbits = self._stopbits
+        self._connection.port = self._serialport
+
+        self._data_received_callback = data_received_callback
 
         # tell someone about our actual class
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
 
     def _open(self):
-        self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} with params {self._params}')
-        if not self._tcp.connected():
-            self._tcp.connect()
-            sleep(2)
-        return self._tcp.connected()
+        self.logger.debug(f'{self.__class__.__name__} opening connection with params {self._params}')
+        if self._is_connected:
+            return True
 
-    def _close(self):
-        self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__}')
-        self._tcp.close()
+        while not self._is_connected and self._connection_attempts < self._connect_retries:
 
-    def on_disconnect(self, client):
-        self.logger.debug(f'connection was closed by {client.name}')
-        self._is_connected = False
-        if self._disconnected_callback:
-            self._disconnected_callback()
-
-    def on_data_received(self, tcp_cli, data):
-        data = data.strip()
-        if data:
-            self.logger.debug(f'received raw data "{data}" from "{tcp_cli.name}"')
-
-            # as we don't know the command for which the reply was issued, we return None as command
-            # the device class has to handle this in conjunction with the commands and datatypes
-            if self._data_received_callback:
-                self._data_received_callback(None, data)
-
-    def _send(self, data_dict):
-        data = data_dict.get('payload', None)
-        if not data:
-            self.logger.error(f'can not send without payload data from data_dict {data_dict}, aborting')
-            return False
-
-        if not self._is_connected:
-            self.open()
+            self._connection_attempts += 1
+            self._lock.acquire()
+            try:
+                self._connection.open()
+                self._is_connected = True
+                self.logger.info(f'connected to {self._serialport}')
+                self._connection_attempts = 0
+                if self._connected_callback:
+                    self._connected_callback(f'serial_{self._serialport}')
+                return True
+            except (serial.SerialError, ValueError) as e:
+                self.logger.error(f'error on connection to {self._serialport}. Error was: {e}')
+                self._connection_attempts = 0
+                return False
+            finally:
+                self._lock.release()
 
             if not self._is_connected:
-                self.logger.error(f'trying to send {data}, but connection can\'t be opened.')
-                return False
+                sleep(self._connect_cycle)
 
-        self._tcp.send(data)
-
-        # we receive only via callback, so we return "no reply".
+        self.logger.error(f'error on connection to {self._serialport}, max number of connection attempts reached')
+        self._connection_attempts = 0
         return False
+
+    def _close(self):
+        self.logger.debug(f'{self.__class__.__name__} closing connection')
+        self._is_connected = False
+        try:
+            self._connection.close()
+        except Exception:
+            pass
+        self.logger.info(f'connection to {self._serialport} closed')
+        if self._disconnected_callback:
+            self._disconnected_callback(f'serial_{self._serialport}')
+
+    def _send(self, data_dict):
+        '''
+        send data_dict['payload']. If response should be read, data_dict['response']
+        must be set to number of expected bytes, the terminator byte(s) to use, 0 for
+        "open" read (until timeout) or None for no reading.
+
+        On errors, exceptions are raised
+
+        :param data_dict: data_dict to send (used value is data_dict['payload'])
+        :type data_dict: dict
+        :return: response as bytes()
+        data = data_dict.get('payload')
+        '''
+        data = data_dict['payload']
+        if not type(data) in (bytes, bytearray, str):
+            try:
+                data = str(data)
+            except Exception as e:
+                raise ValueError(f'provided payload {data} could not be converted to string. Error was: {e}')
+        if isinstance(data, str):
+            data = data.encode('utf-8')
+
+        if self._autoreconnect:
+            self._open()
+
+        if not self._is_connected:
+            raise serial.SerialError(f'trying to send {data}, but connection can\'t be opened.')
+
+        if not self._send_bytes(data):
+            self.is_connected = False
+            raise serial.SerialError(f'data {data} could not be sent')
+
+        rlen = data_dict.get('response', None)
+        if rlen is None:
+            return b''
+        else:
+            return self._read_bytes(rlen)
+
+    def _send_bytes(self, packet):
+        '''
+        Send data to device
+
+        :param packet: Data to be sent
+        :type packet: bytearray|bytes
+        :return: Returns False, if no connection is established or write failed; number of written bytes otherwise
+        '''
+        if not self._is_connected:
+            return False
+
+        try:
+            numbytes = self._connection.write(packet)
+        except serial.SerialTimeoutException:
+            return False
+
+        # self.logger.debug(f'_send_bytes: sent {packet} with {numbytes} bytes')
+        return numbytes
+
+    def _read_bytes(self, length):
+        '''
+        Try to read bytes from device, return read bytes
+        if length is int > 0, try to read <length> bytes
+        if length is bytes() or bytearray(), try to read till receiving <length>
+        if length is 0, read until timeout (use with care...)
+
+        :param length: Number of bytes to read, b'<terminator> for terminated read, 0 for unrestricted read (timeout)
+        :return: read bytes
+        :rtype: bytes
+        '''
+        if not self._is_connected:
+            return b''
+
+        totalreadbytes = bytes()
+        # self.logger.debug('_read_bytes: start read')
+        starttime = time()
+
+        # don't wait for input indefinitely, stop after self._timeout seconds
+        while time() <= starttime + self._timeout and self._is_connected:
+            readbyte = self._connection.read()
+            self._lastbyte = readbyte
+            # self.logger.debug(f'_read_bytes: read {readbyte}')
+            if readbyte != b'':
+                self._lastbytetime = time.time()
+            else:
+                return totalreadbytes
+            totalreadbytes += readbyte
+            if isinstance(length, int) and length and len(totalreadbytes) >= length:
+                return totalreadbytes
+            elif isinstance(length, (bytes, bytearray)):
+                if readbyte == length:
+                    return totalreadbytes
+
+        # timeout reached, did we read anything?
+        if not totalreadbytes and not length:
+
+            # just in case, force plugin to reconnect
+            self._is_connected = False
+
+        # return what we got so far, might be b''
+        return totalreadbytes
 
 
 class MD_Connection_Serial_Async(MD_Connection):

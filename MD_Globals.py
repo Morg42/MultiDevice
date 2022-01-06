@@ -40,7 +40,11 @@ from ast import literal_eval
 PLUGIN_ARG_CONNECTION       = 'conn_type'
 PLUGIN_ARG_NET_HOST         = 'host'
 PLUGIN_ARG_NET_PORT         = 'port'
-PLUGIN_ARG_SERIAL_PORT      = 'serial'
+PLUGIN_ARG_SERIAL_PORT      = 'serialport'
+PLUGIN_ARG_SERIAL_BAUD      = 'baudrate'
+PLUGIN_ARG_SERIAL_BSIZE     = 'bytesize'
+PLUGIN_ARG_SERIAL_PARITY    = 'parity'
+PLUGIN_ARG_SERIAL_STOP      = 'stopbits'
 PLUGIN_ARG_PROTOCOL         = 'protocol'
 PLUGIN_ARG_TIMEOUT          = 'timeout'
 PLUGIN_ARG_TERMINATOR       = 'terminator'
@@ -52,7 +56,8 @@ PLUGIN_ARG_CB_ON_DISCONNECT = 'disconnected_callback'
 PLUGIN_ARG_MSG_TIMEOUT      = 'message_timeout'
 PLUGIN_ARG_MSG_REPEAT       = 'message_repeat'
 
-PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT, 
+PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT,
+               PLUGIN_ARG_SERIAL_BAUD, PLUGIN_ARG_SERIAL_BSIZE, PLUGIN_ARG_SERIAL_PARITY, PLUGIN_ARG_SERIAL_STOP, 
                PLUGIN_ARG_TIMEOUT, PLUGIN_ARG_TERMINATOR, PLUGIN_ARG_AUTORECONNECT, PLUGIN_ARG_CONN_RETRIES,
                PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT,
                PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL)
@@ -62,10 +67,10 @@ CONN_NET_TCP_REQ        = 'net_tcp_request'  # TCP client connection with URL-ba
 CONN_NET_TCP_CLI        = 'net_tcp_client'   # persistent TCP client connection with async callback for responses
 CONN_NET_TCP_JSONRPC    = 'net_tcp_jsonrpc'  # JSON RPC via persistent TCP client connection with async callback for responses
 CONN_NET_UDP_SRV        = 'net_udp_server'   # UDP server connection with async data callback
-CONN_SER_CLI            = 'serial_client'    # serial connection with query-reply logic
-CONN_SER_ASYNC          = 'serial_async'     # serial connection with async data callback
+CONN_SER_DIR            = 'serial'           # serial connection with query-reply logic
+CONN_SER_ASYNC          = 'serial_async'     # serial connection with only async data callback
 
-CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
+CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
 
 # protocol types for PLUGIN_ARG_PROTOCOL
 PROTO_NULL              = ''                 # use base protocol class without added functionality (why??)

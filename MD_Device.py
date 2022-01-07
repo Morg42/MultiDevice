@@ -426,12 +426,12 @@ class MD_Device(object):
                 conn_type = self._params[PLUGIN_ARG_CONNECTION]
         
         if not conn_type and not conn_cls:
-            if PLUGIN_ARG_NET_PORT in self._params:
+            if PLUGIN_ARG_NET_HOST in self._params and self._params[PLUGIN_ARG_NET_HOST]:
 
                 # no further information on network specifics, use basic HTTP TCP client
                 conn_type = CONN_NET_TCP_REQ
 
-            elif PLUGIN_ARG_SERIAL_PORT in self._params:
+            elif PLUGIN_ARG_SERIAL_PORT in self._params and self._params[PLUGIN_ARG_SERIAL_PORT]:
 
                 # this seems to be a serial killer application
                 conn_type = CONN_SER_DIR

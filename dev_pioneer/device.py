@@ -31,7 +31,6 @@ class MD_Device(MD_Device):
 
         # set parameter defaults
         self._params = {'command_class': MD_Command_ParseStr, 
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI,
                         PLUGIN_ARG_NET_HOST: '', 
                         PLUGIN_ARG_NET_PORT: 8102, 
                         PLUGIN_ARG_AUTORECONNECT: True,

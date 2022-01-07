@@ -431,7 +431,7 @@ class MD_Connection_Serial(MD_Connection):
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
 
     def _open(self):
-        self.logger.debug(f'{self.__class__.__name__} opening connection with params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} _open calledwith params {self._params}')
         if self._is_connected:
             return True
 
@@ -462,7 +462,7 @@ class MD_Connection_Serial(MD_Connection):
         return False
 
     def _close(self):
-        self.logger.debug(f'{self.__class__.__name__} closing connection')
+        self.logger.debug(f'{self.__class__.__name__} _close called')
         self._is_connected = False
         try:
             self._connection.close()
@@ -483,9 +483,10 @@ class MD_Connection_Serial(MD_Connection):
 
         :param data_dict: data_dict to send (used value is data_dict['payload'])
         :type data_dict: dict
-        :return: response as bytes()
-        data = data_dict.get('payload')
+        :return: response as bytes() or None if no response length is submitted
         '''
+        self.logger.debug(f'{self.__class__.__name__} _send called with {data_dict}')
+
         data = data_dict['payload']
         if not type(data) in (bytes, bytearray, str):
             try:
@@ -506,10 +507,10 @@ class MD_Connection_Serial(MD_Connection):
             raise serial.SerialException(f'data {data} could not be sent')
 
         rlen = None
-        if 'data' in data_dict:
+        if 'data' in data_dict and isinstance(data_dict['data'], dict):
             rlen = data_dict['data'].get('response', None)
         if rlen is None:
-            return b''
+            return None
         else:
             return self._read_bytes(rlen)
 
@@ -521,7 +522,10 @@ class MD_Connection_Serial(MD_Connection):
         :type packet: bytearray|bytes
         :return: Returns False, if no connection is established or write failed; number of written bytes otherwise
         '''
+        self.logger.debug(f'{self.__class__.__name__} _send_bytes called with {packet}')
+
         if not self._is_connected:
+            self.logger.debug('_send_bytes not connected, aborting')
             return False
 
         try:
@@ -529,7 +533,7 @@ class MD_Connection_Serial(MD_Connection):
         except serial.SerialTimeoutException:
             return False
 
-        # self.logger.debug(f'_send_bytes: sent {packet} with {numbytes} bytes')
+        self.logger.debug(f'_send_bytes: sent {packet} with {numbytes} bytes')
         return numbytes
 
     def _read_bytes(self, length):
@@ -543,6 +547,8 @@ class MD_Connection_Serial(MD_Connection):
         :return: read bytes
         :rtype: bytes
         '''
+        self.logger.debug(f'{self.__class__.__name__} _read_bytes called for {length} bytes')
+
         if not self._is_connected:
             raise serial.SerialException('trying to read byte but not connected')
 

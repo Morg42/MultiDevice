@@ -216,6 +216,7 @@ class MD_Device(object):
         self.logger.debug(f'command {command} with value {value} yielded send data_dict {data_dict}')
 
         # if an error occurs on sending, an exception is thrown
+        result = None
         try:
             result = self._send(data_dict)
         except Exception as e:

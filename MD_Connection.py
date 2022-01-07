@@ -92,6 +92,8 @@ class MD_Connection(object):
             self._is_connected = True
             self._send_init_on_open()
 
+        return self._is_connected        
+
     def close(self):
         ''' wrapper method provides stable interface and allows overloading '''
         self.logger.debug('close method called for connection')
@@ -110,6 +112,8 @@ class MD_Connection(object):
         if not data:
             raise ValueError('send provided with empty data_dict["payload"], aborting')
 
+        response = None
+        
         if self._send_init_on_send():
             response = self._send(data_dict)
 
@@ -540,7 +544,7 @@ class MD_Connection_Serial(MD_Connection):
         :rtype: bytes
         '''
         if not self._is_connected:
-            return b''
+            raise serial.SerialException('trying to read byte but not connected')
 
         totalreadbytes = bytes()
         # self.logger.debug('_read_bytes: start read')
@@ -552,7 +556,7 @@ class MD_Connection_Serial(MD_Connection):
             self._lastbyte = readbyte
             # self.logger.debug(f'_read_bytes: read {readbyte}')
             if readbyte != b'':
-                self._lastbytetime = time.time()
+                self._lastbytetime = time()
             else:
                 return totalreadbytes
             totalreadbytes += readbyte

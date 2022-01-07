@@ -509,33 +509,40 @@ class MD_Protocol_Viessmann(MD_Protocol):
             #                           device: 0x06 (sync ok)
             # interface: resume communication, periodically send 0x160000 as keepalive if necessary
 
+            b_reset = self._int2bytes(self._controlset['reset_command'], 1)
+            b_notinit = self._int2bytes(self._controlset["not_initiated"], 1)
+            b_ack = self._int2bytes(self._controlset['acknowledge'], 1)
+            b_sync = self._int2bytes(self._controlset['sync_command'], 3)
+            b_err = self._int2bytes(self._controlset['init_error'], 1)
+
             self.logger.debug('init communication....')
             initstringsent = False
             self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
-            self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
-            readbyte = self._read_bytes(1)
+            self._connection._send_bytes(b_reset)
+            readbyte = self._connection._read_bytes(1)
             self.logger.debug(f'read_bytes: read {readbyte}')
 
             for i in range(10):
-                if initstringsent and self._lastbyte == self._int2bytes(self._controlset['acknowledge'], 1):
+                print(f'{readbyte} -> ack: {readbyte == b_ack}, ni: {readbyte == b_notinit}, err: {readbyte == b_err}')
+                if initstringsent and readbyte == b_ack:
                     self._is_initialized = True
                     self.logger.debug('device acknowledged initialization')
                     break
-                if self._lastbyte == self._int2bytes(self._controlset['not_initiated'], 1):
-                    self._send_bytes(self._int2bytes(self._controlset['sync_command'], 3))
-                    self.logger.debug(f'send_bytes: send sync command {self._int2bytes(self._controlset["sync_command"], 3)}')
+                elif readbyte == b_notinit:
+                    self._connection._send_bytes(b_sync)
+                    self.logger.debug(f'send_bytes: send sync command {b_sync}')
                     initstringsent = True
-                elif self._lastbyte == self._int2bytes(self._controlset['init_error'], 1):
+                elif readbyte == b_err:
                     self.logger.error(f'interface reported an error (\x15), loop increment {i}')
-                    self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
-                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
+                    self._connection._send_bytes(b_reset)
+                    self.logger.debug(f'send_bytes: send reset command {b_reset}')
                     initstringsent = False
-                else:
-                    self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
-                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
+                elif readbyte != b'':
+                    self._connection._send_bytes(b_reset)
+                    self.logger.debug(f'send_bytes: send reset command {b_reset}')
                     initstringsent = False
-                readbyte = self._read_bytes(1)
-                self.logger.debug(f'read_bytes: read {readbyte}, last byte is {self._lastbyte}')
+                readbyte = self._connection._read_bytes(1)
+                self.logger.debug(f'read_bytes: read {readbyte}, last byte is {readbyte}')
 
             self.logger.debug(f'communication initialized: {self._is_initialized}')
 

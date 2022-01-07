@@ -101,7 +101,13 @@ class MD_Device(MD_Device):
             self.logger.debug(f'Adding temporary command config {cmdconf} for command temp_cmd')
             self._commands._parse_commands(self.device_id, {cmd: cmdconf}, [cmd])
 
-        res = self.read_addr(addr)
+        for i in range(10):
+            print(f'try {i}')
+            try:
+                res = self.read_addr(addr)
+                print(res)
+            except Exception as e:
+                print(f'err {e}')
 
         if cmd == 'temp_cmd':
             del self._commands._commands['temp_cmd']

@@ -119,8 +119,8 @@ class MD_Command(object):
 
         return {'payload': cmd, 'data': self._DT.get_send_data(data)}
 
-    def get_shng_data(self, data):
-        value = self._DT.get_shng_data(data)
+    def get_shng_data(self, data, **kwargs):
+        value = self._DT.get_shng_data(data, **kwargs)
         return value
 
     def get_lookup(self):
@@ -354,7 +354,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
         return {'payload': cmd_str, 'data': None if data is None else self._DT.get_send_data(data)}
 
-    def get_shng_data(self, data):
+    def get_shng_data(self, data, **kwargs):
         '''
         Try to match data to reply_pattern if reply_pattern is set.
 
@@ -373,7 +373,7 @@ class MD_Command_ParseStr(MD_Command_Str):
                 if len(match.groups()) == 1:
 
                     # one captured group - ok
-                    value = self._DT.get_shng_data(match.group(1))
+                    value = self._DT.get_shng_data(match.group(1), **kwargs)
                 elif len(match.groups()) > 1:
 
                     # more than one captured group - error
@@ -381,11 +381,11 @@ class MD_Command_ParseStr(MD_Command_Str):
                 else:
 
                     # no captured groups = no parentheses = no extraction of value, just do the "normal" thing
-                    value = self._DT.get_shng_data(data)
+                    value = self._DT.get_shng_data(data, **kwargs)
             else:
                 raise ValueError(f'reply_pattern {self.reply_pattern} could not get a match on {data}')
         else:
-            value = self._DT.get_shng_data(data)
+            value = self._DT.get_shng_data(data, **kwargs)
         return value
 
 
@@ -420,8 +420,8 @@ class MD_Command_JSON(MD_Command):
         ddict = self._build_dict(self._DT.get_send_data(data), **kwargs)
         return {'payload': cmd, 'data': ddict}
 
-    def get_shng_data(self, data):
-        value = self._DT.get_shng_data(data.get('result'))
+    def get_shng_data(self, data, **kwargs):
+        value = self._DT.get_shng_data(data.get('result'), **kwargs)
         return value
 
     def _build_dict(self, data, **kwargs):
@@ -458,5 +458,79 @@ class MD_Command_JSON(MD_Command):
 
         if 'playerid' in params and 'playerid' in kwargs:
             params['playerid'] = kwargs['playerid']
+
+        return params
+
+
+class MD_Command_Viessmann(MD_Command):
+    '''
+    With this class, you can send commands to Viessmann heating systems
+
+    The command is sent as 'method', the params-dict is populated from the
+    'params' attribute of the command, while the parameter values are
+    taken from the 'param-values' attribute. 'VAL' is replaced with the
+    actual item value.
+
+    params and param_value need to be None or lists of the same length.
+    '''
+    def __init__(self, device_id, command, dt_class, **kwargs):
+        super().__init__(device_id, command, dt_class, **kwargs)
+
+        self._len = 1
+        self._mult = 0
+        self._signed = False
+        for attr in ('len', 'mult', 'signed'):
+            if attr in self.params:
+                setattr(self, '_' + attr, self.param_values[self.params.index(attr)])
+
+    def get_send_data(self, data, **kwargs):
+
+        data = self._check_value(data)
+        # create read data
+        if data is None:
+            if self.read_cmd:
+                cmd = self.read_cmd
+            else:
+                cmd = self.opcode
+        else:
+            if self.write_cmd:
+                cmd = self.write_cmd
+            else:
+                cmd = self.opcode
+
+        ddict = self._build_dict(self._DT.get_send_data(data, len=self._len, mult=self._mult, signed=self._signed), **kwargs)
+        return {'payload': cmd, 'data': ddict}
+
+    def _build_dict(self, data, **kwargs):
+        '''
+        build param array for JSON RPC from provided value and kwargs
+
+        :param data: value for the command
+        :param kwargs: additional data
+        :return: params-dict (or None)
+        :rtype: dict
+        '''
+        params = {}
+        if not hasattr(self, 'params'):
+            return None
+
+        if not hasattr(self, 'param_values'):
+            raise SyntaxError(f'params {kwargs["params"]} given, but no param_values')
+
+        if len(self.params) != len(self.param_values):
+            raise SyntaxError(f'different number of params and values given ({self.params}/{self.param_values})')
+
+        for idx in range(len(self.params)):
+            val = self.param_values[idx]
+            if val == 'VAL':
+                val = data
+            elif isinstance(val, tuple):
+                try:
+                    expr = str(val[0]).replace('VAL', str(data))
+                    val = eval(expr)
+                except Exception as e:
+                    raise ValueError(f'invalid data: eval expression {val} with argument {data} raised error: {e}')
+
+            params[self.params[idx]] = val
 
         return params

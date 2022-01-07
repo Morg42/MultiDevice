@@ -1,0 +1,12 @@
+%YAML 1.1
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+---
+
+device:
+    description: 'Viessmann'
+    maintainer: Morg
+
+parameters:
+    serialport:
+        type: str
+        description: 'Serieller Port'

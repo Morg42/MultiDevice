@@ -67,6 +67,9 @@ class MD_Protocol(MD_Connection):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
+
         self.logger.debug(f'protocol initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # set class properties
@@ -131,6 +134,9 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
+
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
 
         self.logger.debug(f'protocol initializing from {self.__class__.__name__} with arguments {kwargs}')
 
@@ -380,6 +386,9 @@ class MD_Protocol_Viessmann(MD_Protocol):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
+
         self.logger.debug(f'protocol initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # set class properties
@@ -502,28 +511,28 @@ class MD_Protocol_Viessmann(MD_Protocol):
 
             self.logger.debug('init communication....')
             initstringsent = False
-            self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"])}')
-            self._send_bytes(self._int2bytes(self._controlset['reset_command']))
+            self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
+            self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
             readbyte = self._read_bytes(1)
             self.logger.debug(f'read_bytes: read {readbyte}')
 
             for i in range(10):
-                if initstringsent and self._lastbyte == self._int2bytes(self._controlset['acknowledge']):
+                if initstringsent and self._lastbyte == self._int2bytes(self._controlset['acknowledge'], 1):
                     self._is_initialized = True
                     self.logger.debug('device acknowledged initialization')
                     break
-                if self._lastbyte == self._int2bytes(self._controlset['not_initiated']):
-                    self._send_bytes(self._int2bytes(self._controlset['sync_command']))
-                    self.logger.debug(f'send_bytes: send sync command {self._int2bytes(self._controlset["sync_command"])}')
+                if self._lastbyte == self._int2bytes(self._controlset['not_initiated'], 1):
+                    self._send_bytes(self._int2bytes(self._controlset['sync_command'], 3))
+                    self.logger.debug(f'send_bytes: send sync command {self._int2bytes(self._controlset["sync_command"], 3)}')
                     initstringsent = True
-                elif self._lastbyte == self._int2bytes(self._controlset['init_error']):
+                elif self._lastbyte == self._int2bytes(self._controlset['init_error'], 1):
                     self.logger.error(f'interface reported an error (\x15), loop increment {i}')
-                    self._send_bytes(self._int2bytes(self._controlset['reset_command']))
-                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"])}')
+                    self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
+                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
                     initstringsent = False
                 else:
-                    self._send_bytes(self._int2bytes(self._controlset['reset_command']))
-                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"])}')
+                    self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
+                    self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
                     initstringsent = False
                 readbyte = self._read_bytes(1)
                 self.logger.debug(f'read_bytes: read {readbyte}, last byte is {self._lastbyte}')
@@ -537,7 +546,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
             retries = 5
 
             # try to reset communication, especially if previous P300 comms is still open
-            self._send_bytes(self._int2bytes(self._controlset['reset_command']))
+            self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
 
             attempt = 0
             while attempt < retries:
@@ -547,7 +556,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
                 chunk = self._read_bytes(1)
                 # enable for 'raw' debugging
                 # self.logger.debug(f'sync loop - got {self._bytes2hexstring(chunk)}')
-                if chunk == self._int2bytes(self._controlset['not_initiated'], signed=False):
+                if chunk == self._int2bytes(self._controlset['not_initiated'], 1, signed=False):
                     self.logger.debug('got sync, commencing command send')
                     self._is_initialized = True
                     return True
@@ -568,7 +577,9 @@ class MD_Protocol_Viessmann(MD_Protocol):
         data_dict['data']['value']: value bytes to write, None if reading
 
         :param data_dict: send data
+        :param read_response: KW only: read response value (True) or only return status byte
         :type data_dict: dict
+        :type read_response: bool
         :return: Response packet (bytearray) if no error occured, None otherwise
         '''
         (packet, responselen) = self._build_payload(data_dict)
@@ -576,13 +587,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
         # send payload
         self._lock.acquire()
         try:
-            try:
-                self._send_bytes(packet)
-                self.logger.debug(f'successfully sent packet {self._bytes2hexstring(packet)}')
-            except IOError as e:
-                raise IOError(f'IO error: {e}')
-            except Exception as e:
-                raise Exception(f'error while sending: {e}')
+            self._send_bytes(packet)
+            self.logger.debug(f'successfully sent packet {self._bytes2hexstring(packet)}')
 
             # receive response
             response_packet = bytearray()
@@ -592,12 +598,12 @@ class MD_Protocol_Viessmann(MD_Protocol):
             if self._viess_proto == 'P300':
                 self.logger.debug(f'received {len(chunk)} bytes chunk of response as hexstring {self._bytes2hexstring(chunk)} and as bytes {chunk}')
                 if len(chunk) != 0:
-                    if chunk[:1] == self._int2bytes(self._controlset['error']):
+                    if chunk[:1] == self._int2bytes(self._controlset['error'], 1):
                         self.logger.error(f'interface returned error, response was {chunk}')
-                    elif len(chunk) == 1 and chunk[:1] == self._int2bytes(self._controlset['not_initiated']):
+                    elif len(chunk) == 1 and chunk[:1] == self._int2bytes(self._controlset['not_initiated'], 1):
                         self.logger.error('received invalid chunk, connection not initialized, forcing re-initialize...')
                         self._initialized = False
-                    elif chunk[:1] != self._int2bytes(self._controlset['acknowledge']):
+                    elif chunk[:1] != self._int2bytes(self._controlset['acknowledge'], 1):
                         self.logger.error(f'received invalid chunk, not starting with ACK, response was {chunk}')
                         self._error_count += 1
                         if self._error_count >= 5:
@@ -606,19 +612,19 @@ class MD_Protocol_Viessmann(MD_Protocol):
                     else:
                         response_packet.extend(chunk)
                         self._error_count = 0
-                        return response_packet
+                        return self._parse_response(response_packet)
                 else:
                     self.logger.error(f'received 0 bytes chunk - ignoring response_packet, chunk was {chunk}')
             elif self._protocol == 'KW':
                 self.logger.debug(f'received {len(chunk)} bytes chunk of response as hexstring {self._bytes2hexstring(chunk)} and as bytes {chunk}')
                 if len(chunk) != 0:
                     response_packet.extend(chunk)
-                    return response_packet
+                    return self._parse_response(response_packet, data_dict['data']['value'] is None)
                 else:
                     self.logger.error('received 0 bytes chunk - this probably is a communication error, possibly a wrong datapoint address?')
         except IOError as e:
             self.logger.error(f'send_command_packet failed with IO error, trying to reconnect. Error was: {e}')
-            self._disconnect()
+            self._close()
         except Exception as e:
             self.logger.error(f'send_command_packet failed with error: {e}')
         finally:
@@ -629,6 +635,70 @@ class MD_Protocol_Viessmann(MD_Protocol):
 
         # if we didn't return with data earlier, we hit an error. Act accordingly
         return None
+
+    def _parse_response(self, response, read_response=True):
+        '''
+        Process device response data, try to parse type and value
+
+        :param response: Data received from device
+        :type response: bytearray
+        :param read_response: True if command was read command and value is expected, False if only status byte is expected (only needed for KW protocol)
+        :type read_response: bool
+        :return: tuple of (parsed response value, commandcode) or None if error
+        '''
+        if self._viess_proto == 'P300':
+
+            # A read_response telegram looks like this: ACK (1 byte), startbyte (1 byte), data length in bytes (1 byte), request/response (1 byte), read/write (1 byte), addr (2 byte), amount of valuebytes (1 byte), value (bytes as per last byte), checksum (1 byte)
+            # A write_response telegram looks like this: ACK (1 byte), startbyte (1 byte), data length in bytes (1 byte), request/response (1 byte), read/write (1 byte), addr (2 byte), amount of bytes written (1 byte), checksum (1 byte)
+
+            # Validate checksum
+            checksum = self._calc_checksum(response[1:len(response) - 1])  # first, cut first byte (ACK) and last byte (checksum) and then calculate checksum
+            received_checksum = response[len(response) - 1]
+            if received_checksum != checksum:
+                self.logger.error(f'calculated checksum {checksum} does not match received checksum of {received_checksum}! Ignoring reponse')
+                return None
+
+            # Extract command/address, valuebytes and valuebytecount out of response
+            responsetypecode = response[3]  # 0x00 = query, 0x01 = reply, 0x03 = error
+            responsedatacode = response[4]  # 0x01 = ReadData, 0x02 = WriteData, 0x07 = Function Call
+            valuebytecount = response[7]
+
+            # Extract databytes out of response
+            rawdatabytes = bytearray()
+            rawdatabytes.extend(response[8:8 + (valuebytecount)])
+        elif self._protocol == 'KW':
+
+            # imitate P300 response code data for easier combined handling afterwards
+            # a read_response telegram consists only of the value bytes
+            # a write_response telegram is 0x00 for OK, 0xXX for error
+            responsetypecode = 1
+            valuebytecount = len(response)
+            rawdatabytes = response
+
+            if read_response:
+                # value response to read request, error detection by empty = no response
+                responsedatacode = 1
+                if len(rawdatabytes) == 0:
+                    # error, no answer means wrong address (?)
+                    responsetypecode = 3
+            else:
+                # status response to write request
+                responsedatacode = 2
+                if (len(rawdatabytes) == 1 and rawdatabytes[0] != 0) or len(rawdatabytes) == 0:
+                    # error if status reply is not 0x00
+                    responsetypecode = 3
+
+        self.logger.debug(f'Response decoded to: responsedatacode: {responsedatacode}, valuebytecount: {valuebytecount}, responsetypecode: {responsetypecode}')
+
+        if responsetypecode == 3:
+            raise ValueError(f'error on reading reply {rawdatabytes}')
+
+        if responsedatacode == 2:
+            self.logger.debug('write request successful')
+            return None
+
+        self.logger.debug(f'read request successful, read bytes {rawdatabytes}')
+        return rawdatabytes
 
     def _build_payload(self, data_dict):
         ''' 
@@ -645,39 +715,40 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :rtype: tuple
         '''
         try:
-            addr = data_dict['payload'].tolower()
-            cmdlen = data_dict['data']['length']
+            addr = data_dict['payload'].lower()
+            cmdlen = data_dict['data']['len']
             valuebytes = data_dict['data']['value']
-            KWFollowUp = data_dict['data']['kwseq']
+            KWFollowUp = data_dict['data'].get('kwseq', False)
         except Exception as e:
             raise ValueError(f'data_dict {data_dict} not usable, data not sent. Error was: {e}')
 
         write = valuebytes is not None
 
         # build payload
-        payloadlength = int(self._controlset.get('command_bytes_write', 0)) + int(valuebytes)
-        self.logger.debug(f'Payload length is: {payloadlength} bytes')
+        if write:
+            payloadlength = int(self._controlset.get('command_bytes_write', 0)) + int(valuebytes)
+            self.logger.debug(f'Payload length is: {payloadlength} bytes')
 
         packet = bytearray()
         if not KWFollowUp:
-            packet.extend(self._int2bytes(self._controlset['startbyte']))
+            packet.extend(self._int2bytes(self._controlset['startbyte'], 1))
         if self._viess_proto == 'P300':
             if write:
                 packet.extend(self._int2bytes(payloadlength, 1))
             else:
-                packet.extend(self._int2bytes(self._controlset['command_bytes_read']))
-            packet.extend(self._int2bytes(self._controlset['request']))
+                packet.extend(self._int2bytes(self._controlset['command_bytes_read'], 1))
+            packet.extend(self._int2bytes(self._controlset['request'], 1))
 
         if write:
-            packet.extend(self._int2bytes(self._controlset['write']))
+            packet.extend(self._int2bytes(self._controlset['write'], 1))
         else:
-            packet.extend(self._int2bytes(self._controlset['read']))
+            packet.extend(self._int2bytes(self._controlset['read'], 1))
         packet.extend(bytes.fromhex(addr))
         packet.extend(self._int2bytes(cmdlen, 1))
         if write:
             packet.extend(valuebytes)
         if self._viess_proto == 'P300':
-            packet.extend(self._int2bytes(self._calc_checksum(packet)))
+            packet.extend(self._int2bytes(self._calc_checksum(packet), 1))
 
         if self._viess_proto == 'P300':
             responselen = int(self._controlset['command_bytes_read']) + 4 + (0 if write else int(cmdlen))
@@ -712,7 +783,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
             self.logger.error('no bytes received to calculate checksum')
         return checksum
 
-    def _int2bytes(self, value, length=0, signed=False):
+    def _int2bytes(self, value, length, signed=False):
         '''
         Convert value to bytearray with respect to defined length and sign format.
         Value exceeding limit set by length and sign will be truncated
@@ -726,8 +797,6 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :return: Converted value
         :rtype: bytearray
         '''
-        if not length:
-            length = len(value)
         value = value % (2 ** (length * 8))
         return value.to_bytes(length, byteorder='big', signed=signed)
 

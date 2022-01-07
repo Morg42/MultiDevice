@@ -15,7 +15,7 @@ class DT_Example(DT.Datatype):
     def get_send_data(self, data, **kwargs):
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return data
 

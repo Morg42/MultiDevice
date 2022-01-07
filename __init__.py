@@ -483,7 +483,6 @@ class MultiDevice(SmartPlugin):
         Initalizes the plugin. For this plugin, this means collecting all device
         modules and initializing them by instantiating the proper class.
         '''
-
         if not sh:
             self.logger = logger
 
@@ -522,38 +521,45 @@ class MultiDevice(SmartPlugin):
         #             - host: somehost
         #         - dev4:                     # -> case 4, id = dev4, type = dev4, folder = dev_dev4
         #             - host: someotherhost   #    handled implicitly by case 3
- 
         for device in devices:
-            device_type = None
             param = {}
-            if type(device) is str:
-                # case 1, device configuration is only string
+            if MD_standalone:
+
                 device_type = device_id = device
+                try:
+                    for (k, v) in devices[device].items():
+                        param[k] = sanitize_param(v)
+                except Exception:
+                    pass
+            else:
+                device_type = None
+                if type(device) is str:
+                    # case 1, device configuration is only string
+                    device_type = device_id = device
 
-            elif type(device) is OrderedDict:
+                elif isinstance(device, OrderedDict):
+                    # either we have devname: devid or devname: (list of arg: value)
+                    device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
 
-                # either we have devname: devid or devname: (list of arg: value)
-                device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
+                    if type(conf) is str:
+                        # case 2, device_id: device_type
+                        device_type = conf
+                    # dev_id: (list of OrderedDict(arg: value))?
+                    elif type(conf) is list and all(isinstance(arg, OrderedDict) for arg in conf):
+                        # case 3, get device_type from parsing conf
+                        device_type = device_id
+                        for odict in conf:
+                            for arg in odict.keys():
 
-                if type(conf) is str:
-                    # case 2, device_id: device_type
-                    device_type = conf
-                # dev_id: (list of OrderedDict(arg: value))?
-                elif type(conf) is list and all(type(arg) is OrderedDict for arg in conf):
-                    # case 3, get device_type from parsing conf
-                    device_type = device_id
-                    for odict in conf:
-                        for arg in odict.keys():
+                                # store parameters
+                                if arg == 'device_type':
+                                    device_type = odict[arg]
+                                else:
+                                    param[arg] = sanitize_param(odict[arg])
 
-                            # store parameters
-                            if arg == 'device_type':
-                                device_type = odict[arg]
-                            else:
-                                param[arg] = sanitize_param(odict[arg])
-
-                else:
-                    self.logger.warning(f'Configuration for device {device_id} has unknown format, skipping {device_id}')
-                    device_type = device_id = None
+                    else:
+                        self.logger.warning(f'Configuration for device {device_id} has unknown format, skipping {device_id}')
+                        device_type = device_id = None
 
             if device_id and device_id in self._devices:
                 self.logger.warning(f'Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id]["device_type"]}. Skipping processing of spare device id {device_id}')
@@ -1073,7 +1079,6 @@ if __name__ == '__main__':
     ./__init__.py MD_Device -v
 
     '''
-
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.CRITICAL)
     ch = logging.StreamHandler()

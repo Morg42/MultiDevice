@@ -76,7 +76,7 @@ class MD_Commands(object):
         if not self._read_commands(device_id):
             return None
 
-        if self._commands:
+        if self._commands or MD_standalone:
             self.logger.debug(f'{len(self._commands)} commands initialized')
         else:
             self.logger.error('commands could not be initialized')
@@ -100,9 +100,9 @@ class MD_Commands(object):
 
         raise Exception(f'command {command} not found in commands')
 
-    def get_shng_data(self, command, data):
+    def get_shng_data(self, command, data, **kwargs):
         if command in self._commands:
-            result = self._commands[command].get_shng_data(data)
+            result = self._commands[command].get_shng_data(data, **kwargs)
             lu = self._get_cmd_lookup(command)
             if lu:
                 result = self._lookup(result, lu)
@@ -234,7 +234,6 @@ class MD_Commands(object):
         if not MD_standalone:
             mod_str = '.'.join(self.__module__.split('.')[:-1]) + '.' + mod_str
 
-        commands = {}
         try:
             # get module
             cmd_module = locate(mod_str)
@@ -257,14 +256,23 @@ class MD_Commands(object):
                 self.logger.warning(f'plugin configuration wants model {self._model}, but device type {self._device_type} has no model configuration. Loading all commands...')
                 self._model = None
 
-        if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict):
+        if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict) and not MD_standalone:
+            cmds = cmd_module.commands
+            cmdlist = None
             if self._model:
-                cmds = cmd_module.models[self._model]
+                if '_' in cmds and self._model in cmds['_']:
+                    cmds = cmds['_'][self._model]
+                else:
+                    cmdlist = cmds[self._model]
             else:
-                cmds = cmd_module.commands.keys()
-            self._parse_commands(device_id, cmd_module.commands, cmds)
+                if '_' in cmds:
+                    raise CommandsError(f'commands require configuration attribute "model", but model not set.')
+            if cmdlist is None:
+                cmdlist = cmds.keys()
+            self._parse_commands(device_id, cmds, cmdlist)
         else:
-            self.logger.warning('no command definitions found. This device probably will not work...')
+            if not MD_standalone:
+                self.logger.warning('no command definitions found. This device probably will not work...')
 
         if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)

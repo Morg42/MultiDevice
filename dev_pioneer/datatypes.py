@@ -10,7 +10,7 @@ import re
 
 
 class DT_PioDisplay(DT.Datatype):
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         tempvalue = "".join(list(map(lambda i: chr(int(data[2 * i:][:2], 0x10)), range(14)))).strip()
         data = re.sub(r'^[^A-Z0-9]*', '', tempvalue)
         return data
@@ -20,7 +20,7 @@ class DT_PioChannelVol(DT.Datatype):
     def get_send_data(self, data, **kwargs):
         return f"{int(data * 2 + 50):02}"
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         return (int(data) - 50) / 2
 
 
@@ -28,7 +28,7 @@ class DT_onoff(DT.Datatype):
     def get_send_data(self, data, **kwargs):
         return 'O' if data else 'F'
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None or type == 'bool':
             return True if data == '0' else False
 

@@ -75,6 +75,8 @@ class MD_Device(object):
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
 
         self.logger.info(f'initializing from device module {str(self.__class__).split(".")[-3]} with arguments {kwargs}')
 
@@ -223,7 +225,7 @@ class MD_Device(object):
         if result:
             self.logger.debug(f'command {command} received result {result}')
             try:
-                value = self._commands.get_shng_data(command, result)
+                value = self._commands.get_shng_data(command, result, **kwargs)
             except Exception as e:
                 self.logger.info(f'command {command} received result {result}, error {e} occurred while converting. Discarding result.')
             else:            
@@ -432,7 +434,7 @@ class MD_Device(object):
             elif PLUGIN_ARG_SERIAL_PORT in self._params:
 
                 # this seems to be a serial killer application
-                conn_type = CONN_SER_CLI
+                conn_type = CONN_SER_DIR
 
             if conn_type:
                 params[PLUGIN_ARG_CONNECTION] = conn_type

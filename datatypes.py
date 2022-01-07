@@ -95,7 +95,7 @@ class Datatype(object):
         '''
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         '''
         take data from device reply and try and convert it into SmartHomeNG-
         compatible type (item type).
@@ -204,7 +204,7 @@ class DT_bool(Datatype):
     def get_send_data(self, data, **kwargs):
         return bool(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bool(data)
 
@@ -216,7 +216,7 @@ class DT_int(Datatype):
     def get_send_data(self, data, **kwargs):
         return int(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return int(data)
 
@@ -228,7 +228,7 @@ class DT_num(Datatype):
     def get_send_data(self, data, **kwargs):
         return float(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return float(data)
 
@@ -240,7 +240,7 @@ class DT_str(Datatype):
     def get_send_data(self, data, **kwargs):
         return str(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return str(data)
         return super().get_shng_data(data, type)
@@ -251,7 +251,7 @@ class DT_list(Datatype):
     def get_send_data(self, data, **kwargs):
         return list(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return list(data)
         return super().get_shng_data(data, type)
@@ -262,7 +262,7 @@ class DT_dict(Datatype):
     def get_send_data(self, data, **kwargs):
         return dict(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return dict(data)
         return super().get_shng_data(data, type)
@@ -273,7 +273,7 @@ class DT_tuple(Datatype):
     def get_send_data(self, data, **kwargs):
         return tuple(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return tuple(data)
         return super().get_shng_data(data, type)
@@ -283,7 +283,7 @@ class DT_bytes(Datatype):
     def get_send_data(self, data, **kwargs):
         return bytes(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bytes(data)
         return super().get_shng_data(data, type)
@@ -293,7 +293,7 @@ class DT_bytearray(Datatype):
     def get_send_data(self, data, **kwargs):
         return bytearray(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bytearray(data)
         return super().get_shng_data(data, type)
@@ -303,7 +303,7 @@ class DT_json(Datatype):
     def get_send_data(self, data, **kwargs):
         return json.dumps(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return json.loads(data)
         return super().get_shng_data(data, type)
@@ -314,7 +314,7 @@ class DT_webservices(Datatype):
     def get_send_data(self, data, **kwargs):
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             js = json.loads(data)
             arg = js.get('value', None)

@@ -61,6 +61,9 @@ class MD_Connection(object):
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
+
         self.logger.debug(f'connection initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # set class properties
@@ -280,6 +283,9 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
+
         self.logger.debug(f'connection initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # set class properties
@@ -374,6 +380,9 @@ class MD_Connection_Serial(MD_Connection):
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
+        if MD_standalone:
+            self.logger = logging.getLogger('__main__')
+
         self.logger.debug(f'connection initializing from {self.__class__.__name__} with arguments {kwargs}')
 
         # set class properties
@@ -434,7 +443,7 @@ class MD_Connection_Serial(MD_Connection):
                 if self._connected_callback:
                     self._connected_callback(f'serial_{self._serialport}')
                 return True
-            except (serial.SerialError, ValueError) as e:
+            except (serial.SerialException, ValueError) as e:
                 self.logger.error(f'error on connection to {self._serialport}. Error was: {e}')
                 self._connection_attempts = 0
                 return False
@@ -486,11 +495,11 @@ class MD_Connection_Serial(MD_Connection):
             self._open()
 
         if not self._is_connected:
-            raise serial.SerialError(f'trying to send {data}, but connection can\'t be opened.')
+            raise serial.SerialException(f'trying to send {data}, but connection can\'t be opened.')
 
         if not self._send_bytes(data):
             self.is_connected = False
-            raise serial.SerialError(f'data {data} could not be sent')
+            raise serial.SerialException(f'data {data} could not be sent')
 
         rlen = None
         if 'data' in data_dict:

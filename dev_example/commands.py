@@ -6,6 +6,8 @@
     commands for dev example
 
     This section consists of a single dict which defines all the devices' commands.
+    Alternatively, if models are supported and required, see second example for
+    commands definition.
 
     In this example, only one command is given to define possible keys and their
     values' meaning.
@@ -56,6 +58,40 @@ commands = {
     }
 }
 
+'''
+    The following commands example is for a scenario where different models are
+    configured and have overlapping command definitions with different contents.
+
+    The only key on the first level is an underscore, this signals the model-variant.
+    The keys on the second level are the model names.
+    Below the model names, commands are defined as in the first example. There
+    exist no common or dependent command definitions between the different
+    models.
+
+    In this case, a model _must_ be specified in the device configuration; the
+    ``models`` dict (see next paragraph) is not necessary and will be ignored.
+'''
+
+commands = {
+    '_': {
+        'model1': {
+            'cmd1': {'read': True, 'write': True, 'opcode': '1a', ... }, 
+            'cmd2': {'read': False, 'write': True, 'opcode': '2b', ... }, 
+            'cmd3': {'read': True, 'write': False, 'opcode': '3c', ... }, 
+            'cmd4': {'read': False, 'write': False, 'opcode': '4d', ... }, 
+        },
+        'model2': {
+            'cmd1': {'read': True, 'write': True, 'opcode': '1c', ... }, 
+            'cmd2': {'read': False, 'write': True, 'opcode': '2d', ... }, 
+        },
+        'model3': {
+            'cmd1': {'read': True, 'write': True, 'opcode': '1x', ... }, 
+            'cmd2': {'read': False, 'write': True, 'opcode': '2y', ... }, 
+            'cmd3': {'read': True, 'write': False, 'opcode': '3z', ... }, 
+        },
+        ...
+    }
+}
 
 '''
     (optional) model specifications for dev example
@@ -73,6 +109,8 @@ commands = {
     dict is present), the device will not load.
     If the device is configured with a model name, but the ``models`` dict is not
     present, the device will have all commands available.
+
+    If the second variant of defining commands is chosen, this dict will be ignored.
 
     Hint: as this example only defines one command, the following example is purely
           fictional...

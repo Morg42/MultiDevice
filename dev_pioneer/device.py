@@ -40,6 +40,12 @@ class MD_Device(MD_Device):
                         PLUGIN_ARG_TERMINATOR: b'\r',
                         'disconnected_callback': None}
 
+        # set our own preferences concerning connections
+        if PLUGIN_ARG_NET_HOST in kwargs and kwargs[PLUGIN_ARG_NET_HOST]:
+            self._params[PLUGIN_ARG_CONNECTION] = CONN_NET_TCP_CLI
+        elif PLUGIN_ARG_SERIAL_PORT in kwargs and kwargs[PLUGIN_ARG_SERIAL_PORT]:
+            self._params[PLUGIN_ARG_CONNECTION] = CONN_SER_DIR
+
         super().__init__(device_type, device_id, **kwargs)
 
         # log own initialization with module (i.e. folder) name

@@ -523,7 +523,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
             self.logger.debug(f'read_bytes: read {readbyte}')
 
             for i in range(10):
-                print(f'{readbyte} -> ack: {readbyte == b_ack}, ni: {readbyte == b_notinit}, err: {readbyte == b_err}')
+                # print(f'{readbyte} -> ack: {readbyte == b_ack}, ni: {readbyte == b_notinit}, err: {readbyte == b_err}')
                 if initstringsent and readbyte == b_ack:
                     self._is_initialized = True
                     self.logger.debug('device acknowledged initialization')
@@ -537,7 +537,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
                     self._connection._send_bytes(b_reset)
                     self.logger.debug(f'send_bytes: send reset command {b_reset}')
                     initstringsent = False
-                elif readbyte != b'':
+                else:   # elif readbyte != b'':
                     self._connection._send_bytes(b_reset)
                     self.logger.debug(f'send_bytes: send reset command {b_reset}')
                     initstringsent = False

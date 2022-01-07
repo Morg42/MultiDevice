@@ -560,14 +560,15 @@ class MD_Connection_Serial(MD_Connection):
             else:
                 return totalreadbytes
             totalreadbytes += readbyte
-            if isinstance(length, int) and length and len(totalreadbytes) >= length:
+            # if isinstance(length, int) and length and len(totalreadbytes) >= length:
+            if len(totalreadbytes) >= length:
                 return totalreadbytes
-            elif isinstance(length, (bytes, bytearray)):
-                if readbyte == length:
-                    return totalreadbytes
+            # elif isinstance(length, (bytes, bytearray)):
+            #    if readbyte == length:
+            #        return totalreadbytes
 
         # timeout reached, did we read anything?
-        if not totalreadbytes and not length:
+        if not totalreadbytes:   # and not length:
 
             # just in case, force plugin to reconnect
             self._is_connected = False

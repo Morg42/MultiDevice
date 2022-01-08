@@ -59,7 +59,7 @@ class MD_Commands(object):
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
         self.logger.debug(f'commands initializing from {command_obj_class.__name__}')
-        self._commands = {}         # { 'cmd_x': MD_Command(params), ... }
+        self._commands = None         # { 'cmd_x': MD_Command(params), ... }
         self._lookups = {}          # { 'name_x': {'fwd': {'K1': 'V1', ...}, 'rev': {'V1': 'K1', ...}, 'rci': {'v1': 'K1', ...}}}
         self._lookup_tables = []
         self.device_id = device_id
@@ -76,7 +76,7 @@ class MD_Commands(object):
         if not self._read_commands(device_id):
             return None
 
-        if self._commands or MD_standalone:
+        if self._commands is not None or MD_standalone:
             self.logger.debug(f'{len(self._commands)} commands initialized')
         else:
             self.logger.error('commands could not be initialized')
@@ -262,14 +262,17 @@ class MD_Commands(object):
             if INDEX_GENERIC in cmds:
                 if self._model in cmds[INDEX_GENERIC]:
                     cmds = cmds[INDEX_GENERIC][self._model]
+                elif not self._model:
+                    self.logger.debug(f'model set to empty string, not loading commands. You have been warned...')
+                    cmds = {}
                 else:
-                    raise CommandsError(f'commands require configuration attribute "model", but model {self._model + "not set" if self._model else "unknown"}.')
+                    raise CommandsError(f'commands require configuration attribute "model", but model {self._model + " not set in commands dict" if self._model else "unknown"}.')
             if self._model:
-                cmdlist = cmds[self._model]
+                cmdlist = cmd_module.models[self._model]
+                self.logger.debug(f'found {len(cmdlist)} commands for model {self._model}')
                 if INDEX_GENERIC in cmd_module.models:
                     cmdlist += cmd_module.models[INDEX_GENERIC]
-            else:
-                if INDEX_GENERIC in cmds:
+                    self.logger.debug(f'found {len(cmd_module.models[INDEX_GENERIC])} generic commands')
             if cmdlist is None:
                 cmdlist = cmds.keys()
             self._parse_commands(device_id, cmds, cmdlist)
@@ -291,6 +294,7 @@ class MD_Commands(object):
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         '''
+        self._commands = {}
 
         for cmd in cmds:
             kw = {}

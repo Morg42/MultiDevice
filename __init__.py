@@ -242,6 +242,7 @@
     This class has subclasses defined for the following types of protocols:
 
     - ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
+    - ``MD_Protocol_Viessmann`` for P300- and KW-protocol communication
 
 
     MD_Commands
@@ -270,6 +271,8 @@
     - ``_parse_commands(device_id, commands)``
     - ``_parse_lookups(device_id, lookups)``
 
+    Options and syntax of commands configuration are detailed in the `commands.py`
+    file in the `dev_example` folder.
 
     MD_Command
     ----------
@@ -362,10 +365,21 @@
     type and configuration of connection should be set in ``etc/plugin.yaml`` for
     each device used.
 
+    For some device classes, it is possible to choose from different models. In 
+    this case, the attribute ``model: <modelname>`` needs to be present. In any
+    other case, the ``model`` key should not be present. 
+
     The connection classes will be chosen and configured by the device classes.
     They should not need further configuration, as all data transformation is done
     by the device classes and the connection-specific attributes are provided
     from plugin configuration.
+
+    If the additional protocol layer is necessary, usually the device class will
+    provide for proper loading (it loads in place of the connection class). If
+    for some reason the protocol layer should be selected and loaded manually,
+    it can be forced by providing the ``protocol: <protocolname>`` attribute.
+    As with the model, this attribute should normally not be present in the
+    configuration.
 
     Example for `etc/plugin.yaml` configuration:
 

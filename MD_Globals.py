@@ -104,7 +104,7 @@ COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype
 MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')
 
 # name of non-model specific key for commands, models and lookups
-INDEX_GENERIC          = 'all'
+INDEX_GENERIC          = 'ALL'
 
 #############################################################################################################################################################################################################################################
 #

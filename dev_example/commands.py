@@ -73,7 +73,7 @@ commands = {
 '''
 
 commands = {
-    '_': {
+    'ALL': {
         'model1': {
             'cmd1': {'read': True, 'write': True, 'opcode': '1a', ... }, 
             'cmd2': {'read': False, 'write': True, 'opcode': '2b', ... }, 
@@ -102,7 +102,8 @@ commands = {
 
     This - optional - dict allows to specify sets of commands which are supported
     by different models. The keys are the model names and the values are lists of
-    all commands supported by the respective model.
+    all commands supported by the respective model. Commands listed under the
+    special - optional - key `ALL` are added to all models.
 
     If the device is configured without a model name, all commands will be available.
     If the device is configured with a model name not listed here (but the ``models``
@@ -117,6 +118,7 @@ commands = {
 '''
 
 models = {
+    'ALL': ['cmd10', 'cmd11']
     'model1': ['cmd1', 'cmd2', 'cmd3', 'cmd4'],
     'model2': ['cmd1', 'cmd2', 'cmd3', 'cmd5'],
     'model3': ['cmd1', 'cmd2', 'cmd4', 'cmd5', 'cmd6']
@@ -157,7 +159,7 @@ lookups = {
 
 '''
     Case b) is basically the same, but with an additional first level inserted.
-    The first level MUST contain a key named 'lookups' (duh), which specifies
+    The first level MUST contain a key named 'ALL' (duh), which specifies
     "generic" lookup tables valid for all models. The value to this key is a dict
     like the one in case a).
     The first level CAN (and should, why would you do it otherwise?) have
@@ -173,7 +175,7 @@ lookups = {
 '''
 
 lookups = {
-    'lookups': {
+    'ALL': {
         'table1': {
             1: 'foo',
             2: 'bar',

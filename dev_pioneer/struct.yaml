@@ -207,7 +207,7 @@ zone1:
                 lookup:
                     type: dict
                     md_deviceid: DEVICENAME
-                    md_lookup: PLAYINGMODE                
+                    md_lookup: PLAYINGMODE
             listeningmode:
                 type: str
                 md_deviceid: DEVICENAME
@@ -403,3 +403,25 @@ zone2:
         md_deviceid: DEVICENAME
         md_command: zone2/sourcedown
         md_write: true
+    settings:
+        sound:
+            channel_level:
+                read:
+                    type: bool
+                    md_deviceid: DEVICENAME
+                    md_read_group_trigger: 6
+                    enforce_updates: true
+                front_left:
+                    type: num
+                    md_deviceid: DEVICENAME
+                    md_command: zone1/level_front_left
+                    md_read: true
+                    md_write: true
+                    md_read_group: 6
+                front_right:
+                    type: num
+                    md_deviceid: DEVICENAME
+                    md_command: zone1/level_front_right
+                    md_read: true
+                    md_write: true
+                    md_read_group: 6

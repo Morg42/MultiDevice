@@ -109,6 +109,11 @@ class MD_Device(object):
         self._commands_initial = []
         self._commands_cyclic = {}
 
+        # check if manually disabled
+        if PLUGIN_ARG_ENABLED in self._params and not self._params[PLUGIN_ARG_ENABLED]:
+            self.logger.warning(f'attribute enabled set to false, not loading device')
+            return False
+
         # this is only viable for the base class. All derived classes from
         # MD_Device will probably be created towards a specific command class
         # but, just in case, be well-behaved...
@@ -439,6 +444,13 @@ class MD_Device(object):
 
             if conn_type:
                 params[PLUGIN_ARG_CONNECTION] = conn_type
+            else:
+                # self.logger.error(f'can not identify connection type and no preference given')
+                # return None
+
+                # if not preset and not identified, use "empty" connection, e.g. for testing
+                # when physical device is not present
+                conn_classname = 'MD_Connection'
 
         if not conn_classname:
             conn_classname = 'MD_Connection_' + '_'.join([tok.capitalize() for tok in conn_type.split('_')])

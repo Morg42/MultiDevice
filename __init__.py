@@ -381,6 +381,9 @@
     As with the model, this attribute should normally not be present in the
     configuration.
 
+    A list of all currently supported attributes is found in the ``MD_Globals.py``
+    file next to their respective identifiers.
+
     Example for `etc/plugin.yaml` configuration:
 
     ```

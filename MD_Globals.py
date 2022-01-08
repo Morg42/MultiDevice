@@ -37,30 +37,31 @@ from ast import literal_eval
 #############################################################################################################################################################################################################################################
 
 # plugin arguments, used in plugin config 'device'
-PLUGIN_ARG_CONNECTION       = 'conn_type'
-PLUGIN_ARG_NET_HOST         = 'host'
-PLUGIN_ARG_NET_PORT         = 'port'
-PLUGIN_ARG_SERIAL_PORT      = 'serialport'
-PLUGIN_ARG_SERIAL_BAUD      = 'baudrate'
-PLUGIN_ARG_SERIAL_BSIZE     = 'bytesize'
-PLUGIN_ARG_SERIAL_PARITY    = 'parity'
-PLUGIN_ARG_SERIAL_STOP      = 'stopbits'
-PLUGIN_ARG_PROTOCOL         = 'protocol'
-PLUGIN_ARG_TIMEOUT          = 'timeout'
-PLUGIN_ARG_TERMINATOR       = 'terminator'
-PLUGIN_ARG_AUTORECONNECT    = 'autoreconnect'
-PLUGIN_ARG_CONN_RETRIES     = 'connect_retries'
-PLUGIN_ARG_CONN_CYCLE       = 'connect_cycle'
-PLUGIN_ARG_CB_ON_CONNECT    = 'connected_callback'
-PLUGIN_ARG_CB_ON_DISCONNECT = 'disconnected_callback'
-PLUGIN_ARG_MSG_TIMEOUT      = 'message_timeout'
-PLUGIN_ARG_MSG_REPEAT       = 'message_repeat'
+PLUGIN_ARG_ENABLED          = 'enabled'                 # set to False to disable loading of device
+PLUGIN_ARG_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
+PLUGIN_ARG_NET_HOST         = 'host'                    # hostname / IP for network connection
+PLUGIN_ARG_NET_PORT         = 'port'                    # port for network connection
+PLUGIN_ARG_SERIAL_PORT      = 'serialport'              # serial port for serial connection
+PLUGIN_ARG_SERIAL_BAUD      = 'baudrate'                # baudrate for serial connection
+PLUGIN_ARG_SERIAL_BSIZE     = 'bytesize'                # bytesize for serial connection
+PLUGIN_ARG_SERIAL_PARITY    = 'parity'                  # parity for serial connection
+PLUGIN_ARG_SERIAL_STOP      = 'stopbits'                # stopbits for serial connection
+PLUGIN_ARG_PROTOCOL         = 'protocol'                # manually choose protocol class, classname or type (see below). Don't set if not necessary!
+PLUGIN_ARG_TIMEOUT          = 'timeout'                 # timeout for reading from network or serial
+PLUGIN_ARG_TERMINATOR       = 'terminator'              # terminator for reading from network or serial
+PLUGIN_ARG_AUTORECONNECT    = 'autoreconnect'           # (re)connect automatically on send
+PLUGIN_ARG_CONN_RETRIES     = 'connect_retries'         # if autoreconnect: how often to reconnect
+PLUGIN_ARG_CONN_CYCLE       = 'connect_cycle'           # if autoreconnect: how many seconds to wait between retries
+PLUGIN_ARG_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
+PLUGIN_ARG_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
+PLUGIN_ARG_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to wait for reply to command (JSON-RPC only)
+PLUGIN_ARG_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
 
 PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT,
                PLUGIN_ARG_SERIAL_BAUD, PLUGIN_ARG_SERIAL_BSIZE, PLUGIN_ARG_SERIAL_PARITY, PLUGIN_ARG_SERIAL_STOP, 
                PLUGIN_ARG_TIMEOUT, PLUGIN_ARG_TERMINATOR, PLUGIN_ARG_AUTORECONNECT, PLUGIN_ARG_CONN_RETRIES,
                PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT,
-               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL)
+               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL, PLUGIN_ARG_ENABLED)
 
 # connection types for PLUGIN_ARG_CONNECTION
 CONN_NET_TCP_REQ        = 'net_tcp_request'  # TCP client connection with URL-based requests

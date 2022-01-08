@@ -56,7 +56,7 @@ class MD_Device(MD_Device):
             try:
                 if 'data' not in data:
                     data['data'] = {}
-                data['data']['limit_response'] = self._terminator
+                data['data']['limit_response'] = self._params.get(PLUGIN_ARG_TERMINATOR, b'\r')
                 data['payload'] = f'{data.get("payload")}\r'
             except Exception as e:
                 self.logger.error(f'ERROR {e}')

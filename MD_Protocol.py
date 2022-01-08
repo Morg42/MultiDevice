@@ -28,10 +28,10 @@ import logging
 
 if MD_standalone:
     from MD_Globals import *
-    from MD_Connection import MD_Connection, MD_Connection_Net_Tcp_Client
+    from MD_Connection import MD_Connection, MD_Connection_Net_Tcp_Client, MD_Connection_Serial
 else:
     from .MD_Globals import *
-    from .MD_Connection import MD_Connection, MD_Connection_Net_Tcp_Client
+    from .MD_Connection import MD_Connection, MD_Connection_Net_Tcp_Client, MD_Connection_Serial
 
 
 from collections import OrderedDict
@@ -39,7 +39,6 @@ from time import time, sleep
 import threading
 import queue
 import json
-import re
 
 
 #############################################################################################################################################################################################################################################
@@ -192,7 +191,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         self.logger.info(f'onconnect called by {by}, send queue contains {self._send_queue.qsize()} commands')
         super().on_connect(by)
 
-    def on_disconnect(self, obj=None):
+    def on_disconnect(self, by=None):
         super().on_disconnect(by)
 
         # did we power down kodi? then clear queues

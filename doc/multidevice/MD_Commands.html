@@ -87,20 +87,24 @@ class MD_Commands(object):
         self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
         self.logger.debug(f&#39;commands initializing from {command_obj_class.__name__}&#39;)
-        self._commands = {}         # { &#39;cmd_x&#39;: MD_Command(params), ... }
+        self._commands = None         # { &#39;cmd_x&#39;: MD_Command(params), ... }
         self._lookups = {}          # { &#39;name_x&#39;: {&#39;fwd&#39;: {&#39;K1&#39;: &#39;V1&#39;, ...}, &#39;rev&#39;: {&#39;V1&#39;: &#39;K1&#39;, ...}, &#39;rci&#39;: {&#39;v1&#39;: &#39;K1&#39;, ...}}}
         self._lookup_tables = []
         self.device_id = device_id
         self._device_type = device_type
         self._cmd_class = command_obj_class
-        self._plugin_params = kwargs
+        self._plugin_params = {}
+        self._plugin_params.update(kwargs)
+
+        self._model = self._plugin_params.get(&#39;model&#39;, None)
+
         self._dt = {}
         self._return_value = None
         self._read_dt_classes(device_type)
         if not self._read_commands(device_id):
             return None
 
-        if self._commands:
+        if self._commands is not None or MD_standalone:
             self.logger.debug(f&#39;{len(self._commands)} commands initialized&#39;)
         else:
             self.logger.error(&#39;commands could not be initialized&#39;)
@@ -115,18 +119,18 @@ class MD_Commands(object):
         # if the corresponding attribute is not defined, assume False (fail safe)
         return getattr(self._commands[command], &#39;read&#39; if read else &#39;write&#39;, False)
 
-    def get_send_data(self, command, data=None):
+    def get_send_data(self, command, data=None, **kwargs):
         if command in self._commands:
             lu = self._get_cmd_lookup(command)
             if lu:
                 data = self._lookup(data, lu, rev=True)
-            return self._commands[command].get_send_data(data)
+            return self._commands[command].get_send_data(data, **kwargs)
 
         raise Exception(f&#39;command {command} not found in commands&#39;)
 
-    def get_shng_data(self, command, data):
+    def get_shng_data(self, command, data, **kwargs):
         if command in self._commands:
-            result = self._commands[command].get_shng_data(data)
+            result = self._commands[command].get_shng_data(data, **kwargs)
             lu = self._get_cmd_lookup(command)
             if lu:
                 result = self._lookup(result, lu)
@@ -161,7 +165,7 @@ class MD_Commands(object):
         return None
 
     def get_lookup(self, lookup, type=&#39;fwd&#39;):
-        &#39;&#39;&#39; returns the lookup table for name &lt;lookup&gt;, None on error &#39;&#39;&#39;
+        &#39;&#39;&#39; returns the contents of the lookup table named &lt;lookup&gt;, None on error &#39;&#39;&#39;
         if lookup in self._lookups and type in (&#39;fwd&#39;, &#39;rev&#39;, &#39;rci&#39;):
             return self._lookups[lookup][type]
         else:
@@ -201,7 +205,7 @@ class MD_Commands(object):
         if not lu:
             raise ValueError(f&#39;Lookup table {table} not found.&#39;)
 
-        if ci and isinstance(data, str):
+        if rev and ci and isinstance(data, str):
             data = data.lower()
 
         if data in lu:
@@ -246,48 +250,81 @@ class MD_Commands(object):
     def _read_commands(self, device_id):
         &#39;&#39;&#39;
         This is the loader portion for the commands.py file.
+
+        Errors preventing the device from working raise `Exception`
         &#39;&#39;&#39;
         # did we get a device type?
         if not self._device_type:
-            self.logger.warning(&#39;device_type not set, not reading commands&#39;)
-            return
+            raise Exception(&#39;device_type not set, not reading commands&#39;)
 
         # try to load commands.py from device directory
         mod_str = &#39;dev_&#39; + self._device_type + &#39;.commands&#39;
         if not MD_standalone:
             mod_str = &#39;.&#39;.join(self.__module__.split(&#39;.&#39;)[:-1]) + &#39;.&#39; + mod_str
 
-        commands = {}
         try:
             # get module
             cmd_module = locate(mod_str)
         except ImportError:
-            msg = f&#39;importing external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed&#39;
-            self.logger.error(msg)
-            raise ImportError(msg)
+            raise CommandsError(f&#39;importing external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed&#39;)
         except Exception as e:
-            msg = f&#39;importing commands from external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed. Error was: {e}&#39;
-            self.logger.error(msg)
-            raise SyntaxError(msg)
+            raise CommandsError(f&#39;importing commands from external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed. Error was: &#34;{e}&#34;&#39;)
+            return False
 
-        if hasattr(cmd_module, &#39;commands&#39;) and isinstance(cmd_module.commands, dict):
-            self._parse_commands(device_id, cmd_module.commands)
+        if self._model:
+            if hasattr(cmd_module, &#39;models&#39;):
+                if isinstance(cmd_module.models, dict):
+                    if self._model in cmd_module.models:
+                        self.logger.info(f&#39;model {self._model} identified&#39;)
+                    else: 
+                        raise CommandsError(f&#39;configured model {self._model} not found in commands.py models {cmd_module.models.keys()}&#39;)
+                else:
+                    raise CommandsError(f&#39;model configuration for device type {self._device_type} invalid, &#34;models&#34; is not a dict&#39;)
+            else:
+                self.logger.warning(f&#39;plugin configuration wants model {self._model}, but device type {self._device_type} has no model configuration. Loading all commands...&#39;)
+                self._model = None
+
+        if hasattr(cmd_module, &#39;commands&#39;) and isinstance(cmd_module.commands, dict) and not MD_standalone:
+            cmds = cmd_module.commands
+            cmdlist = None
+            if INDEX_GENERIC in cmds:
+                if self._model in cmds[INDEX_GENERIC]:
+                    cmds = cmds[INDEX_GENERIC][self._model]
+                elif not self._model:
+                    self.logger.debug(f&#39;model set to empty string, not loading commands. You have been warned...&#39;)
+                    cmds = {}
+                else:
+                    raise CommandsError(f&#39;commands require configuration attribute &#34;model&#34;, but model {self._model + &#34; not set in commands dict&#34; if self._model else &#34;unknown&#34;}.&#39;)
+            if self._model:
+                cmdlist = cmd_module.models[self._model]
+                self.logger.debug(f&#39;found {len(cmdlist)} commands for model {self._model}&#39;)
+                if INDEX_GENERIC in cmd_module.models:
+                    cmdlist += cmd_module.models[INDEX_GENERIC]
+                    self.logger.debug(f&#39;found {len(cmd_module.models[INDEX_GENERIC])} generic commands&#39;)
+            if cmdlist is None:
+                cmdlist = cmds.keys()
+            self._parse_commands(device_id, cmds, cmdlist)
         else:
-            self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
+            if not MD_standalone:
+                self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
 
         if hasattr(cmd_module, &#39;lookups&#39;) and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)
         else:
-            self.logger.info(&#39;no lookups found&#39;)
+            self.logger.debug(&#39;no lookups found&#39;)
 
-    def _parse_commands(self, device_id, commands):
+        return True
+
+    def _parse_commands(self, device_id, commands, cmds=[]):
         &#39;&#39;&#39;
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         &#39;&#39;&#39;
-        for cmd in commands:
+        self._commands = {}
+
+        for cmd in cmds:
             kw = {}
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
@@ -320,20 +357,30 @@ class MD_Commands(object):
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         &#39;&#39;&#39;
-        for table in lookups:
-            if isinstance(lookups[table], dict):
+        if INDEX_GENERIC in lookups:
+            lu = lookups[INDEX_GENERIC]
+            self.logger.debug(f&#39;found {len(lu)} generic lookup table{&#34;&#34; if len(lu) == 1 else &#34;s&#34;}&#39;)
+
+            if self._model and self._model in lookups:
+                lu.update(lookups[self._model])
+                self.logger.debug(f&#39;found {len(lookups[self._model])} lookup table{&#34;&#34; if len(lookups[self._model]) == 1 else &#34;s&#34;} for model {self._model}&#39;)
+        else:
+            lu = lookups
+
+        for table in lu:
+            if isinstance(lu[table], dict):
 
                 self._lookups[table] = {}
 
                 # original dict
-                self._lookups[table][&#39;fwd&#39;] = lookups[table]
+                self._lookups[table][&#39;fwd&#39;] = lu[table]
                 # reversed dict
-                self._lookups[table][&#39;rev&#39;] = {v: k for (k, v) in lookups[table].items()}
+                self._lookups[table][&#39;rev&#39;] = {v: k for (k, v) in lu[table].items()}
                 # reversed dict, keys are lowercase for case insensitive lookup
-                self._lookups[table][&#39;rci&#39;] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lookups[table].items()}
+                self._lookups[table][&#39;rci&#39;] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lu[table].items()}
 
                 self._lookup_tables.append(table)
-                self.logger.debug(f&#39;imported lookup table {table} with {len(lookups[table])} items&#39;)
+                self.logger.debug(f&#39;imported lookup table {table} with {len(lu[table])} items&#39;)
             else:
                 self.logger.warning(f&#39;key {table} in lookups not in dict format, ignoring&#39;)</code></pre>
 </details>
@@ -376,20 +423,24 @@ MD_Command-object</p>
         self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
         self.logger.debug(f&#39;commands initializing from {command_obj_class.__name__}&#39;)
-        self._commands = {}         # { &#39;cmd_x&#39;: MD_Command(params), ... }
+        self._commands = None         # { &#39;cmd_x&#39;: MD_Command(params), ... }
         self._lookups = {}          # { &#39;name_x&#39;: {&#39;fwd&#39;: {&#39;K1&#39;: &#39;V1&#39;, ...}, &#39;rev&#39;: {&#39;V1&#39;: &#39;K1&#39;, ...}, &#39;rci&#39;: {&#39;v1&#39;: &#39;K1&#39;, ...}}}
         self._lookup_tables = []
         self.device_id = device_id
         self._device_type = device_type
         self._cmd_class = command_obj_class
-        self._plugin_params = kwargs
+        self._plugin_params = {}
+        self._plugin_params.update(kwargs)
+
+        self._model = self._plugin_params.get(&#39;model&#39;, None)
+
         self._dt = {}
         self._return_value = None
         self._read_dt_classes(device_type)
         if not self._read_commands(device_id):
             return None
 
-        if self._commands:
+        if self._commands is not None or MD_standalone:
             self.logger.debug(f&#39;{len(self._commands)} commands initialized&#39;)
         else:
             self.logger.error(&#39;commands could not be initialized&#39;)
@@ -404,18 +455,18 @@ MD_Command-object</p>
         # if the corresponding attribute is not defined, assume False (fail safe)
         return getattr(self._commands[command], &#39;read&#39; if read else &#39;write&#39;, False)
 
-    def get_send_data(self, command, data=None):
+    def get_send_data(self, command, data=None, **kwargs):
         if command in self._commands:
             lu = self._get_cmd_lookup(command)
             if lu:
                 data = self._lookup(data, lu, rev=True)
-            return self._commands[command].get_send_data(data)
+            return self._commands[command].get_send_data(data, **kwargs)
 
         raise Exception(f&#39;command {command} not found in commands&#39;)
 
-    def get_shng_data(self, command, data):
+    def get_shng_data(self, command, data, **kwargs):
         if command in self._commands:
-            result = self._commands[command].get_shng_data(data)
+            result = self._commands[command].get_shng_data(data, **kwargs)
             lu = self._get_cmd_lookup(command)
             if lu:
                 result = self._lookup(result, lu)
@@ -450,7 +501,7 @@ MD_Command-object</p>
         return None
 
     def get_lookup(self, lookup, type=&#39;fwd&#39;):
-        &#39;&#39;&#39; returns the lookup table for name &lt;lookup&gt;, None on error &#39;&#39;&#39;
+        &#39;&#39;&#39; returns the contents of the lookup table named &lt;lookup&gt;, None on error &#39;&#39;&#39;
         if lookup in self._lookups and type in (&#39;fwd&#39;, &#39;rev&#39;, &#39;rci&#39;):
             return self._lookups[lookup][type]
         else:
@@ -490,7 +541,7 @@ MD_Command-object</p>
         if not lu:
             raise ValueError(f&#39;Lookup table {table} not found.&#39;)
 
-        if ci and isinstance(data, str):
+        if rev and ci and isinstance(data, str):
             data = data.lower()
 
         if data in lu:
@@ -535,48 +586,81 @@ MD_Command-object</p>
     def _read_commands(self, device_id):
         &#39;&#39;&#39;
         This is the loader portion for the commands.py file.
+
+        Errors preventing the device from working raise `Exception`
         &#39;&#39;&#39;
         # did we get a device type?
         if not self._device_type:
-            self.logger.warning(&#39;device_type not set, not reading commands&#39;)
-            return
+            raise Exception(&#39;device_type not set, not reading commands&#39;)
 
         # try to load commands.py from device directory
         mod_str = &#39;dev_&#39; + self._device_type + &#39;.commands&#39;
         if not MD_standalone:
             mod_str = &#39;.&#39;.join(self.__module__.split(&#39;.&#39;)[:-1]) + &#39;.&#39; + mod_str
 
-        commands = {}
         try:
             # get module
             cmd_module = locate(mod_str)
         except ImportError:
-            msg = f&#39;importing external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed&#39;
-            self.logger.error(msg)
-            raise ImportError(msg)
+            raise CommandsError(f&#39;importing external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed&#39;)
         except Exception as e:
-            msg = f&#39;importing commands from external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed. Error was: {e}&#39;
-            self.logger.error(msg)
-            raise SyntaxError(msg)
+            raise CommandsError(f&#39;importing commands from external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed. Error was: &#34;{e}&#34;&#39;)
+            return False
 
-        if hasattr(cmd_module, &#39;commands&#39;) and isinstance(cmd_module.commands, dict):
-            self._parse_commands(device_id, cmd_module.commands)
+        if self._model:
+            if hasattr(cmd_module, &#39;models&#39;):
+                if isinstance(cmd_module.models, dict):
+                    if self._model in cmd_module.models:
+                        self.logger.info(f&#39;model {self._model} identified&#39;)
+                    else: 
+                        raise CommandsError(f&#39;configured model {self._model} not found in commands.py models {cmd_module.models.keys()}&#39;)
+                else:
+                    raise CommandsError(f&#39;model configuration for device type {self._device_type} invalid, &#34;models&#34; is not a dict&#39;)
+            else:
+                self.logger.warning(f&#39;plugin configuration wants model {self._model}, but device type {self._device_type} has no model configuration. Loading all commands...&#39;)
+                self._model = None
+
+        if hasattr(cmd_module, &#39;commands&#39;) and isinstance(cmd_module.commands, dict) and not MD_standalone:
+            cmds = cmd_module.commands
+            cmdlist = None
+            if INDEX_GENERIC in cmds:
+                if self._model in cmds[INDEX_GENERIC]:
+                    cmds = cmds[INDEX_GENERIC][self._model]
+                elif not self._model:
+                    self.logger.debug(f&#39;model set to empty string, not loading commands. You have been warned...&#39;)
+                    cmds = {}
+                else:
+                    raise CommandsError(f&#39;commands require configuration attribute &#34;model&#34;, but model {self._model + &#34; not set in commands dict&#34; if self._model else &#34;unknown&#34;}.&#39;)
+            if self._model:
+                cmdlist = cmd_module.models[self._model]
+                self.logger.debug(f&#39;found {len(cmdlist)} commands for model {self._model}&#39;)
+                if INDEX_GENERIC in cmd_module.models:
+                    cmdlist += cmd_module.models[INDEX_GENERIC]
+                    self.logger.debug(f&#39;found {len(cmd_module.models[INDEX_GENERIC])} generic commands&#39;)
+            if cmdlist is None:
+                cmdlist = cmds.keys()
+            self._parse_commands(device_id, cmds, cmdlist)
         else:
-            self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
+            if not MD_standalone:
+                self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
 
         if hasattr(cmd_module, &#39;lookups&#39;) and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)
         else:
-            self.logger.info(&#39;no lookups found&#39;)
+            self.logger.debug(&#39;no lookups found&#39;)
 
-    def _parse_commands(self, device_id, commands):
+        return True
+
+    def _parse_commands(self, device_id, commands, cmds=[]):
         &#39;&#39;&#39;
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         &#39;&#39;&#39;
-        for cmd in commands:
+        self._commands = {}
+
+        for cmd in cmds:
             kw = {}
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
@@ -609,20 +693,30 @@ MD_Command-object</p>
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         &#39;&#39;&#39;
-        for table in lookups:
-            if isinstance(lookups[table], dict):
+        if INDEX_GENERIC in lookups:
+            lu = lookups[INDEX_GENERIC]
+            self.logger.debug(f&#39;found {len(lu)} generic lookup table{&#34;&#34; if len(lu) == 1 else &#34;s&#34;}&#39;)
+
+            if self._model and self._model in lookups:
+                lu.update(lookups[self._model])
+                self.logger.debug(f&#39;found {len(lookups[self._model])} lookup table{&#34;&#34; if len(lookups[self._model]) == 1 else &#34;s&#34;} for model {self._model}&#39;)
+        else:
+            lu = lookups
+
+        for table in lu:
+            if isinstance(lu[table], dict):
 
                 self._lookups[table] = {}
 
                 # original dict
-                self._lookups[table][&#39;fwd&#39;] = lookups[table]
+                self._lookups[table][&#39;fwd&#39;] = lu[table]
                 # reversed dict
-                self._lookups[table][&#39;rev&#39;] = {v: k for (k, v) in lookups[table].items()}
+                self._lookups[table][&#39;rev&#39;] = {v: k for (k, v) in lu[table].items()}
                 # reversed dict, keys are lowercase for case insensitive lookup
-                self._lookups[table][&#39;rci&#39;] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lookups[table].items()}
+                self._lookups[table][&#39;rci&#39;] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lu[table].items()}
 
                 self._lookup_tables.append(table)
-                self.logger.debug(f&#39;imported lookup table {table} with {len(lookups[table])} items&#39;)
+                self.logger.debug(f&#39;imported lookup table {table} with {len(lu[table])} items&#39;)
             else:
                 self.logger.warning(f&#39;key {table} in lookups not in dict format, ignoring&#39;)</code></pre>
 </details>
@@ -668,13 +762,13 @@ MD_Command-object</p>
 <span>def <span class="ident">get_lookup</span></span>(<span>self, lookup, type='fwd')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>returns the lookup table for name <lookup>, None on error</p></div>
+<div class="desc"><p>returns the contents of the lookup table named <lookup>, None on error</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_lookup(self, lookup, type=&#39;fwd&#39;):
-    &#39;&#39;&#39; returns the lookup table for name &lt;lookup&gt;, None on error &#39;&#39;&#39;
+    &#39;&#39;&#39; returns the contents of the lookup table named &lt;lookup&gt;, None on error &#39;&#39;&#39;
     if lookup in self._lookups and type in (&#39;fwd&#39;, &#39;rev&#39;, &#39;rci&#39;):
         return self._lookups[lookup][type]
     else:
@@ -682,7 +776,7 @@ MD_Command-object</p>
 </details>
 </dd>
 <dt id="multidevice.MD_Commands.MD_Commands.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, command, data=None)</span>
+<span>def <span class="ident">get_send_data</span></span>(<span>self, command, data=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -690,18 +784,18 @@ MD_Command-object</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_send_data(self, command, data=None):
+<pre><code class="python">def get_send_data(self, command, data=None, **kwargs):
     if command in self._commands:
         lu = self._get_cmd_lookup(command)
         if lu:
             data = self._lookup(data, lu, rev=True)
-        return self._commands[command].get_send_data(data)
+        return self._commands[command].get_send_data(data, **kwargs)
 
     raise Exception(f&#39;command {command} not found in commands&#39;)</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Commands.MD_Commands.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, command, data)</span>
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, command, data, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -709,9 +803,9 @@ MD_Command-object</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_shng_data(self, command, data):
+<pre><code class="python">def get_shng_data(self, command, data, **kwargs):
     if command in self._commands:
-        result = self._commands[command].get_shng_data(data)
+        result = self._commands[command].get_shng_data(data, **kwargs)
         lu = self._get_cmd_lookup(command)
         if lu:
             result = self._lookup(result, lu)

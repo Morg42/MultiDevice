@@ -75,21 +75,20 @@ commands = {
 commands = {
     'ALL': {
         'model1': {
-            'cmd1': {'read': True, 'write': True, 'opcode': '1a', ... }, 
-            'cmd2': {'read': False, 'write': True, 'opcode': '2b', ... }, 
-            'cmd3': {'read': True, 'write': False, 'opcode': '3c', ... }, 
-            'cmd4': {'read': False, 'write': False, 'opcode': '4d', ... }, 
+            'cmd1': {'read': True, 'write': True, 'opcode': '1a', 'attrib': '...'}, 
+            'cmd2': {'read': False, 'write': True, 'opcode': '2b', 'attrib': '...'}, 
+            'cmd3': {'read': True, 'write': False, 'opcode': '3c', 'attrib': '...'}, 
+            'cmd4': {'read': False, 'write': False, 'opcode': '4d', 'attrib': '...'}, 
         },
         'model2': {
-            'cmd1': {'read': True, 'write': True, 'opcode': '1c', ... }, 
-            'cmd2': {'read': False, 'write': True, 'opcode': '2d', ... }, 
+            'cmd1': {'read': True, 'write': True, 'opcode': '1c', 'attrib': '...'}, 
+            'cmd2': {'read': False, 'write': True, 'opcode': '2d', 'attrib': '...'}, 
         },
         'model3': {
-            'cmd1': {'read': True, 'write': True, 'opcode': '1x', ... }, 
-            'cmd2': {'read': False, 'write': True, 'opcode': '2y', ... }, 
-            'cmd3': {'read': True, 'write': False, 'opcode': '3z', ... }, 
-        },
-        ...
+            'cmd1': {'read': True, 'write': True, 'opcode': '1x', 'attrib': '...'}, 
+            'cmd2': {'read': False, 'write': True, 'opcode': '2y', 'attrib': '...'}, 
+            'cmd3': {'read': True, 'write': False, 'opcode': '3z', 'attrib': '...'}, 
+        }
     }
 }
 
@@ -118,7 +117,7 @@ commands = {
 '''
 
 models = {
-    'ALL': ['cmd10', 'cmd11']
+    'ALL': ['cmd10', 'cmd11'],
     'model1': ['cmd1', 'cmd2', 'cmd3', 'cmd4'],
     'model2': ['cmd1', 'cmd2', 'cmd3', 'cmd5'],
     'model3': ['cmd1', 'cmd2', 'cmd4', 'cmd5', 'cmd6']

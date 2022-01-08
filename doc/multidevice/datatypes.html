@@ -128,7 +128,7 @@ class Datatype(object):
         &#39;&#39;&#39;
         self._silent = fail_silent
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         &#39;&#39;&#39;
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
@@ -140,7 +140,7 @@ class Datatype(object):
         &#39;&#39;&#39;
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         &#39;&#39;&#39;
         take data from device reply and try and convert it into SmartHomeNG-
         compatible type (item type).
@@ -246,10 +246,10 @@ class DT_raw(Datatype):
 
 class DT_bool(Datatype):
     &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bool(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bool(data)
 
@@ -258,10 +258,10 @@ class DT_bool(Datatype):
 
 class DT_int(Datatype):
     &#39;&#39;&#39; cast to int &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return int(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return int(data)
 
@@ -270,10 +270,10 @@ class DT_int(Datatype):
 
 class DT_num(Datatype):
     &#39;&#39;&#39; cast to float &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return float(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return float(data)
 
@@ -282,10 +282,10 @@ class DT_num(Datatype):
 
 class DT_str(Datatype):
     &#39;&#39;&#39; cast to str &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return str(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return str(data)
         return super().get_shng_data(data, type)
@@ -293,10 +293,10 @@ class DT_str(Datatype):
 
 class DT_list(Datatype):
     &#39;&#39;&#39; enlist &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return list(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return list(data)
         return super().get_shng_data(data, type)
@@ -304,10 +304,10 @@ class DT_list(Datatype):
 
 class DT_dict(Datatype):
     &#39;&#39;&#39; dict-ate &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return dict(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return dict(data)
         return super().get_shng_data(data, type)
@@ -315,40 +315,40 @@ class DT_dict(Datatype):
 
 class DT_tuple(Datatype):
     &#39;&#39;&#39; toupling (meh...) &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return tuple(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return tuple(data)
         return super().get_shng_data(data, type)
 
 
 class DT_bytes(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bytes(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bytes(data)
         return super().get_shng_data(data, type)
 
 
 class DT_bytearray(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bytearray(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bytearray(data)
         return super().get_shng_data(data, type)
 
 
 class DT_json(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return json.dumps(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return json.loads(data)
         return super().get_shng_data(data, type)
@@ -356,10 +356,10 @@ class DT_json(Datatype):
 
 class DT_webservices(Datatype):
     &#39;&#39;&#39; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             js = json.loads(data)
             arg = js.get(&#39;value&#39;, None)
@@ -390,10 +390,10 @@ class DT_webservices(Datatype):
 </summary>
 <pre><code class="python">class DT_bool(Datatype):
     &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bool(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bool(data)
 
@@ -431,10 +431,10 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_bytearray(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bytearray(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bytearray(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -471,10 +471,10 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_bytes(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return bytes(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return bytes(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -507,10 +507,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_dict(Datatype):
     &#39;&#39;&#39; dict-ate &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return dict(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return dict(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -543,10 +543,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_int(Datatype):
     &#39;&#39;&#39; cast to int &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return int(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return int(data)
 
@@ -584,10 +584,10 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_json(Datatype):
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return json.dumps(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return json.loads(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -620,10 +620,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_list(Datatype):
     &#39;&#39;&#39; enlist &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return list(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return list(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -656,10 +656,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_num(Datatype):
     &#39;&#39;&#39; cast to float &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return float(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return float(data)
 
@@ -723,10 +723,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_str(Datatype):
     &#39;&#39;&#39; cast to str &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return str(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return str(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -759,10 +759,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_tuple(Datatype):
     &#39;&#39;&#39; toupling (meh...) &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return tuple(data)
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             return tuple(data)
         return super().get_shng_data(data, type)</code></pre>
@@ -795,10 +795,10 @@ get_shng_data() and get_send_data().</p>
 </summary>
 <pre><code class="python">class DT_webservices(Datatype):
     &#39;&#39;&#39; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#39;&#39;&#39;
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
             js = json.loads(data)
             arg = js.get(&#39;value&#39;, None)
@@ -854,7 +854,7 @@ get_shng_data() and get_send_data().</p>
         &#39;&#39;&#39;
         self._silent = fail_silent
 
-    def get_send_data(self, data):
+    def get_send_data(self, data, **kwargs):
         &#39;&#39;&#39;
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
@@ -866,7 +866,7 @@ get_shng_data() and get_send_data().</p>
         &#39;&#39;&#39;
         return data
 
-    def get_shng_data(self, data, type=None):
+    def get_shng_data(self, data, type=None, **kwargs):
         &#39;&#39;&#39;
         take data from device reply and try and convert it into SmartHomeNG-
         compatible type (item type).
@@ -978,16 +978,9 @@ get_shng_data() and get_send_data().</p>
 <li><a title="multidevice.datatypes.DT_str" href="#multidevice.datatypes.DT_str">DT_str</a></li>
 <li><a title="multidevice.datatypes.DT_tuple" href="#multidevice.datatypes.DT_tuple">DT_tuple</a></li>
 <li><a title="multidevice.datatypes.DT_webservices" href="#multidevice.datatypes.DT_webservices">DT_webservices</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonAspect" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonAspect">DT_DenonAspect</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonDialog" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonDialog">DT_DenonDialog</a></li>
 <li><a title="multidevice.dev_denon.datatypes.DT_DenonDisplay" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonDisplay">DT_DenonDisplay</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonDynam" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonDynam">DT_DenonDynam</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonInputsignal" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonInputsignal">DT_DenonInputsignal</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonPwr" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonPwr">DT_DenonPwr</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonResolution" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonResolution">DT_DenonResolution</a></li>
 <li><a title="multidevice.dev_denon.datatypes.DT_DenonStandby" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonStandby">DT_DenonStandby</a></li>
 <li><a title="multidevice.dev_denon.datatypes.DT_DenonStandby1" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonStandby1">DT_DenonStandby1</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonVideoproc" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonVideoproc">DT_DenonVideoproc</a></li>
 <li><a title="multidevice.dev_denon.datatypes.DT_DenonVol" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonVol">DT_DenonVol</a></li>
 <li><a title="multidevice.dev_denon.datatypes.DT_convert0" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_convert0">DT_convert0</a></li>
 <li><a title="multidevice.dev_denon.datatypes.DT_convertAuto" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_convertAuto">DT_convertAuto</a></li>
@@ -997,11 +990,12 @@ get_shng_data() and get_send_data().</p>
 <li><a title="multidevice.dev_pioneer.datatypes.DT_PioChannelVol" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioChannelVol">DT_PioChannelVol</a></li>
 <li><a title="multidevice.dev_pioneer.datatypes.DT_PioDisplay" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioDisplay">DT_PioDisplay</a></li>
 <li><a title="multidevice.dev_pioneer.datatypes.DT_onoff" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_onoff">DT_onoff</a></li>
+<li><a title="multidevice.dev_viessmann.datatypes.DT_V" href="dev_viessmann/datatypes.html#multidevice.dev_viessmann.datatypes.DT_V">DT_V</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="multidevice.datatypes.Datatype.get_send_data"><code class="name flex">
-<span>def <span class="ident">get_send_data</span></span>(<span>self, data)</span>
+<span>def <span class="ident">get_send_data</span></span>(<span>self, data, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>take (item value) data and return value in a format fit for the device
@@ -1013,7 +1007,7 @@ In the base class, this just returns whatever it gets.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_send_data(self, data):
+<pre><code class="python">def get_send_data(self, data, **kwargs):
     &#39;&#39;&#39;
     take (item value) data and return value in a format fit for the device
     In the base class, this just returns whatever it gets.
@@ -1027,7 +1021,7 @@ In the base class, this just returns whatever it gets.</p>
 </details>
 </dd>
 <dt id="multidevice.datatypes.Datatype.get_shng_data"><code class="name flex">
-<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None)</span>
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, type=None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>take data from device reply and try and convert it into SmartHomeNG-
@@ -1048,7 +1042,7 @@ Beware of special needs if converting complex data types.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_shng_data(self, data, type=None):
+<pre><code class="python">def get_shng_data(self, data, type=None, **kwargs):
     &#39;&#39;&#39;
     take data from device reply and try and convert it into SmartHomeNG-
     compatible type (item type).

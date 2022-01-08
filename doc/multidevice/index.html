@@ -110,6 +110,7 @@ changed by device configuration.</p>
 <li><code>_transform_send_data(data_dict)</code></li>
 <li><code>_set_device_params(**kwargs)</code></li>
 <li><code>_get_connection()</code></li>
+<li><code>_send(data_dict)</code></li>
 </ul>
 <h2 id="md_connection">Md_Connection</h2>
 <p>This class and the derived classes provide frameworks for sending and receiving
@@ -119,6 +120,7 @@ with asynchronous push-to-callback are already available.
 If more complex communication setup is needed, this can be implemented on top
 of the existing classes.</p>
 <p>Data is exchanged with <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> in a special dict format:</p>
+<p>..code: python</p>
 <pre><code>data_dict = {
     'payload': raw data as needed by the connection}
     'kw1': additional 'keyword' args or data specific to the connection type
@@ -127,12 +129,20 @@ of the existing classes.</p>
 }
 </code></pre>
 <p><code>MD_Connection(device_type, device_id, data_received_callback, **kwargs)</code></p>
-<p>The callback needs to be defined as <code>data_received_callback(command, data)</code></p>
+<p>The callbacks needs to be defined as</p>
+<ul>
+<li><code>data_received_callback(by, data, command=None)</code></li>
+<li><code>connected_callback(by=None)</code> (optional)</li>
+<li><code>disconnected_callback(by=None)</code> (optional)</li>
+</ul>
 <p>Public methods:</p>
 <ul>
 <li><code>open()</code></li>
 <li><code>close()</code></li>
 <li><code>send(data_dict)</code></li>
+<li><code>on_data_received(by, data)</code></li>
+<li><code>on_connect(by=None)</code></li>
+<li><code>on_disconnect(by=None)</code></li>
 </ul>
 <p>Methods necessary to overload for derived classes:</p>
 <ul>
@@ -147,10 +157,10 @@ of the existing classes.</p>
 </ul>
 <p>This class has subclasses defined for the following types of connection:</p>
 <ul>
-<li><code>MD_Connection_Net_TCP_Request</code> for query-reply TCP connections</li>
+<li><code>MD_Connection_Net_Tcp_Request</code> for query-reply TCP connections</li>
 <li><code>MD_Connection_Net_Tcp_Client</code>
 for persistent TCP connections with async replies</li>
-<li><code>MD_Connection_Net_UDP_Server</code>
+<li><code>MD_Connection_Net_Udp_Server</code>
 for UDP listering server with async callback</li>
 <li><code>MD_Connection_Serial_Client</code>
 for query-reply serial connections</li>
@@ -159,6 +169,26 @@ for event-loop serial connection with async callback</li>
 </ul>
 <p>For detailed information and necessary configuration parameters, see the
 respective class definition docstring.</p>
+<h2 id="md_protocol">Md_Protocol</h2>
+<p>For some device communication, the need arises to add another layer of
+protocol handling - either for special handshake, initialization or general
+communication and data handling, e.g. send queues or command tracking.</p>
+<p>In these cases, instead of misusing the (hardware) connection class or the
+(command-oriented) device class, an additional protocol layer can be inserted
+to handle this.</p>
+<p>The <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> class is a subclass of <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> and used by the
+device instead of the actual connection class. The protocol class creates
+the connection class instance itself and functions as a proxy.</p>
+<p>To activate the protocol layer, configure the device with the <code>protocol</code>
+option, giving the name of an existing protocol class or the empty string
+for the <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> base class, which has no additional function and can
+be used for testing.</p>
+<p>The methods are the same as for the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> class.</p>
+<p>This class has subclasses defined for the following types of protocols:</p>
+<ul>
+<li><code>MD_Protocol_Jsonrpc</code> for JSON-RPC 2.0 protocol data exchange</li>
+<li><code>MD_Protocol_Viessmann</code> for P300- and KW-protocol communication</li>
+</ul>
 <h2 id="md_commands">Md_Commands</h2>
 <p>This class is a 'dict on steroids' of <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code>-objects with error checking as
 added value. In addition, it also loads command definitions from the file
@@ -180,6 +210,8 @@ and the class will handle failure cases. Beware of NoneType-return values, thoug
 <li><code>_parse_commands(device_id, commands)</code></li>
 <li><code>_parse_lookups(device_id, lookups)</code></li>
 </ul>
+<p>Options and syntax of commands configuration are detailed in the <code>commands.py</code>
+file in the <code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code> folder.</p>
 <h2 id="md_command">Md_Command</h2>
 <p>This class contains information concerning the command name, the opcode or
 URL needed to issue the command, and information about datatypes expected by
@@ -231,6 +263,15 @@ examples.</p>
 <p>The plugin class is capable of handling an arbitrary number of devices
 independently. Necessary configuration include the chosen devices respectively
 the device names and possibly device parameter in <code>etc/plugin.yaml</code>.</p>
+<p>Every device is identified by its type (which corresponds to the device folder
+dev_<type>) and its id, which is the internal SmartHomeNG handle and the name
+used in item configuration. If only one device of the same type is used, type
+and id can be the same. The <code>devices:</code>-attribute in <code>plugin.yaml</code> contains
+a dict of all configured devices where the id is the key and the configuration
+for the specific device is provided as "dict in value" format, if needed.
+The configuration can include the attribute <code>device_type</code> to specify the type
+of the device (if different from the id) and - optionally - the attribute
+<code>model</code>, if a device offers multiple model configurations.</p>
 <p>The item configuration is supplemented by the attributes <code>md_deviceid</code> and
 <code>md_command</code>, which designate the device id from plugin configuration and
 the command name from the device configuration, respectively.</p>
@@ -239,10 +280,19 @@ the associated sent and received data formats, which will be supplied by way
 of configuration files in python format. Furthermore, the device-dependent
 type and configuration of connection should be set in <code>etc/plugin.yaml</code> for
 each device used.</p>
+<p>For some device classes, it is possible to choose from different models. In
+this case, the attribute <code>model: &lt;modelname&gt;</code> needs to be present. In any
+other case, the <code>model</code> key should not be present. </p>
 <p>The connection classes will be chosen and configured by the device classes.
 They should not need further configuration, as all data transformation is done
 by the device classes and the connection-specific attributes are provided
 from plugin configuration.</p>
+<p>If the additional protocol layer is necessary, usually the device class will
+provide for proper loading (it loads in place of the connection class). If
+for some reason the protocol layer should be selected and loaded manually,
+it can be forced by providing the <code>protocol: &lt;protocolname&gt;</code> attribute.
+As with the model, this attribute should normally not be present in the
+configuration.</p>
 <p>Example for <code>etc/plugin.yaml</code> configuration:</p>
 <pre><code>multidevice:
     plugin_name: multidevice
@@ -257,6 +307,7 @@ from plugin configuration.</p>
         - mydev: dev2               # id = mydev, type = dev2, folder = dev_dev2
         - my2dev:                   # id = my2dev, type = dev3, folder = dev_dev3
             - device_type: dev3
+            - device_model: foo     #   optional
             - host: somehost        #   optional
         - dev4:                     # id = dev4, type = dev4, folder = dev_dev4
             - host: someotherhost   #   optional
@@ -284,7 +335,12 @@ additional data types in the datatype file</li>
 which contains simple examples as well as the reference documentation for the
 commands.py file structure.
 Also, take a look into the different existing device classes to get a feeling
-for the needed effort to implement a new device.</p>
+for the needed effort to implement a new device.
+Depending on the device protocol and command complexity, implementing a new
+device can be a quick and easy job (e.g. for simple string or byte exchanges)
+or requiring a more complex approach, e.g. if it is not practical to store
+all information in items immediately, or if multiple data points are trans-
+mitted at one, which requires splitting or other means of data management.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -440,6 +496,7 @@ for the needed effort to implement a new device.</p>
     - ``_transform_send_data(data_dict)``
     - ``_set_device_params(**kwargs)``
     - ``_get_connection()``
+    - ``_send(data_dict)``
 
 
     MD_Connection
@@ -454,6 +511,8 @@ for the needed effort to implement a new device.</p>
 
     Data is exchanged with ``MD_Device`` in a special dict format:
 
+    ..code: python
+
         data_dict = {
             &#39;payload&#39;: raw data as needed by the connection}
             &#39;kw1&#39;: additional &#39;keyword&#39; args or data specific to the connection type
@@ -464,13 +523,21 @@ for the needed effort to implement a new device.</p>
 
     ``MD_Connection(device_type, device_id, data_received_callback, **kwargs)``
 
-    The callback needs to be defined as ``data_received_callback(command, data)``
+    The callbacks needs to be defined as
+
+    - ``data_received_callback(by, data, command=None)``
+    - ``connected_callback(by=None)`` (optional)
+    - ``disconnected_callback(by=None)`` (optional)
 
     Public methods:
 
     - ``open()``
     - ``close()``
     - ``send(data_dict)``
+    - ``on_data_received(by, data)``
+    - ``on_connect(by=None)``
+    - ``on_disconnect(by=None)``
+
 
     Methods necessary to overload for derived classes:
 
@@ -487,14 +554,42 @@ for the needed effort to implement a new device.</p>
 
     This class has subclasses defined for the following types of connection:
 
-    - ``MD_Connection_Net_TCP_Request`` for query-reply TCP connections
+    - ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
     - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-    - ``MD_Connection_Net_UDP_Server``  for UDP listering server with async callback
+    - ``MD_Connection_Net_Udp_Server``  for UDP listering server with async callback
     - ``MD_Connection_Serial_Client``   for query-reply serial connections
     - ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
     For detailed information and necessary configuration parameters, see the
     respective class definition docstring.
+
+
+    MD_Protocol
+    -----------
+
+    For some device communication, the need arises to add another layer of
+    protocol handling - either for special handshake, initialization or general
+    communication and data handling, e.g. send queues or command tracking.
+
+    In these cases, instead of misusing the (hardware) connection class or the
+    (command-oriented) device class, an additional protocol layer can be inserted
+    to handle this.
+
+    The ``MD_Protocol`` class is a subclass of ``MD_Connection`` and used by the
+    device instead of the actual connection class. The protocol class creates
+    the connection class instance itself and functions as a proxy.
+
+    To activate the protocol layer, configure the device with the ``protocol``
+    option, giving the name of an existing protocol class or the empty string
+    for the ``MD_Protocol`` base class, which has no additional function and can
+    be used for testing.
+
+    The methods are the same as for the ``MD_Connection`` class.
+
+    This class has subclasses defined for the following types of protocols:
+
+    - ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
+    - ``MD_Protocol_Viessmann`` for P300- and KW-protocol communication
 
 
     MD_Commands
@@ -523,6 +618,8 @@ for the needed effort to implement a new device.</p>
     - ``_parse_commands(device_id, commands)``
     - ``_parse_lookups(device_id, lookups)``
 
+    Options and syntax of commands configuration are detailed in the `commands.py`
+    file in the `dev_example` folder.
 
     MD_Command
     ----------
@@ -595,6 +692,16 @@ for the needed effort to implement a new device.</p>
     independently. Necessary configuration include the chosen devices respectively
     the device names and possibly device parameter in ``etc/plugin.yaml``.
 
+    Every device is identified by its type (which corresponds to the device folder
+    dev_&lt;type&gt;) and its id, which is the internal SmartHomeNG handle and the name
+    used in item configuration. If only one device of the same type is used, type
+    and id can be the same. The ``devices:``-attribute in ``plugin.yaml`` contains
+    a dict of all configured devices where the id is the key and the configuration
+    for the specific device is provided as &#34;dict in value&#34; format, if needed.
+    The configuration can include the attribute ``device_type`` to specify the type
+    of the device (if different from the id) and - optionally - the attribute
+    ``model``, if a device offers multiple model configurations.
+
     The item configuration is supplemented by the attributes ``md_deviceid`` and
     ``md_command``, which designate the device id from plugin configuration and
     the command name from the device configuration, respectively.
@@ -605,10 +712,21 @@ for the needed effort to implement a new device.</p>
     type and configuration of connection should be set in ``etc/plugin.yaml`` for
     each device used.
 
+    For some device classes, it is possible to choose from different models. In 
+    this case, the attribute ``model: &lt;modelname&gt;`` needs to be present. In any
+    other case, the ``model`` key should not be present. 
+
     The connection classes will be chosen and configured by the device classes.
     They should not need further configuration, as all data transformation is done
     by the device classes and the connection-specific attributes are provided
     from plugin configuration.
+
+    If the additional protocol layer is necessary, usually the device class will
+    provide for proper loading (it loads in place of the connection class). If
+    for some reason the protocol layer should be selected and loaded manually,
+    it can be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute.
+    As with the model, this attribute should normally not be present in the
+    configuration.
 
     Example for `etc/plugin.yaml` configuration:
 
@@ -626,6 +744,7 @@ for the needed effort to implement a new device.</p>
             - mydev: dev2               # id = mydev, type = dev2, folder = dev_dev2
             - my2dev:                   # id = my2dev, type = dev3, folder = dev_dev3
                 - device_type: dev3
+                - device_model: foo     #   optional
                 - host: somehost        #   optional
             - dev4:                     # id = dev4, type = dev4, folder = dev_dev4
                 - host: someotherhost   #   optional
@@ -656,6 +775,11 @@ for the needed effort to implement a new device.</p>
     commands.py file structure.
     Also, take a look into the different existing device classes to get a feeling
     for the needed effort to implement a new device.
+    Depending on the device protocol and command complexity, implementing a new
+    device can be a quick and easy job (e.g. for simple string or byte exchanges)
+    or requiring a more complex approach, e.g. if it is not practical to store
+    all information in items immediately, or if multiple data points are trans-
+    mitted at one, which requires splitting or other means of data management.
 &#39;&#39;&#39;
 
 from collections import OrderedDict
@@ -685,7 +809,6 @@ if __name__ == &#39;__main__&#39;:
     sys.path.insert(0, BASE)
 
     from MD_Globals import *
-    from MD_Device import MD_Device
 
 else:
     builtins.MD_standalone = False
@@ -695,7 +818,6 @@ else:
     import lib.shyaml as shyaml
 
     from .MD_Globals import *
-    from .MD_Device import MD_Device
 
 
 #############################################################################################################################################################################################################################################
@@ -722,11 +844,10 @@ class MultiDevice(SmartPlugin):
         Initalizes the plugin. For this plugin, this means collecting all device
         modules and initializing them by instantiating the proper class.
         &#39;&#39;&#39;
-
         if not sh:
             self.logger = logger
 
-        self.logger.debug(f&#39;Initializung MultiDevice-Plugin as {__name__}&#39;)
+        self.logger.info(f&#39;Initializing MultiDevice-Plugin as {__name__}&#39;)
 
         self._devices = {}              # contains all configured devices - &lt;device_id&gt;: {&#39;device_type&#39;: &lt;device_type&gt;, &#39;device&#39;: &lt;class-instance&gt;, &#39;logger&#39;: &lt;logger-instance&gt;, &#39;params&#39;: {&#39;param1&#39;: val1, &#39;param2&#39;: val2...}}
         self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_id&#39;: &lt;device_id&gt;, &#39;command&#39;: &lt;command&gt;}
@@ -761,41 +882,48 @@ class MultiDevice(SmartPlugin):
         #             - host: somehost
         #         - dev4:                     # -&gt; case 4, id = dev4, type = dev4, folder = dev_dev4
         #             - host: someotherhost   #    handled implicitly by case 3
- 
         for device in devices:
-            device_type = None
             param = {}
-            if type(device) is str:
-                # case 1, device configuration is only string
+            if MD_standalone:
+
                 device_type = device_id = device
+                try:
+                    for (k, v) in devices[device].items():
+                        param[k] = sanitize_param(v)
+                except Exception:
+                    pass
+            else:
+                device_type = None
+                if type(device) is str:
+                    # case 1, device configuration is only string
+                    device_type = device_id = device
 
-            elif type(device) is OrderedDict:
+                elif isinstance(device, OrderedDict):
+                    # either we have devname: devid or devname: (list of arg: value)
+                    device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
 
-                # either we have devname: devid or devname: (list of arg: value)
-                device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
+                    if type(conf) is str:
+                        # case 2, device_id: device_type
+                        device_type = conf
+                    # dev_id: (list of OrderedDict(arg: value))?
+                    elif type(conf) is list and all(isinstance(arg, OrderedDict) for arg in conf):
+                        # case 3, get device_type from parsing conf
+                        device_type = device_id
+                        for odict in conf:
+                            for arg in odict.keys():
 
-                if type(conf) is str:
-                    # case 2, device_id: device_type
-                    device_type = conf
-                # dev_id: (list of OrderedDict(arg: value))?
-                elif type(conf) is list and all(type(arg) is OrderedDict for arg in conf):
-                    # case 3, get device_type from parsing conf
-                    device_type = device_id
-                    for odict in conf:
-                        for arg in odict.keys():
+                                # store parameters
+                                if arg == &#39;device_type&#39;:
+                                    device_type = odict[arg]
+                                else:
+                                    param[arg] = sanitize_param(odict[arg])
 
-                            # store parameters
-                            if arg == &#39;device_type&#39;:
-                                device_type = odict[arg]
-                            else:
-                                param[arg] = sanitize_param(odict[arg])
-
-                else:
-                    self.logger.warning(f&#39;Configuration for device {device_id} has unknown format, skipping {device_id}&#39;)
-                    device_type = device_id = None
+                    else:
+                        self.logger.warning(f&#39;Configuration for device {device_id} has unknown format, skipping {device_id}&#39;)
+                        device_type = device_id = None
 
             if device_id and device_id in self._devices:
-                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of device id {device_id}&#39;)
+                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of spare device id {device_id}&#39;)
                 break
 
             # did we get a device id?
@@ -811,13 +939,13 @@ class MultiDevice(SmartPlugin):
                     device_class = getattr(device_module, &#39;MD_Device&#39;)
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
-                except AttributeError as e:
-                    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} failed. Skipping device {device_id}. Error was: {e}&#39;)
-                except (ImportError):
-                    self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} for device {device_id} failed, reverting to default MD_Device class&#39;)
-                    device_instance = MD_Device(device_type, device_id, plugin=self, **param)
+                # except AttributeError as e:
+                #    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} failed. Skipping device {device_id}. Error was: {e}&#39;)
+                except ImportError as e:
+                    self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} for device {device_id} failed, disabling device. Error was: {e}&#39;)
+                    device_instance = None
 
-                if device_instance:
+                if device_instance and not device_instance.disabled:
 
                     # create logger for device identity to use in update_item() and store in _devices dict
                     dev_logger = logging.getLogger(f&#39;{__name__}.{device_id}&#39;)
@@ -852,6 +980,7 @@ class MultiDevice(SmartPlugin):
 
         if not self._devices:
             self._init_complete = False
+            self.logger.info(&#39;no devices configured, not loading plugin&#39;)
             return
 
         # if plugin should start even without web interface
@@ -1311,7 +1440,6 @@ if __name__ == &#39;__main__&#39;:
     ./__init__.py MD_Device -v
 
     &#39;&#39;&#39;
-
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.CRITICAL)
     ch = logging.StreamHandler()
@@ -1399,6 +1527,10 @@ if __name__ == &#39;__main__&#39;:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></dt>
 <dd>
 <div class="desc"><p>Datatype
@@ -1416,7 +1548,15 @@ if __name__ == &#39;__main__&#39;:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt><code class="name"><a title="multidevice.dev_kodi" href="dev_kodi/index.html">multidevice.dev_kodi</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt><code class="name"><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="multidevice.dev_viessmann" href="dev_viessmann/index.html">multidevice.dev_viessmann</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1464,11 +1604,10 @@ modules and initializing them by instantiating the proper class.</p></div>
         Initalizes the plugin. For this plugin, this means collecting all device
         modules and initializing them by instantiating the proper class.
         &#39;&#39;&#39;
-
         if not sh:
             self.logger = logger
 
-        self.logger.debug(f&#39;Initializung MultiDevice-Plugin as {__name__}&#39;)
+        self.logger.info(f&#39;Initializing MultiDevice-Plugin as {__name__}&#39;)
 
         self._devices = {}              # contains all configured devices - &lt;device_id&gt;: {&#39;device_type&#39;: &lt;device_type&gt;, &#39;device&#39;: &lt;class-instance&gt;, &#39;logger&#39;: &lt;logger-instance&gt;, &#39;params&#39;: {&#39;param1&#39;: val1, &#39;param2&#39;: val2...}}
         self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_id&#39;: &lt;device_id&gt;, &#39;command&#39;: &lt;command&gt;}
@@ -1503,41 +1642,48 @@ modules and initializing them by instantiating the proper class.</p></div>
         #             - host: somehost
         #         - dev4:                     # -&gt; case 4, id = dev4, type = dev4, folder = dev_dev4
         #             - host: someotherhost   #    handled implicitly by case 3
- 
         for device in devices:
-            device_type = None
             param = {}
-            if type(device) is str:
-                # case 1, device configuration is only string
+            if MD_standalone:
+
                 device_type = device_id = device
+                try:
+                    for (k, v) in devices[device].items():
+                        param[k] = sanitize_param(v)
+                except Exception:
+                    pass
+            else:
+                device_type = None
+                if type(device) is str:
+                    # case 1, device configuration is only string
+                    device_type = device_id = device
 
-            elif type(device) is OrderedDict:
+                elif isinstance(device, OrderedDict):
+                    # either we have devname: devid or devname: (list of arg: value)
+                    device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
 
-                # either we have devname: devid or devname: (list of arg: value)
-                device_id, conf = device.popitem()      # we only expect 1 pair per dict because of yaml parsing
+                    if type(conf) is str:
+                        # case 2, device_id: device_type
+                        device_type = conf
+                    # dev_id: (list of OrderedDict(arg: value))?
+                    elif type(conf) is list and all(isinstance(arg, OrderedDict) for arg in conf):
+                        # case 3, get device_type from parsing conf
+                        device_type = device_id
+                        for odict in conf:
+                            for arg in odict.keys():
 
-                if type(conf) is str:
-                    # case 2, device_id: device_type
-                    device_type = conf
-                # dev_id: (list of OrderedDict(arg: value))?
-                elif type(conf) is list and all(type(arg) is OrderedDict for arg in conf):
-                    # case 3, get device_type from parsing conf
-                    device_type = device_id
-                    for odict in conf:
-                        for arg in odict.keys():
+                                # store parameters
+                                if arg == &#39;device_type&#39;:
+                                    device_type = odict[arg]
+                                else:
+                                    param[arg] = sanitize_param(odict[arg])
 
-                            # store parameters
-                            if arg == &#39;device_type&#39;:
-                                device_type = odict[arg]
-                            else:
-                                param[arg] = sanitize_param(odict[arg])
-
-                else:
-                    self.logger.warning(f&#39;Configuration for device {device_id} has unknown format, skipping {device_id}&#39;)
-                    device_type = device_id = None
+                    else:
+                        self.logger.warning(f&#39;Configuration for device {device_id} has unknown format, skipping {device_id}&#39;)
+                        device_type = device_id = None
 
             if device_id and device_id in self._devices:
-                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of device id {device_id}&#39;)
+                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of spare device id {device_id}&#39;)
                 break
 
             # did we get a device id?
@@ -1553,13 +1699,13 @@ modules and initializing them by instantiating the proper class.</p></div>
                     device_class = getattr(device_module, &#39;MD_Device&#39;)
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
-                except AttributeError as e:
-                    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} failed. Skipping device {device_id}. Error was: {e}&#39;)
-                except (ImportError):
-                    self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} for device {device_id} failed, reverting to default MD_Device class&#39;)
-                    device_instance = MD_Device(device_type, device_id, plugin=self, **param)
+                # except AttributeError as e:
+                #    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} failed. Skipping device {device_id}. Error was: {e}&#39;)
+                except ImportError as e:
+                    self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} for device {device_id} failed, disabling device. Error was: {e}&#39;)
+                    device_instance = None
 
-                if device_instance:
+                if device_instance and not device_instance.disabled:
 
                     # create logger for device identity to use in update_item() and store in _devices dict
                     dev_logger = logging.getLogger(f&#39;{__name__}.{device_id}&#39;)
@@ -1594,6 +1740,7 @@ modules and initializing them by instantiating the proper class.</p></div>
 
         if not self._devices:
             self._init_complete = False
+            self.logger.info(&#39;no devices configured, not loading plugin&#39;)
             return
 
         # if plugin should start even without web interface
@@ -2489,6 +2636,7 @@ def submit(self, button=None, param=None):
 <li><a href="#multidevice">MultiDevice</a></li>
 <li><a href="#md_device">MD_Device</a></li>
 <li><a href="#md_connection">MD_Connection</a></li>
+<li><a href="#md_protocol">MD_Protocol</a></li>
 <li><a href="#md_commands">MD_Commands</a></li>
 <li><a href="#md_command">MD_Command</a></li>
 <li><a href="#md_datatype">MD_Datatype</a></li>
@@ -2506,11 +2654,14 @@ def submit(self, button=None, param=None):
 <li><code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code></li>
 <li><code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code></li>
 <li><code><a title="multidevice.MD_Globals" href="MD_Globals.html">multidevice.MD_Globals</a></code></li>
+<li><code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code></li>
 <li><code><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></li>
 <li><code><a title="multidevice.dev_denon" href="dev_denon/index.html">multidevice.dev_denon</a></code></li>
 <li><code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></li>
 <li><code><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></li>
+<li><code><a title="multidevice.dev_kodi" href="dev_kodi/index.html">multidevice.dev_kodi</a></code></li>
 <li><code><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></li>
+<li><code><a title="multidevice.dev_viessmann" href="dev_viessmann/index.html">multidevice.dev_viessmann</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

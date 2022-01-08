@@ -60,26 +60,52 @@ from ast import literal_eval
 #
 # global constants used to configure plugin, device, connection and items
 #
+# do not change if not absolutely sure about the consequences!
+#
 #############################################################################################################################################################################################################################################
 
 # plugin arguments, used in plugin config &#39;device&#39;
-PLUGIN_ARG_CONNECTION   = &#39;conn_type&#39;
-PLUGIN_ARG_NET_HOST     = &#39;host&#39;
-PLUGIN_ARG_NET_PORT     = &#39;port&#39;
-PLUGIN_ARG_SERIAL_PORT  = &#39;serial&#39;
-PLUGIN_ARG_TIMEOUT      = &#39;timeout&#39;
+PLUGIN_ARG_CONNECTION       = &#39;conn_type&#39;
+PLUGIN_ARG_NET_HOST         = &#39;host&#39;
+PLUGIN_ARG_NET_PORT         = &#39;port&#39;
+PLUGIN_ARG_SERIAL_PORT      = &#39;serialport&#39;
+PLUGIN_ARG_SERIAL_BAUD      = &#39;baudrate&#39;
+PLUGIN_ARG_SERIAL_BSIZE     = &#39;bytesize&#39;
+PLUGIN_ARG_SERIAL_PARITY    = &#39;parity&#39;
+PLUGIN_ARG_SERIAL_STOP      = &#39;stopbits&#39;
+PLUGIN_ARG_PROTOCOL         = &#39;protocol&#39;
+PLUGIN_ARG_TIMEOUT          = &#39;timeout&#39;
+PLUGIN_ARG_TERMINATOR       = &#39;terminator&#39;
+PLUGIN_ARG_AUTORECONNECT    = &#39;autoreconnect&#39;
+PLUGIN_ARG_CONN_RETRIES     = &#39;connect_retries&#39;
+PLUGIN_ARG_CONN_CYCLE       = &#39;connect_cycle&#39;
+PLUGIN_ARG_CB_ON_CONNECT    = &#39;connected_callback&#39;
+PLUGIN_ARG_CB_ON_DISCONNECT = &#39;disconnected_callback&#39;
+PLUGIN_ARG_MSG_TIMEOUT      = &#39;message_timeout&#39;
+PLUGIN_ARG_MSG_REPEAT       = &#39;message_repeat&#39;
 
-PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT, PLUGIN_ARG_TIMEOUT)
+PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT,
+               PLUGIN_ARG_SERIAL_BAUD, PLUGIN_ARG_SERIAL_BSIZE, PLUGIN_ARG_SERIAL_PARITY, PLUGIN_ARG_SERIAL_STOP, 
+               PLUGIN_ARG_TIMEOUT, PLUGIN_ARG_TERMINATOR, PLUGIN_ARG_AUTORECONNECT, PLUGIN_ARG_CONN_RETRIES,
+               PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT,
+               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL)
 
 # connection types for PLUGIN_ARG_CONNECTION
 CONN_NET_TCP_REQ        = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
-CONN_NET_TCP_SYN        = &#39;net_tcp_reply&#39;    # persistent TCP client connection with immediate query-reply logic
 CONN_NET_TCP_CLI        = &#39;net_tcp_client&#39;   # persistent TCP client connection with async callback for responses
+CONN_NET_TCP_JSONRPC    = &#39;net_tcp_jsonrpc&#39;  # JSON RPC via persistent TCP client connection with async callback for responses
 CONN_NET_UDP_SRV        = &#39;net_udp_server&#39;   # UDP server connection with async data callback
-CONN_SER_CLI            = &#39;serial_client&#39;    # serial connection with query-reply logic
-CONN_SER_ASYNC          = &#39;serial_async&#39;     # serial connection with async data callback
+CONN_SER_DIR            = &#39;serial&#39;           # serial connection with query-reply logic
+CONN_SER_ASYNC          = &#39;serial_async&#39;     # serial connection with only async data callback
 
-CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_SYN, CONN_NET_TCP_CLI, CONN_NET_UDP_SRV, CONN_SER_CLI, CONN_SER_ASYNC)
+CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
+
+# protocol types for PLUGIN_ARG_PROTOCOL
+PROTO_NULL              = &#39;&#39;                 # use base protocol class without added functionality (why??)
+PROTO_JSONRPC           = &#39;jsonrpc&#39;          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
+PROTO_VIESSMANN         = &#39;viessmann&#39;        # Viessmann P300 / KW
+
+PROTOCOL_TYPES = (PROTO_NULL, PROTO_JSONRPC, PROTO_VIESSMANN)
 
 # item attributes (as defines in plugin.yaml)
 ITEM_ATTR_DEVICE        = &#39;md_deviceid&#39;
@@ -100,10 +126,22 @@ COMMAND_READ            = True
 COMMAND_WRITE           = False
 
 # commands definition parameters
-COMMAND_PARAMS          = (&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;dev_datatype&#39;, &#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;reply_token&#39;, &#39;reply_pattern&#39;, &#39;settings&#39;, &#39;lookup&#39;)
+COMMAND_PARAMS          = (&#39;opcode&#39;, &#39;read&#39;, &#39;write&#39;, &#39;item_type&#39;, &#39;dev_datatype&#39;, &#39;read_cmd&#39;, &#39;write_cmd&#39;, &#39;read_data&#39;, &#39;reply_token&#39;, &#39;reply_pattern&#39;, &#39;settings&#39;, &#39;lookup&#39;, &#39;params&#39;, &#39;param_values&#39;)
 
 # keys for min / max values for data bounds
 MINMAXKEYS              = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_min&#39;, &#39;force_max&#39;)
+
+# name of non-model specific key for commands, models and lookups
+INDEX_GENERIC          = &#39;ALL&#39;
+
+#############################################################################################################################################################################################################################################
+#
+# Exceptions
+#
+#############################################################################################################################################################################################################################################
+
+class CommandsError(Exception):
+    pass
 
 
 #############################################################################################################################################################################################################################################
@@ -114,7 +152,7 @@ MINMAXKEYS              = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_
 
 def sanitize_param(val):
     &#39;&#39;&#39;
-    Try to correct type of val:
+    Try to correct type of val if val is string:
     - return int(val) if val is integer
     - return float(val) if val is float
     - return bool(val) is val follows conventions for bool
@@ -124,11 +162,13 @@ def sanitize_param(val):
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     &#39;&#39;&#39;
-    if Utils.is_int(val):
+    if isinstance(val, (int, float, bool)):
+        return val
+    if Utils.is_int(str(val)):
         val = int(val)
-    elif Utils.is_float(val):
+    elif Utils.is_float(str(val)):
         val = float(val)
-    elif val.lower() in (&#39;true&#39;, &#39;false&#39;, &#39;on&#39;, &#39;off&#39;, &#39;yes&#39;, &#39;no&#39;):
+    elif isinstance(val, str) and val.lower() in (&#39;true&#39;, &#39;false&#39;, &#39;on&#39;, &#39;off&#39;, &#39;yes&#39;, &#39;no&#39;):
         val = Utils.to_bool(val)
     else:
         try:
@@ -151,7 +191,7 @@ def sanitize_param(val):
 <span>def <span class="ident">sanitize_param</span></span>(<span>val)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Try to correct type of val:
+<div class="desc"><p>Try to correct type of val if val is string:
 - return int(val) if val is integer
 - return float(val) if val is float
 - return bool(val) is val follows conventions for bool
@@ -165,7 +205,7 @@ def sanitize_param(val):
 </summary>
 <pre><code class="python">def sanitize_param(val):
     &#39;&#39;&#39;
-    Try to correct type of val:
+    Try to correct type of val if val is string:
     - return int(val) if val is integer
     - return float(val) if val is float
     - return bool(val) is val follows conventions for bool
@@ -175,11 +215,13 @@ def sanitize_param(val):
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     &#39;&#39;&#39;
-    if Utils.is_int(val):
+    if isinstance(val, (int, float, bool)):
+        return val
+    if Utils.is_int(str(val)):
         val = int(val)
-    elif Utils.is_float(val):
+    elif Utils.is_float(str(val)):
         val = float(val)
-    elif val.lower() in (&#39;true&#39;, &#39;false&#39;, &#39;on&#39;, &#39;off&#39;, &#39;yes&#39;, &#39;no&#39;):
+    elif isinstance(val, str) and val.lower() in (&#39;true&#39;, &#39;false&#39;, &#39;on&#39;, &#39;off&#39;, &#39;yes&#39;, &#39;no&#39;):
         val = Utils.to_bool(val)
     else:
         try:
@@ -194,6 +236,28 @@ def sanitize_param(val):
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="multidevice.MD_Globals.CommandsError"><code class="flex name class">
+<span>class <span class="ident">CommandsError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CommandsError(Exception):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -210,6 +274,13 @@ def sanitize_param(val):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="multidevice.MD_Globals.sanitize_param" href="#multidevice.MD_Globals.sanitize_param">sanitize_param</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="multidevice.MD_Globals.CommandsError" href="#multidevice.MD_Globals.CommandsError">CommandsError</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>

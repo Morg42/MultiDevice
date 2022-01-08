@@ -108,6 +108,12 @@ class MD_Connection(object):
         :type data_dict: dict
         :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
         '''
+        if not self._is_connected:
+            if self._autoreconnect:
+                self._open()
+            if not self._is_connected:
+                raise RuntimeError(f'trying to send, but not connected')
+
         data = data_dict.get('payload', None)
         if not data:
             raise ValueError('send provided with empty data_dict["payload"], aborting')
@@ -339,17 +345,12 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self._tcp.close()
 
     def on_data_received(self, by, data):
+        # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
         if isinstance(data, str):
             data = data.strip()
         super().on_data_received(by, data)
 
     def _send(self, data_dict):
-        if not self._is_connected:
-            self.open()
-
-            if not self._is_connected:
-                raise RuntimeError(f'trying to send {data_dict["payload"]}, but connection can\'t be opened.')
-
         self._tcp.send(data_dict['payload'])
 
         # we receive only via callback, so we return "no reply".
@@ -431,7 +432,7 @@ class MD_Connection_Serial(MD_Connection):
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
 
     def _open(self):
-        self.logger.debug(f'{self.__class__.__name__} _open calledwith params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} _open called with params {self._params}')
         if self._is_connected:
             return True
 

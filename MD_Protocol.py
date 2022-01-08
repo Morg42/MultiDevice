@@ -78,7 +78,7 @@ class MD_Protocol(MD_Connection):
         self._is_connected = False
         self._data_received_callback = data_received_callback
 
-        # make sure we have a basic set of parameters for the TCP connection
+        # make sure we have a basic set of parameters
         self._params = {PLUGIN_ARG_CB_ON_DISCONNECT: None,
                         PLUGIN_ARG_CB_ON_CONNECT: None,
                         PLUGIN_ARG_CONNECTION: MD_Connection}
@@ -96,17 +96,20 @@ class MD_Protocol(MD_Connection):
         self.logger.debug(f'protocol initialized from {self.__class__.__name__}')
 
     def _open(self):
-        self.logger.debug(f'{self.__class__.__name__} opening protocol with params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} _open called, opening protocol with params {self._params}')
         if not self._connection.connected():
             self._connection.open()
 
-        return self._connection.connected()
+        self._is_connected = self._connection.connected()
+        return self._is_connected
 
     def _close(self):
-        self.logger.debug(f'{self.__class__.__name__} closing protocol')
+        self.logger.debug(f'{self.__class__.__name__} _close called, closing protocol')
         self._connection.close()
+        self._is_connected = False
 
     def _send(self, data_dict):
+        self.logger.debug(f'{self.__class__.__name__} _send called with {data_dict}')
         return self._connection.send(data_dict)
 
 
@@ -474,18 +477,16 @@ class MD_Protocol_Viessmann(MD_Protocol):
         conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: None, PLUGIN_ARG_CB_ON_DISCONNECT: None})
         self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, None, **conn_params)
 
+        # set "method pointers"
+        self._send_bytes = self._connection._send_bytes
+        self._read_bytes = self._connection._read_bytes
+
         # tell someone about our actual class
         self.logger.debug(f'protocol initialized from {self.__class__.__name__}')
 
     def _close(self):
         self._is_initialized = False
         super()._close()
-
-    def _send_bytes(self, packet):
-        return self._connection._send_bytes(packet)
-
-    def _read_bytes(self, length):
-        return self._connection._read_bytes(length)
 
     def _send_init_on_send(self):
         '''
@@ -494,12 +495,6 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :return: Returns True, if communication was established successfully, False otherwise
         :rtype: bool
         '''
-        # just try to connect anyway; if connected, this does nothing and no harm, if not, it connects
-        if not self._is_connected:
-
-            self.logger.error('init communication not possible')
-            return False
-
         if self._viess_proto == 'P300' and not self._is_initialized:
 
             # init procedure is
@@ -509,51 +504,54 @@ class MD_Protocol_Viessmann(MD_Protocol):
             #                           device: 0x06 (sync ok)
             # interface: resume communication, periodically send 0x160000 as keepalive if necessary
 
-            b_reset = self._int2bytes(self._controlset['reset_command'], 1)
-            b_notinit = self._int2bytes(self._controlset["not_initiated"], 1)
-            b_ack = self._int2bytes(self._controlset['acknowledge'], 1)
-            b_sync = self._int2bytes(self._controlset['sync_command'], 3)
-            b_err = self._int2bytes(self._controlset['init_error'], 1)
+            RESET = self._int2bytes(self._controlset['reset_command'], 1)
+            NOTINIT = self._int2bytes(self._controlset["not_initiated"], 1)
+            ACK = self._int2bytes(self._controlset['acknowledge'], 1)
+            SYNC = self._int2bytes(self._controlset['sync_command'], 3)
+            ERR = self._int2bytes(self._controlset['init_error'], 1)
 
             self.logger.debug('init communication....')
-            initstringsent = False
-            self.logger.debug(f'send_bytes: send reset command {self._int2bytes(self._controlset["reset_command"], 1)}')
-            self._connection._send_bytes(b_reset)
-            readbyte = self._connection._read_bytes(1)
+            syncsent = False
+
+            self.logger.debug(f'send_bytes: send reset command {RESET}')
+            self._send_bytes(RESET)
+
+            readbyte = self._read_bytes(1)
             self.logger.debug(f'read_bytes: read {readbyte}')
 
             for i in range(10):
-                # print(f'{readbyte} -> ack: {readbyte == b_ack}, ni: {readbyte == b_notinit}, err: {readbyte == b_err}')
-                if initstringsent and readbyte == b_ack:
-                    self._is_initialized = True
+                # print(f'{readbyte} -> ack: {readbyte == ACK}, ni: {readbyte == NOTINIT}, err: {readbyte == ERR}')
+                if syncsent and readbyte == ACK:
                     self.logger.debug('device acknowledged initialization')
+                    self._is_initialized = True
                     break
-                elif readbyte == b_notinit:
-                    self._connection._send_bytes(b_sync)
-                    self.logger.debug(f'send_bytes: send sync command {b_sync}')
-                    initstringsent = True
-                elif readbyte == b_err:
-                    self.logger.error(f'interface reported an error (\x15), loop increment {i}')
-                    self._connection._send_bytes(b_reset)
-                    self.logger.debug(f'send_bytes: send reset command {b_reset}')
-                    initstringsent = False
+                elif readbyte == NOTINIT:
+                    self.logger.debug(f'send_bytes: send sync command {SYNC}')
+                    self._send_bytes(SYNC)
+                    syncsent = True
+                elif readbyte == ERR:
+                    self.logger.error(f'interface reported an error, loop increment {i}')
+                    self.logger.debug(f'send_bytes: send reset command {RESET}')
+                    self._send_bytes(RESET)
+                    syncsent = False
                 else:   # elif readbyte != b'':
-                    self._connection._send_bytes(b_reset)
-                    self.logger.debug(f'send_bytes: send reset command {b_reset}')
-                    initstringsent = False
-                readbyte = self._connection._read_bytes(1)
-                self.logger.debug(f'read_bytes: read {readbyte}, last byte is {readbyte}')
+                    self.logger.debug(f'send_bytes: send reset command {RESET}')
+                    self._send_bytes(RESET)
+                    syncsent = False
+                readbyte = self._read_bytes(1)
+                self.logger.debug(f'read_bytes: read {readbyte}')
 
             self.logger.debug(f'communication initialized: {self._is_initialized}')
-
             return self._is_initialized
 
         elif self._viess_proto == 'KW':
 
             retries = 5
+            RESET = self._int2bytes(self._controlset['reset_command'], 1)
+            NOINIT = self._int2bytes(self._controlset['not_initiated'], 1, signed=False)
 
             # try to reset communication, especially if previous P300 comms is still open
-            self._send_bytes(self._int2bytes(self._controlset['reset_command'], 1))
+            self._send_bytes(RESET)
 
             attempt = 0
             while attempt < retries:
@@ -563,7 +561,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
                 chunk = self._read_bytes(1)
                 # enable for 'raw' debugging
                 # self.logger.debug(f'sync loop - got {self._bytes2hexstring(chunk)}')
-                if chunk == self._int2bytes(self._controlset['not_initiated'], 1, signed=False):
+                if chunk == NOINIT:
                     self.logger.debug('got sync, commencing command send')
                     self._is_initialized = True
                     return True

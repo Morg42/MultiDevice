@@ -112,12 +112,6 @@ Derzeit noch nicht weitergehend implementiert.
 Entwicklung von eigenen Geräte-Klassen
 ======================================
 
-Die Entwicklerdokumentation (englisch) befindet sich derzeit im Quellcode,
-insbesondere in der ``__init__.py``. Im Unterordner ``doc/`` liegt die jeweils
-aktuelle Version in querverlinktem HTML-Format vor.
+Die Entwicklerdokumentation existiert derzeit nur auf englisch.
 
-
-TODO:
-=====
-
-Teile der Dokumentation aus ``__init__.py`` übernehmen? User-Doku?
+.. currentmodule:: __init__

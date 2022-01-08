@@ -54,7 +54,7 @@ class MD_Device(MD_Device):
     def _transform_send_data(self, data=None):
         if data:
             try:
-                if 'data' not in data:
+                if data.get('data', None) is None:
                     data['data'] = {}
                 data['data']['limit_response'] = self._params.get(PLUGIN_ARG_TERMINATOR, b'\r')
                 data['payload'] = f'{data.get("payload")}\r'

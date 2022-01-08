@@ -242,7 +242,10 @@ class DT_str(Datatype):
 
     def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
-            return str(data)
+            if isinstance(data, (bytes, bytearray)):
+                return data.decode('utf-8')
+            else:
+                return str(data)
         return super().get_shng_data(data, type)
 
 

@@ -250,6 +250,12 @@ class MD_Command_Str(MD_Command):
 
         return data_dict
 
+    def get_shng_data(self, data, **kwargs):
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode('utf-8')
+        value = self._DT.get_shng_data(data, **kwargs)
+        return value
+
     def _parse_str(self, string, data=None):
         '''
         parse string and replace
@@ -366,6 +372,9 @@ class MD_Command_ParseStr(MD_Command_Str):
         If no match can be achieved, it is not possible to return
         a meaningful value. To signal the error, an exception will be raised.
         '''
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode('utf-8')
+
         if self.reply_pattern:
             regex = re.compile(self.reply_pattern)
             match = regex.match(data)

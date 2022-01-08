@@ -16,6 +16,23 @@ class DT_PioDisplay(DT.Datatype):
         return data
 
 
+class DT_PioSleep(DT.Datatype):
+    def get_send_data(self, data, **kwargs):
+        if data == 0:
+            return "000"
+        elif data == 999 or data == 9:
+            return "999"
+        elif data <= 30:
+            return "030"
+        elif data <= 60:
+            return "060"
+        else:
+            return "090"
+
+    def get_shng_data(self, data, type=None, **kwargs):
+        return int(data)
+
+
 class DT_PioChannelVol(DT.Datatype):
     def get_send_data(self, data, **kwargs):
         return f"{int(data * 2 + 50):02}"

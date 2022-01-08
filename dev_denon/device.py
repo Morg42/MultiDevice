@@ -54,6 +54,9 @@ class MD_Device(MD_Device):
     def _transform_send_data(self, data=None):
         if data:
             try:
+                if 'data' not in data:
+                    data['data'] = {}
+                data['data']['limit_response'] = self._terminator
                 data['payload'] = f'{data.get("payload")}\r'
             except Exception as e:
                 self.logger.error(f'ERROR {e}')

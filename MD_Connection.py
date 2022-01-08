@@ -398,6 +398,7 @@ class MD_Connection_Serial(MD_Connection):
         self._lastbyte = b''
         self._lastbytetime = 0
         self._connection_attempts = 0
+        self._read_buffer = b''
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ARG_SERIAL_PORT: '',
@@ -479,7 +480,10 @@ class MD_Connection_Serial(MD_Connection):
         send data. data_dict needs to contain the following information:
 
         data_dict['payload']: data to send
-        data_dict['data']['response']: number of bytes to read as response
+        data_dict['data']['response']: expected response type/length:
+                                   - number of bytes to read as response
+                                   - terminator to recognize end of reply
+                                   - None to read till timeout
 
         On errors, exceptions are raised
 
@@ -526,9 +530,9 @@ class MD_Connection_Serial(MD_Connection):
         '''
         # self.logger.debug(f'{self.__class__.__name__} _send_bytes called with {packet}')
 
-        #if not self._is_connected:
-            # self.logger.debug('_send_bytes not connected, aborting')
-        #    return False
+        if not self._is_connected:
+            self.logger.debug('_send_bytes not connected, aborting')
+            return False
 
         try:
             numbytes = self._connection.write(packet)
@@ -538,28 +542,41 @@ class MD_Connection_Serial(MD_Connection):
         # self.logger.debug(f'_send_bytes: sent {packet} with {numbytes} bytes')
         return numbytes
 
-    def _read_bytes(self, length):
+    def _read_bytes(self, limit_response, clear_buffer=False):
         '''
         Try to read bytes from device, return read bytes
-        if length is int > 0, try to read <length> bytes
-        if length is bytes() or bytearray(), try to read till receiving <length>
-        if length is 0, read until timeout (use with care...)
+        if limit_response is int > 0, try to read at least <limit_response> bytes
+        if limit_response is bytes() or bytearray(), try to read till receiving <limit_response>
+        if limit_response is 0, read until timeout (use with care...)
 
         :param length: Number of bytes to read, b'<terminator> for terminated read, 0 for unrestricted read (timeout)
         :return: read bytes
         :rtype: bytes
         '''
-        self.logger.debug(f'{self.__class__.__name__} _read_bytes called for {length} bytes')
+        self.logger.debug(f'{self.__class__.__name__} _read_bytes called with limit {limit_response}')
 
-        #if not self._is_connected:
-        #    return 0
+        if not self._is_connected:
+            return 0
 
-        totalreadbytes = bytes()
+        maxlen = 0
+        term_bytes = None
+        if isinstance(limit_response, int):
+            maxlen = limit_response
+        elif isinstance(limit_response, (bytes, bytearray)):
+            term_bytes = bytes(limit_response)
+
+        # take care of "overflow" from last read
+        if clear_buffer:
+            totalreadbytes = b''
+        else:
+            totalreadbytes = self._read_buffer
+        self._read_buffer = b''
+
         # self.logger.debug('_read_bytes: start read')
         starttime = time()
 
         # don't wait for input indefinitely, stop after 3 * self._timeout seconds
-        while time() <= starttime + 3 * self._timeout:   #  and self._is_connected:
+        while time() <= starttime + 3 * self._timeout:
             readbyte = self._connection.read()
             self._lastbyte = readbyte
             # self.logger.debug(f'_read_bytes: read {readbyte}')
@@ -568,12 +585,15 @@ class MD_Connection_Serial(MD_Connection):
             else:
                 return totalreadbytes
             totalreadbytes += readbyte
-            # if isinstance(length, int) and length and len(totalreadbytes) >= length:
-            if len(totalreadbytes) >= length:
+
+            # limit_response reached?
+            if maxlen and len(totalreadbytes) >= maxlen:
                 return totalreadbytes
-            # elif isinstance(length, (bytes, bytearray)):
-            #    if readbyte == length:
-            #        return totalreadbytes
+
+            if term_bytes in totalreadbytes:
+                pos = totalreadbytes.find(term_bytes)
+                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                return totalreadbytes[:pos + len(term_bytes)]
 
         # timeout reached, did we read anything?
         if not totalreadbytes:   # and not length:

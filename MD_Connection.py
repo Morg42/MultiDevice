@@ -480,16 +480,16 @@ class MD_Connection_Serial(MD_Connection):
         send data. data_dict needs to contain the following information:
 
         data_dict['payload']: data to send
-        data_dict['data']['response']: expected response type/length:
-                                   - number of bytes to read as response
-                                   - terminator to recognize end of reply
-                                   - None to read till timeout
+        data_dict['limit_response']: expected response type/length:
+                                     - number of bytes to read as response
+                                     - terminator to recognize end of reply
+                                     - 0 to read till timeout
 
         On errors, exceptions are raised
 
         :param data_dict: data_dict to send (used value is data_dict['payload'])
         :type data_dict: dict
-        :return: response as bytes() or None if no response length is submitted
+        :return: response as bytes() or None if no response is received or limit_response is None
         '''
         self.logger.debug(f'{self.__class__.__name__} _send called with {data_dict}')
 
@@ -512,9 +512,7 @@ class MD_Connection_Serial(MD_Connection):
             self.is_connected = False
             raise serial.SerialException(f'data {data} could not be sent')
 
-        rlen = None
-        if 'data' in data_dict and isinstance(data_dict['data'], dict):
-            rlen = data_dict['data'].get('response', None)
+        rlen = data_dict.get('limit_response', None)
         if rlen is None:
             return None
         else:
@@ -549,7 +547,7 @@ class MD_Connection_Serial(MD_Connection):
         if limit_response is bytes() or bytearray(), try to read till receiving <limit_response>
         if limit_response is 0, read until timeout (use with care...)
 
-        :param length: Number of bytes to read, b'<terminator> for terminated read, 0 for unrestricted read (timeout)
+        :param limit_response: Number of bytes to read, b'<terminator> for terminated read, 0 for unrestricted read (timeout)
         :return: read bytes
         :rtype: bytes
         '''
@@ -596,7 +594,7 @@ class MD_Connection_Serial(MD_Connection):
                 return totalreadbytes[:pos + len(term_bytes)]
 
         # timeout reached, did we read anything?
-        if not totalreadbytes:   # and not length:
+        if not totalreadbytes:
 
             # just in case, force plugin to reconnect
             self._is_connected = False

@@ -3,6 +3,7 @@ multidevice
 
 Anforderungen
 -------------
+
 Nix besonderes.
 
 Notwendige Software
@@ -13,7 +14,22 @@ Notwendige Software
 Unterstützte Geräte
 ~~~~~~~~~~~~~~~~~~~
 
-* alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden implementiert, siehe Doku
+* alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden implementiert
+
+Derzeit:
+
+	- Pioneer AV-Receiver (pioneer)
+
+	- Denon AV-Receiver (denon)
+
+	- Kodi Mediencenter (kodi)
+
+	- Viessmann-Heizungen (viessmann)
+
+		- V200KW2
+	    - V200KO1B
+	    - V200WO1C
+	    - V200HO1C
 
 
 Konfiguration
@@ -22,11 +38,45 @@ Konfiguration
 plugin.yaml
 ~~~~~~~~~~~
 
-Bitte die Dokumentation lesen, die aus den Metadaten der plugin.yaml erzeugt wurde.
+Liste von Geräten und ggf. deren Konfiguration. Geräte-ID ist eine
+eindeutige Kennzeichnung, die auch in der Item-Konfiguration in der
+Option ``md_deviceid`` angegeben wird; Geräte-Typ ist der Name des
+Gerätes im Ordner ``dev_<Geräte-Typ>``. Mindestangabe ist
+der Geräte-Typ; wenn keine Geräte-ID vergeben wird, ist diese
+gleich dem Geräte-Typ (beachte: pro Geräte-Typ nur einmal möglich).
+Unterhalb der Listenebene der Geräte sind weitere Konfigurations-
+attribute für die Geräte in der Listenform <Attribut>: <Wert>
+möglich, z.B. Verbindungsattribute wie `host`, `port`, `serial` o.ä.
+Genaue Angaben zu den möglichen Konfigurationsattributen sollten bei
+den jeweiligen Geräte-Dateien vorhanden sein.
 
-Für die - ggf. notwendige - Konfiguration der einzelnen Geräte sollte sich die 
-entsprechende Dokumentation im jeweiligen Geräte-Ordner ``dev_<device>`` finden.
+Beispiel:
 
+.. code:: yaml
+
+	devices:
+	    - <Geräte-Typ>         # Geräte-ID = Geräte-Typ
+	    - <Geräte-Typ>:        # Geräte-ID = Geräte-Typ
+	        - <Attribut1>: <Wert1>
+	        -...
+	    - <Geräte-ID>: <Geräte-Typ>
+	    - <Geräte-ID>:         # Geräte-Typ = Geräte-ID
+	        - <Attribut1>: <Wert1>
+	        - ...
+	    - <Geräte-ID>:
+	        - device_type: <Geräte-Typ>
+	        - <Attribut1>: <Wert1>
+	        - ...
+
+
+Bitte zusätzlich die Dokumentation lesen, die aus den Metadaten der plugin.yaml erzeugt wurde.
+
+Für die Konfiguration der einzelnen Geräte sollte sich die Dokumentation der jeweils
+notwendigen und unterstützen Attribute im Geräte-Ordner ``dev_<device>`` finden.
+
+Für einige Attribute gibt es symbolische Bezeichner ("Konstanten"), die in der Datei
+``MD_Globals.py`` definiert sind. Diese können in der Konfiguration für bessere
+Übersichtlichkeit verwendet werden.
 
 items.yaml
 ~~~~~~~~~~

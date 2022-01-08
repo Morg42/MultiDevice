@@ -406,7 +406,7 @@ class MD_Connection_Serial(MD_Connection):
                         PLUGIN_ARG_SERIAL_PARITY: 'N',
                         PLUGIN_ARG_SERIAL_STOP: 1,
                         PLUGIN_ARG_PROTOCOL: None,
-                        PLUGIN_ARG_TIMEOUT: 1,
+                        PLUGIN_ARG_TIMEOUT: 1.0,
                         PLUGIN_ARG_AUTORECONNECT: True,
                         PLUGIN_ARG_CONN_RETRIES: 1,
                         PLUGIN_ARG_CONN_CYCLE: 3,
@@ -425,6 +425,7 @@ class MD_Connection_Serial(MD_Connection):
         self._connection.bytesize = self._bytesize
         self._connection.stopbits = self._stopbits
         self._connection.port = self._serialport
+        self._connection.timeout = self._timeout
 
         self._data_received_callback = data_received_callback
 
@@ -523,18 +524,18 @@ class MD_Connection_Serial(MD_Connection):
         :type packet: bytearray|bytes
         :return: Returns False, if no connection is established or write failed; number of written bytes otherwise
         '''
-        self.logger.debug(f'{self.__class__.__name__} _send_bytes called with {packet}')
+        # self.logger.debug(f'{self.__class__.__name__} _send_bytes called with {packet}')
 
-        if not self._is_connected:
-            self.logger.debug('_send_bytes not connected, aborting')
-            return False
+        #if not self._is_connected:
+            # self.logger.debug('_send_bytes not connected, aborting')
+        #    return False
 
         try:
             numbytes = self._connection.write(packet)
         except serial.SerialTimeoutException:
             return False
 
-        self.logger.debug(f'_send_bytes: sent {packet} with {numbytes} bytes')
+        # self.logger.debug(f'_send_bytes: sent {packet} with {numbytes} bytes')
         return numbytes
 
     def _read_bytes(self, length):
@@ -550,15 +551,15 @@ class MD_Connection_Serial(MD_Connection):
         '''
         self.logger.debug(f'{self.__class__.__name__} _read_bytes called for {length} bytes')
 
-        if not self._is_connected:
-            raise serial.SerialException('trying to read byte but not connected')
+        #if not self._is_connected:
+        #    return 0
 
         totalreadbytes = bytes()
         # self.logger.debug('_read_bytes: start read')
         starttime = time()
 
-        # don't wait for input indefinitely, stop after self._timeout seconds
-        while time() <= starttime + self._timeout and self._is_connected:
+        # don't wait for input indefinitely, stop after 3 * self._timeout seconds
+        while time() <= starttime + 3 * self._timeout:   #  and self._is_connected:
             readbyte = self._connection.read()
             self._lastbyte = readbyte
             # self.logger.debug(f'_read_bytes: read {readbyte}')

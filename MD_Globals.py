@@ -103,8 +103,8 @@ COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype
 # keys for min / max values for data bounds
 MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')
 
-# name of non-model specific lookup table dict key
-LOOKUP_GENERIC          = 'lookups'
+# name of non-model specific key for commands, models and lookups
+INDEX_GENERIC          = 'all'
 
 #############################################################################################################################################################################################################################################
 #
@@ -124,7 +124,7 @@ class CommandsError(Exception):
 
 def sanitize_param(val):
     '''
-    Try to correct type of val:
+    Try to correct type of val if val is string:
     - return int(val) if val is integer
     - return float(val) if val is float
     - return bool(val) is val follows conventions for bool
@@ -134,9 +134,11 @@ def sanitize_param(val):
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     '''
-    if Utils.is_int(val):
+    if isinstance(val, (int, float, bool)):
+        return val
+    if Utils.is_int(str(val)):
         val = int(val)
-    elif Utils.is_float(val):
+    elif Utils.is_float(str(val)):
         val = float(val)
     elif isinstance(val, str) and val.lower() in ('true', 'false', 'on', 'off', 'yes', 'no'):
         val = Utils.to_bool(val)

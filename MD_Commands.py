@@ -259,14 +259,17 @@ class MD_Commands(object):
         if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict) and not MD_standalone:
             cmds = cmd_module.commands
             cmdlist = None
-            if self._model:
-                if '_' in cmds and self._model in cmds['_']:
-                    cmds = cmds['_'][self._model]
+            if INDEX_GENERIC in cmds:
+                if self._model in cmds[INDEX_GENERIC]:
+                    cmds = cmds[INDEX_GENERIC][self._model]
                 else:
-                    cmdlist = cmds[self._model]
+                    raise CommandsError(f'commands require configuration attribute "model", but model {self._model + "not set" if self._model else "unknown"}.')
+            if self._model:
+                cmdlist = cmds[self._model]
+                if INDEX_GENERIC in cmd_module.models:
+                    cmdlist += cmd_module.models[INDEX_GENERIC]
             else:
-                if '_' in cmds:
-                    raise CommandsError(f'commands require configuration attribute "model", but model not set.')
+                if INDEX_GENERIC in cmds:
             if cmdlist is None:
                 cmdlist = cmds.keys()
             self._parse_commands(device_id, cmds, cmdlist)
@@ -322,8 +325,8 @@ class MD_Commands(object):
         For special purposes, this can be overloaded, if you want to use your
         own file format.
         '''
-        if LOOKUP_GENERIC in lookups:
-            lu = lookups[LOOKUP_GENERIC]
+        if INDEX_GENERIC in lookups:
+            lu = lookups[INDEX_GENERIC]
             self.logger.debug(f'found {len(lu)} generic lookup table{"" if len(lu) == 1 else "s"}')
 
             if self._model and self._model in lookups:

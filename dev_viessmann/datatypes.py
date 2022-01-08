@@ -92,6 +92,12 @@ class DT_CT(DT_V):
         return [{'An': on_time, 'Aus': off_time} for on_time, off_time in zip(timer, timer)]
 
 
+class DT_HEX(DT_V):
+    def get_shng_data(self, data, type=None, **kwargs):
+        return data.hex()
+        # return ' '.join([hexstr[i:i + 2] for i in range(0, len(hexstr), 2)])
+
+
 '''
 'BA':      {'unit_de': 'Betriebsart',       'type': 'list',     'signed': False, 'read_value_transform': 'non'},        # vito unit: BA
 'BT':      {'unit_de': 'Brennertyp',        'type': 'list',     'signed': False, 'read_value_transform': 'non'},        # vito unit:

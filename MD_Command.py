@@ -378,6 +378,8 @@ class MD_Command_ParseStr(MD_Command_Str):
         if isinstance(data, (bytes, bytearray)):
             data = data.decode('utf-8')
 
+        self.logger.debug(f'parse_str command got data {data} of type {type(data)}')
+
         if self.reply_pattern:
             regex = re.compile(self.reply_pattern)
             match = regex.match(data)

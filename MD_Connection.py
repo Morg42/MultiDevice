@@ -28,7 +28,8 @@ import logging
 from time import sleep, time
 import requests
 import serial
-from threading import Lock
+from threading import Lock, Thread
+from contextlib import contextmanager
 
 from lib.network import Tcp_client
 
@@ -386,6 +387,23 @@ class MD_Connection_Serial(MD_Connection):
     """
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
+        class TimeoutLock(object):
+            def __init__(self):
+                self._lock = Lock()
+
+            def acquire(self, blocking=True, timeout=-1):
+                return self._lock.acquire(blocking, timeout)
+
+            @contextmanager
+            def acquire_timeout(self, timeout):
+                result = self._lock.acquire(timeout=timeout)
+                yield result
+                if result:
+                    self._lock.release()
+
+            def release(self):
+                self._lock.release()
+
         # get MultiDevice.device logger
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
@@ -398,11 +416,14 @@ class MD_Connection_Serial(MD_Connection):
         self.device_type = device_type
         self.device_id = device_id
         self._is_connected = False
-        self._lock = Lock()
+        self._lock = TimeoutLock()
+        self.__lock_timeout = 2         # TODO: validate this is a sensible value
         self._lastbyte = b''
         self._lastbytetime = 0
         self._connection_attempts = 0
         self._read_buffer = b''
+        self.__use_read_buffer = True
+        self.__running = False
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_SERIAL_PORT: '',
@@ -454,6 +475,7 @@ class MD_Connection_Serial(MD_Connection):
                 self._connection_attempts = 0
                 if self._connected_callback:
                     self._connected_callback(f'serial_{self._serialport}')
+                self._setup_listener()
                 return True
             except (serial.SerialException, ValueError) as e:
                 self.logger.error(f'error on connection to {self._serialport}. Error was: {e}')
@@ -516,6 +538,10 @@ class MD_Connection_Serial(MD_Connection):
         if not self._send_bytes(data):
             self.is_connected = False
             raise serial.SerialException(f'data {data} could not be sent')
+
+        # don't try to read response if listener is active
+        if self.__running:
+            return None
 
         rlen = data_dict.get('limit_response', None)
         if rlen is None:
@@ -585,28 +611,34 @@ class MD_Connection_Serial(MD_Connection):
         # self.logger.debug('_read_bytes: start read')
         starttime = time()
 
-        # don't wait for input indefinitely, stop after 3 * self._timeout seconds
-        while time() <= starttime + 3 * self._timeout:
-            readbyte = self._connection.read()
-            self._lastbyte = readbyte
-            # self.logger.debug(f'_read_bytes: read {readbyte}')
-            if readbyte != b'':
-                self._lastbytetime = time()
-            else:
-                return totalreadbytes
-            totalreadbytes += readbyte
+        # prevent concurrent read attempts; 
+        with self._lock(self.__lock_timeout):
 
-            # limit_response reached?
-            if maxlen and len(totalreadbytes) >= maxlen:
-                return totalreadbytes
+            # don't wait for input indefinitely, stop after 3 * self._timeout seconds
+            while time() <= starttime + 3 * self._timeout:
+                readbyte = self._connection.read()
+                self._lastbyte = readbyte
+                # self.logger.debug(f'_read_bytes: read {readbyte}')
+                if readbyte != b'':
+                    self._lastbytetime = time()
+                else:
+                    return totalreadbytes
+                totalreadbytes += readbyte
 
-            if term_bytes in totalreadbytes:
-                pos = totalreadbytes.find(term_bytes)
-                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
-                return totalreadbytes[:pos + len(term_bytes)]
+                # limit_response reached?
+                if maxlen and len(totalreadbytes) >= maxlen:
+                    return totalreadbytes
+
+                if term_bytes in totalreadbytes:
+                    if self.__use_read_buffer:
+                        pos = totalreadbytes.find(term_bytes)
+                        self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                        return totalreadbytes[:pos + len(term_bytes)]
+                    else:
+                        return totalreadbytes
 
         # timeout reached, did we read anything?
-        if not totalreadbytes:
+        if not totalreadbytes and not self.__running:
 
             # just in case, force plugin to reconnect
             self._is_connected = False
@@ -618,7 +650,100 @@ class MD_Connection_Serial(MD_Connection):
         if self._connection:
             self._connection.reset_input_buffer()
 
+    def _setup_listener(self):
+        """ empty, for subclass use """
+        pass
 
-class MD_Connection_Serial_Async(MD_Connection):
-    # to be implemented
-    pass
+
+class MD_Connection_Serial_Async(MD_Connection_Serial):
+    """ Connection for serial connectivity with async listener
+
+    This class implements a serial connection for call-based sending and a
+    threaded listener for async reading with callbacks.
+
+    As this is derived from ``MD_Connection_Serial``, most of the documentation
+    is identical.
+
+    The timeout needs to be set small enough not to block reading for too long.
+    Recommended times are between 0.2 and 0.8 seconds.
+
+    The ``data_received_callback`` needs to be set or you won't get data.
+
+    Callback syntax is:
+        def connected_callback(by=None)
+        def disconnected_callback(by=None)
+        def data_received_callback(by, message)
+    If callbacks are class members, they need the additional first parameter 'self'
+    """
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
+        # set additional class members
+        self.__receive_thread = None
+        super().__init__(device_type, device_id, data_received_callback, **kwargs)
+
+    def _setup_listener(self):
+        if not self._is_connected:
+            return
+
+        name = 'Serial_Client'
+        if self.name:
+            name = self.name + '_' + name
+        self.__running = True
+        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=name)
+        self.__receive_thread.daemon = True
+        self.__receive_thread.start()
+
+    def _close(self):
+        self.logger.debug(f'stopping receive thread {self.__receive_thread.name}')
+        self.__running = False
+        try:
+            self.__receive_thread.join()
+        except Exception:
+            pass
+
+    def __receive_thread_worker(self):
+        """ thread worker to handle receiving """
+        __buffer = b''
+
+        self._is_receiving = True
+        # try to find possible "hidden" errors
+        try:
+            while self._is_connected and self.__running:
+                try:
+                    msg = self._read_bytes(0)
+                except serial.SerialTimeoutException:
+                    pass
+
+                if msg:
+
+                    # If we work in line mode (with a terminator) slice buffer into single chunks based on terminator
+                    if self._terminator:
+                        __buffer += msg
+                        while True:
+                            # terminator = int means fixed size chunks
+                            if isinstance(self._terminator, int):
+                                i = self._terminator
+                                if i > len(__buffer):
+                                    break
+                            # terminator is str or bytes means search for it
+                            else:
+                                i = __buffer.find(self._terminator)
+                                if i == -1:
+                                    break
+                                i += len(self._terminator)
+                            line = __buffer[:i]
+                            __buffer = __buffer[i:]
+                            if self._data_received_callback:
+                                self._data_received_callback(self, line if self._binary else str(line, 'utf-8').strip())
+                    # If not in terminator mode just forward what we received
+
+                if not self.__running:
+                    # socket shut down by self.close, no error
+                    self.logger.debug('serial connection shut down by call to close method')
+                    return
+
+        except Exception as e:
+            if not self.__running:
+                self.logger.debug(f'serial receive thread {self.__receive_thread.name} shutting down')
+                return
+            else:
+                self.logger.error(f'serial receive thread {self.__receive_thread.name} died with unexpected error: {e}')

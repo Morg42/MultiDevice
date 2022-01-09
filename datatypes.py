@@ -24,9 +24,22 @@
 #
 #########################################################################
 
-'''
-    Datatype
-    -----------
+import json
+
+if MD_standalone:
+    from MD_Globals import *
+else:
+    from .MD_Globals import *
+
+
+# default / reference datatypes
+datatypes = (
+    'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray', 'json'
+)
+
+
+class Datatype(object):
+    """ Datatype class for conversion tasks
 
     This is one of the most important classes. By declaration, it contains
     information about the data type and format needed by a device and methods
@@ -49,24 +62,6 @@
     The whole data type conversion is enclosed in try/except higher up.
     Keep it simple here :)
 
-'''
-
-import json
-
-if MD_standalone:
-    from MD_Globals import *
-else:
-    from .MD_Globals import *
-
-
-# default / reference datatypes
-datatypes = (
-    'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray', 'json'
-)
-
-
-class Datatype(object):
-    '''
     This class describes the basic structure of all derived datatype classes.
 
     Basically, it defines the conversion from item value to device "value" and
@@ -74,17 +69,17 @@ class Datatype(object):
     str <-> int for clear text status messages in SmartHomeNG.
 
     To define own Datatype classes, define derived class and overload at least
-    get_shng_data() and get_send_data().
-    '''
+    get_shng_data() and/or get_send_data().
+    """
     def __init__(self, fail_silent=True):
-        '''
+        """
         :param fail_silent: keep silent on data conversion error or raise exception
         :type fail_silent: bool
-        '''
+        """
         self._silent = fail_silent
 
     def get_send_data(self, data, **kwargs):
-        '''
+        """
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
 
@@ -92,11 +87,11 @@ class Datatype(object):
 
         :param data: arbitrary data (usually item value)
         :return: data in device-compatible format
-        '''
+        """
         return data
 
     def get_shng_data(self, data, type=None, **kwargs):
-        '''
+        """
         take data from device reply and try and convert it into SmartHomeNG-
         compatible type (item type).
 
@@ -114,7 +109,7 @@ class Datatype(object):
         :param type: type of return value
         :type type: str
         :return: converted value
-        '''
+        """
         if type is None or type not in datatypes:
             return data
 
@@ -195,12 +190,12 @@ class Datatype(object):
 
 
 class DT_raw(Datatype):
-    ''' pass on data, identical to base class '''
+    """ pass on data, identical to base class """
     pass
 
 
 class DT_bool(Datatype):
-    ''' cast to bool '''
+    """ cast to bool """
     def get_send_data(self, data, **kwargs):
         return bool(data)
 
@@ -212,7 +207,7 @@ class DT_bool(Datatype):
 
 
 class DT_int(Datatype):
-    ''' cast to int '''
+    """ cast to int """
     def get_send_data(self, data, **kwargs):
         return int(data)
 
@@ -224,7 +219,7 @@ class DT_int(Datatype):
 
 
 class DT_num(Datatype):
-    ''' cast to float '''
+    """ cast to float """
     def get_send_data(self, data, **kwargs):
         return float(data)
 
@@ -236,7 +231,7 @@ class DT_num(Datatype):
 
 
 class DT_str(Datatype):
-    ''' cast to str '''
+    """ cast to str """
     def get_send_data(self, data, **kwargs):
         return str(data)
 
@@ -250,7 +245,7 @@ class DT_str(Datatype):
 
 
 class DT_list(Datatype):
-    ''' enlist '''
+    """ enlist """
     def get_send_data(self, data, **kwargs):
         return list(data)
 
@@ -261,7 +256,7 @@ class DT_list(Datatype):
 
 
 class DT_dict(Datatype):
-    ''' dict-ate '''
+    """ dict-ate """
     def get_send_data(self, data, **kwargs):
         return dict(data)
 
@@ -272,7 +267,7 @@ class DT_dict(Datatype):
 
 
 class DT_tuple(Datatype):
-    ''' toupling (meh...) '''
+    """ toupling (meh...) """
     def get_send_data(self, data, **kwargs):
         return tuple(data)
 
@@ -313,7 +308,7 @@ class DT_json(Datatype):
 
 
 class DT_webservices(Datatype):
-    ''' extract value of key 'value' from json data, e.g. for webservices plugin '''
+    """ extract value of key 'value' from json data, e.g. for webservices plugin """
     def get_send_data(self, data, **kwargs):
         return data
 

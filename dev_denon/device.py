@@ -1,15 +1,6 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-'''
-Device class for Denon AV.
-
-Most of the work is done by the base class, so we only set default parameters
-for the connection (to be overwritten by device attributes from the plugin
-configuration) and add a fixed terminator byte to outgoing datagrams.
-
-The know-how is in the commands.py (and some DT_ classes...)
-'''
 if MD_standalone:
     from MD_Globals import *
     from MD_Device import MD_Device
@@ -23,6 +14,14 @@ import logging
 
 
 class MD_Device(MD_Device):
+    """ Device class for Denon AV.
+
+    Most of the work is done by the base class, so we only set default parameters
+    for the connection (to be overwritten by device attributes from the plugin
+    configuration) and add a fixed terminator byte to outgoing datagrams.
+
+    The know-how is in the commands.py (and some DT_ classes...)
+    """
 
     def __init__(self, device_type, device_id, **kwargs):
 

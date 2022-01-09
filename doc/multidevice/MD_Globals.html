@@ -65,30 +65,31 @@ from ast import literal_eval
 #############################################################################################################################################################################################################################################
 
 # plugin arguments, used in plugin config &#39;device&#39;
-PLUGIN_ARG_CONNECTION       = &#39;conn_type&#39;
-PLUGIN_ARG_NET_HOST         = &#39;host&#39;
-PLUGIN_ARG_NET_PORT         = &#39;port&#39;
-PLUGIN_ARG_SERIAL_PORT      = &#39;serialport&#39;
-PLUGIN_ARG_SERIAL_BAUD      = &#39;baudrate&#39;
-PLUGIN_ARG_SERIAL_BSIZE     = &#39;bytesize&#39;
-PLUGIN_ARG_SERIAL_PARITY    = &#39;parity&#39;
-PLUGIN_ARG_SERIAL_STOP      = &#39;stopbits&#39;
-PLUGIN_ARG_PROTOCOL         = &#39;protocol&#39;
-PLUGIN_ARG_TIMEOUT          = &#39;timeout&#39;
-PLUGIN_ARG_TERMINATOR       = &#39;terminator&#39;
-PLUGIN_ARG_AUTORECONNECT    = &#39;autoreconnect&#39;
-PLUGIN_ARG_CONN_RETRIES     = &#39;connect_retries&#39;
-PLUGIN_ARG_CONN_CYCLE       = &#39;connect_cycle&#39;
-PLUGIN_ARG_CB_ON_CONNECT    = &#39;connected_callback&#39;
-PLUGIN_ARG_CB_ON_DISCONNECT = &#39;disconnected_callback&#39;
-PLUGIN_ARG_MSG_TIMEOUT      = &#39;message_timeout&#39;
-PLUGIN_ARG_MSG_REPEAT       = &#39;message_repeat&#39;
+PLUGIN_ARG_ENABLED          = &#39;enabled&#39;                 # set to False to disable loading of device
+PLUGIN_ARG_CONNECTION       = &#39;conn_type&#39;               # manually set connection class, classname or type (see below)
+PLUGIN_ARG_NET_HOST         = &#39;host&#39;                    # hostname / IP for network connection
+PLUGIN_ARG_NET_PORT         = &#39;port&#39;                    # port for network connection
+PLUGIN_ARG_SERIAL_PORT      = &#39;serialport&#39;              # serial port for serial connection
+PLUGIN_ARG_SERIAL_BAUD      = &#39;baudrate&#39;                # baudrate for serial connection
+PLUGIN_ARG_SERIAL_BSIZE     = &#39;bytesize&#39;                # bytesize for serial connection
+PLUGIN_ARG_SERIAL_PARITY    = &#39;parity&#39;                  # parity for serial connection
+PLUGIN_ARG_SERIAL_STOP      = &#39;stopbits&#39;                # stopbits for serial connection
+PLUGIN_ARG_PROTOCOL         = &#39;protocol&#39;                # manually choose protocol class, classname or type (see below). Don&#39;t set if not necessary!
+PLUGIN_ARG_TIMEOUT          = &#39;timeout&#39;                 # timeout for reading from network or serial
+PLUGIN_ARG_TERMINATOR       = &#39;terminator&#39;              # terminator for reading from network or serial
+PLUGIN_ARG_AUTORECONNECT    = &#39;autoreconnect&#39;           # (re)connect automatically on send
+PLUGIN_ARG_CONN_RETRIES     = &#39;connect_retries&#39;         # if autoreconnect: how often to reconnect
+PLUGIN_ARG_CONN_CYCLE       = &#39;connect_cycle&#39;           # if autoreconnect: how many seconds to wait between retries
+PLUGIN_ARG_CB_ON_CONNECT    = &#39;connected_callback&#39;      # callback function, called if connection is established
+PLUGIN_ARG_CB_ON_DISCONNECT = &#39;disconnected_callback&#39;   # callback function, called if connection is lost
+PLUGIN_ARG_MSG_TIMEOUT      = &#39;message_timeout&#39;         # how many seconds to wait for reply to command (JSON-RPC only)
+PLUGIN_ARG_MSG_REPEAT       = &#39;message_repeat&#39;          # how often to repeat command till reply is received? (JSON-RPC only)
 
 PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT,
                PLUGIN_ARG_SERIAL_BAUD, PLUGIN_ARG_SERIAL_BSIZE, PLUGIN_ARG_SERIAL_PARITY, PLUGIN_ARG_SERIAL_STOP, 
                PLUGIN_ARG_TIMEOUT, PLUGIN_ARG_TERMINATOR, PLUGIN_ARG_AUTORECONNECT, PLUGIN_ARG_CONN_RETRIES,
                PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT,
-               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL)
+               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL, PLUGIN_ARG_ENABLED)
 
 # connection types for PLUGIN_ARG_CONNECTION
 CONN_NET_TCP_REQ        = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
@@ -151,7 +152,7 @@ class CommandsError(Exception):
 #############################################################################################################################################################################################################################################
 
 def sanitize_param(val):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Try to correct type of val if val is string:
     - return int(val) if val is integer
     - return float(val) if val is float
@@ -161,7 +162,7 @@ def sanitize_param(val):
 
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if isinstance(val, (int, float, bool)):
         return val
     if Utils.is_int(str(val)):
@@ -204,7 +205,7 @@ def sanitize_param(val):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sanitize_param(val):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Try to correct type of val if val is string:
     - return int(val) if val is integer
     - return float(val) if val is float
@@ -214,7 +215,7 @@ def sanitize_param(val):
 
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if isinstance(val, (int, float, bool)):
         return val
     if Utils.is_int(str(val)):

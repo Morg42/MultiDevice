@@ -45,7 +45,8 @@ else:
 #############################################################################################################################################################################################################################################
 
 class MD_Connection(object):
-    '''
+    """ MD_Connection class to provide actual connection support
+
     This class is the base class for further connection classes. It can - well,
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
@@ -54,7 +55,7 @@ class MD_Connection(object):
     :param device_id: device id for use in item configuration and logs
     :type device_type: str
     :type device_id: str
-    '''
+    """
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
@@ -86,7 +87,7 @@ class MD_Connection(object):
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
 
     def open(self):
-        ''' wrapper method provides stable interface and allows overloading '''
+        """ wrapper method provides stable interface and allows overloading """
         self.logger.debug('open method called for connection')
         if self._open():
             self._is_connected = True
@@ -95,19 +96,19 @@ class MD_Connection(object):
         return self._is_connected        
 
     def close(self):
-        ''' wrapper method provides stable interface and allows overloading '''
+        """ wrapper method provides stable interface and allows overloading """
         self.logger.debug('close method called for connection')
         self._close()
         self._is_connected = False
 
     def send(self, data_dict):
-        '''
+        """
         Send data, possibly return response
 
         :param data: dict with raw data and possible additional parameters to send
         :type data_dict: dict
         :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
-        '''
+        """
         if not self._is_connected:
             if self._autoreconnect:
                 self._open()
@@ -126,28 +127,28 @@ class MD_Connection(object):
         return response
 
     def on_data_received(self, by, data):
-        ''' callback for on_data_received event '''
+        """ callback for on_data_received event """
         if data:
             self.logger.debug(f'received raw data "{data}" from "{by}"')
             if self._data_received_callback:
                 self._data_received_callback(by, data)
 
     def on_connect(self, by=None):
-        ''' callback for on_connect event '''
+        """ callback for on_connect event """
         self._is_connected = True
         self.logger.info(f'on_connect called by {by}')
         if self._connected_callback:
             self._connected_callback(by)
 
     def on_disconnect(self, by=None):
-        ''' callback for on_disconnect event '''
+        """ callback for on_disconnect event """
         self.logger.debug(f'on_disconnect called by {by}')
         self._is_connected = False
         if self._disconnected_callback:
             self._disconnected_callback()
 
     def connected(self):
-        ''' getter for self._is_connected '''
+        """ getter for self._is_connected """
         return self._is_connected
 
     #
@@ -157,49 +158,49 @@ class MD_Connection(object):
     #
 
     def _open(self):
-        '''
+        """
         Overload with opening of connection
 
         :return: True if successful
         :rtype: bool
-        '''
+        """
         self.logger.debug(f'simulating opening connection as {__name__} with params {self._params}')
         return True
 
     def _close(self):
-        '''
+        """
         Overload with closing of connection
-        '''
+        """
         self.logger.debug(f'simulating closing connection as {__name__} with params {self._params}')
 
     def _send(self, data_dict):
-        '''
+        """
         Overload with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
-        '''
+        """
         self.logger.debug(f'simulating to send data {data_dict}...')
         return None
 
     def _send_init_on_open(self):
-        '''
+        """
         This class can be overloaded if anything special is needed to make the
         other side talk after opening the connection... ;)
 
         Using class properties instead of arguments makes overloading easy.
 
         It is routinely called by self.open()
-        '''
+        """
         pass
 
     def _send_init_on_send(self):
-        '''
+        """
         This class can be overloaded if anything special is needed to make the
         other side talk before sending commands... ;)
 
         Cancel sending if it returns False...
 
         It is routinely called by self.send()
-        '''
+        """
         return True
 
     #
@@ -209,10 +210,10 @@ class MD_Connection(object):
     #
 
     def _set_connection_params(self):
-        '''
+        """
         Try to set some of the common parameters.
         Might need to be overloaded...
-        '''
+        """
         for arg in PLUGIN_ARGS:
             if arg in self._params:
                 setattr(self, '_' + arg, sanitize_param(self._params[arg]))
@@ -222,7 +223,8 @@ class MD_Connection(object):
 
 
 class MD_Connection_Net_Tcp_Request(MD_Connection):
-    '''
+    """ Connection via TCP / HTTP requests
+
     This class implements TCP connections in the query-reply matter using
     the requests library, e.g. for HTTP communication.
 
@@ -232,7 +234,7 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
     - headers, data, cookies, files, params: passed thru to request()
 
     Response data is returned as text. Errors raise HTTPException
-    '''
+    """
     def _open(self):
         self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} with params {self._params}')
         return True
@@ -276,7 +278,8 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
 
 
 class MD_Connection_Net_Tcp_Client(MD_Connection):
-    '''
+    """ Connection via direct TCP connection with listener
+
     This class implements a TCP connection using a single persistent connection
     to send data and an anynchronous listener with callback for receiving data.
 
@@ -287,7 +290,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         def disconnected_callback()
         def data_received_callback(command, message)
     If callbacks are class members, they need the additional first parameter 'self'
-    '''
+    """
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -363,7 +366,8 @@ class MD_Connection_Net_Udp_Server(MD_Connection):
 
 
 class MD_Connection_Serial(MD_Connection):
-    '''
+    """ Connection for serial connectivity
+
     This class implements a serial connection using a single persistent connection
     to send data and receive immediate answers.
 
@@ -379,7 +383,7 @@ class MD_Connection_Serial(MD_Connection):
         def disconnected_callback(by=None)
         def data_received_callback(by, message)
     If callbacks are class members, they need the additional first parameter 'self'
-    '''
+    """
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -476,7 +480,7 @@ class MD_Connection_Serial(MD_Connection):
             self._disconnected_callback(f'serial_{self._serialport}')
 
     def _send(self, data_dict):
-        '''
+        """
         send data. data_dict needs to contain the following information:
 
         data_dict['payload']: data to send
@@ -490,7 +494,7 @@ class MD_Connection_Serial(MD_Connection):
         :param data_dict: data_dict to send (used value is data_dict['payload'])
         :type data_dict: dict
         :return: response as bytes() or None if no response is received or limit_response is None
-        '''
+        """
         self.logger.debug(f'{self.__class__.__name__} _send called with {data_dict}')
 
         data = data_dict['payload']
@@ -519,13 +523,13 @@ class MD_Connection_Serial(MD_Connection):
             return self._read_bytes(rlen)
 
     def _send_bytes(self, packet):
-        '''
+        """
         Send data to device
 
         :param packet: Data to be sent
         :type packet: bytearray|bytes
         :return: Returns False, if no connection is established or write failed; number of written bytes otherwise
-        '''
+        """
         # self.logger.debug(f'{self.__class__.__name__} _send_bytes called with {packet}')
 
         if not self._is_connected:
@@ -541,7 +545,7 @@ class MD_Connection_Serial(MD_Connection):
         return numbytes
 
     def _read_bytes(self, limit_response, clear_buffer=False):
-        '''
+        """
         Try to read bytes from device, return read bytes
         if limit_response is int > 0, try to read at least <limit_response> bytes
         if limit_response is bytes() or bytearray(), try to read till receiving <limit_response>
@@ -550,7 +554,7 @@ class MD_Connection_Serial(MD_Connection):
         :param limit_response: Number of bytes to read, b'<terminator> for terminated read, 0 for unrestricted read (timeout)
         :return: read bytes
         :rtype: bytes
-        '''
+        """
         self.logger.debug(f'{self.__class__.__name__} _read_bytes called with limit {limit_response}')
 
         if not self._is_connected:

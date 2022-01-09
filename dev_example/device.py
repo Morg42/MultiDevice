@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-'''
-Example class for TCP client (async receiving) connection.
-'''
 if MD_standalone:
     from MD_Globals import *
     from MD_Device import MD_Device
@@ -17,6 +14,7 @@ import logging
 
 
 class MD_Device(MD_Device):
+    """ Example class for TCP client (async receiving) connection. """
 
     def __init__(self, device_type, device_id, **kwargs):
 

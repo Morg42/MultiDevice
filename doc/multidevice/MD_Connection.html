@@ -73,7 +73,8 @@ else:
 #############################################################################################################################################################################################################################################
 
 class MD_Connection(object):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; MD_Connection class to provide actual connection support
+
     This class is the base class for further connection classes. It can - well,
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
@@ -82,7 +83,7 @@ class MD_Connection(object):
     :param device_id: device id for use in item configuration and logs
     :type device_type: str
     :type device_id: str
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
@@ -114,7 +115,7 @@ class MD_Connection(object):
         self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
 
     def open(self):
-        &#39;&#39;&#39; wrapper method provides stable interface and allows overloading &#39;&#39;&#39;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
         self.logger.debug(&#39;open method called for connection&#39;)
         if self._open():
             self._is_connected = True
@@ -123,19 +124,19 @@ class MD_Connection(object):
         return self._is_connected        
 
     def close(self):
-        &#39;&#39;&#39; wrapper method provides stable interface and allows overloading &#39;&#39;&#39;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
         self.logger.debug(&#39;close method called for connection&#39;)
         self._close()
         self._is_connected = False
 
     def send(self, data_dict):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Send data, possibly return response
 
         :param data: dict with raw data and possible additional parameters to send
         :type data_dict: dict
         :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if not self._is_connected:
             if self._autoreconnect:
                 self._open()
@@ -154,28 +155,28 @@ class MD_Connection(object):
         return response
 
     def on_data_received(self, by, data):
-        &#39;&#39;&#39; callback for on_data_received event &#39;&#39;&#39;
+        &#34;&#34;&#34; callback for on_data_received event &#34;&#34;&#34;
         if data:
             self.logger.debug(f&#39;received raw data &#34;{data}&#34; from &#34;{by}&#34;&#39;)
             if self._data_received_callback:
                 self._data_received_callback(by, data)
 
     def on_connect(self, by=None):
-        &#39;&#39;&#39; callback for on_connect event &#39;&#39;&#39;
+        &#34;&#34;&#34; callback for on_connect event &#34;&#34;&#34;
         self._is_connected = True
         self.logger.info(f&#39;on_connect called by {by}&#39;)
         if self._connected_callback:
             self._connected_callback(by)
 
     def on_disconnect(self, by=None):
-        &#39;&#39;&#39; callback for on_disconnect event &#39;&#39;&#39;
+        &#34;&#34;&#34; callback for on_disconnect event &#34;&#34;&#34;
         self.logger.debug(f&#39;on_disconnect called by {by}&#39;)
         self._is_connected = False
         if self._disconnected_callback:
             self._disconnected_callback()
 
     def connected(self):
-        &#39;&#39;&#39; getter for self._is_connected &#39;&#39;&#39;
+        &#34;&#34;&#34; getter for self._is_connected &#34;&#34;&#34;
         return self._is_connected
 
     #
@@ -185,49 +186,49 @@ class MD_Connection(object):
     #
 
     def _open(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Overload with opening of connection
 
         :return: True if successful
         :rtype: bool
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating opening connection as {__name__} with params {self._params}&#39;)
         return True
 
     def _close(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Overload with closing of connection
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating closing connection as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Overload with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating to send data {data_dict}...&#39;)
         return None
 
     def _send_init_on_open(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         This class can be overloaded if anything special is needed to make the
         other side talk after opening the connection... ;)
 
         Using class properties instead of arguments makes overloading easy.
 
         It is routinely called by self.open()
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         pass
 
     def _send_init_on_send(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         This class can be overloaded if anything special is needed to make the
         other side talk before sending commands... ;)
 
         Cancel sending if it returns False...
 
         It is routinely called by self.send()
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         return True
 
     #
@@ -237,10 +238,10 @@ class MD_Connection(object):
     #
 
     def _set_connection_params(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Try to set some of the common parameters.
         Might need to be overloaded...
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         for arg in PLUGIN_ARGS:
             if arg in self._params:
                 setattr(self, &#39;_&#39; + arg, sanitize_param(self._params[arg]))
@@ -250,7 +251,8 @@ class MD_Connection(object):
 
 
 class MD_Connection_Net_Tcp_Request(MD_Connection):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Connection via TCP / HTTP requests
+
     This class implements TCP connections in the query-reply matter using
     the requests library, e.g. for HTTP communication.
 
@@ -260,7 +262,7 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
     - headers, data, cookies, files, params: passed thru to request()
 
     Response data is returned as text. Errors raise HTTPException
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def _open(self):
         self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} with params {self._params}&#39;)
         return True
@@ -304,7 +306,8 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
 
 
 class MD_Connection_Net_Tcp_Client(MD_Connection):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Connection via direct TCP connection with listener
+
     This class implements a TCP connection using a single persistent connection
     to send data and an anynchronous listener with callback for receiving data.
 
@@ -315,7 +318,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         def disconnected_callback()
         def data_received_callback(command, message)
     If callbacks are class members, they need the additional first parameter &#39;self&#39;
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -391,7 +394,8 @@ class MD_Connection_Net_Udp_Server(MD_Connection):
 
 
 class MD_Connection_Serial(MD_Connection):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Connection for serial connectivity
+
     This class implements a serial connection using a single persistent connection
     to send data and receive immediate answers.
 
@@ -407,7 +411,7 @@ class MD_Connection_Serial(MD_Connection):
         def disconnected_callback(by=None)
         def data_received_callback(by, message)
     If callbacks are class members, they need the additional first parameter &#39;self&#39;
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -426,6 +430,7 @@ class MD_Connection_Serial(MD_Connection):
         self._lastbyte = b&#39;&#39;
         self._lastbytetime = 0
         self._connection_attempts = 0
+        self._read_buffer = b&#39;&#39;
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ARG_SERIAL_PORT: &#39;&#39;,
@@ -503,18 +508,21 @@ class MD_Connection_Serial(MD_Connection):
             self._disconnected_callback(f&#39;serial_{self._serialport}&#39;)
 
     def _send(self, data_dict):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         send data. data_dict needs to contain the following information:
 
         data_dict[&#39;payload&#39;]: data to send
-        data_dict[&#39;data&#39;][&#39;response&#39;]: number of bytes to read as response
+        data_dict[&#39;limit_response&#39;]: expected response type/length:
+                                     - number of bytes to read as response
+                                     - terminator to recognize end of reply
+                                     - 0 to read till timeout
 
         On errors, exceptions are raised
 
         :param data_dict: data_dict to send (used value is data_dict[&#39;payload&#39;])
         :type data_dict: dict
-        :return: response as bytes() or None if no response length is submitted
-        &#39;&#39;&#39;
+        :return: response as bytes() or None if no response is received or limit_response is None
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;{self.__class__.__name__} _send called with {data_dict}&#39;)
 
         data = data_dict[&#39;payload&#39;]
@@ -536,27 +544,25 @@ class MD_Connection_Serial(MD_Connection):
             self.is_connected = False
             raise serial.SerialException(f&#39;data {data} could not be sent&#39;)
 
-        rlen = None
-        if &#39;data&#39; in data_dict and isinstance(data_dict[&#39;data&#39;], dict):
-            rlen = data_dict[&#39;data&#39;].get(&#39;response&#39;, None)
+        rlen = data_dict.get(&#39;limit_response&#39;, None)
         if rlen is None:
             return None
         else:
             return self._read_bytes(rlen)
 
     def _send_bytes(self, packet):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Send data to device
 
         :param packet: Data to be sent
         :type packet: bytearray|bytes
         :return: Returns False, if no connection is established or write failed; number of written bytes otherwise
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         # self.logger.debug(f&#39;{self.__class__.__name__} _send_bytes called with {packet}&#39;)
 
-        #if not self._is_connected:
-            # self.logger.debug(&#39;_send_bytes not connected, aborting&#39;)
-        #    return False
+        if not self._is_connected:
+            self.logger.debug(&#39;_send_bytes not connected, aborting&#39;)
+            return False
 
         try:
             numbytes = self._connection.write(packet)
@@ -566,28 +572,41 @@ class MD_Connection_Serial(MD_Connection):
         # self.logger.debug(f&#39;_send_bytes: sent {packet} with {numbytes} bytes&#39;)
         return numbytes
 
-    def _read_bytes(self, length):
-        &#39;&#39;&#39;
+    def _read_bytes(self, limit_response, clear_buffer=False):
+        &#34;&#34;&#34;
         Try to read bytes from device, return read bytes
-        if length is int &gt; 0, try to read &lt;length&gt; bytes
-        if length is bytes() or bytearray(), try to read till receiving &lt;length&gt;
-        if length is 0, read until timeout (use with care...)
+        if limit_response is int &gt; 0, try to read at least &lt;limit_response&gt; bytes
+        if limit_response is bytes() or bytearray(), try to read till receiving &lt;limit_response&gt;
+        if limit_response is 0, read until timeout (use with care...)
 
-        :param length: Number of bytes to read, b&#39;&lt;terminator&gt; for terminated read, 0 for unrestricted read (timeout)
+        :param limit_response: Number of bytes to read, b&#39;&lt;terminator&gt; for terminated read, 0 for unrestricted read (timeout)
         :return: read bytes
         :rtype: bytes
-        &#39;&#39;&#39;
-        self.logger.debug(f&#39;{self.__class__.__name__} _read_bytes called for {length} bytes&#39;)
+        &#34;&#34;&#34;
+        self.logger.debug(f&#39;{self.__class__.__name__} _read_bytes called with limit {limit_response}&#39;)
 
-        #if not self._is_connected:
-        #    return 0
+        if not self._is_connected:
+            return 0
 
-        totalreadbytes = bytes()
+        maxlen = 0
+        term_bytes = None
+        if isinstance(limit_response, int):
+            maxlen = limit_response
+        elif isinstance(limit_response, (bytes, bytearray)):
+            term_bytes = bytes(limit_response)
+
+        # take care of &#34;overflow&#34; from last read
+        if clear_buffer:
+            totalreadbytes = b&#39;&#39;
+        else:
+            totalreadbytes = self._read_buffer
+        self._read_buffer = b&#39;&#39;
+
         # self.logger.debug(&#39;_read_bytes: start read&#39;)
         starttime = time()
 
         # don&#39;t wait for input indefinitely, stop after 3 * self._timeout seconds
-        while time() &lt;= starttime + 3 * self._timeout:   #  and self._is_connected:
+        while time() &lt;= starttime + 3 * self._timeout:
             readbyte = self._connection.read()
             self._lastbyte = readbyte
             # self.logger.debug(f&#39;_read_bytes: read {readbyte}&#39;)
@@ -596,15 +615,18 @@ class MD_Connection_Serial(MD_Connection):
             else:
                 return totalreadbytes
             totalreadbytes += readbyte
-            # if isinstance(length, int) and length and len(totalreadbytes) &gt;= length:
-            if len(totalreadbytes) &gt;= length:
+
+            # limit_response reached?
+            if maxlen and len(totalreadbytes) &gt;= maxlen:
                 return totalreadbytes
-            # elif isinstance(length, (bytes, bytearray)):
-            #    if readbyte == length:
-            #        return totalreadbytes
+
+            if term_bytes in totalreadbytes:
+                pos = totalreadbytes.find(term_bytes)
+                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                return totalreadbytes[:pos + len(term_bytes)]
 
         # timeout reached, did we read anything?
-        if not totalreadbytes:   # and not length:
+        if not totalreadbytes:
 
             # just in case, force plugin to reconnect
             self._is_connected = False
@@ -636,7 +658,8 @@ class MD_Connection_Serial_Async(MD_Connection):
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+<div class="desc"><p>MD_Connection class to provide actual connection support</p>
+<p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
 <p>:param device_type: device type as used in commands.py name
@@ -648,7 +671,8 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Connection(object):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; MD_Connection class to provide actual connection support
+
     This class is the base class for further connection classes. It can - well,
     not much. Opening and closing of connections and writing and receiving data
     is something to implement in the interface-specific derived classes.
@@ -657,7 +681,7 @@ is something to implement in the interface-specific derived classes.</p>
     :param device_id: device id for use in item configuration and logs
     :type device_type: str
     :type device_id: str
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
@@ -689,7 +713,7 @@ is something to implement in the interface-specific derived classes.</p>
         self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
 
     def open(self):
-        &#39;&#39;&#39; wrapper method provides stable interface and allows overloading &#39;&#39;&#39;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
         self.logger.debug(&#39;open method called for connection&#39;)
         if self._open():
             self._is_connected = True
@@ -698,19 +722,19 @@ is something to implement in the interface-specific derived classes.</p>
         return self._is_connected        
 
     def close(self):
-        &#39;&#39;&#39; wrapper method provides stable interface and allows overloading &#39;&#39;&#39;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
         self.logger.debug(&#39;close method called for connection&#39;)
         self._close()
         self._is_connected = False
 
     def send(self, data_dict):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Send data, possibly return response
 
         :param data: dict with raw data and possible additional parameters to send
         :type data_dict: dict
         :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if not self._is_connected:
             if self._autoreconnect:
                 self._open()
@@ -729,28 +753,28 @@ is something to implement in the interface-specific derived classes.</p>
         return response
 
     def on_data_received(self, by, data):
-        &#39;&#39;&#39; callback for on_data_received event &#39;&#39;&#39;
+        &#34;&#34;&#34; callback for on_data_received event &#34;&#34;&#34;
         if data:
             self.logger.debug(f&#39;received raw data &#34;{data}&#34; from &#34;{by}&#34;&#39;)
             if self._data_received_callback:
                 self._data_received_callback(by, data)
 
     def on_connect(self, by=None):
-        &#39;&#39;&#39; callback for on_connect event &#39;&#39;&#39;
+        &#34;&#34;&#34; callback for on_connect event &#34;&#34;&#34;
         self._is_connected = True
         self.logger.info(f&#39;on_connect called by {by}&#39;)
         if self._connected_callback:
             self._connected_callback(by)
 
     def on_disconnect(self, by=None):
-        &#39;&#39;&#39; callback for on_disconnect event &#39;&#39;&#39;
+        &#34;&#34;&#34; callback for on_disconnect event &#34;&#34;&#34;
         self.logger.debug(f&#39;on_disconnect called by {by}&#39;)
         self._is_connected = False
         if self._disconnected_callback:
             self._disconnected_callback()
 
     def connected(self):
-        &#39;&#39;&#39; getter for self._is_connected &#39;&#39;&#39;
+        &#34;&#34;&#34; getter for self._is_connected &#34;&#34;&#34;
         return self._is_connected
 
     #
@@ -760,49 +784,49 @@ is something to implement in the interface-specific derived classes.</p>
     #
 
     def _open(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Overload with opening of connection
 
         :return: True if successful
         :rtype: bool
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating opening connection as {__name__} with params {self._params}&#39;)
         return True
 
     def _close(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Overload with closing of connection
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating closing connection as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Overload with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating to send data {data_dict}...&#39;)
         return None
 
     def _send_init_on_open(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         This class can be overloaded if anything special is needed to make the
         other side talk after opening the connection... ;)
 
         Using class properties instead of arguments makes overloading easy.
 
         It is routinely called by self.open()
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         pass
 
     def _send_init_on_send(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         This class can be overloaded if anything special is needed to make the
         other side talk before sending commands... ;)
 
         Cancel sending if it returns False...
 
         It is routinely called by self.send()
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         return True
 
     #
@@ -812,10 +836,10 @@ is something to implement in the interface-specific derived classes.</p>
     #
 
     def _set_connection_params(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Try to set some of the common parameters.
         Might need to be overloaded...
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         for arg in PLUGIN_ARGS:
             if arg in self._params:
                 setattr(self, &#39;_&#39; + arg, sanitize_param(self._params[arg]))
@@ -844,7 +868,7 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def close(self):
-    &#39;&#39;&#39; wrapper method provides stable interface and allows overloading &#39;&#39;&#39;
+    &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
     self.logger.debug(&#39;close method called for connection&#39;)
     self._close()
     self._is_connected = False</code></pre>
@@ -860,7 +884,7 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def connected(self):
-    &#39;&#39;&#39; getter for self._is_connected &#39;&#39;&#39;
+    &#34;&#34;&#34; getter for self._is_connected &#34;&#34;&#34;
     return self._is_connected</code></pre>
 </details>
 </dd>
@@ -874,7 +898,7 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def on_connect(self, by=None):
-    &#39;&#39;&#39; callback for on_connect event &#39;&#39;&#39;
+    &#34;&#34;&#34; callback for on_connect event &#34;&#34;&#34;
     self._is_connected = True
     self.logger.info(f&#39;on_connect called by {by}&#39;)
     if self._connected_callback:
@@ -891,7 +915,7 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def on_data_received(self, by, data):
-    &#39;&#39;&#39; callback for on_data_received event &#39;&#39;&#39;
+    &#34;&#34;&#34; callback for on_data_received event &#34;&#34;&#34;
     if data:
         self.logger.debug(f&#39;received raw data &#34;{data}&#34; from &#34;{by}&#34;&#39;)
         if self._data_received_callback:
@@ -908,7 +932,7 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def on_disconnect(self, by=None):
-    &#39;&#39;&#39; callback for on_disconnect event &#39;&#39;&#39;
+    &#34;&#34;&#34; callback for on_disconnect event &#34;&#34;&#34;
     self.logger.debug(f&#39;on_disconnect called by {by}&#39;)
     self._is_connected = False
     if self._disconnected_callback:
@@ -925,7 +949,7 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def open(self):
-    &#39;&#39;&#39; wrapper method provides stable interface and allows overloading &#39;&#39;&#39;
+    &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
     self.logger.debug(&#39;open method called for connection&#39;)
     if self._open():
         self._is_connected = True
@@ -947,13 +971,13 @@ is something to implement in the interface-specific derived classes.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def send(self, data_dict):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Send data, possibly return response
 
     :param data: dict with raw data and possible additional parameters to send
     :type data_dict: dict
     :return: raw response data if applicable, None otherwise. Errors need to raise exceptions
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if not self._is_connected:
         if self._autoreconnect:
             self._open()
@@ -979,7 +1003,8 @@ is something to implement in the interface-specific derived classes.</p>
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class implements a TCP connection using a single persistent connection
+<div class="desc"><p>Connection via direct TCP connection with listener</p>
+<p>This class implements a TCP connection using a single persistent connection
 to send data and an anynchronous listener with callback for receiving data.</p>
 <p>Data received is dispatched via callback, thus the send()-method does not
 return any response data.</p>
@@ -992,7 +1017,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Connection_Net_Tcp_Client(MD_Connection):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Connection via direct TCP connection with listener
+
     This class implements a TCP connection using a single persistent connection
     to send data and an anynchronous listener with callback for receiving data.
 
@@ -1003,7 +1029,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
         def disconnected_callback()
         def data_received_callback(command, message)
     If callbacks are class members, they need the additional first parameter &#39;self&#39;
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -1096,7 +1122,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class implements TCP connections in the query-reply matter using
+<div class="desc"><p>Connection via TCP / HTTP requests</p>
+<p>This class implements TCP connections in the query-reply matter using
 the requests library, e.g. for HTTP communication.</p>
 <p>The data_dict['payload']-Data needs to be the full query URL. Additional
 parameter dicts can be added to be given to requests.request, as
@@ -1108,7 +1135,8 @@ parameter dicts can be added to be given to requests.request, as
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Connection_Net_Tcp_Request(MD_Connection):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Connection via TCP / HTTP requests
+
     This class implements TCP connections in the query-reply matter using
     the requests library, e.g. for HTTP communication.
 
@@ -1118,7 +1146,7 @@ parameter dicts can be added to be given to requests.request, as
     - headers, data, cookies, files, params: passed thru to request()
 
     Response data is returned as text. Errors raise HTTPException
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def _open(self):
         self.logger.debug(f&#39;{self.__class__.__name__} &#34;opening connection&#34; as {__name__} with params {self._params}&#39;)
         return True
@@ -1184,7 +1212,8 @@ parameter dicts can be added to be given to requests.request, as
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+<div class="desc"><p>MD_Connection class to provide actual connection support</p>
+<p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
 <p>:param device_type: device type as used in commands.py name
@@ -1223,7 +1252,8 @@ is something to implement in the interface-specific derived classes.</p>
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class implements a serial connection using a single persistent connection
+<div class="desc"><p>Connection for serial connectivity</p>
+<p>This class implements a serial connection using a single persistent connection
 to send data and receive immediate answers.</p>
 <p>The data_dict provided to send() need the data to send in data_dict['payload']
 and the required response read mode in data_dict['data']['response']:</p>
@@ -1239,7 +1269,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Connection_Serial(MD_Connection):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Connection for serial connectivity
+
     This class implements a serial connection using a single persistent connection
     to send data and receive immediate answers.
 
@@ -1255,7 +1286,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
         def disconnected_callback(by=None)
         def data_received_callback(by, message)
     If callbacks are class members, they need the additional first parameter &#39;self&#39;
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -1274,6 +1305,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
         self._lastbyte = b&#39;&#39;
         self._lastbytetime = 0
         self._connection_attempts = 0
+        self._read_buffer = b&#39;&#39;
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ARG_SERIAL_PORT: &#39;&#39;,
@@ -1351,18 +1383,21 @@ If callbacks are class members, they need the additional first parameter 'self'<
             self._disconnected_callback(f&#39;serial_{self._serialport}&#39;)
 
     def _send(self, data_dict):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         send data. data_dict needs to contain the following information:
 
         data_dict[&#39;payload&#39;]: data to send
-        data_dict[&#39;data&#39;][&#39;response&#39;]: number of bytes to read as response
+        data_dict[&#39;limit_response&#39;]: expected response type/length:
+                                     - number of bytes to read as response
+                                     - terminator to recognize end of reply
+                                     - 0 to read till timeout
 
         On errors, exceptions are raised
 
         :param data_dict: data_dict to send (used value is data_dict[&#39;payload&#39;])
         :type data_dict: dict
-        :return: response as bytes() or None if no response length is submitted
-        &#39;&#39;&#39;
+        :return: response as bytes() or None if no response is received or limit_response is None
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;{self.__class__.__name__} _send called with {data_dict}&#39;)
 
         data = data_dict[&#39;payload&#39;]
@@ -1384,27 +1419,25 @@ If callbacks are class members, they need the additional first parameter 'self'<
             self.is_connected = False
             raise serial.SerialException(f&#39;data {data} could not be sent&#39;)
 
-        rlen = None
-        if &#39;data&#39; in data_dict and isinstance(data_dict[&#39;data&#39;], dict):
-            rlen = data_dict[&#39;data&#39;].get(&#39;response&#39;, None)
+        rlen = data_dict.get(&#39;limit_response&#39;, None)
         if rlen is None:
             return None
         else:
             return self._read_bytes(rlen)
 
     def _send_bytes(self, packet):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Send data to device
 
         :param packet: Data to be sent
         :type packet: bytearray|bytes
         :return: Returns False, if no connection is established or write failed; number of written bytes otherwise
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         # self.logger.debug(f&#39;{self.__class__.__name__} _send_bytes called with {packet}&#39;)
 
-        #if not self._is_connected:
-            # self.logger.debug(&#39;_send_bytes not connected, aborting&#39;)
-        #    return False
+        if not self._is_connected:
+            self.logger.debug(&#39;_send_bytes not connected, aborting&#39;)
+            return False
 
         try:
             numbytes = self._connection.write(packet)
@@ -1414,28 +1447,41 @@ If callbacks are class members, they need the additional first parameter 'self'<
         # self.logger.debug(f&#39;_send_bytes: sent {packet} with {numbytes} bytes&#39;)
         return numbytes
 
-    def _read_bytes(self, length):
-        &#39;&#39;&#39;
+    def _read_bytes(self, limit_response, clear_buffer=False):
+        &#34;&#34;&#34;
         Try to read bytes from device, return read bytes
-        if length is int &gt; 0, try to read &lt;length&gt; bytes
-        if length is bytes() or bytearray(), try to read till receiving &lt;length&gt;
-        if length is 0, read until timeout (use with care...)
+        if limit_response is int &gt; 0, try to read at least &lt;limit_response&gt; bytes
+        if limit_response is bytes() or bytearray(), try to read till receiving &lt;limit_response&gt;
+        if limit_response is 0, read until timeout (use with care...)
 
-        :param length: Number of bytes to read, b&#39;&lt;terminator&gt; for terminated read, 0 for unrestricted read (timeout)
+        :param limit_response: Number of bytes to read, b&#39;&lt;terminator&gt; for terminated read, 0 for unrestricted read (timeout)
         :return: read bytes
         :rtype: bytes
-        &#39;&#39;&#39;
-        self.logger.debug(f&#39;{self.__class__.__name__} _read_bytes called for {length} bytes&#39;)
+        &#34;&#34;&#34;
+        self.logger.debug(f&#39;{self.__class__.__name__} _read_bytes called with limit {limit_response}&#39;)
 
-        #if not self._is_connected:
-        #    return 0
+        if not self._is_connected:
+            return 0
 
-        totalreadbytes = bytes()
+        maxlen = 0
+        term_bytes = None
+        if isinstance(limit_response, int):
+            maxlen = limit_response
+        elif isinstance(limit_response, (bytes, bytearray)):
+            term_bytes = bytes(limit_response)
+
+        # take care of &#34;overflow&#34; from last read
+        if clear_buffer:
+            totalreadbytes = b&#39;&#39;
+        else:
+            totalreadbytes = self._read_buffer
+        self._read_buffer = b&#39;&#39;
+
         # self.logger.debug(&#39;_read_bytes: start read&#39;)
         starttime = time()
 
         # don&#39;t wait for input indefinitely, stop after 3 * self._timeout seconds
-        while time() &lt;= starttime + 3 * self._timeout:   #  and self._is_connected:
+        while time() &lt;= starttime + 3 * self._timeout:
             readbyte = self._connection.read()
             self._lastbyte = readbyte
             # self.logger.debug(f&#39;_read_bytes: read {readbyte}&#39;)
@@ -1444,15 +1490,18 @@ If callbacks are class members, they need the additional first parameter 'self'<
             else:
                 return totalreadbytes
             totalreadbytes += readbyte
-            # if isinstance(length, int) and length and len(totalreadbytes) &gt;= length:
-            if len(totalreadbytes) &gt;= length:
+
+            # limit_response reached?
+            if maxlen and len(totalreadbytes) &gt;= maxlen:
                 return totalreadbytes
-            # elif isinstance(length, (bytes, bytearray)):
-            #    if readbyte == length:
-            #        return totalreadbytes
+
+            if term_bytes in totalreadbytes:
+                pos = totalreadbytes.find(term_bytes)
+                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                return totalreadbytes[:pos + len(term_bytes)]
 
         # timeout reached, did we read anything?
-        if not totalreadbytes:   # and not length:
+        if not totalreadbytes:
 
             # just in case, force plugin to reconnect
             self._is_connected = False
@@ -1505,7 +1554,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class is the base class for further connection classes. It can - well,
+<div class="desc"><p>MD_Connection class to provide actual connection support</p>
+<p>This class is the base class for further connection classes. It can - well,
 not much. Opening and closing of connections and writing and receiving data
 is something to implement in the interface-specific derived classes.</p>
 <p>:param device_type: device type as used in commands.py name

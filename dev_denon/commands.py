@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-'''
-    commands for dev pioneer
+""" commands for dev pioneer
 
-    Most commands send a string (fixed for reading, attached data for writing)
-    while parsing the response works by extracting the needed string part by
-    regex. Some commands translate the device data into readable values via
-    lookups.
-'''
+Most commands send a string (fixed for reading, attached data for writing)
+while parsing the response works by extracting the needed string part by
+regex. Some commands translate the device data into readable values via
+lookups.
+"""
 
 
 commands = {

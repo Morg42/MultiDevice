@@ -36,16 +36,15 @@ values' meaning.</p>
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 
-&#39;&#39;&#39;
-    commands for dev example
+&#34;&#34;&#34; commands for dev example
 
-    This section consists of a single dict which defines all the devices&#39; commands.
-    Alternatively, if models are supported and required, see second example for
-    commands definition.
+This section consists of a single dict which defines all the devices&#39; commands.
+Alternatively, if models are supported and required, see second example for
+commands definition.
 
-    In this example, only one command is given to define possible keys and their
-    values&#39; meaning.
-&#39;&#39;&#39;
+In this example, only one command is given to define possible keys and their
+values&#39; meaning.
+&#34;&#34;&#34;
 
 commands = {
     # name of the command as used in item attribute &#39;md_command&#39;
@@ -92,7 +91,7 @@ commands = {
     }
 }
 
-&#39;&#39;&#39;
+&#34;&#34;&#34;
     The following commands example is for a scenario where different models are
     configured and have overlapping command definitions with different contents.
 
@@ -104,7 +103,7 @@ commands = {
 
     In this case, a model _must_ be specified in the device configuration; the
     ``models`` dict (see next paragraph) is not necessary and will be ignored.
-&#39;&#39;&#39;
+&#34;&#34;&#34;
 
 commands = {
     &#39;ALL&#39;: {
@@ -126,7 +125,7 @@ commands = {
     }
 }
 
-&#39;&#39;&#39;
+&#34;&#34;&#34;
     (optional) model specifications for dev example
 
     Different models of a type (eg. different heating models of the same manufacturer
@@ -148,7 +147,7 @@ commands = {
 
     Hint: as this example only defines one command, the following example is purely
           fictional...
-&#39;&#39;&#39;
+&#34;&#34;&#34;
 
 models = {
     &#39;ALL&#39;: [&#39;cmd10&#39;, &#39;cmd11&#39;],
@@ -158,7 +157,7 @@ models = {
 }
 
 
-&#39;&#39;&#39;
+&#34;&#34;&#34;
     (optional) definition of lookup tables (see commands table)
 
     Each table is a plain dict containing device values as keys and corresponding
@@ -175,7 +174,7 @@ models = {
     a plain dict with ``&lt;device value&gt;: &lt;shng item value&gt;`` dict entries.
 
     Example:
-&#39;&#39;&#39;
+&#34;&#34;&#34;
 
 lookups = {
     &#39;table1&#39;: {
@@ -190,7 +189,7 @@ lookups = {
     }
 }
 
-&#39;&#39;&#39;
+&#34;&#34;&#34;
     Case b) is basically the same, but with an additional first level inserted.
     The first level MUST contain a key named &#39;ALL&#39; (duh), which specifies
     &#34;generic&#34; lookup tables valid for all models. The value to this key is a dict
@@ -205,7 +204,7 @@ lookups = {
     model1 has a modified ``table1``.
 
     Example:
-&#39;&#39;&#39;
+&#34;&#34;&#34;
 
 lookups = {
     &#39;ALL&#39;: {

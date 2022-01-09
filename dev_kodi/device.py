@@ -1,36 +1,6 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-'''
-Device class for Kodi Mediacenter.
-
-This is a bit more complex than e.g. the Pioneer/Denon family device classes.
-
-Complex response or notification datagrams with multiple data points can not
-easily - and usefully - be crammed into a single item, so we need a logic to
-separate the data points and split them into different items (better: command
-responses). This is mostly handled in ``on_data_received()``.
-
-Due to multiple device namespaces, some responses require us to ask for
-additional specific information from the device. This is handled by
-``send_command()`` and ``_update_status()``.
-
-The "special" (a.k.a. fake) commands (as they are not a single command to send
-to the device) have to be recognized, so we also tamper with ``is_valid_command()``.
-
-NOTE: quite some of the logic in ``on_data_received()``, especially most of the
-      code for handling notifications could be achieved by adding complex commands
-      which control the ``playpause`` and ``stop`` command; the dependent settings
-      could then be accomplished by more or less complex item and eval constructs.
-
-      As this is - foremost - a port of the kodi plugin and a demonstrator for
-      how to and how not to use the MultiDevice capabilities, I've not yet changed
-      much.
-
-      Any complexity moved out of the ``device.py`` code will need to find another
-      place, in ``commands.py`` and/or the item configuration.
-'''
-
 if MD_standalone:
     from MD_Globals import *
     from MD_Device import MD_Device
@@ -46,6 +16,35 @@ import logging
 
 
 class MD_Device(MD_Device):
+    """
+    Device class for Kodi Mediacenter.
+
+    This is a bit more complex than e.g. the Pioneer/Denon family device classes.
+
+    Complex response or notification datagrams with multiple data points can not
+    easily - and usefully - be crammed into a single item, so we need a logic to
+    separate the data points and split them into different items (better: command
+    responses). This is mostly handled in ``on_data_received()``.
+
+    Due to multiple device namespaces, some responses require us to ask for
+    additional specific information from the device. This is handled by
+    ``send_command()`` and ``_update_status()``.
+
+    The "special" (a.k.a. fake) commands (as they are not a single command to send
+    to the device) have to be recognized, so we also tamper with ``is_valid_command()``.
+
+    NOTE: quite some of the logic in ``on_data_received()``, especially most of the
+          code for handling notifications could be achieved by adding complex commands
+          which control the ``playpause`` and ``stop`` command; the dependent settings
+          could then be accomplished by more or less complex item and eval constructs.
+
+          As this is - foremost - a port of the kodi plugin and a demonstrator for
+          how to and how not to use the MultiDevice capabilities, I've not yet changed
+          much.
+
+          Any complexity moved out of the ``device.py`` code will need to find another
+          place, in ``commands.py`` and/or the item configuration.
+    """
 
     def __init__(self, device_type, device_id, **kwargs):
 
@@ -93,14 +92,14 @@ class MD_Device(MD_Device):
         self._update_status()
 
     def on_data_received(self, by, data, command=None):
-        '''
+        """
         Callback function for received data e.g. from an event loop
         Processes data and dispatches value to plugin class
 
         :param command: the command in reply to which data was received
         :param data: received data in 'raw' connection format
         :type command: str
-        '''
+        """
         if command is not None:
             self.logger.debug(f'received data "{data}" for command {command}')
         else:
@@ -312,7 +311,7 @@ class MD_Device(MD_Device):
         self._data_received_callback(self.device_id, command, value)
 
     def send_command(self, command, value=None, **kwargs):
-        '''
+        """
         Checks for special commands and handles them, otherwise call the
         base class' method
 
@@ -321,7 +320,7 @@ class MD_Device(MD_Device):
         :type command: str
         :return: True if send was successful, False otherwise
         :rtype: bool
-        '''
+        """
         if not self.alive:
             self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
             return False
@@ -352,7 +351,7 @@ class MD_Device(MD_Device):
             return super().send_command(command, value, playerid=self._playerid, **kwargs)
 
     def is_valid_command(self, command, read=None):
-        '''
+        """
         In addition to base class method, allow 'special'
         commands not defined in commands.py which are meant
         to control the plugin device, e.g. 'update' to read
@@ -365,7 +364,7 @@ class MD_Device(MD_Device):
         :type read: bool | NoneType
         :return: True if command is valid, False otherwise
         :rtype: bool
-        '''
+        """
         if command in self._special_commands['read' if read else 'write']:
             self.logger.debug(f'Acknowledging special command {command}, read is {read}')
             return True
@@ -377,23 +376,23 @@ class MD_Device(MD_Device):
 #
 
     def notify(self, title, message, image=None, display_time=10000):
-        '''
+        """
         Send a notification to Kodi to be displayed on the screen
 
         :param title: the title of the message
         :param message: the message itself
         :param image: an optional image to be displayed alongside the message
         :param display_time: how long the message is displayed in milli seconds
-        '''
+        """
         params = {'title': title, 'message': message, 'displaytime': display_time}
         if image is not None:
             params['image'] = image
         self._connection._send_rpc_message('GUI.ShowNotification', params)
 
     def _update_status(self):
-        '''
+        """
         This method requests several status infos
-        '''
+        """
         if self.alive:
             self.send_command('get_actplayer', None)
             self.send_command('get_status_au', None)
@@ -402,7 +401,7 @@ class MD_Device(MD_Device):
                 self.send_command('get_item', None)
 
     # def _check_commands_data(self):
-    #     '''
+    #     """
     #     Method checks consistency of imported commands data
 # 
     #     This is ported directly from the old kodi plugin; to not clutter things
@@ -412,7 +411,7 @@ class MD_Device(MD_Device):
 # 
     #     :return: True if data is consistent
     #     :rtype: bool
-    #     '''
+    #     """
     #     no_method = []
     #     wrong_keys = []
     #     unmatched = []

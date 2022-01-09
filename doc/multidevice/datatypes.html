@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
 <title>multidevice.datatypes API documentation</title>
-<meta name="description" content="Datatype
-…" />
+<meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,22 +22,6 @@
 <h1 class="title">Module <code>multidevice.datatypes</code></h1>
 </header>
 <section id="section-intro">
-<h2 id="datatype">Datatype</h2>
-<p>This is one of the most important classes. By declaration, it contains
-information about the data type and format needed by a device and methods
-to convert its value from selected Python data types used in items to the
-(possibly) special data formats required by devices and vice versa.</p>
-<p>Datatypes are specified in subclasses of Datatype with a nomenclature
-convention of DT_<device data type of format>.</p>
-<p>All datatype classes are imported from Datatypes.py into the 'DT' module.</p>
-<p>New devices probably create the need for new data types.</p>
-<p>For details concerning API and implementation, refer to the reference classes as
-examples.</p>
-<p>As nearly all return values are possible, error handling cannot be done via
-return code. In consequence, errors are transmitted via exceptions, either
-explicitly or by just letting it happen (e.g. int('abc') -&gt; ValueError)
-The whole data type conversion is enclosed in try/except higher up.
-Keep it simple here :)</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -69,9 +52,22 @@ Keep it simple here :)</p>
 #
 #########################################################################
 
-&#39;&#39;&#39;
-    Datatype
-    -----------
+import json
+
+if MD_standalone:
+    from MD_Globals import *
+else:
+    from .MD_Globals import *
+
+
+# default / reference datatypes
+datatypes = (
+    &#39;int&#39;, &#39;num&#39;, &#39;str&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;tuple&#39;, &#39;bytes&#39;, &#39;bytearray&#39;, &#39;json&#39;
+)
+
+
+class Datatype(object):
+    &#34;&#34;&#34; Datatype class for conversion tasks
 
     This is one of the most important classes. By declaration, it contains
     information about the data type and format needed by a device and methods
@@ -94,24 +90,6 @@ Keep it simple here :)</p>
     The whole data type conversion is enclosed in try/except higher up.
     Keep it simple here :)
 
-&#39;&#39;&#39;
-
-import json
-
-if MD_standalone:
-    from MD_Globals import *
-else:
-    from .MD_Globals import *
-
-
-# default / reference datatypes
-datatypes = (
-    &#39;int&#39;, &#39;num&#39;, &#39;str&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;tuple&#39;, &#39;bytes&#39;, &#39;bytearray&#39;, &#39;json&#39;
-)
-
-
-class Datatype(object):
-    &#39;&#39;&#39;
     This class describes the basic structure of all derived datatype classes.
 
     Basically, it defines the conversion from item value to device &#34;value&#34; and
@@ -119,17 +97,17 @@ class Datatype(object):
     str &lt;-&gt; int for clear text status messages in SmartHomeNG.
 
     To define own Datatype classes, define derived class and overload at least
-    get_shng_data() and get_send_data().
-    &#39;&#39;&#39;
+    get_shng_data() and/or get_send_data().
+    &#34;&#34;&#34;
     def __init__(self, fail_silent=True):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         :param fail_silent: keep silent on data conversion error or raise exception
         :type fail_silent: bool
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self._silent = fail_silent
 
     def get_send_data(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
 
@@ -137,11 +115,11 @@ class Datatype(object):
 
         :param data: arbitrary data (usually item value)
         :return: data in device-compatible format
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         return data
 
     def get_shng_data(self, data, type=None, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         take data from device reply and try and convert it into SmartHomeNG-
         compatible type (item type).
 
@@ -159,7 +137,7 @@ class Datatype(object):
         :param type: type of return value
         :type type: str
         :return: converted value
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if type is None or type not in datatypes:
             return data
 
@@ -240,12 +218,12 @@ class Datatype(object):
 
 
 class DT_raw(Datatype):
-    &#39;&#39;&#39; pass on data, identical to base class &#39;&#39;&#39;
+    &#34;&#34;&#34; pass on data, identical to base class &#34;&#34;&#34;
     pass
 
 
 class DT_bool(Datatype):
-    &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to bool &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return bool(data)
 
@@ -257,7 +235,7 @@ class DT_bool(Datatype):
 
 
 class DT_int(Datatype):
-    &#39;&#39;&#39; cast to int &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to int &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return int(data)
 
@@ -269,7 +247,7 @@ class DT_int(Datatype):
 
 
 class DT_num(Datatype):
-    &#39;&#39;&#39; cast to float &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to float &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return float(data)
 
@@ -281,18 +259,21 @@ class DT_num(Datatype):
 
 
 class DT_str(Datatype):
-    &#39;&#39;&#39; cast to str &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to str &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return str(data)
 
     def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
-            return str(data)
+            if isinstance(data, (bytes, bytearray)):
+                return data.decode(&#39;utf-8&#39;)
+            else:
+                return str(data)
         return super().get_shng_data(data, type)
 
 
 class DT_list(Datatype):
-    &#39;&#39;&#39; enlist &#39;&#39;&#39;
+    &#34;&#34;&#34; enlist &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return list(data)
 
@@ -303,7 +284,7 @@ class DT_list(Datatype):
 
 
 class DT_dict(Datatype):
-    &#39;&#39;&#39; dict-ate &#39;&#39;&#39;
+    &#34;&#34;&#34; dict-ate &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return dict(data)
 
@@ -314,7 +295,7 @@ class DT_dict(Datatype):
 
 
 class DT_tuple(Datatype):
-    &#39;&#39;&#39; toupling (meh...) &#39;&#39;&#39;
+    &#34;&#34;&#34; toupling (meh...) &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return tuple(data)
 
@@ -355,7 +336,7 @@ class DT_json(Datatype):
 
 
 class DT_webservices(Datatype):
-    &#39;&#39;&#39; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#39;&#39;&#39;
+    &#34;&#34;&#34; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return data
 
@@ -389,7 +370,7 @@ class DT_webservices(Datatype):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_bool(Datatype):
-    &#39;&#39;&#39; cast to bool &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to bool &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return bool(data)
 
@@ -418,12 +399,28 @@ class DT_webservices(Datatype):
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<div class="desc"><p>Datatype class for conversion tasks</p>
+<p>This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.</p>
+<p>Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of DT_<device data type of format>.</p>
+<p>All datatype classes are imported from Datatypes.py into the 'DT' module.</p>
+<p>New devices probably create the need for new data types.</p>
+<p>For details concerning API and implementation, refer to the reference classes as
+examples.</p>
+<p>As nearly all return values are possible, error handling cannot be done via
+return code. In consequence, errors are transmitted via exceptions, either
+explicitly or by just letting it happen (e.g. int('abc') -&gt; ValueError)
+The whole data type conversion is enclosed in try/except higher up.
+Keep it simple here :)</p>
+<p>This class describes the basic structure of all derived datatype classes.</p>
 <p>Basically, it defines the conversion from item value to device "value" and
 vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
 str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
 <p>To define own Datatype classes, define derived class and overload at least
-get_shng_data() and get_send_data().</p>
+get_shng_data() and/or get_send_data().</p>
 <p>:param fail_silent: keep silent on data conversion error or raise exception
 :type fail_silent: bool</p></div>
 <details class="source">
@@ -458,12 +455,28 @@ get_shng_data() and get_send_data().</p>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<div class="desc"><p>Datatype class for conversion tasks</p>
+<p>This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.</p>
+<p>Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of DT_<device data type of format>.</p>
+<p>All datatype classes are imported from Datatypes.py into the 'DT' module.</p>
+<p>New devices probably create the need for new data types.</p>
+<p>For details concerning API and implementation, refer to the reference classes as
+examples.</p>
+<p>As nearly all return values are possible, error handling cannot be done via
+return code. In consequence, errors are transmitted via exceptions, either
+explicitly or by just letting it happen (e.g. int('abc') -&gt; ValueError)
+The whole data type conversion is enclosed in try/except higher up.
+Keep it simple here :)</p>
+<p>This class describes the basic structure of all derived datatype classes.</p>
 <p>Basically, it defines the conversion from item value to device "value" and
 vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
 str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
 <p>To define own Datatype classes, define derived class and overload at least
-get_shng_data() and get_send_data().</p>
+get_shng_data() and/or get_send_data().</p>
 <p>:param fail_silent: keep silent on data conversion error or raise exception
 :type fail_silent: bool</p></div>
 <details class="source">
@@ -506,7 +519,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_dict(Datatype):
-    &#39;&#39;&#39; dict-ate &#39;&#39;&#39;
+    &#34;&#34;&#34; dict-ate &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return dict(data)
 
@@ -542,7 +555,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_int(Datatype):
-    &#39;&#39;&#39; cast to int &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to int &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return int(data)
 
@@ -571,12 +584,28 @@ get_shng_data() and get_send_data().</p>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<div class="desc"><p>Datatype class for conversion tasks</p>
+<p>This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.</p>
+<p>Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of DT_<device data type of format>.</p>
+<p>All datatype classes are imported from Datatypes.py into the 'DT' module.</p>
+<p>New devices probably create the need for new data types.</p>
+<p>For details concerning API and implementation, refer to the reference classes as
+examples.</p>
+<p>As nearly all return values are possible, error handling cannot be done via
+return code. In consequence, errors are transmitted via exceptions, either
+explicitly or by just letting it happen (e.g. int('abc') -&gt; ValueError)
+The whole data type conversion is enclosed in try/except higher up.
+Keep it simple here :)</p>
+<p>This class describes the basic structure of all derived datatype classes.</p>
 <p>Basically, it defines the conversion from item value to device "value" and
 vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
 str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
 <p>To define own Datatype classes, define derived class and overload at least
-get_shng_data() and get_send_data().</p>
+get_shng_data() and/or get_send_data().</p>
 <p>:param fail_silent: keep silent on data conversion error or raise exception
 :type fail_silent: bool</p></div>
 <details class="source">
@@ -619,7 +648,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_list(Datatype):
-    &#39;&#39;&#39; enlist &#39;&#39;&#39;
+    &#34;&#34;&#34; enlist &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return list(data)
 
@@ -655,7 +684,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_num(Datatype):
-    &#39;&#39;&#39; cast to float &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to float &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return float(data)
 
@@ -692,7 +721,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_raw(Datatype):
-    &#39;&#39;&#39; pass on data, identical to base class &#39;&#39;&#39;
+    &#34;&#34;&#34; pass on data, identical to base class &#34;&#34;&#34;
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -722,13 +751,16 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_str(Datatype):
-    &#39;&#39;&#39; cast to str &#39;&#39;&#39;
+    &#34;&#34;&#34; cast to str &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return str(data)
 
     def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
-            return str(data)
+            if isinstance(data, (bytes, bytearray)):
+                return data.decode(&#39;utf-8&#39;)
+            else:
+                return str(data)
         return super().get_shng_data(data, type)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -758,7 +790,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_tuple(Datatype):
-    &#39;&#39;&#39; toupling (meh...) &#39;&#39;&#39;
+    &#34;&#34;&#34; toupling (meh...) &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return tuple(data)
 
@@ -794,7 +826,7 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DT_webservices(Datatype):
-    &#39;&#39;&#39; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#39;&#39;&#39;
+    &#34;&#34;&#34; extract value of key &#39;value&#39; from json data, e.g. for webservices plugin &#34;&#34;&#34;
     def get_send_data(self, data, **kwargs):
         return data
 
@@ -824,12 +856,28 @@ get_shng_data() and get_send_data().</p>
 <span>(</span><span>fail_silent=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class describes the basic structure of all derived datatype classes.</p>
+<div class="desc"><p>Datatype class for conversion tasks</p>
+<p>This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.</p>
+<p>Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of DT_<device data type of format>.</p>
+<p>All datatype classes are imported from Datatypes.py into the 'DT' module.</p>
+<p>New devices probably create the need for new data types.</p>
+<p>For details concerning API and implementation, refer to the reference classes as
+examples.</p>
+<p>As nearly all return values are possible, error handling cannot be done via
+return code. In consequence, errors are transmitted via exceptions, either
+explicitly or by just letting it happen (e.g. int('abc') -&gt; ValueError)
+The whole data type conversion is enclosed in try/except higher up.
+Keep it simple here :)</p>
+<p>This class describes the basic structure of all derived datatype classes.</p>
 <p>Basically, it defines the conversion from item value to device "value" and
 vice versa, e.g. bool &lt;-&gt; text, float &lt;-&gt; encoded number, or
 str &lt;-&gt; int for clear text status messages in SmartHomeNG.</p>
 <p>To define own Datatype classes, define derived class and overload at least
-get_shng_data() and get_send_data().</p>
+get_shng_data() and/or get_send_data().</p>
 <p>:param fail_silent: keep silent on data conversion error or raise exception
 :type fail_silent: bool</p></div>
 <details class="source">
@@ -837,7 +885,29 @@ get_shng_data() and get_send_data().</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Datatype(object):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Datatype class for conversion tasks
+
+    This is one of the most important classes. By declaration, it contains
+    information about the data type and format needed by a device and methods
+    to convert its value from selected Python data types used in items to the
+    (possibly) special data formats required by devices and vice versa.
+
+    Datatypes are specified in subclasses of Datatype with a nomenclature
+    convention of DT_&lt;device data type of format&gt;.
+
+    All datatype classes are imported from Datatypes.py into the &#39;DT&#39; module.
+
+    New devices probably create the need for new data types.
+
+    For details concerning API and implementation, refer to the reference classes as
+    examples.
+
+    As nearly all return values are possible, error handling cannot be done via
+    return code. In consequence, errors are transmitted via exceptions, either
+    explicitly or by just letting it happen (e.g. int(&#39;abc&#39;) -&gt; ValueError)
+    The whole data type conversion is enclosed in try/except higher up.
+    Keep it simple here :)
+
     This class describes the basic structure of all derived datatype classes.
 
     Basically, it defines the conversion from item value to device &#34;value&#34; and
@@ -845,17 +915,17 @@ get_shng_data() and get_send_data().</p>
     str &lt;-&gt; int for clear text status messages in SmartHomeNG.
 
     To define own Datatype classes, define derived class and overload at least
-    get_shng_data() and get_send_data().
-    &#39;&#39;&#39;
+    get_shng_data() and/or get_send_data().
+    &#34;&#34;&#34;
     def __init__(self, fail_silent=True):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         :param fail_silent: keep silent on data conversion error or raise exception
         :type fail_silent: bool
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self._silent = fail_silent
 
     def get_send_data(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         take (item value) data and return value in a format fit for the device
         In the base class, this just returns whatever it gets.
 
@@ -863,11 +933,11 @@ get_shng_data() and get_send_data().</p>
 
         :param data: arbitrary data (usually item value)
         :return: data in device-compatible format
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         return data
 
     def get_shng_data(self, data, type=None, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         take data from device reply and try and convert it into SmartHomeNG-
         compatible type (item type).
 
@@ -885,7 +955,7 @@ get_shng_data() and get_send_data().</p>
         :param type: type of return value
         :type type: str
         :return: converted value
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if type is None or type not in datatypes:
             return data
 
@@ -978,19 +1048,7 @@ get_shng_data() and get_send_data().</p>
 <li><a title="multidevice.datatypes.DT_str" href="#multidevice.datatypes.DT_str">DT_str</a></li>
 <li><a title="multidevice.datatypes.DT_tuple" href="#multidevice.datatypes.DT_tuple">DT_tuple</a></li>
 <li><a title="multidevice.datatypes.DT_webservices" href="#multidevice.datatypes.DT_webservices">DT_webservices</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonDisplay" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonDisplay">DT_DenonDisplay</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonStandby" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonStandby">DT_DenonStandby</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonStandby1" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonStandby1">DT_DenonStandby1</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_DenonVol" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_DenonVol">DT_DenonVol</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_convert0" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_convert0">DT_convert0</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_convertAuto" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_convertAuto">DT_convertAuto</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_onoff" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_onoff">DT_onoff</a></li>
-<li><a title="multidevice.dev_denon.datatypes.DT_remap50to0" href="dev_denon/datatypes.html#multidevice.dev_denon.datatypes.DT_remap50to0">DT_remap50to0</a></li>
 <li><a title="multidevice.dev_example.datatypes.DT_Example" href="dev_example/datatypes.html#multidevice.dev_example.datatypes.DT_Example">DT_Example</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_PioChannelVol" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioChannelVol">DT_PioChannelVol</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_PioDisplay" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_PioDisplay">DT_PioDisplay</a></li>
-<li><a title="multidevice.dev_pioneer.datatypes.DT_onoff" href="dev_pioneer/datatypes.html#multidevice.dev_pioneer.datatypes.DT_onoff">DT_onoff</a></li>
-<li><a title="multidevice.dev_viessmann.datatypes.DT_V" href="dev_viessmann/datatypes.html#multidevice.dev_viessmann.datatypes.DT_V">DT_V</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1008,7 +1066,7 @@ In the base class, this just returns whatever it gets.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_send_data(self, data, **kwargs):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     take (item value) data and return value in a format fit for the device
     In the base class, this just returns whatever it gets.
 
@@ -1016,7 +1074,7 @@ In the base class, this just returns whatever it gets.</p>
 
     :param data: arbitrary data (usually item value)
     :return: data in device-compatible format
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     return data</code></pre>
 </details>
 </dd>
@@ -1043,7 +1101,7 @@ Beware of special needs if converting complex data types.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_shng_data(self, data, type=None, **kwargs):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     take data from device reply and try and convert it into SmartHomeNG-
     compatible type (item type).
 
@@ -1061,7 +1119,7 @@ Beware of special needs if converting complex data types.</p>
     :param type: type of return value
     :type type: str
     :return: converted value
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if type is None or type not in datatypes:
         return data
 
@@ -1149,9 +1207,7 @@ Beware of special needs if converting complex data types.</p>
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul>
-<li><a href="#datatype">Datatype</a></li>
-</ul>
+<ul></ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>

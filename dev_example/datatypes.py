@@ -8,7 +8,8 @@ else:
 
 
 class DT_Example(DT.Datatype):
-    ''' Example class for Datatype definitions. Not used in class. '''
+    """ Example class for Datatype definitions. Not used in class. """
+
     def __init__(self, fail_silent=True):
         super().__init__(fail_silent)
 

@@ -124,7 +124,7 @@ class CommandsError(Exception):
 #############################################################################################################################################################################################################################################
 
 def sanitize_param(val):
-    '''
+    """
     Try to correct type of val if val is string:
     - return int(val) if val is integer
     - return float(val) if val is float
@@ -134,7 +134,7 @@ def sanitize_param(val):
 
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
-    '''
+    """
     if isinstance(val, (int, float, bool)):
         return val
     if Utils.is_int(str(val)):

@@ -48,7 +48,8 @@ import json
 #############################################################################################################################################################################################################################################
 
 class MD_Protocol(MD_Connection):
-    '''
+    """ MD_Protocol class to provide protocol support for MD_Device
+
     This class implements a basic protocol layer to act as a standin between
     the MD_Device-class and the MD_Connection-class. Its purpose is to enable
     establishing a control layer, so the connection only has to care for the
@@ -59,7 +60,7 @@ class MD_Protocol(MD_Connection):
 
     By overloading this class, different protocols can be implemented independent
     of the device and the connection classes.
-    '''
+    """
 
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
@@ -113,7 +114,8 @@ class MD_Protocol(MD_Connection):
 
 
 class MD_Protocol_Jsonrpc(MD_Protocol):
-    '''
+    """ Protocol support for JSON-RPC 2.0
+
     This class implements a protocol to send JSONRPC 2.0  compatible messages
     As JSONRPC includes message-ids, replies can be associated to their respective
     queries and reply tracing and command repeat functions are implemented.
@@ -131,7 +133,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
     :param device_id: device id for use in item configuration and logs
     :type device_type: str
     :type device_id: str
-    '''
+    """
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
         # get MultiDevice.device logger
@@ -308,10 +310,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 self.logger.debug(f'Skipping stale check {time() - self._last_stale_check} seconds after last check')
 
     def _send(self, data_dict):
-        '''
+        """
         wrapper to prepare json rpc message to send. extracts method, id, repeat and
         params (data) from data_dict and call send_rpc_message(method, params, id, repeat)
-        '''
+        """
         method = data_dict.get('payload')
         params = data_dict.get('data', None)
         message_id = data_dict.get('message_id', None)
@@ -323,7 +325,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         return None
 
     def _send_rpc_message(self, method, params=None, message_id=None, repeat=0):
-        '''
+        """
         Send a JSON RPC message.
         The  JSON string is extracted from the supplied method and the given parameters.
 
@@ -331,7 +333,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         :param params: parameters dictionary
         :param message_id: the message ID to be used. If none, use the internal counter
         :param repeat: counter for how often the message has been repeated
-        '''
+        """
         self.logger.debug(f'preparing message to send method {method} with data {params}, try #{repeat}')
 
         if message_id is None:
@@ -371,17 +373,17 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
 
 class MD_Protocol_Viessmann(MD_Protocol):
-    '''
-    This class implements a Viessmann protocol layer.
+    """ Protocol support for Viessmann heating systems
 
-    By default, this uses the P300 protocol. By supplying the 'viess_proto'
-    attribute, 'KW' protocol can be selected.
+    This class implements a Viessmann protocol layer. By default, this uses
+    the P300 protocol. By supplying the 'viess_proto' attribute, the older 'KW'
+    protocol can be selected.
 
     At the moment, this is oriented towards serial connections. By supplying
     your own connection type, you could try to use it over networked connections.
     Be advised that the necessary "reply" client and the methods needed are not
     implemented for network access as of this time...
-    '''
+    """
 
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
@@ -488,12 +490,12 @@ class MD_Protocol_Viessmann(MD_Protocol):
         super()._close()
 
     def _send_init_on_send(self):
-        '''
+        """
         setup the communication protocol prior to sending
 
         :return: Returns True, if communication was established successfully, False otherwise
         :rtype: bool
-        '''
+        """
         if self._viess_proto == 'P300' and not self._is_initialized:
 
             # init procedure is
@@ -573,7 +575,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         return True
 
     def _send(self, data_dict):
-        '''
+        """
         send data. data_dict needs to contain the following information:
 
         data_dict['payload']: address from/to which to read/write (hex, str)
@@ -585,7 +587,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :type data_dict: dict
         :type read_response: bool
         :return: Response packet (bytearray) if no error occured, None otherwise
-        '''
+        """
         (packet, responselen) = self._build_payload(data_dict)
 
         # send payload
@@ -641,7 +643,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         return None
 
     def _parse_response(self, response, read_response=True):
-        '''
+        """
         Process device response data, try to parse type and value
 
         :param response: Data received from device
@@ -649,7 +651,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :param read_response: True if command was read command and value is expected, False if only status byte is expected (only needed for KW protocol)
         :type read_response: bool
         :return: tuple of (parsed response value, commandcode) or None if error
-        '''
+        """
         if self._viess_proto == 'P300':
 
             # A read_response telegram looks like this: ACK (1 byte), startbyte (1 byte), data length in bytes (1 byte), request/response (1 byte), read/write (1 byte), addr (2 byte), amount of valuebytes (1 byte), value (bytes as per last byte), checksum (1 byte)
@@ -705,7 +707,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         return rawdatabytes
 
     def _build_payload(self, data_dict):
-        ''' 
+        """ 
         create payload from data_dict. Necessary data:
 
         data_dict['payload']: address from/to which to read/write (hex, str)
@@ -717,7 +719,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :type data_dict: dict
         :return: (packet, responselen)
         :rtype: tuple
-        '''
+        """
         try:
             addr = data_dict['payload'].lower()
             cmdlen = data_dict['data']['len']
@@ -767,14 +769,14 @@ class MD_Protocol_Viessmann(MD_Protocol):
         return (packet, responselen)
 
     def _calc_checksum(self, packet):
-        '''
+        """
         Calculate checksum for P300 protocol packets
 
         :parameter packet: Data packet for which to calculate checksum
         :type packet: bytearray
         :return: Calculated checksum
         :rtype: int
-        '''
+        """
         checksum = 0
         if len(packet) > 0:
             if packet[:1] == b'\x41':
@@ -788,7 +790,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         return checksum
 
     def _int2bytes(self, value, length, signed=False):
-        '''
+        """
         Convert value to bytearray with respect to defined length and sign format.
         Value exceeding limit set by length and sign will be truncated
 
@@ -800,12 +802,12 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :type signed: bool
         :return: Converted value
         :rtype: bytearray
-        '''
+        """
         value = value % (2 ** (length * 8))
         return value.to_bytes(length, byteorder='big', signed=signed)
 
     def _bytes2int(self, rawbytes, signed):
-        '''
+        """
         Convert bytearray to value with respect to sign format
 
         :parameter rawbytes: Bytes to convert
@@ -814,15 +816,15 @@ class MD_Protocol_Viessmann(MD_Protocol):
         :type signed: bool
         :return: Converted value
         :rtype: int
-        '''
+        """
         return int.from_bytes(rawbytes, byteorder='little', signed=signed)
 
     def _bytes2hexstring(self, bytesvalue):
-        '''
+        """
         Create hex-formatted string from bytearray
         :param bytesvalue: Bytes to convert
         :type bytesvalue: bytearray
         :return: Converted hex string
         :rtype: str
-        '''
+        """
         return ''.join(f'{c:02x}' for c in bytesvalue)

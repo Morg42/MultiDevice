@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-'''
-Device class for Viessmann heating systems.
-'''
 
 if MD_standalone:
     from MD_Globals import *
@@ -20,6 +17,7 @@ import logging
 
 
 class MD_Device(MD_Device):
+    """ Device class for Viessmann heating systems. """
 
     def __init__(self, device_type, device_id, **kwargs):
         # get MultiDevice.device logger
@@ -35,9 +33,9 @@ class MD_Device(MD_Device):
         self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
 
     def run_standalone(self):
-        '''
+        """
         try to identify device
-        '''
+        """
         devs = self.get_lookup('devicetypes')
         if not devs:
             devs = {}
@@ -63,13 +61,13 @@ class MD_Device(MD_Device):
                 # break
 
     def read_addr(self, addr):
-        '''
+        """
         Tries to read a data point indepently of item config
 
         :param addr: data point addr (2 byte hex address)
         :type addr: str
         :return: Value if read is successful, None otherwise
-        '''
+        """
         addr = addr.lower()
 
         commandname = self._commands.get_command_from_reply(addr)
@@ -82,7 +80,7 @@ class MD_Device(MD_Device):
         return self.send_command(commandname)
 
     def read_temp_addr(self, addr, length=1, mult=0, signed=False):
-        '''
+        """
         Tries to read an arbitrary supplied data point indepently of device config
 
         :param addr: data point addr (2 byte hex address)
@@ -94,7 +92,7 @@ class MD_Device(MD_Device):
         :param signed: specifies signed or unsigned value
         :type signed: bool
         :return: Value if read is successful, None otherwise
-        '''
+        """
         # as we have no reference whatever concerning the supplied data, we do a few sanity checks...
 
         addr = addr.lower()
@@ -135,14 +133,14 @@ class MD_Device(MD_Device):
         return res
 
     def write_addr(self, addr, value):
-        '''
+        """
         Tries to write a data point indepently of item config
 
         :param addr: data point addr (2 byte hex address)
         :type addr: str
         :param value: value to write
         :return: Value if read is successful, None otherwise
-        '''
+        """
         addr = addr.lower()
 
         commandname = self._commands.get_command_from_reply(addr)

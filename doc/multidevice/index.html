@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
 <title>multidevice API documentation</title>
-<meta name="description" content="The MultiDevice-Plugin (MD)
-…" />
+<meta name="description" content="MultiDevice-Plugin to interface different devices …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,6 +22,7 @@
 <h1 class="title">Package <code>multidevice</code></h1>
 </header>
 <section id="section-intro">
+<p>MultiDevice-Plugin to interface different devices</p>
 <h1 id="the-multidevice-plugin-md">The MultiDevice-Plugin (MD)</h1>
 <p>This plugin aims to support a wide range of devices which work by sending
 commands to a device and reading data from it.
@@ -32,38 +32,43 @@ interfaced by this plugin.</p>
 <p>The whole MultiDevice-plugin is organized and abstracted into multiple levels
 of (reference) base classes and derived classes handling special implementations.</p>
 <p>The plugin manages item association and updates. For each device it handles,
-it creates an object based on MD_Device or derived classes.</p>
+it creates an object based on <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> or derived classes.</p>
 <p>The device object handles starting and stopping the device and its configuration.</p>
-<p>Possible commands are bundled by the MD_Commands class which handles loading,
-validating and calling the separate MD_Command or derived objects. </p>
-<p>Each MD_Command object handles one command and is responsible for creating<br>
+<p>Possible commands are bundled by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code> class which handles loading,
+validating and calling the separate <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> or derived objects. </p>
+<p>Each <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> object handles one command and is responsible for creating<br>
 command tokens/strings to/from the real device. </p>
-<p>Each command is assigned a data type, which is represented by a Datatype-
+<p>Each command is assigned a data type, which is represented by a <code>Datatype</code>-
 derived class and transforms values between the real device and the command object.</p>
 <p>To actually talk to the real device, that is, send commands/values and receive
-replies, it uses a standardized interface via one of the MD_Connection or
+replies, it uses a standardized interface via one of the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> or
 derived classes. </p>
 <p>Thus, the plugin, devices and commands are ignorant of physical connection
 details, the connection implementation is transparent regarding actual data
 structures or content, and only the datatype classes need to concern itself
 with validity of data sent or received.</p>
-<p>NOTE: Using the MD_Command_Str or especially the MD_Command_ParseStr classes,
-the need for specialized datatype classes <em>can</em> be sidestepped.
-Be aware that while creating complex commands indeed can be fun, string
-parsing will not be able to detect or cope with some data type conversions.
-You have been warned ;)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using the <code>MD_Command_Str</code> or especially the <code>MD_Command_ParseStr</code> classes,
+the need for specialized datatype classes <em>can</em> be sidestepped.</p>
+<p>Be aware that while creating complex commands indeed can be fun, string
+parsing will not be able to detect or cope with some data type conversions.</p>
+<p>You have been warned ;)</p>
+</div>
 <p>(New) devices each reside in their respective subfolder of the plugin folder,
 providing a derived device class, a command definition and - if applicable -
 additional necessary datatypes. These are automatically loaded by the plugin
 if the respective device has a configuration entry in <code>/etc/plugin.yaml</code>.</p>
-<p>This concept is meant to
-- minimize the amount of (repeating) code needed to implement a new device,
-- make it easy to adjust functionality by deriving base classes, overriding
-methods without needing to adjust the remaining code,
-- reduce implementing a new device (mostly) to properly defining the
-command API and datatypes,
-- keeping individual devices separated and independent as each is loaded into
-its own module / namespace.</p>
+<p>This concept is meant to</p>
+<ul>
+<li>minimize the amount of (repeating) code needed to implement a new device,</li>
+<li>make it easy to adjust functionality by deriving base classes, overriding
+methods without needing to adjust the remaining code,</li>
+<li>reduce implementing a new device (mostly) to properly defining the
+command API and datatypes,</li>
+<li>keeping individual devices separated and independent as each is loaded into
+its own module / namespace.</li>
+</ul>
 <p>This comes at the cost of needing to understand the architecture of the plugin
 to be able to decide what to change/extend and what to keep.</p>
 <p>My hope is that with proper documentation and examples, this last part is
@@ -73,7 +78,7 @@ network, serial interfaces and commands every time.</p>
 development of this plugin might have stalled before being able to run ;)</p>
 <h1 id="base-classes">Base Classes</h1>
 <h2 id="multidevice">Multidevice</h2>
-<p>The <code><a title="multidevice.MultiDevice" href="#multidevice.MultiDevice">MultiDevice</a></code>-class is derived from the SmartPlugin-class and provides
+<p>The <code><a title="multidevice.MultiDevice" href="#multidevice.MultiDevice">MultiDevice</a></code>-class is derived from the <code>SmartPlugin</code>-class and provides
 the framework for handling item associations to the plugin, for storing
 item-command associations, for forwarding commands and the associated data
 to the device classes and receiving data from the device classes to update
@@ -82,7 +87,7 @@ item values.</p>
 <p>In addition, the plugin has a - limited - capability to run as a standalone
 program, for example to initiate a device discovery or diagnostic functions.
 To this end, it must be run from the plugin folder by issuing</p>
-<p><code>python3 __init__.py &lt;devicename&gt;</code></p>
+<p><code>python3 __init__.py &lt;devicename&gt; [&lt;params as dict&gt;]</code></p>
 <p>Be advised that any functionality to provide in this mode must absolutely
 by implemented by you :)</p>
 <h2 id="md_device">Md_Device</h2>
@@ -96,21 +101,26 @@ changed by device configuration.</p>
 <ul>
 <li><code>start()</code></li>
 <li><code>stop()</code></li>
-<li><code>send_command(command, value=None)</code></li>
+<li><code>send_command(command, value=None, **kwargs)</code></li>
 <li><code>read_all_commands(group=0)</code></li>
-<li><code>on_data_received(command, data)</code></li>
 <li><code>is_valid_command(command, read=None)</code></li>
 <li><code>set_runtime_data(**kwargs)</code></li>
 <li><code>update_device_params(**kwargs)</code></li>
 <li><code>get_lookup(lookup)</code></li>
 </ul>
+<p>Public callback methods:</p>
+<ul>
+<li><code>on_data_received(by, data, command=None)</code></li>
+<li><code>on_connect(by=None)</code></li>
+<li><code>on_disconnect(by=None)</code></li>
+</ul>
 <p>Methods possibly needed to overload for inherited classes:</p>
 <ul>
 <li><code>run_standalone()</code></li>
 <li><code>_transform_send_data(data_dict)</code></li>
-<li><code>_set_device_params(**kwargs)</code></li>
-<li><code>_get_connection()</code></li>
 <li><code>_send(data_dict)</code></li>
+<li><code>_set_device_params()</code></li>
+<li><code>_get_connection()</code></li>
 </ul>
 <h2 id="md_connection">Md_Connection</h2>
 <p>This class and the derived classes provide frameworks for sending and receiving
@@ -120,29 +130,28 @@ with asynchronous push-to-callback are already available.
 If more complex communication setup is needed, this can be implemented on top
 of the existing classes.</p>
 <p>Data is exchanged with <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> in a special dict format:</p>
-<p>..code: python</p>
-<pre><code>data_dict = {
-    'payload': raw data as needed by the connection}
-    'kw1': additional 'keyword' args or data specific to the connection type
-    'kw2': additional 'keyword' args or data specific to the connection type
-    '...': additional 'keyword' args or data specific to the connection type
-}
-</code></pre>
+<div class="admonition code">
+<p class="admonition-title">Code:&ensp;python</p>
+<p>data_dict = {
+'payload': raw data as needed by the connection}
+'kw1': additional 'keyword' args or data specific to the connection type
+'kw2': additional 'keyword' args or data specific to the connection type
+'&hellip;': additional 'keyword' args or data specific to the connection type
+}</p>
+</div>
 <p><code>MD_Connection(device_type, device_id, data_received_callback, **kwargs)</code></p>
-<p>The callbacks needs to be defined as</p>
-<ul>
-<li><code>data_received_callback(by, data, command=None)</code></li>
-<li><code>connected_callback(by=None)</code> (optional)</li>
-<li><code>disconnected_callback(by=None)</code> (optional)</li>
-</ul>
 <p>Public methods:</p>
 <ul>
 <li><code>open()</code></li>
 <li><code>close()</code></li>
 <li><code>send(data_dict)</code></li>
-<li><code>on_data_received(by, data)</code></li>
-<li><code>on_connect(by=None)</code></li>
-<li><code>on_disconnect(by=None)</code></li>
+<li><code>connected()</code></li>
+</ul>
+<p>Public callback methods:</p>
+<ul>
+<li><code>on_data_received(by, data, command=None)</code></li>
+<li><code>on_connected(by=None)</code></li>
+<li><code>on_disconnected(by=None)</code></li>
 </ul>
 <p>Methods necessary to overload for derived classes:</p>
 <ul>
@@ -162,7 +171,7 @@ of the existing classes.</p>
 for persistent TCP connections with async replies</li>
 <li><code>MD_Connection_Net_Udp_Server</code>
 for UDP listering server with async callback</li>
-<li><code>MD_Connection_Serial_Client</code>
+<li><code>MD_Connection_Serial</code>
 for query-reply serial connections</li>
 <li><code>MD_Connection_Serial_Async</code>
 for event-loop serial connection with async callback</li>
@@ -173,7 +182,7 @@ respective class definition docstring.</p>
 <p>For some device communication, the need arises to add another layer of
 protocol handling - either for special handshake, initialization or general
 communication and data handling, e.g. send queues or command tracking.</p>
-<p>In these cases, instead of misusing the (hardware) connection class or the
+<p>In these cases, instead of misusing the (physical) connection class or the
 (command-oriented) device class, an additional protocol layer can be inserted
 to handle this.</p>
 <p>The <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> class is a subclass of <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> and used by the
@@ -183,6 +192,11 @@ the connection class instance itself and functions as a proxy.</p>
 option, giving the name of an existing protocol class or the empty string
 for the <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> base class, which has no additional function and can
 be used for testing.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Supplying the <code>protocol</code> attribute as a kind of "empty default" is
+prone to break devices relying on protocol support.</p>
+</div>
 <p>The methods are the same as for the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> class.</p>
 <p>This class has subclasses defined for the following types of protocols:</p>
 <ul>
@@ -191,7 +205,7 @@ be used for testing.</p>
 </ul>
 <h2 id="md_commands">Md_Commands</h2>
 <p>This class is a 'dict on steroids' of <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code>-objects with error checking as
-added value. In addition, it also loads command definitions from the file
+added value. In addition, it also loads command and lookup definitions from the file
 <code>commands.py</code> in the device folder and datatype sets and handles datatype association.</p>
 <p>No need to find out if <code>command</code> is defined, just call the method
 and the class will handle failure cases. Beware of NoneType-return values, though.</p>
@@ -199,44 +213,61 @@ and the class will handle failure cases. Beware of NoneType-return values, thoug
 <p>Public methods:</p>
 <ul>
 <li><code>is_valid_command(command, read=None)</code></li>
-<li><code>get_send_data(command, data=None)</code></li>
-<li><code>get_shng_data(command, data)</code></li>
+<li><code>get_send_data(command, data=None, **kwargs)</code></li>
+<li><code>get_shng_data(command, data, **kwargs)</code></li>
 <li><code>get_command_from_reply(data)</code></li>
 <li><code>get_lookup(lookup)</code></li>
 </ul>
-<p>Methods possible to overload, if a custom format for commands.py is desired:</p>
+<p>Methods possible to overload, if a custom format for <code>commands.py</code> is necessary:</p>
 <ul>
 <li><code>_read_commands(device_id)</code></li>
-<li><code>_parse_commands(device_id, commands)</code></li>
+<li><code>_parse_commands(device_id, commands, cmds=[])</code></li>
 <li><code>_parse_lookups(device_id, lookups)</code></li>
 </ul>
+<p>Beware of (unintended) consequences towards other device classes&hellip;</p>
 <p>Options and syntax of commands configuration are detailed in the <code>commands.py</code>
-file in the <code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code> folder.</p>
+file in the <code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code> folder:</p>
+<div class="admonition literalinclude">
+<p class="admonition-title">Literalinclude:&ensp;dev_example/commands.py</p>
+<p>:language: python</p>
+</div>
 <h2 id="md_command">Md_Command</h2>
 <p>This class contains information concerning the command name, the opcode or
 URL needed to issue the command, and information about datatypes expected by
 SmartHomeNG items and the device itself.</p>
 <p>Its contents will be initialized by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code>-class while reading the
 command configuration.</p>
-<p><code>MD_Command(device_id, command_name, dt_class, **kwargs)</code></p>
+<p><code>MD_Command(device_id, command, dt_class, **kwargs)</code></p>
 <p>Public methods:</p>
 <ul>
-<li><code>get_send_data(data)</code></li>
-<li><code>get_shng_data(data)</code></li>
+<li><code>get_send_data(data, **kwargs)</code></li>
+<li><code>get_shng_data(data, **kwargs)</code></li>
+<li><code>get_lookup()</code></li>
 </ul>
 <p>Methods possible to overload:</p>
 <ul>
-<li><code>get_send_data(data)</code></li>
-<li><code>get_shng_data(data)</code></li>
+<li><code>get_send_data(data, **kwargs)</code></li>
+<li><code>get_shng_data(data, **kwargs)</code></li>
 <li><code>_check_value(data)</code></li>
+</ul>
+<p>This class has subclasses defined for the following types of commands:</p>
+<ul>
+<li><code>MD_Command_Str</code>
+for string-based communication with device</li>
+<li><code>MD_Command_ParseStr</code>
+ditto with attribute parsing and regexes</li>
+<li><code>MD_Command_Jsonrpc</code>
+for JSON-RPC 2.0 commands with multiple arguments</li>
+<li><code>MD_Command_Viessmann</code>
+for the binary Viessmann heating protocols</li>
 </ul>
 <p>The classes <code>MD_Command_Str</code> and <code>MD_Command_ParseStr</code> are examples for
 defining own command classes according to your needs.
 These examples utilize strings and dicts to build request URLs as payload data
-for the <code>MD_Connection_Net_TCP_Request</code> or <code>MD_Connection_Net_Tcp_Client</code> classes.
-They also demonstrate parameter substitution in command definitions on different
-levels of complexity.</p>
-<h2 id="md_datatype">Md_Datatype</h2>
+e.g. for the <code>MD_Connection_Net_TCP_Request</code> or <code>MD_Connection_Net_Tcp_Client</code>
+classes. They also demonstrate parameter substitution in command definitions on
+different levels of complexity.</p>
+<h2 id="datatype">Datatype</h2>
 <p>This is one of the most important classes. By declaration, it contains
 information about the data type and format needed by a device and methods
 to convert its value from selected Python data types used in items to the
@@ -251,13 +282,13 @@ examples.</p>
 <p><code>Datatype(fail_silent=True)</code></p>
 <p>Public methods:</p>
 <ul>
-<li><code>get_send_data(data)</code></li>
-<li><code>get_shng_data(data, type=None)</code></li>
+<li><code>get_send_data(data, **kwargs)</code></li>
+<li><code>get_shng_data(data, type=None, **kwargs)</code></li>
 </ul>
 <p>Methods necessary to overload:</p>
 <ul>
-<li><code>get_send_data(data)</code></li>
-<li><code>get_shng_data(data, type=None)</code></li>
+<li><code>get_send_data(data, **kwargs)</code></li>
+<li><code>get_shng_data(data, type=None, **kwargs)</code></li>
 </ul>
 <h1 id="configuration">Configuration</h1>
 <p>The plugin class is capable of handling an arbitrary number of devices
@@ -293,33 +324,58 @@ for some reason the protocol layer should be selected and loaded manually,
 it can be forced by providing the <code>protocol: &lt;protocolname&gt;</code> attribute.
 As with the model, this attribute should normally not be present in the
 configuration.</p>
+<p>A list of all currently supported attributes is found in the <code>MD_Globals.py</code>
+file next to their respective identifiers.</p>
 <p>Example for <code>etc/plugin.yaml</code> configuration:</p>
-<pre><code>multidevice:
-    plugin_name: multidevice
-    devices:
-        - &lt;type&gt;                    # id = &lt;type&gt;, type = &lt;type&gt;, folder = dev_&lt;type&gt;
-            - param1: &lt;value1&gt;      #   optional
-        - &lt;id&gt;:                     # id = &lt;id&gt;, type = &lt;type&gt;, folder = dev_&lt;type&gt;
-            - device_type: &lt;type&gt;
-            - param1: &lt;value1&gt;      #   optional
-            - param2: &lt;value2&gt;      #   optional
-        - dev1                      # id = dev1, type = dev1, folder = dev_dev1
-        - mydev: dev2               # id = mydev, type = dev2, folder = dev_dev2
-        - my2dev:                   # id = my2dev, type = dev3, folder = dev_dev3
-            - device_type: dev3
-            - device_model: foo     #   optional
-            - host: somehost        #   optional
-        - dev4:                     # id = dev4, type = dev4, folder = dev_dev4
-            - host: someotherhost   #   optional
-</code></pre>
+<div class="admonition code">
+<p class="admonition-title">Code:&ensp;yaml</p>
+<p>multidevice:
+plugin_name: multidevice
+devices:
+- <type>
+# id = <type>, type = <type>, folder = dev_<type>
+- param1: <value1>
+#
+optional
+- <id>:
+# id = <id>, type = <type>, folder = dev_<type>
+- device_type: <type>
+- param1: <value1>
+#
+optional
+- param2: <value2>
+#
+optional
+- dev1
+# id = dev1, type = dev1, folder = dev_dev1
+- mydev: dev2
+# id = mydev, type = dev2, folder = dev_dev2
+- my2dev:
+# id = my2dev, type = dev3, folder = dev_dev3
+- device_type: dev3
+- device_model: foo
+#
+optional
+- host: somehost
+#
+optional
+- dev4:
+# id = dev4, type = dev4, folder = dev_dev4
+- host: someotherhost
+#
+optional</p>
+</div>
 <h1 id="new-devices">New devices</h1>
 <p>A new device_type <code>gadget</code> can be implemented by providing the following:</p>
 <ul>
 <li>a device folder <code>dev_gadget</code></li>
 <li>a device configuration file defining commands <code>dev_gadget/commands.py</code></li>
-<li>specification of needed connection type in <code>etc/plugin.yaml</code> ('conn_type')</li>
-<li>only if needed:<ul>
-<li>a device class file with a derived class <code>dev_gadget/device.py</code></li>
+<li>
+<p>only if needed:</p>
+</li>
+<li>
+<p>a device class file with a derived class <code>dev_gadget/device.py</code></p>
+</li>
 <li>additional methods in the device class to handle special commands which
 do more than assign transformed item data to a single item or which need
 more complex item transformation</li>
@@ -328,15 +384,15 @@ connection initialization (e.g. serial sync routines)</li>
 <li>a data formats file defining data types <code>dev_gadget/datatypes.py</code> and
 additional data types in the datatype file</li>
 <li>definition of lookup tables in <code>dev_gadget/commands.py</code></li>
-</ul>
-</li>
+<li>specification of needed connection type in <code>etc/plugin.yaml</code> ('conn_type'),
+if different connection types are possible</li>
 </ul>
 <p>For examples on how to implement this, take a look at the dev_example folder
 which contains simple examples as well as the reference documentation for the
-commands.py file structure.
-Also, take a look into the different existing device classes to get a feeling
-for the needed effort to implement a new device.
-Depending on the device protocol and command complexity, implementing a new
+commands.py file structure.</p>
+<p>Also, take a look into the different existing device classes to get a feeling
+for the needed effort to implement a new device.</p>
+<p>Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
 or requiring a more complex approach, e.g. if it is not practical to store
 all information in items immediately, or if multiple data points are trans-
@@ -372,365 +428,427 @@ mitted at one, which requires splitting or other means of data management.</p>
 #
 #########################################################################
 
-&#39;&#39;&#39;
-    The MultiDevice-Plugin (MD)
-    ===========================
+&#34;&#34;&#34;MultiDevice-Plugin to interface different devices
 
-    This plugin aims to support a wide range of devices which work by sending
-    commands to a device and reading data from it.
-    By abstracting devices and connections, most devices will be able to be
-    interfaced by this plugin.
+The MultiDevice-Plugin (MD)
+===========================
 
-    General description
-    ===================
+This plugin aims to support a wide range of devices which work by sending
+commands to a device and reading data from it.
+By abstracting devices and connections, most devices will be able to be
+interfaced by this plugin.
 
-    The whole MultiDevice-plugin is organized and abstracted into multiple levels
-    of (reference) base classes and derived classes handling special implementations.
+General description
+===================
 
-    The plugin manages item association and updates. For each device it handles,
-    it creates an object based on MD_Device or derived classes.
+The whole MultiDevice-plugin is organized and abstracted into multiple levels
+of (reference) base classes and derived classes handling special implementations.
 
-    The device object handles starting and stopping the device and its configuration.
+
+The plugin manages item association and updates. For each device it handles,
+it creates an object based on ``MD_Device`` or derived classes.
+
+The device object handles starting and stopping the device and its configuration.
+
+Possible commands are bundled by the ``MD_Commands`` class which handles loading, 
+validating and calling the separate ``MD_Command`` or derived objects. 
+
+Each ``MD_Command`` object handles one command and is responsible for creating  
+command tokens/strings to/from the real device. 
+
+Each command is assigned a data type, which is represented by a ``Datatype``-
+derived class and transforms values between the real device and the command object.
+
+To actually talk to the real device, that is, send commands/values and receive
+replies, it uses a standardized interface via one of the ``MD_Connection`` or 
+derived classes. 
+
+Thus, the plugin, devices and commands are ignorant of physical connection
+details, the connection implementation is transparent regarding actual data
+structures or content, and only the datatype classes need to concern itself
+with validity of data sent or received.
+
+.. note::
+    Using the ``MD_Command_Str`` or especially the ``MD_Command_ParseStr`` classes,
+    the need for specialized datatype classes _can_ be sidestepped.
+
+    Be aware that while creating complex commands indeed can be fun, string
+    parsing will not be able to detect or cope with some data type conversions.
     
-    Possible commands are bundled by the MD_Commands class which handles loading, 
-    validating and calling the separate MD_Command or derived objects. 
-    
-    Each MD_Command object handles one command and is responsible for creating  
-    command tokens/strings to/from the real device. 
-
-    Each command is assigned a data type, which is represented by a Datatype-
-    derived class and transforms values between the real device and the command object.
-    
-    To actually talk to the real device, that is, send commands/values and receive
-    replies, it uses a standardized interface via one of the MD_Connection or 
-    derived classes. 
+    You have been warned ;)
 
-    Thus, the plugin, devices and commands are ignorant of physical connection
-    details, the connection implementation is transparent regarding actual data
-    structures or content, and only the datatype classes need to concern itself
-    with validity of data sent or received.
 
-    NOTE: Using the MD_Command_Str or especially the MD_Command_ParseStr classes,
-          the need for specialized datatype classes _can_ be sidestepped.
-          Be aware that while creating complex commands indeed can be fun, string
-          parsing will not be able to detect or cope with some data type conversions.
-          You have been warned ;)
+(New) devices each reside in their respective subfolder of the plugin folder,
+providing a derived device class, a command definition and - if applicable -
+additional necessary datatypes. These are automatically loaded by the plugin
+if the respective device has a configuration entry in ``/etc/plugin.yaml``.
 
-    (New) devices each reside in their respective subfolder of the plugin folder,
-    providing a derived device class, a command definition and - if applicable -
-    additional necessary datatypes. These are automatically loaded by the plugin
-    if the respective device has a configuration entry in ``/etc/plugin.yaml``.
 
+This concept is meant to
 
-    This concept is meant to
-    - minimize the amount of (repeating) code needed to implement a new device,
-    - make it easy to adjust functionality by deriving base classes, overriding
-      methods without needing to adjust the remaining code,
-    - reduce implementing a new device (mostly) to properly defining the
-      command API and datatypes,
-    - keeping individual devices separated and independent as each is loaded into
-      its own module / namespace.
+* minimize the amount of (repeating) code needed to implement a new device,
+* make it easy to adjust functionality by deriving base classes, overriding
+  methods without needing to adjust the remaining code,
+* reduce implementing a new device (mostly) to properly defining the
+  command API and datatypes,
+* keeping individual devices separated and independent as each is loaded into
+  its own module / namespace.
 
-    This comes at the cost of needing to understand the architecture of the plugin
-    to be able to decide what to change/extend and what to keep.
+This comes at the cost of needing to understand the architecture of the plugin
+to be able to decide what to change/extend and what to keep.
 
-    My hope is that with proper documentation and examples, this last part is
-    easier to achieve than having to rewrite the whole handling code for items,
-    network, serial interfaces and commands every time.
 
-    Thanks to OnkelAndy for kicking my backside repeatedly; otherwise the
-    development of this plugin might have stalled before being able to run ;)
+My hope is that with proper documentation and examples, this last part is
+easier to achieve than having to rewrite the whole handling code for items,
+network, serial interfaces and commands every time.
 
+Thanks to OnkelAndy for kicking my backside repeatedly; otherwise the
+development of this plugin might have stalled before being able to run ;)
 
 
-    Base Classes
-    ============
 
-    MultiDevice
-    -----------
+Base Classes
+============
 
-    The ``MultiDevice``-class is derived from the SmartPlugin-class and provides
-    the framework for handling item associations to the plugin, for storing
-    item-command associations, for forwarding commands and the associated data
-    to the device classes and receiving data from the device classes to update
-    item values.
+MultiDevice
+-----------
 
-    This class will usually not need to be adjusted, but runs as the plugin itself.
+The ``MultiDevice``-class is derived from the ``SmartPlugin``-class and provides
+the framework for handling item associations to the plugin, for storing
+item-command associations, for forwarding commands and the associated data
+to the device classes and receiving data from the device classes to update
+item values.
 
-    In addition, the plugin has a - limited - capability to run as a standalone
-    program, for example to initiate a device discovery or diagnostic functions.
-    To this end, it must be run from the plugin folder by issuing
+This class will usually not need to be adjusted, but runs as the plugin itself.
 
-    ``python3 __init__.py &lt;devicename&gt;``
 
-    Be advised that any functionality to provide in this mode must absolutely
-    by implemented by you :)
+In addition, the plugin has a - limited - capability to run as a standalone
+program, for example to initiate a device discovery or diagnostic functions.
+To this end, it must be run from the plugin folder by issuing
 
+``python3 __init__.py &lt;devicename&gt; [&lt;params as dict&gt;]``
 
-    MD_Device
-    ---------
+Be advised that any functionality to provide in this mode must absolutely
+by implemented by you :)
 
-    The ``MD_Device``-class provides a framework for receiving (item) data values
-    from the plugin and forward it to the connection class and vice versa.
-    A basic framework for managing the device, i.e. (re-)configuring, starting
-    and stopping the device is already implemented and can be used without code
-    changed by device configuration.
 
-    ``MD_Device(device_type, device_id, **kwargs)``
+MD_Device
+---------
 
-    Public methods:
+The ``MD_Device``-class provides a framework for receiving (item) data values
+from the plugin and forward it to the connection class and vice versa.
+A basic framework for managing the device, i.e. (re-)configuring, starting
+and stopping the device is already implemented and can be used without code
+changed by device configuration.
 
-    - ``start()``
-    - ``stop()``
-    - ``send_command(command, value=None)``
-    - ``read_all_commands(group=0)``
-    - ``on_data_received(command, data)``
-    - ``is_valid_command(command, read=None)``
-    - ``set_runtime_data(**kwargs)``
-    - ``update_device_params(**kwargs)``
-    - ``get_lookup(lookup)``
 
-    Methods possibly needed to overload for inherited classes:
+``MD_Device(device_type, device_id, **kwargs)``
 
-    - ``run_standalone()``
-    - ``_transform_send_data(data_dict)``
-    - ``_set_device_params(**kwargs)``
-    - ``_get_connection()``
-    - ``_send(data_dict)``
 
+Public methods:
 
-    MD_Connection
-    -------------
+* ``start()``
+* ``stop()``
+* ``send_command(command, value=None, **kwargs)``
+* ``read_all_commands(group=0)``
+* ``is_valid_command(command, read=None)``
+* ``set_runtime_data(**kwargs)``
+* ``update_device_params(**kwargs)``
+* ``get_lookup(lookup)``
 
-    This class and the derived classes provide frameworks for sending and receiving
-    data to and from devices via serial or network connections. For both hardware
-    layers implementation of query-response-connections and listening servers
-    with asynchronous push-to-callback are already available.
-    If more complex communication setup is needed, this can be implemented on top
-    of the existing classes.
 
-    Data is exchanged with ``MD_Device`` in a special dict format:
+Public callback methods:
 
-    ..code: python
+* ``on_data_received(by, data, command=None)``
+* ``on_connect(by=None)``
+* ``on_disconnect(by=None)``
 
-        data_dict = {
-            &#39;payload&#39;: raw data as needed by the connection}
-            &#39;kw1&#39;: additional &#39;keyword&#39; args or data specific to the connection type
-            &#39;kw2&#39;: additional &#39;keyword&#39; args or data specific to the connection type
-            &#39;...&#39;: additional &#39;keyword&#39; args or data specific to the connection type
-        }
 
+Methods possibly needed to overload for inherited classes:
 
-    ``MD_Connection(device_type, device_id, data_received_callback, **kwargs)``
+* ``run_standalone()``
+* ``_transform_send_data(data_dict)``
+* ``_send(data_dict)``
+* ``_set_device_params()``
+* ``_get_connection()``
 
-    The callbacks needs to be defined as
 
-    - ``data_received_callback(by, data, command=None)``
-    - ``connected_callback(by=None)`` (optional)
-    - ``disconnected_callback(by=None)`` (optional)
+MD_Connection
+-------------
 
-    Public methods:
+This class and the derived classes provide frameworks for sending and receiving
+data to and from devices via serial or network connections. For both hardware
+layers implementation of query-response-connections and listening servers
+with asynchronous push-to-callback are already available.
+If more complex communication setup is needed, this can be implemented on top
+of the existing classes.
 
-    - ``open()``
-    - ``close()``
-    - ``send(data_dict)``
-    - ``on_data_received(by, data)``
-    - ``on_connect(by=None)``
-    - ``on_disconnect(by=None)``
 
+Data is exchanged with ``MD_Device`` in a special dict format:
 
-    Methods necessary to overload for derived classes:
+.. code:: python
 
-    - ``_open()``
-    - ``_close()``
-    - ``_send(data_dict)``
+    data_dict = {
+        &#39;payload&#39;: raw data as needed by the connection}
+        &#39;kw1&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+        &#39;kw2&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+        &#39;...&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+    }
 
 
-    Methods possible to overload for derived classes:
+``MD_Connection(device_type, device_id, data_received_callback, **kwargs)``
 
-    - ``_send_init_on_open()``
-    - ``_send_init_on_send()``
 
+Public methods:
 
-    This class has subclasses defined for the following types of connection:
+* ``open()``
+* ``close()``
+* ``send(data_dict)``
+* ``connected()``
 
-    - ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
-    - ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-    - ``MD_Connection_Net_Udp_Server``  for UDP listering server with async callback
-    - ``MD_Connection_Serial_Client``   for query-reply serial connections
-    - ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
-    For detailed information and necessary configuration parameters, see the
-    respective class definition docstring.
+Public callback methods:
 
+* ``on_data_received(by, data, command=None)``
+* ``on_connected(by=None)``
+* ``on_disconnected(by=None)``
 
-    MD_Protocol
-    -----------
 
-    For some device communication, the need arises to add another layer of
-    protocol handling - either for special handshake, initialization or general
-    communication and data handling, e.g. send queues or command tracking.
+Methods necessary to overload for derived classes:
 
-    In these cases, instead of misusing the (hardware) connection class or the
-    (command-oriented) device class, an additional protocol layer can be inserted
-    to handle this.
+* ``_open()``
+* ``_close()``
+* ``_send(data_dict)``
 
-    The ``MD_Protocol`` class is a subclass of ``MD_Connection`` and used by the
-    device instead of the actual connection class. The protocol class creates
-    the connection class instance itself and functions as a proxy.
 
-    To activate the protocol layer, configure the device with the ``protocol``
-    option, giving the name of an existing protocol class or the empty string
-    for the ``MD_Protocol`` base class, which has no additional function and can
-    be used for testing.
+Methods possible to overload for derived classes:
 
-    The methods are the same as for the ``MD_Connection`` class.
+* ``_send_init_on_open()``
+* ``_send_init_on_send()``
 
-    This class has subclasses defined for the following types of protocols:
 
-    - ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
-    - ``MD_Protocol_Viessmann`` for P300- and KW-protocol communication
+This class has subclasses defined for the following types of connection:
 
+* ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
+* ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
+* ``MD_Connection_Net_Udp_Server``  for UDP listering server with async callback
+* ``MD_Connection_Serial``          for query-reply serial connections
+* ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
-    MD_Commands
-    -----------
+For detailed information and necessary configuration parameters, see the
+respective class definition docstring.
 
-    This class is a &#39;dict on steroids&#39; of ``MD_Command``-objects with error checking as
-    added value. In addition, it also loads command definitions from the file
-    ``commands.py`` in the device folder and datatype sets and handles datatype association.
 
-    No need to find out if ``command`` is defined, just call the method
-    and the class will handle failure cases. Beware of NoneType-return values, though.
+MD_Protocol
+-----------
 
-    ``MD_Commands(device_type, device_id, command_obj_class=MD_Command, **kwargs)``
+For some device communication, the need arises to add another layer of
+protocol handling - either for special handshake, initialization or general
+communication and data handling, e.g. send queues or command tracking.
 
-    Public methods:
+In these cases, instead of misusing the (physical) connection class or the
+(command-oriented) device class, an additional protocol layer can be inserted
+to handle this.
 
-    - ``is_valid_command(command, read=None)``
-    - ``get_send_data(command, data=None)``
-    - ``get_shng_data(command, data)``
-    - ``get_command_from_reply(data)``
-    - ``get_lookup(lookup)``
 
-    Methods possible to overload, if a custom format for commands.py is desired:
+The ``MD_Protocol`` class is a subclass of ``MD_Connection`` and used by the
+device instead of the actual connection class. The protocol class creates
+the connection class instance itself and functions as a proxy.
 
-    - ``_read_commands(device_id)``
-    - ``_parse_commands(device_id, commands)``
-    - ``_parse_lookups(device_id, lookups)``
+To activate the protocol layer, configure the device with the ``protocol``
+option, giving the name of an existing protocol class or the empty string
+for the ``MD_Protocol`` base class, which has no additional function and can
+be used for testing.
 
-    Options and syntax of commands configuration are detailed in the `commands.py`
-    file in the `dev_example` folder.
+.. warning::
 
-    MD_Command
-    ----------
+    Supplying the ``protocol`` attribute as a kind of &#34;empty default&#34; is
+    prone to break devices relying on protocol support.
 
-    This class contains information concerning the command name, the opcode or
-    URL needed to issue the command, and information about datatypes expected by
-    SmartHomeNG items and the device itself.
 
-    Its contents will be initialized by the ``MD_Commands``-class while reading the
-    command configuration.
+The methods are the same as for the ``MD_Connection`` class.
 
-    ``MD_Command(device_id, command_name, dt_class, **kwargs)``
 
-    Public methods:
+This class has subclasses defined for the following types of protocols:
 
-    - ``get_send_data(data)``
-    - ``get_shng_data(data)``
+* ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
+* ``MD_Protocol_Viessmann`` for P300- and KW-protocol communication
 
-    Methods possible to overload:
 
-    - ``get_send_data(data)``
-    - ``get_shng_data(data)``
-    - ``_check_value(data)``
+MD_Commands
+-----------
 
+This class is a &#39;dict on steroids&#39; of ``MD_Command``-objects with error checking as
+added value. In addition, it also loads command and lookup definitions from the file
+``commands.py`` in the device folder and datatype sets and handles datatype association.
 
-    The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for 
-    defining own command classes according to your needs.
-    These examples utilize strings and dicts to build request URLs as payload data
-    for the ``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client`` classes.
-    They also demonstrate parameter substitution in command definitions on different
-    levels of complexity.
+No need to find out if ``command`` is defined, just call the method
+and the class will handle failure cases. Beware of NoneType-return values, though.
 
 
-    MD_Datatype
-    -----------
+``MD_Commands(device_type, device_id, command_obj_class=MD_Command, **kwargs)``
 
-    This is one of the most important classes. By declaration, it contains
-    information about the data type and format needed by a device and methods
-    to convert its value from selected Python data types used in items to the
-    (possibly) special data formats required by devices and vice versa.
 
-    Datatypes are specified in subclasses of Datatype with a nomenclature
-    convention of `DT_&lt;device data type of format&gt;`.
+Public methods:
 
-    All default datatype classes are imported from ``datatypes.py`` into the &#39;DT&#39; module.
+* ``is_valid_command(command, read=None)``
+* ``get_send_data(command, data=None, **kwargs)``
+* ``get_shng_data(command, data, **kwargs)``
+* ``get_command_from_reply(data)``
+* ``get_lookup(lookup)``
 
-    New devices can ship their own needed datatype classes in a file called
-    ``datatypes.py`` in the devices&#39; folder.
 
-    For details concerning API and implementation, refer to the reference classes as
-    examples.
+Methods possible to overload, if a custom format for ``commands.py`` is necessary:
 
-    ``Datatype(fail_silent=True)``
+* ``_read_commands(device_id)``
+* ``_parse_commands(device_id, commands, cmds=[])``
+* ``_parse_lookups(device_id, lookups)``
 
-    Public methods:
+Beware of (unintended) consequences towards other device classes...
 
-    - ``get_send_data(data)``
-    - ``get_shng_data(data, type=None)``
 
-    Methods necessary to overload:
+Options and syntax of commands configuration are detailed in the `commands.py`
+file in the `dev_example` folder:
 
-    - ``get_send_data(data)``
-    - ``get_shng_data(data, type=None)``
+.. literalinclude:: dev_example/commands.py
+    :language: python
 
 
-    Configuration
-    =============
+MD_Command
+----------
 
-    The plugin class is capable of handling an arbitrary number of devices
-    independently. Necessary configuration include the chosen devices respectively
-    the device names and possibly device parameter in ``etc/plugin.yaml``.
+This class contains information concerning the command name, the opcode or
+URL needed to issue the command, and information about datatypes expected by
+SmartHomeNG items and the device itself.
 
-    Every device is identified by its type (which corresponds to the device folder
-    dev_&lt;type&gt;) and its id, which is the internal SmartHomeNG handle and the name
-    used in item configuration. If only one device of the same type is used, type
-    and id can be the same. The ``devices:``-attribute in ``plugin.yaml`` contains
-    a dict of all configured devices where the id is the key and the configuration
-    for the specific device is provided as &#34;dict in value&#34; format, if needed.
-    The configuration can include the attribute ``device_type`` to specify the type
-    of the device (if different from the id) and - optionally - the attribute
-    ``model``, if a device offers multiple model configurations.
+Its contents will be initialized by the ``MD_Commands``-class while reading the
+command configuration.
 
-    The item configuration is supplemented by the attributes ``md_deviceid`` and
-    ``md_command``, which designate the device id from plugin configuration and
-    the command name from the device configuration, respectively.
 
-    The device class needs comprehensive configuration concerning available commands,
-    the associated sent and received data formats, which will be supplied by way
-    of configuration files in python format. Furthermore, the device-dependent
-    type and configuration of connection should be set in ``etc/plugin.yaml`` for
-    each device used.
+``MD_Command(device_id, command, dt_class, **kwargs)``
 
-    For some device classes, it is possible to choose from different models. In 
-    this case, the attribute ``model: &lt;modelname&gt;`` needs to be present. In any
-    other case, the ``model`` key should not be present. 
 
-    The connection classes will be chosen and configured by the device classes.
-    They should not need further configuration, as all data transformation is done
-    by the device classes and the connection-specific attributes are provided
-    from plugin configuration.
+Public methods:
 
-    If the additional protocol layer is necessary, usually the device class will
-    provide for proper loading (it loads in place of the connection class). If
-    for some reason the protocol layer should be selected and loaded manually,
-    it can be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute.
-    As with the model, this attribute should normally not be present in the
-    configuration.
+* ``get_send_data(data, **kwargs)``
+* ``get_shng_data(data, **kwargs)``
+* ``get_lookup()``
 
-    Example for `etc/plugin.yaml` configuration:
 
-    ```
+Methods possible to overload:
+
+* ``get_send_data(data, **kwargs)``
+* ``get_shng_data(data, **kwargs)``
+* ``_check_value(data)``
+
+
+This class has subclasses defined for the following types of commands:
+
+* ``MD_Command_Str``        for string-based communication with device
+* ``MD_Command_ParseStr``   ditto with attribute parsing and regexes
+* ``MD_Command_Jsonrpc``    for JSON-RPC 2.0 commands with multiple arguments
+* ``MD_Command_Viessmann``  for the binary Viessmann heating protocols
+
+The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for 
+defining own command classes according to your needs.
+These examples utilize strings and dicts to build request URLs as payload data
+e.g. for the ``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client``
+classes. They also demonstrate parameter substitution in command definitions on
+different levels of complexity.
+
+
+Datatype
+--------
+
+This is one of the most important classes. By declaration, it contains
+information about the data type and format needed by a device and methods
+to convert its value from selected Python data types used in items to the
+(possibly) special data formats required by devices and vice versa.
+
+
+Datatypes are specified in subclasses of Datatype with a nomenclature
+convention of `DT_&lt;device data type of format&gt;`.
+
+All default datatype classes are imported from ``datatypes.py`` into the &#39;DT&#39; module.
+
+
+New devices can ship their own needed datatype classes in a file called
+``datatypes.py`` in the devices&#39; folder.
+
+For details concerning API and implementation, refer to the reference classes as
+examples.
+
+
+``Datatype(fail_silent=True)``
+
+
+Public methods:
+
+* ``get_send_data(data, **kwargs)``
+* ``get_shng_data(data, type=None, **kwargs)``
+
+
+Methods necessary to overload:
+
+* ``get_send_data(data, **kwargs)``
+* ``get_shng_data(data, type=None, **kwargs)``
+
+
+Configuration
+=============
+
+The plugin class is capable of handling an arbitrary number of devices
+independently. Necessary configuration include the chosen devices respectively
+the device names and possibly device parameter in ``etc/plugin.yaml``.
+
+
+Every device is identified by its type (which corresponds to the device folder
+dev_&lt;type&gt;) and its id, which is the internal SmartHomeNG handle and the name
+used in item configuration. If only one device of the same type is used, type
+and id can be the same. The ``devices:``-attribute in ``plugin.yaml`` contains
+a dict of all configured devices where the id is the key and the configuration
+for the specific device is provided as &#34;dict in value&#34; format, if needed.
+The configuration can include the attribute ``device_type`` to specify the type
+of the device (if different from the id) and - optionally - the attribute
+``model``, if a device offers multiple model configurations.
+
+The item configuration is supplemented by the attributes ``md_deviceid`` and
+``md_command``, which designate the device id from plugin configuration and
+the command name from the device configuration, respectively.
+
+
+The device class needs comprehensive configuration concerning available commands,
+the associated sent and received data formats, which will be supplied by way
+of configuration files in python format. Furthermore, the device-dependent
+type and configuration of connection should be set in ``etc/plugin.yaml`` for
+each device used.
+
+For some device classes, it is possible to choose from different models. In 
+this case, the attribute ``model: &lt;modelname&gt;`` needs to be present. In any
+other case, the ``model`` key should not be present. 
+
+
+The connection classes will be chosen and configured by the device classes.
+They should not need further configuration, as all data transformation is done
+by the device classes and the connection-specific attributes are provided
+from plugin configuration.
+
+
+If the additional protocol layer is necessary, usually the device class will
+provide for proper loading (it loads in place of the connection class). If
+for some reason the protocol layer should be selected and loaded manually,
+it can be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute.
+As with the model, this attribute should normally not be present in the
+configuration.
+
+A list of all currently supported attributes is found in the ``MD_Globals.py``
+file next to their respective identifiers.
+
+
+Example for `etc/plugin.yaml` configuration:
+
+.. code:: yaml
+
     multidevice:
         plugin_name: multidevice
         devices:
@@ -748,39 +866,42 @@ mitted at one, which requires splitting or other means of data management.</p>
                 - host: somehost        #   optional
             - dev4:                     # id = dev4, type = dev4, folder = dev_dev4
                 - host: someotherhost   #   optional
-    ```
 
 
-    New devices
-    ===========
+New devices
+===========
 
-    A new device_type ``gadget`` can be implemented by providing the following:
+A new device_type ``gadget`` can be implemented by providing the following:
 
-    - a device folder ``dev_gadget``
-    - a device configuration file defining commands ``dev_gadget/commands.py``
-    - specification of needed connection type in ``etc/plugin.yaml`` (&#39;conn_type&#39;)
-    - only if needed:
-        * a device class file with a derived class ``dev_gadget/device.py``
-        * additional methods in the device class to handle special commands which
-          do more than assign transformed item data to a single item or which need
-          more complex item transformation
-        * additional methods in the connection class to handle special forms of
-          connection initialization (e.g. serial sync routines)
-        * a data formats file defining data types ``dev_gadget/datatypes.py`` and
-          additional data types in the datatype file
-        * definition of lookup tables in ``dev_gadget/commands.py``
+* a device folder ``dev_gadget``
+* a device configuration file defining commands ``dev_gadget/commands.py``
+* only if needed:
 
-    For examples on how to implement this, take a look at the dev_example folder
-    which contains simple examples as well as the reference documentation for the
-    commands.py file structure.
-    Also, take a look into the different existing device classes to get a feeling
-    for the needed effort to implement a new device.
-    Depending on the device protocol and command complexity, implementing a new
-    device can be a quick and easy job (e.g. for simple string or byte exchanges)
-    or requiring a more complex approach, e.g. if it is not practical to store
-    all information in items immediately, or if multiple data points are trans-
-    mitted at one, which requires splitting or other means of data management.
-&#39;&#39;&#39;
+  * a device class file with a derived class ``dev_gadget/device.py``
+  * additional methods in the device class to handle special commands which
+    do more than assign transformed item data to a single item or which need
+    more complex item transformation
+  * additional methods in the connection class to handle special forms of
+    connection initialization (e.g. serial sync routines)
+  * a data formats file defining data types ``dev_gadget/datatypes.py`` and
+    additional data types in the datatype file
+  * definition of lookup tables in ``dev_gadget/commands.py``
+  * specification of needed connection type in ``etc/plugin.yaml`` (&#39;conn_type&#39;),
+    if different connection types are possible
+
+For examples on how to implement this, take a look at the dev_example folder
+which contains simple examples as well as the reference documentation for the
+commands.py file structure.
+
+Also, take a look into the different existing device classes to get a feeling
+for the needed effort to implement a new device.
+
+Depending on the device protocol and command complexity, implementing a new
+device can be a quick and easy job (e.g. for simple string or byte exchanges)
+or requiring a more complex approach, e.g. if it is not practical to store
+all information in items immediately, or if multiple data points are trans-
+mitted at one, which requires splitting or other means of data management.
+&#34;&#34;&#34;
 
 from collections import OrderedDict
 import importlib
@@ -827,7 +948,8 @@ else:
 #############################################################################################################################################################################################################################################
 
 class MultiDevice(SmartPlugin):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; MultiDevice class provides the SmartPlugin class for SmartHomeNG
+    
     This class does the actual interface work between SmartHomeNG and the device
     classes. Mainly it parses plugin and item configuration data, sets up associations
     between devices and items and handles data exchange between SmartHomeNG and
@@ -835,15 +957,15 @@ class MultiDevice(SmartPlugin):
     if so instructed by SmartHomeNG.
 
     It also looks good.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
 
-    PLUGIN_VERSION = &#39;0.1.0&#39;
+    PLUGIN_VERSION = &#39;0.2.0&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Initalizes the plugin. For this plugin, this means collecting all device
         modules and initializing them by instantiating the proper class.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if not sh:
             self.logger = logger
 
@@ -988,9 +1110,9 @@ class MultiDevice(SmartPlugin):
             self.init_webinterface(WebInterface)
 
     def run(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Run method for the plugin
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(&#39;Run method called&#39;)
 
         # self.__print_global_arrays()
@@ -1003,9 +1125,9 @@ class MultiDevice(SmartPlugin):
         self._apply_on_all_devices(&#39;start&#39;)
 
     def stop(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Stop method for the plugin
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(&#39;Stop method called&#39;)
         # self.scheduler_remove(&#39;poll_device&#39;)
         self.alive = False
@@ -1013,7 +1135,7 @@ class MultiDevice(SmartPlugin):
         self._apply_on_all_devices(&#39;stop&#39;)
 
     def parse_item(self, item):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Default plugin parse_item method. Is called when the plugin is initialized.
         The plugin can, corresponding to its attribute keywords, decide what to do with
         the item in future, like adding it to an internal array for future reference
@@ -1024,7 +1146,7 @@ class MultiDevice(SmartPlugin):
                         This means that when the items value is about to be updated, the call back function is called
                         with the item, caller, source and dest as arguments and in case of the knx plugin the value
                         can be sent to the knx with a knx write function within the knx plugin.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
             # item is marked for plugin handling.
@@ -1119,7 +1241,7 @@ class MultiDevice(SmartPlugin):
                     self.logger.warning(f&#39;Item {item} has attribute {ITEM_ATTR_LOOKUP} without a value set. Ignoring.&#39;)
 
     def update_item(self, item, caller=None, source=None, dest=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Item has been updated
 
         This method is called, if the value of an item has been updated by SmartHomeNG.
@@ -1130,7 +1252,7 @@ class MultiDevice(SmartPlugin):
         :param caller: if given it represents the callers name
         :param source: if given it represents the source
         :param dest: if given it represents the dest
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if self.alive:
 
             self.logger.debug(f&#39;Update_item was called with item &#34;{item}&#34; from caller {caller}, source {source} and dest {dest}&#39;)
@@ -1179,7 +1301,7 @@ class MultiDevice(SmartPlugin):
                     device.read_all_commands(group)
 
     def on_data_received(self, device_id, command, value):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item
         and update value
@@ -1189,7 +1311,7 @@ class MultiDevice(SmartPlugin):
         :param value: data
         :type device_id: str
         :type command: str
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if self.alive:
 
             # from here on, use device&#39;s logger so messages are displayed for the device
@@ -1204,7 +1326,7 @@ class MultiDevice(SmartPlugin):
                 dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
     def _update_device_params(self, device_id):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         hand over all device parameters to the device and tell it to do whatever
         is necessary to apply the new values.
         The device _will_ ignore this while it is running. To avoid accidental
@@ -1213,14 +1335,14 @@ class MultiDevice(SmartPlugin):
 
         :param device_id: device id (surprise!)
         :type device:name: string
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;updating parameters for device {device_id}&#39;)
         device = self._get_device(device_id)
         if device:
             device.update_device_params(**self._get_device_params(device_id))
 
     def _apply_on_all_devices(self, method, args_function=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Call &lt;method&gt; on all devices stored in self._devices. If supplied,
         call args_function(device_id) for each device and hand over its
         returned dict as **kwargs.
@@ -1229,7 +1351,7 @@ class MultiDevice(SmartPlugin):
         :param args_function: function to build arguments dict
         :type method: str
         :type args_function: function
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         for device in self._devices:
 
             kwargs = {}
@@ -1238,14 +1360,14 @@ class MultiDevice(SmartPlugin):
             getattr(self._get_device(device), method)(**kwargs)
 
     def _generate_runtime_data(self, device_id):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         generate dict with device-specific data needed to run, which is
         - list of all &#39;read&#39;-configured commands
         - dict of lists of all &#39;read group&#39;-configured commands, key is group no
         - list of all cyclic commands with cycle times
         - list of all initial read commands
         - callback for returning data to the plugin
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         return {
             &#39;read_commands&#39;: self._commands_read[device_id].keys(),
             &#39;read_commands_grp&#39;: self._commands_read_grp[device_id],
@@ -1255,7 +1377,7 @@ class MultiDevice(SmartPlugin):
         }
 
     def _get_device_type(self, device_id):
-        &#39;&#39;&#39; getter method. Really most unused. &#39;&#39;&#39;
+        &#34;&#34;&#34; getter method. Really most unused. &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;device_type&#39;]
@@ -1263,7 +1385,7 @@ class MultiDevice(SmartPlugin):
             return None
 
     def _get_device(self, device_id):
-        &#39;&#39;&#39; getter method for device object &#39;&#39;&#39;
+        &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;device&#39;]
@@ -1271,7 +1393,7 @@ class MultiDevice(SmartPlugin):
             return None
 
     def _get_device_params(self, device_id):
-        &#39;&#39;&#39; getter method &#39;&#39;&#39;
+        &#34;&#34;&#34; getter method &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;params&#39;]
@@ -1279,7 +1401,7 @@ class MultiDevice(SmartPlugin):
             return None
 
     def _get_device_logger(self, device_id):
-        &#39;&#39;&#39; getter for device logger, return plugin logger on error &#39;&#39;&#39;
+        &#34;&#34;&#34; getter for device logger, return plugin logger on error &#34;&#34;&#34;
         log = self.logger
         dev = self._devices.get(device_id, None)
         if dev:
@@ -1337,9 +1459,9 @@ class WebInterface(SmartPluginWebIf):
 
     @cherrypy.expose
     def submit(self, button=None, param=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Submit handler for Ajax
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if button is not None:
 
             notify = None
@@ -1411,7 +1533,7 @@ class WebInterface(SmartPluginWebIf):
 
 if __name__ == &#39;__main__&#39;:
 
-    usage = &#39;&#39;&#39;
+    usage = &#34;&#34;&#34;
     Usage:
     ----------------------------------------------------------------------------------
 
@@ -1439,7 +1561,7 @@ if __name__ == &#39;__main__&#39;:
 
     ./__init__.py MD_Device -v
 
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.CRITICAL)
     ch = logging.StreamHandler()
@@ -1533,11 +1655,6 @@ if __name__ == &#39;__main__&#39;:
 </dd>
 <dt><code class="name"><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></dt>
 <dd>
-<div class="desc"><p>Datatype
-…</p></div>
-</dd>
-<dt><code class="name"><a title="multidevice.dev_denon" href="dev_denon/index.html">multidevice.dev_denon</a></code></dt>
-<dd>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></dt>
@@ -1545,18 +1662,6 @@ if __name__ == &#39;__main__&#39;:
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="multidevice.dev_kodi" href="dev_kodi/index.html">multidevice.dev_kodi</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="multidevice.dev_viessmann" href="dev_viessmann/index.html">multidevice.dev_viessmann</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1574,7 +1679,8 @@ if __name__ == &#39;__main__&#39;:
 <span>(</span><span>sh, standalone_device='', logger=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class does the actual interface work between SmartHomeNG and the device
+<div class="desc"><p>MultiDevice class provides the SmartPlugin class for SmartHomeNG</p>
+<p>This class does the actual interface work between SmartHomeNG and the device
 classes. Mainly it parses plugin and item configuration data, sets up associations
 between devices and items and handles data exchange between SmartHomeNG and
 the device classes. Furthermore, it calls all devices' run() and stop() methods
@@ -1587,7 +1693,8 @@ modules and initializing them by instantiating the proper class.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MultiDevice(SmartPlugin):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; MultiDevice class provides the SmartPlugin class for SmartHomeNG
+    
     This class does the actual interface work between SmartHomeNG and the device
     classes. Mainly it parses plugin and item configuration data, sets up associations
     between devices and items and handles data exchange between SmartHomeNG and
@@ -1595,15 +1702,15 @@ modules and initializing them by instantiating the proper class.</p></div>
     if so instructed by SmartHomeNG.
 
     It also looks good.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
 
-    PLUGIN_VERSION = &#39;0.1.0&#39;
+    PLUGIN_VERSION = &#39;0.2.0&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Initalizes the plugin. For this plugin, this means collecting all device
         modules and initializing them by instantiating the proper class.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if not sh:
             self.logger = logger
 
@@ -1748,9 +1855,9 @@ modules and initializing them by instantiating the proper class.</p></div>
             self.init_webinterface(WebInterface)
 
     def run(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Run method for the plugin
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(&#39;Run method called&#39;)
 
         # self.__print_global_arrays()
@@ -1763,9 +1870,9 @@ modules and initializing them by instantiating the proper class.</p></div>
         self._apply_on_all_devices(&#39;start&#39;)
 
     def stop(self):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Stop method for the plugin
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(&#39;Stop method called&#39;)
         # self.scheduler_remove(&#39;poll_device&#39;)
         self.alive = False
@@ -1773,7 +1880,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         self._apply_on_all_devices(&#39;stop&#39;)
 
     def parse_item(self, item):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Default plugin parse_item method. Is called when the plugin is initialized.
         The plugin can, corresponding to its attribute keywords, decide what to do with
         the item in future, like adding it to an internal array for future reference
@@ -1784,7 +1891,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                         This means that when the items value is about to be updated, the call back function is called
                         with the item, caller, source and dest as arguments and in case of the knx plugin the value
                         can be sent to the knx with a knx write function within the knx plugin.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
             # item is marked for plugin handling.
@@ -1879,7 +1986,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     self.logger.warning(f&#39;Item {item} has attribute {ITEM_ATTR_LOOKUP} without a value set. Ignoring.&#39;)
 
     def update_item(self, item, caller=None, source=None, dest=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Item has been updated
 
         This method is called, if the value of an item has been updated by SmartHomeNG.
@@ -1890,7 +1997,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         :param caller: if given it represents the callers name
         :param source: if given it represents the source
         :param dest: if given it represents the dest
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if self.alive:
 
             self.logger.debug(f&#39;Update_item was called with item &#34;{item}&#34; from caller {caller}, source {source} and dest {dest}&#39;)
@@ -1939,7 +2046,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     device.read_all_commands(group)
 
     def on_data_received(self, device_id, command, value):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item
         and update value
@@ -1949,7 +2056,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         :param value: data
         :type device_id: str
         :type command: str
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if self.alive:
 
             # from here on, use device&#39;s logger so messages are displayed for the device
@@ -1964,7 +2071,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                 dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
     def _update_device_params(self, device_id):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         hand over all device parameters to the device and tell it to do whatever
         is necessary to apply the new values.
         The device _will_ ignore this while it is running. To avoid accidental
@@ -1973,14 +2080,14 @@ modules and initializing them by instantiating the proper class.</p></div>
 
         :param device_id: device id (surprise!)
         :type device:name: string
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         self.logger.debug(f&#39;updating parameters for device {device_id}&#39;)
         device = self._get_device(device_id)
         if device:
             device.update_device_params(**self._get_device_params(device_id))
 
     def _apply_on_all_devices(self, method, args_function=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Call &lt;method&gt; on all devices stored in self._devices. If supplied,
         call args_function(device_id) for each device and hand over its
         returned dict as **kwargs.
@@ -1989,7 +2096,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         :param args_function: function to build arguments dict
         :type method: str
         :type args_function: function
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         for device in self._devices:
 
             kwargs = {}
@@ -1998,14 +2105,14 @@ modules and initializing them by instantiating the proper class.</p></div>
             getattr(self._get_device(device), method)(**kwargs)
 
     def _generate_runtime_data(self, device_id):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         generate dict with device-specific data needed to run, which is
         - list of all &#39;read&#39;-configured commands
         - dict of lists of all &#39;read group&#39;-configured commands, key is group no
         - list of all cyclic commands with cycle times
         - list of all initial read commands
         - callback for returning data to the plugin
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         return {
             &#39;read_commands&#39;: self._commands_read[device_id].keys(),
             &#39;read_commands_grp&#39;: self._commands_read_grp[device_id],
@@ -2015,7 +2122,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         }
 
     def _get_device_type(self, device_id):
-        &#39;&#39;&#39; getter method. Really most unused. &#39;&#39;&#39;
+        &#34;&#34;&#34; getter method. Really most unused. &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;device_type&#39;]
@@ -2023,7 +2130,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             return None
 
     def _get_device(self, device_id):
-        &#39;&#39;&#39; getter method for device object &#39;&#39;&#39;
+        &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;device&#39;]
@@ -2031,7 +2138,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             return None
 
     def _get_device_params(self, device_id):
-        &#39;&#39;&#39; getter method &#39;&#39;&#39;
+        &#34;&#34;&#34; getter method &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;params&#39;]
@@ -2039,7 +2146,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             return None
 
     def _get_device_logger(self, device_id):
-        &#39;&#39;&#39; getter for device logger, return plugin logger on error &#39;&#39;&#39;
+        &#34;&#34;&#34; getter for device logger, return plugin logger on error &#34;&#34;&#34;
         log = self.logger
         dev = self._devices.get(device_id, None)
         if dev:
@@ -2078,7 +2185,7 @@ and update value</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def on_data_received(self, device_id, command, value):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Callback function - new data has been received from device.
     Value is already in item-compatible format, so find appropriate item
     and update value
@@ -2088,7 +2195,7 @@ and update value</p>
     :param value: data
     :type device_id: str
     :type command: str
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if self.alive:
 
         # from here on, use device&#39;s logger so messages are displayed for the device
@@ -2124,7 +2231,7 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def parse_item(self, item):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Default plugin parse_item method. Is called when the plugin is initialized.
     The plugin can, corresponding to its attribute keywords, decide what to do with
     the item in future, like adding it to an internal array for future reference
@@ -2135,7 +2242,7 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
                     This means that when the items value is about to be updated, the call back function is called
                     with the item, caller, source and dest as arguments and in case of the knx plugin the value
                     can be sent to the knx with a knx write function within the knx plugin.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
         # item is marked for plugin handling.
@@ -2240,9 +2347,9 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def run(self):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Run method for the plugin
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     self.logger.debug(&#39;Run method called&#39;)
 
     # self.__print_global_arrays()
@@ -2265,9 +2372,9 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def stop(self):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Stop method for the plugin
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     self.logger.debug(&#39;Stop method called&#39;)
     # self.scheduler_remove(&#39;poll_device&#39;)
     self.alive = False
@@ -2292,7 +2399,7 @@ is managed by this plugin.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def update_item(self, item, caller=None, source=None, dest=None):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Item has been updated
 
     This method is called, if the value of an item has been updated by SmartHomeNG.
@@ -2303,7 +2410,7 @@ is managed by this plugin.</p>
     :param caller: if given it represents the callers name
     :param source: if given it represents the source
     :param dest: if given it represents the dest
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if self.alive:
 
         self.logger.debug(f&#39;Update_item was called with item &#34;{item}&#34; from caller {caller}, source {source} and dest {dest}&#39;)
@@ -2412,9 +2519,9 @@ is managed by this plugin.</p>
 
     @cherrypy.expose
     def submit(self, button=None, param=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Submit handler for Ajax
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if button is not None:
 
             notify = None
@@ -2575,9 +2682,9 @@ def index(self, reload=None):
 </summary>
 <pre><code class="python">@cherrypy.expose
 def submit(self, button=None, param=None):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Submit handler for Ajax
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     if button is not None:
 
         notify = None
@@ -2639,7 +2746,7 @@ def submit(self, button=None, param=None):
 <li><a href="#md_protocol">MD_Protocol</a></li>
 <li><a href="#md_commands">MD_Commands</a></li>
 <li><a href="#md_command">MD_Command</a></li>
-<li><a href="#md_datatype">MD_Datatype</a></li>
+<li><a href="#datatype">Datatype</a></li>
 </ul>
 </li>
 <li><a href="#configuration">Configuration</a></li>
@@ -2656,12 +2763,8 @@ def submit(self, button=None, param=None):
 <li><code><a title="multidevice.MD_Globals" href="MD_Globals.html">multidevice.MD_Globals</a></code></li>
 <li><code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code></li>
 <li><code><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></li>
-<li><code><a title="multidevice.dev_denon" href="dev_denon/index.html">multidevice.dev_denon</a></code></li>
 <li><code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></li>
 <li><code><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></li>
-<li><code><a title="multidevice.dev_kodi" href="dev_kodi/index.html">multidevice.dev_kodi</a></code></li>
-<li><code><a title="multidevice.dev_pioneer" href="dev_pioneer/index.html">multidevice.dev_pioneer</a></code></li>
-<li><code><a title="multidevice.dev_viessmann" href="dev_viessmann/index.html">multidevice.dev_viessmann</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

@@ -98,7 +98,7 @@ class DT_HEX(DT_V):
         # return ' '.join([hexstr[i:i + 2] for i in range(0, len(hexstr), 2)])
 
 
-'''
+"""
 'BA':      {'unit_de': 'Betriebsart',       'type': 'list',     'signed': False, 'read_value_transform': 'non'},        # vito unit: BA
 'BT':      {'unit_de': 'Brennertyp',        'type': 'list',     'signed': False, 'read_value_transform': 'non'},        # vito unit:
 'CT':      {'unit_de': 'CycleTime',         'type': 'timer',    'signed': False, 'read_value_transform': 'non'},        # vito unit: CT
@@ -125,11 +125,11 @@ class DT_HEX(DT_V):
 'SN':      {'unit_de': 'Sachnummer',        'type': 'serial',   'signed': False, 'read_value_transform': 'non'},        # vito unit:
 'SR':      {'unit_de': 'SetReturnStatus',   'type': 'list',     'signed': False, 'read_value_transform': 'non'},        # vito unit:
 'TI':      {'unit_de': 'SystemTime',        'type': 'datetime', 'signed': False, 'read_value_transform': 'non'},        # vito unit: TI
-'''
+"""
 
 
 def int2bytes(value, length=0, signed=False):
-    ''' convert value to bytearray, see MD_Command.py '''
+    """ convert value to bytearray, see MD_Command.py """
     if not length:
         length = len(value)
     value = value % (2 ** (length * 8))
@@ -137,17 +137,17 @@ def int2bytes(value, length=0, signed=False):
 
 
 def bytes2int(rawbytes, signed):
-    ''' convert bytearray to value, see MD_Command.py '''
+    """ convert bytearray to value, see MD_Command.py """
     return int.from_bytes(rawbytes, byteorder='little', signed=signed)
 
 
 def bytes2hexstring(bytesvalue):
-    ''' create hex-string from bytearray, see MD_Command.py '''
+    """ create hex-string from bytearray, see MD_Command.py """
     return ''.join(f'{c:02x}' for c in bytesvalue)
 
 
 def decode_timer(rawdatabytes):
-    ''' generator to convert byte sequence to a number of time strings '''
+    """ generator to convert byte sequence to a number of time strings """
     while rawdatabytes:
         hours, minutes = divmod(int(rawdatabytes[:2], 16), 8)
         if minutes >= 6 or hours >= 24:
@@ -160,7 +160,7 @@ def decode_timer(rawdatabytes):
 
 
 def encode_timer(switching_time):
-    ''' convert time string to encoded time value '''
+    """ convert time string to encoded time value """
     if switching_time == '00:00':
         return 0xff
     clocktime = re.compile(r'(\d\d):(\d\d)')

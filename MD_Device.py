@@ -49,21 +49,23 @@ else:
 #############################################################################################################################################################################################################################################
 
 class MD_Device(object):
-    '''
+    """ MD_Device class to handle device instances in MultiDevice plugin
+
     This class is the base class for a simple device class. It can process commands
     by sending values to the device and collect data by parsing data received from
     the device.
 
-    Configuration is done via dev_<device_type>/commands.py (see dev_example for format)
+    Configuration is done via ``dev_<device_type>/commands.py`` (for documentation
+    of the format see ``dev_example/commands.py``)
 
     :param device_type: device type as used in derived class names
     :param device_id: device id for use in item configuration and logs
     :type device_type: str
     :type device_id: str
-    '''
+    """
 
     def __init__(self, device_type, device_id, **kwargs):
-        '''
+        """
         This initializes the class object.
 
         As additional device classes are expected to be implemented as subclasses,
@@ -71,7 +73,7 @@ class MD_Device(object):
         as needed.
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn't need to be changed.
-        '''
+        """
         # get MultiDevice.device logger (if not already defined by derived class calling us via super().__init__())
         if not hasattr(self, 'logger'):
             self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
@@ -171,18 +173,18 @@ class MD_Device(object):
         self._connection.close()
 
     # def run_standalone(self):
-    #     '''
+    #     """
     #     If you want to provide a standalone function, you'll have to implement
     #     this function with the appropriate code. You can use all functions from
     #     the MultiDevice class (plugin), the devices, connections and commands.
     #     You do not have an sh object, items or web interfaces.
     #
     #     As the base class should not have this method, it is commented out.
-    #     '''
+    #     """
     #     pass
 
     def send_command(self, command, value=None, **kwargs):
-        '''
+        """
         Sends the specified command to the device providing <value> as data
         Not providing data will issue a read command, trying to read the value 
         from the device and writing it to the associated item.
@@ -192,7 +194,7 @@ class MD_Device(object):
         :type command: str
         :return: True if send was successful, False otherwise
         :rtype: bool
-        '''
+        """
         if not self.alive:
             self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
             return False
@@ -243,7 +245,7 @@ class MD_Device(object):
         return True
 
     def on_data_received(self, by, data, command=None):
-        '''
+        """
         Callback function for received data e.g. from an event loop
         Processes data and dispatches value to plugin class
 
@@ -251,7 +253,7 @@ class MD_Device(object):
         :param data: received data in 'raw' connection format
         :param by: client object / name / identifier
         :type command: str
-        '''
+        """
         if command is not None:
             self.logger.debug(f'received data "{data}" for command {command}')
         else:
@@ -275,9 +277,9 @@ class MD_Device(object):
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
     def read_all_commands(self, group=0):
-        '''
+        """
         Triggers all configured read commands or all configured commands of given group
-        '''
+        """
         if not group:
             for cmd in self._commands_read:
                 self.send_command(cmd)
@@ -287,7 +289,7 @@ class MD_Device(object):
                     self.send_command(cmd)
 
     def is_valid_command(self, command, read=None):
-        '''
+        """
         Validate if 'command' is a valid command for this device
         Possible to check only for reading or writing
 
@@ -297,18 +299,18 @@ class MD_Device(object):
         :type read: bool | NoneType
         :return: True if command is valid, False otherwise
         :rtype: bool
-        '''
+        """
         if self._commands:
             return self._commands.is_valid_command(command, read)
         else:
             return False
 
     def set_runtime_data(self, **kwargs):
-        '''
+        """
         Sets runtime data received from the plugin class
 
         data_received_callback takes one argument 'data'
-        '''
+        """
         try:
             self._commands_read = kwargs['read_commands']
             self._commands_read_grp = kwargs['read_commands_grp']
@@ -320,11 +322,11 @@ class MD_Device(object):
             self.logger.error(f'error in runtime data: {e}. Stopping device.')
 
     def update_device_params(self, **kwargs):
-        '''
+        """
         Updates / changes configuration parametes for device. Needs device to not be running
 
         overload as needed.
-        '''
+        """
         if self.alive:
             self.logger.warning(f'tried to update params with {kwargs}, but device is still running. Ignoring request')
             return
@@ -343,7 +345,7 @@ class MD_Device(object):
         self._connection = self._get_connection()
 
     def get_lookup(self, lookup):
-        ''' returns the lookup table for name <lookup>, None on error '''
+        """ returns the lookup table for name <lookup>, None on error """
         if self._commands:
             return self._commands.get_lookup(lookup)
         else:
@@ -356,17 +358,17 @@ class MD_Device(object):
     #
 
     def _transform_send_data(self, data_dict):
-        '''
+        """
         This method provides a way to adjust, modify or transform all data before
         it is sent to the device.
         This might be to add general parameters, add/change line endings or
         add your favourite pets' name... 
         By default, nothing happens here.
-        '''
+        """
         return data_dict
 
     def _send(self, data_dict):
-        '''
+        """
         This method acts as a overwritable intermediate between the handling
         logic of send_command() and the connection layer.
         If you need any special arrangements for or reaction to events on sending,
@@ -375,19 +377,19 @@ class MD_Device(object):
 
         By default, this just forwards the data_dict to the connection instance
         and return the result.
-        '''
+        """
         return self._connection.send(data_dict)
 
     def _set_device_params(self):
-        '''
+        """
         This method parses self._params for parameters it needs itself and does the
         necessary initialization.
         Needs to be overloaded for maximum effect...
-        '''
+        """
         pass
 
     def _get_connection(self):
-        '''
+        """
         return connection object. Try to identify the wanted connection  and return
         the proper subclass instead. If no decision is possible, just return an
         instance of MD_Connection.
@@ -406,7 +408,7 @@ class MD_Device(object):
         HINT: If you need to modify this, just write something new.
         The "autodetect"-code will probably only be used with unaltered connection
         classes. Just return the wanted connection object and ride into the light.
-        '''
+        """
         conn_type = None
         conn_classname = None
         conn_cls = None
@@ -507,11 +509,11 @@ class MD_Device(object):
         return conn_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
 
     def on_connect(self, by=None):
-        ''' callback if connection is made. '''
+        """ callback if connection is made. """
         pass
 
     def on_disconnect(self, by=None):
-        ''' callback if connection is broken. '''
+        """ callback if connection is broken. """
         pass
 
     #
@@ -521,9 +523,9 @@ class MD_Device(object):
     #
 
     def _create_cyclic_scheduler(self):
-        '''
+        """
         Setup the scheduler to handle cyclic read commands and find the proper time for the cycle.
-        '''
+        """
         if not self.alive:
             return
 
@@ -551,9 +553,9 @@ class MD_Device(object):
             self.logger.info(f'Added cyclic worker thread {self.device_id}_cyclic with {workercycle} s cycle. Shortest item update cycle found was {shortestcycle} s')
 
     def _read_initial_values(self):
-        '''
+        """
         Read all values configured to be read at startup / after reconnect
-        '''
+        """
         if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
             self.logger.info('Starting initial read commands')
             for cmd in self._commands_initial:
@@ -565,9 +567,9 @@ class MD_Device(object):
             self.logger.debug('_read_initial_values() called, but inital values were already read. Ignoring')
 
     def _read_cyclic_values(self):
-        '''
+        """
         Recall function for cyclic scheduler. Reads all values configured to be read cyclically.
-        '''
+        """
         # check if another cyclic cmd run is still active
         if self._cyclic_update_active:
             self.logger.warning('Triggered cyclic command read, but previous cyclic run is still active. Check device and cyclic configuration (too much/too short?)')
@@ -607,11 +609,11 @@ class MD_Device(object):
             self.logger.debug(f'Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items')
 
     def _read_configuration(self):
-        '''
+        """
         This initiates reading of configuration.
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overloaded to do something else.
-        '''
+        """
         cls = self._command_class
         if cls is None:
             cls = MD_Command

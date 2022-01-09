@@ -114,12 +114,5 @@ Entwicklung von eigenen Geräte-Klassen
 
 Die Entwicklerdokumentation existiert derzeit nur auf englisch.
 
-.. automodule:: __init__
+.. automodule:: plugins.multidevice
 
-xyz
-
-.. currentmodule::
-
-foo
-
-.. automodule:: multidevice

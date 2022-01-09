@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-'''
-    commands for dev kodi 
-'''
+""" commands for dev kodi """
 
 commands = {
     'update':           {'read': True, 'write': True,  'opcode': 'update',                      'reply_token': 'update',                      'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},

@@ -2,16 +2,15 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 
-'''
-    commands for dev example
+""" commands for dev example
 
-    This section consists of a single dict which defines all the devices' commands.
-    Alternatively, if models are supported and required, see second example for
-    commands definition.
+This section consists of a single dict which defines all the devices' commands.
+Alternatively, if models are supported and required, see second example for
+commands definition.
 
-    In this example, only one command is given to define possible keys and their
-    values' meaning.
-'''
+In this example, only one command is given to define possible keys and their
+values' meaning.
+"""
 
 commands = {
     # name of the command as used in item attribute 'md_command'
@@ -58,7 +57,7 @@ commands = {
     }
 }
 
-'''
+"""
     The following commands example is for a scenario where different models are
     configured and have overlapping command definitions with different contents.
 
@@ -70,7 +69,7 @@ commands = {
 
     In this case, a model _must_ be specified in the device configuration; the
     ``models`` dict (see next paragraph) is not necessary and will be ignored.
-'''
+"""
 
 commands = {
     'ALL': {
@@ -92,7 +91,7 @@ commands = {
     }
 }
 
-'''
+"""
     (optional) model specifications for dev example
 
     Different models of a type (eg. different heating models of the same manufacturer
@@ -114,7 +113,7 @@ commands = {
 
     Hint: as this example only defines one command, the following example is purely
           fictional...
-'''
+"""
 
 models = {
     'ALL': ['cmd10', 'cmd11'],
@@ -124,7 +123,7 @@ models = {
 }
 
 
-'''
+"""
     (optional) definition of lookup tables (see commands table)
 
     Each table is a plain dict containing device values as keys and corresponding
@@ -141,7 +140,7 @@ models = {
     a plain dict with ``<device value>: <shng item value>`` dict entries.
 
     Example:
-'''
+"""
 
 lookups = {
     'table1': {
@@ -156,7 +155,7 @@ lookups = {
     }
 }
 
-'''
+"""
     Case b) is basically the same, but with an additional first level inserted.
     The first level MUST contain a key named 'ALL' (duh), which specifies
     "generic" lookup tables valid for all models. The value to this key is a dict
@@ -171,7 +170,7 @@ lookups = {
     model1 has a modified ``table1``.
 
     Example:
-'''
+"""
 
 lookups = {
     'ALL': {

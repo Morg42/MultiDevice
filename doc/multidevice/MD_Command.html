@@ -70,7 +70,8 @@ else:
 #############################################################################################################################################################################################################################################
 
 class MD_Command(object):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; MD_Command class for command data handling
+
     This class represents a general command that uses read_cmd/write_cmd or, if
     not present, opcode as payload for the connection. Data is supplied in the
     &#39;data&#39;-key values in the data_dict. DT type conversion is applied with default
@@ -80,7 +81,7 @@ class MD_Command(object):
     dev_example/commands.py file.
 
     This class serves as a base class for further format-specific command types.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     device_id = &#39;&#39;
     name = &#39;&#39;
     opcode = &#39;&#39;
@@ -152,23 +153,23 @@ class MD_Command(object):
         return value
 
     def get_lookup(self):
-        &#39;&#39;&#39; getter for lookup &#39;&#39;&#39;
+        &#34;&#34;&#34; getter for lookup &#34;&#34;&#34;
         return self.lookup
 
     def _get_kwargs(self, args, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         check if any items from args is present in kwargs and set the class property
         of the same name to its value.
 
         :param args: list or tuple of parameter names
         :type args: list | tuple
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         for arg in args:
             if kwargs.get(arg, None):
                 setattr(self, arg, kwargs[arg])
 
     def _check_min_max(self, data, key, min=True, force=False):
-        &#39;&#39;&#39; helper routine to check for min/max compliance and int/float type &#39;&#39;&#39;
+        &#34;&#34;&#34; helper routine to check for min/max compliance and int/float type &#34;&#34;&#34;
         if key in self.settings:
             bound = self.settings[key]
             if not isinstance(data, type(bound)):
@@ -187,7 +188,7 @@ class MD_Command(object):
         return data
 
     def _check_value(self, data):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         check if value settings are defined and if so, if they are followed
         possibly adjust data in accordance with settings
 
@@ -200,7 +201,7 @@ class MD_Command(object):
 
         :param data: data/value to send
         :return: adjusted data
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if data is not None:
             try:
                 if self.settings and not self.lookup:
@@ -225,7 +226,8 @@ class MD_Command(object):
 
 
 class MD_Command_Str(MD_Command):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for string-based communication
+
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
@@ -251,7 +253,7 @@ class MD_Command_Str(MD_Command):
     and return it as the read value.
 
     This class is provided as a reference implementation for the Net-Connections.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     read_data = None
 
     def get_send_data(self, data, **kwargs):
@@ -278,8 +280,14 @@ class MD_Command_Str(MD_Command):
 
         return data_dict
 
+    def get_shng_data(self, data, **kwargs):
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode(&#39;utf-8&#39;)
+        value = self._DT.get_shng_data(data, **kwargs)
+        return value
+
     def _parse_str(self, string, data=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         parse string and replace
         - MD_OPCODE with the command opcode
         - MD_PARAM:&lt;elem&gt;: with the plugin parameter
@@ -287,7 +295,7 @@ class MD_Command_Str(MD_Command):
 
         The replacement order ensures that MD_PARAM-patterns from the opcode
         can be replaced as well as MD_VALUE-pattern in any of the strings.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
 
@@ -303,12 +311,12 @@ class MD_Command_Str(MD_Command):
         return string
 
     def _parse_tree(self, node, data):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         traverse node and
         - apply _parse_str to strings
         - recursively _parse_tree for all elements of iterables or
         - return unknown or unparseable elements unchanged
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if issubclass(node, str):
             return self._parse_str(node, data)
         elif issubclass(node, list):
@@ -325,7 +333,8 @@ class MD_Command_Str(MD_Command):
 
 
 class MD_Command_ParseStr(MD_Command_Str):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for string-based communication with parsed arguments
+
     With this class, you can simplify the creation of read and write commands
     containing data values.
 
@@ -353,7 +362,7 @@ class MD_Command_ParseStr(MD_Command_Str):
     Both results can be achieved with customized DT_foo classes, but this
     might be an easier and cleaner solution. Please make sure to understand
     MRE by JF properly :)
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
 
     def get_send_data(self, data, **kwargs):
 
@@ -383,7 +392,7 @@ class MD_Command_ParseStr(MD_Command_Str):
         return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}
 
     def get_shng_data(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Try to match data to reply_pattern if reply_pattern is set.
 
         If a match is found and a value is captured, it will be returned.
@@ -393,7 +402,10 @@ class MD_Command_ParseStr(MD_Command_Str):
 
         If no match can be achieved, it is not possible to return
         a meaningful value. To signal the error, an exception will be raised.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode(&#39;utf-8&#39;)
+
         if self.reply_pattern:
             regex = re.compile(self.reply_pattern)
             match = regex.match(data)
@@ -418,7 +430,8 @@ class MD_Command_ParseStr(MD_Command_Str):
 
 
 class MD_Command_JSON(MD_Command):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for JSON-RPC communication
+
     With this class, you can send JSON-RPC commands to the device and read
     from it.
 
@@ -428,7 +441,7 @@ class MD_Command_JSON(MD_Command):
     actual item value.
 
     params and param_value need to be None or lists of the same length.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
 
     def get_send_data(self, data, **kwargs):
 
@@ -453,14 +466,14 @@ class MD_Command_JSON(MD_Command):
         return value
 
     def _build_dict(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         build param array for JSON RPC from provided value and kwargs
 
         :param data: value for the command
         :param kwargs: additional data
         :return: params-dict (or None)
         :rtype: dict
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         params = {}
         if not hasattr(self, &#39;params&#39;):
             return None
@@ -491,7 +504,8 @@ class MD_Command_JSON(MD_Command):
 
 
 class MD_Command_Viessmann(MD_Command):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for Viessmann binary command format
+
     With this class, you can send commands to Viessmann heating systems
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
@@ -500,7 +514,7 @@ class MD_Command_Viessmann(MD_Command):
     actual item value.
 
     params and param_value need to be None or lists of the same length.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_id, command, dt_class, **kwargs):
         super().__init__(device_id, command, dt_class, **kwargs)
 
@@ -530,14 +544,14 @@ class MD_Command_Viessmann(MD_Command):
         return {&#39;payload&#39;: cmd, &#39;data&#39;: ddict}
 
     def _build_dict(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         build param array for JSON RPC from provided value and kwargs
 
         :param data: value for the command
         :param kwargs: additional data
         :return: params-dict (or None)
         :rtype: dict
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         params = {}
         if not hasattr(self, &#39;params&#39;):
             return None
@@ -578,7 +592,8 @@ class MD_Command_Viessmann(MD_Command):
 <span>(</span><span>device_id, command, dt_class, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class represents a general command that uses read_cmd/write_cmd or, if
+<div class="desc"><p>MD_Command class for command data handling</p>
+<p>This class represents a general command that uses read_cmd/write_cmd or, if
 not present, opcode as payload for the connection. Data is supplied in the
 'data'-key values in the data_dict. DT type conversion is applied with default
 values.</p>
@@ -590,7 +605,8 @@ dev_example/commands.py file.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Command(object):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; MD_Command class for command data handling
+
     This class represents a general command that uses read_cmd/write_cmd or, if
     not present, opcode as payload for the connection. Data is supplied in the
     &#39;data&#39;-key values in the data_dict. DT type conversion is applied with default
@@ -600,7 +616,7 @@ dev_example/commands.py file.</p>
     dev_example/commands.py file.
 
     This class serves as a base class for further format-specific command types.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     device_id = &#39;&#39;
     name = &#39;&#39;
     opcode = &#39;&#39;
@@ -672,23 +688,23 @@ dev_example/commands.py file.</p>
         return value
 
     def get_lookup(self):
-        &#39;&#39;&#39; getter for lookup &#39;&#39;&#39;
+        &#34;&#34;&#34; getter for lookup &#34;&#34;&#34;
         return self.lookup
 
     def _get_kwargs(self, args, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         check if any items from args is present in kwargs and set the class property
         of the same name to its value.
 
         :param args: list or tuple of parameter names
         :type args: list | tuple
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         for arg in args:
             if kwargs.get(arg, None):
                 setattr(self, arg, kwargs[arg])
 
     def _check_min_max(self, data, key, min=True, force=False):
-        &#39;&#39;&#39; helper routine to check for min/max compliance and int/float type &#39;&#39;&#39;
+        &#34;&#34;&#34; helper routine to check for min/max compliance and int/float type &#34;&#34;&#34;
         if key in self.settings:
             bound = self.settings[key]
             if not isinstance(data, type(bound)):
@@ -707,7 +723,7 @@ dev_example/commands.py file.</p>
         return data
 
     def _check_value(self, data):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         check if value settings are defined and if so, if they are followed
         possibly adjust data in accordance with settings
 
@@ -720,7 +736,7 @@ dev_example/commands.py file.</p>
 
         :param data: data/value to send
         :return: adjusted data
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if data is not None:
             try:
                 if self.settings and not self.lookup:
@@ -812,7 +828,7 @@ dev_example/commands.py file.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_lookup(self):
-    &#39;&#39;&#39; getter for lookup &#39;&#39;&#39;
+    &#34;&#34;&#34; getter for lookup &#34;&#34;&#34;
     return self.lookup</code></pre>
 </details>
 </dd>
@@ -867,7 +883,8 @@ dev_example/commands.py file.</p>
 <span>(</span><span>device_id, command, dt_class, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>With this class, you can send JSON-RPC commands to the device and read
+<div class="desc"><p>Command for JSON-RPC communication</p>
+<p>With this class, you can send JSON-RPC commands to the device and read
 from it.</p>
 <p>The command is sent as 'method', the params-dict is populated from the
 'params' attribute of the command, while the parameter values are
@@ -879,7 +896,8 @@ actual item value.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Command_JSON(MD_Command):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for JSON-RPC communication
+
     With this class, you can send JSON-RPC commands to the device and read
     from it.
 
@@ -889,7 +907,7 @@ actual item value.</p>
     actual item value.
 
     params and param_value need to be None or lists of the same length.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
 
     def get_send_data(self, data, **kwargs):
 
@@ -914,14 +932,14 @@ actual item value.</p>
         return value
 
     def _build_dict(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         build param array for JSON RPC from provided value and kwargs
 
         :param data: value for the command
         :param kwargs: additional data
         :return: params-dict (or None)
         :rtype: dict
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         params = {}
         if not hasattr(self, &#39;params&#39;):
             return None
@@ -1013,7 +1031,8 @@ actual item value.</p>
 <span>(</span><span>device_id, command, dt_class, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>With this class, you can simplify the creation of read and write commands
+<div class="desc"><p>Command for string-based communication with parsed arguments</p>
+<p>With this class, you can simplify the creation of read and write commands
 containing data values.</p>
 <p>Default behaviour is identical to MD_Command_Str.</p>
 <p>Giving write_cmd as ':<write expression>:' (note colons) will format the
@@ -1039,7 +1058,8 @@ MRE by JF properly :)</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Command_ParseStr(MD_Command_Str):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for string-based communication with parsed arguments
+
     With this class, you can simplify the creation of read and write commands
     containing data values.
 
@@ -1067,7 +1087,7 @@ MRE by JF properly :)</p></div>
     Both results can be achieved with customized DT_foo classes, but this
     might be an easier and cleaner solution. Please make sure to understand
     MRE by JF properly :)
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
 
     def get_send_data(self, data, **kwargs):
 
@@ -1097,7 +1117,7 @@ MRE by JF properly :)</p></div>
         return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}
 
     def get_shng_data(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         Try to match data to reply_pattern if reply_pattern is set.
 
         If a match is found and a value is captured, it will be returned.
@@ -1107,7 +1127,10 @@ MRE by JF properly :)</p></div>
 
         If no match can be achieved, it is not possible to return
         a meaningful value. To signal the error, an exception will be raised.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode(&#39;utf-8&#39;)
+
         if self.reply_pattern:
             regex = re.compile(self.reply_pattern)
             match = regex.match(data)
@@ -1189,7 +1212,7 @@ a meaningful value. To signal the error, an exception will be raised.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_shng_data(self, data, **kwargs):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     Try to match data to reply_pattern if reply_pattern is set.
 
     If a match is found and a value is captured, it will be returned.
@@ -1199,7 +1222,10 @@ a meaningful value. To signal the error, an exception will be raised.</p></div>
 
     If no match can be achieved, it is not possible to return
     a meaningful value. To signal the error, an exception will be raised.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
+    if isinstance(data, (bytes, bytearray)):
+        data = data.decode(&#39;utf-8&#39;)
+
     if self.reply_pattern:
         regex = re.compile(self.reply_pattern)
         match = regex.match(data)
@@ -1238,7 +1264,8 @@ a meaningful value. To signal the error, an exception will be raised.</p></div>
 <span>(</span><span>device_id, command, dt_class, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class represents a command which uses a string with arguments as payload,
+<div class="desc"><p>Command for string-based communication</p>
+<p>This class represents a command which uses a string with arguments as payload,
 for example as query URL.</p>
 <p>Default behaviour is identical to MD_Command_Str.</p>
 <p>For sending, the read_cmd/write_cmd strings, opcode and data are parsed
@@ -1261,7 +1288,8 @@ element from a json response:</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Command_Str(MD_Command):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for string-based communication
+
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
@@ -1287,7 +1315,7 @@ element from a json response:</p>
     and return it as the read value.
 
     This class is provided as a reference implementation for the Net-Connections.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     read_data = None
 
     def get_send_data(self, data, **kwargs):
@@ -1314,8 +1342,14 @@ element from a json response:</p>
 
         return data_dict
 
+    def get_shng_data(self, data, **kwargs):
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode(&#39;utf-8&#39;)
+        value = self._DT.get_shng_data(data, **kwargs)
+        return value
+
     def _parse_str(self, string, data=None):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         parse string and replace
         - MD_OPCODE with the command opcode
         - MD_PARAM:&lt;elem&gt;: with the plugin parameter
@@ -1323,7 +1357,7 @@ element from a json response:</p>
 
         The replacement order ensures that MD_PARAM-patterns from the opcode
         can be replaced as well as MD_VALUE-pattern in any of the strings.
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
 
@@ -1339,12 +1373,12 @@ element from a json response:</p>
         return string
 
     def _parse_tree(self, node, data):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         traverse node and
         - apply _parse_str to strings
         - recursively _parse_tree for all elements of iterables or
         - return unknown or unparseable elements unchanged
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         if issubclass(node, str):
             return self._parse_str(node, data)
         elif issubclass(node, list):
@@ -1410,6 +1444,22 @@ element from a json response:</p>
     return data_dict</code></pre>
 </details>
 </dd>
+<dt id="multidevice.MD_Command.MD_Command_Str.get_shng_data"><code class="name flex">
+<span>def <span class="ident">get_shng_data</span></span>(<span>self, data, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_shng_data(self, data, **kwargs):
+    if isinstance(data, (bytes, bytearray)):
+        data = data.decode(&#39;utf-8&#39;)
+    value = self._DT.get_shng_data(data, **kwargs)
+    return value</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -1425,7 +1475,8 @@ element from a json response:</p>
 <span>(</span><span>device_id, command, dt_class, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>With this class, you can send commands to Viessmann heating systems</p>
+<div class="desc"><p>Command for Viessmann binary command format</p>
+<p>With this class, you can send commands to Viessmann heating systems</p>
 <p>The command is sent as 'method', the params-dict is populated from the
 'params' attribute of the command, while the parameter values are
 taken from the 'param-values' attribute. 'VAL' is replaced with the
@@ -1436,7 +1487,8 @@ actual item value.</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MD_Command_Viessmann(MD_Command):
-    &#39;&#39;&#39;
+    &#34;&#34;&#34; Command for Viessmann binary command format
+
     With this class, you can send commands to Viessmann heating systems
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
@@ -1445,7 +1497,7 @@ actual item value.</p>
     actual item value.
 
     params and param_value need to be None or lists of the same length.
-    &#39;&#39;&#39;
+    &#34;&#34;&#34;
     def __init__(self, device_id, command, dt_class, **kwargs):
         super().__init__(device_id, command, dt_class, **kwargs)
 
@@ -1475,14 +1527,14 @@ actual item value.</p>
         return {&#39;payload&#39;: cmd, &#39;data&#39;: ddict}
 
     def _build_dict(self, data, **kwargs):
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         build param array for JSON RPC from provided value and kwargs
 
         :param data: value for the command
         :param kwargs: additional data
         :return: params-dict (or None)
         :rtype: dict
-        &#39;&#39;&#39;
+        &#34;&#34;&#34;
         params = {}
         if not hasattr(self, &#39;params&#39;):
             return None
@@ -1606,6 +1658,7 @@ actual item value.</p>
 <h4><code><a title="multidevice.MD_Command.MD_Command_Str" href="#multidevice.MD_Command.MD_Command_Str">MD_Command_Str</a></code></h4>
 <ul class="">
 <li><code><a title="multidevice.MD_Command.MD_Command_Str.get_send_data" href="#multidevice.MD_Command.MD_Command_Str.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.MD_Command.MD_Command_Str.get_shng_data" href="#multidevice.MD_Command.MD_Command_Str.get_shng_data">get_shng_data</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command_Str.read_data" href="#multidevice.MD_Command.MD_Command_Str.read_data">read_data</a></code></li>
 </ul>
 </li>

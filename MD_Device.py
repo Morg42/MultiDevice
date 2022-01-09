@@ -112,7 +112,7 @@ class MD_Device(object):
         self._commands_cyclic = {}
 
         # check if manually disabled
-        if PLUGIN_ARG_ENABLED in self._params and not self._params[PLUGIN_ARG_ENABLED]:
+        if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
             self.logger.warning(f'attribute enabled set to false, not loading device')
             return False
 
@@ -394,14 +394,14 @@ class MD_Device(object):
         the proper subclass instead. If no decision is possible, just return an
         instance of MD_Connection.
 
-        If the PLUGIN_ARG_PROTOCOL parameter is set, we need to change something.
+        If the PLUGIN_ATTR_PROTOCOL parameter is set, we need to change something.
         In this case, the protocol instance takes the place of the connection
         object and instantiates the connection object itself. Instead of the name
         of the connection class, we pass the class itself, so instantiating it
         poses no further challenge.
 
         If you need to use other connection types for your device, implement it
-        and preselect with PLUGIN_ARG_CONNECTION in /etc/plugin.yaml, so this
+        and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
         Otherwise, just parse them in after calling super()._set_connection_params()
 
@@ -426,26 +426,26 @@ class MD_Device(object):
             return None
 
         # try to find out what kind of connection is wanted
-        if PLUGIN_ARG_CONNECTION in self._params:
-            if isinstance(self._params[PLUGIN_ARG_CONNECTION], type) and issubclass(self._params[PLUGIN_ARG_CONNECTION], MD_Connection):
-                conn_cls = self._params[PLUGIN_ARG_CONNECTION]
+        if PLUGIN_ATTR_CONNECTION in self._params:
+            if isinstance(self._params[PLUGIN_ATTR_CONNECTION], type) and issubclass(self._params[PLUGIN_ATTR_CONNECTION], MD_Connection):
+                conn_cls = self._params[PLUGIN_ATTR_CONNECTION]
                 conn_classname = conn_cls.__name__
-            elif self._params[PLUGIN_ARG_CONNECTION] in CONNECTION_TYPES:
-                conn_type = self._params[PLUGIN_ARG_CONNECTION]
+            elif self._params[PLUGIN_ATTR_CONNECTION] in CONNECTION_TYPES:
+                conn_type = self._params[PLUGIN_ATTR_CONNECTION]
         
         if not conn_type and not conn_cls:
-            if PLUGIN_ARG_NET_HOST in self._params and self._params[PLUGIN_ARG_NET_HOST]:
+            if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
                 # no further information on network specifics, use basic HTTP TCP client
                 conn_type = CONN_NET_TCP_REQ
 
-            elif PLUGIN_ARG_SERIAL_PORT in self._params and self._params[PLUGIN_ARG_SERIAL_PORT]:
+            elif PLUGIN_ATTR_SERIAL_PORT in self._params and self._params[PLUGIN_ATTR_SERIAL_PORT]:
 
                 # this seems to be a serial killer application
                 conn_type = CONN_SER_DIR
 
             if conn_type:
-                params[PLUGIN_ARG_CONNECTION] = conn_type
+                params[PLUGIN_ATTR_CONNECTION] = conn_type
             else:
                 # self.logger.error(f'can not identify connection type and no preference given')
                 # return None
@@ -467,7 +467,7 @@ class MD_Device(object):
         self.logger.debug(f'using connection class {conn_cls}')
 
         # if protocol is specified, find second class
-        if PLUGIN_ARG_PROTOCOL in self._params:
+        if PLUGIN_ATTR_PROTOCOL in self._params:
             mod_str = 'MD_Protocol'
             if not MD_standalone:
                 mod_str = '.'.join(self.__module__.split('.')[:-2]) + '.' + mod_str
@@ -476,14 +476,14 @@ class MD_Device(object):
                 self.logger.error('unable to get object handle of MD_Protocol module')
                 return None
 
-            if isinstance(self._params[PLUGIN_ARG_PROTOCOL], type) and issubclass(self._params[PLUGIN_ARG_PROTOCOL], MD_Connection):
-                proto_cls = self._params[PLUGIN_ARG_PROTOCOL]
-            elif self._params[PLUGIN_ARG_PROTOCOL] in PROTOCOL_TYPES:
-                proto_type = self._params[PLUGIN_ARG_PROTOCOL]
+            if isinstance(self._params[PLUGIN_ATTR_PROTOCOL], type) and issubclass(self._params[PLUGIN_ATTR_PROTOCOL], MD_Connection):
+                proto_cls = self._params[PLUGIN_ATTR_PROTOCOL]
+            elif self._params[PLUGIN_ATTR_PROTOCOL] in PROTOCOL_TYPES:
+                proto_type = self._params[PLUGIN_ATTR_PROTOCOL]
 
             if proto_type is None and not proto_cls:
                 # class not known and not provided
-                self.logger.error(f'protocol {self._params[PLUGIN_ARG_PROTOCOL]} specified, but unknown and not class type')
+                self.logger.error(f'protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type')
                 return None
 
             if proto_type == PROTO_NULL:
@@ -495,13 +495,13 @@ class MD_Device(object):
                 if hasattr(proto_module, proto_classname):
                     proto_cls = getattr(proto_module, proto_classname)
                 else:
-                    self.logger.error(f'protocol {self._params[PLUGIN_ARG_PROTOCOL]} specified, but not loadable')
+                    self.logger.error(f'protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but not loadable')
                     return None
 
             self.logger.debug(f'using protocol class {proto_cls}')
 
             # set connection class in _params dict for protocol class to use
-            self._params[PLUGIN_ARG_CONNECTION] = conn_cls
+            self._params[PLUGIN_ATTR_CONNECTION] = conn_cls
 
             # return protocol instance as connection instance
             return proto_cls(self.device_type, self.device_id, self.on_data_received, **self._params)

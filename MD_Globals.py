@@ -36,34 +36,47 @@ from ast import literal_eval
 #
 #############################################################################################################################################################################################################################################
 
-# plugin arguments, used in plugin config 'device'
-PLUGIN_ARG_ENABLED          = 'enabled'                 # set to False to disable loading of device
-PLUGIN_ARG_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
-PLUGIN_ARG_NET_HOST         = 'host'                    # hostname / IP for network connection
-PLUGIN_ARG_NET_PORT         = 'port'                    # port for network connection
-PLUGIN_ARG_SERIAL_PORT      = 'serialport'              # serial port for serial connection
-PLUGIN_ARG_SERIAL_BAUD      = 'baudrate'                # baudrate for serial connection
-PLUGIN_ARG_SERIAL_BSIZE     = 'bytesize'                # bytesize for serial connection
-PLUGIN_ARG_SERIAL_PARITY    = 'parity'                  # parity for serial connection
-PLUGIN_ARG_SERIAL_STOP      = 'stopbits'                # stopbits for serial connection
-PLUGIN_ARG_PROTOCOL         = 'protocol'                # manually choose protocol class, classname or type (see below). Don't set if not necessary!
-PLUGIN_ARG_TIMEOUT          = 'timeout'                 # timeout for reading from network or serial
-PLUGIN_ARG_TERMINATOR       = 'terminator'              # terminator for reading from network or serial
-PLUGIN_ARG_AUTORECONNECT    = 'autoreconnect'           # (re)connect automatically on send
-PLUGIN_ARG_CONN_RETRIES     = 'connect_retries'         # if autoreconnect: how often to reconnect
-PLUGIN_ARG_CONN_CYCLE       = 'connect_cycle'           # if autoreconnect: how many seconds to wait between retries
-PLUGIN_ARG_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
-PLUGIN_ARG_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
-PLUGIN_ARG_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to wait for reply to command (JSON-RPC only)
-PLUGIN_ARG_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
+# plugin attributes, used in plugin config 'device'
 
-PLUGIN_ARGS = (PLUGIN_ARG_CONNECTION, PLUGIN_ARG_NET_HOST, PLUGIN_ARG_NET_PORT, PLUGIN_ARG_SERIAL_PORT,
-               PLUGIN_ARG_SERIAL_BAUD, PLUGIN_ARG_SERIAL_BSIZE, PLUGIN_ARG_SERIAL_PARITY, PLUGIN_ARG_SERIAL_STOP, 
-               PLUGIN_ARG_TIMEOUT, PLUGIN_ARG_TERMINATOR, PLUGIN_ARG_AUTORECONNECT, PLUGIN_ARG_CONN_RETRIES,
-               PLUGIN_ARG_CONN_CYCLE, PLUGIN_ARG_CB_ON_CONNECT, PLUGIN_ARG_CB_ON_DISCONNECT,
-               PLUGIN_ARG_MSG_REPEAT, PLUGIN_ARG_MSG_TIMEOUT, PLUGIN_ARG_PROTOCOL, PLUGIN_ARG_ENABLED)
+# general attributes
+PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to disable loading of device
+PLUGIN_ATTR_MODEL            = 'model'                   # select model if applicable. Don't set if not necessary!
+PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stucts not supported by chosen model
 
-# connection types for PLUGIN_ARG_CONNECTION
+# general connection attributes
+PLUGIN_ATTR_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
+PLUGIN_ATTR_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
+PLUGIN_ATTR_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
+PLUGIN_ATTR_TIMEOUT          = 'timeout'                 # timeout for reading from network or serial
+PLUGIN_ATTR_TERMINATOR       = 'terminator'              # terminator for reading from network or serial
+PLUGIN_ATTR_AUTORECONNECT    = 'autoreconnect'           # (re)connect automatically on send
+PLUGIN_ATTR_CONN_RETRIES     = 'connect_retries'         # if autoreconnect: how often to reconnect
+PLUGIN_ATTR_CONN_CYCLE       = 'connect_cycle'           # if autoreconnect: how many seconds to wait between retries
+
+# network attributes
+PLUGIN_ATTR_NET_HOST         = 'host'                    # hostname / IP for network connection
+PLUGIN_ATTR_NET_PORT         = 'port'                    # port for network connection
+
+# serial attributes
+PLUGIN_ATTR_SERIAL_PORT      = 'serialport'              # serial port for serial connection
+PLUGIN_ATTR_SERIAL_BAUD      = 'baudrate'                # baudrate for serial connection
+PLUGIN_ATTR_SERIAL_BSIZE     = 'bytesize'                # bytesize for serial connection
+PLUGIN_ATTR_SERIAL_PARITY    = 'parity'                  # parity for serial connection
+PLUGIN_ATTR_SERIAL_STOP      = 'stopbits'                # stopbits for serial connection
+
+# protocol attributes
+PLUGIN_ATTR_PROTOCOL         = 'protocol'                # manually choose protocol class, classname or type (see below). Don't set if not necessary!
+PLUGIN_ATTR_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to wait for reply to command (JSON-RPC only)
+PLUGIN_ATTR_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
+
+PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT,
+                PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_TIMEOUT,
+                PLUGIN_ATTR_TERMINATOR, PLUGIN_ATTR_AUTORECONNECT, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_CYCLE,
+                PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT,
+                PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_STOP,
+                PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT)
+
+# connection types for PLUGIN_ATTR_CONNECTION
 CONN_NET_TCP_REQ        = 'net_tcp_request'  # TCP client connection with URL-based requests
 CONN_NET_TCP_CLI        = 'net_tcp_client'   # persistent TCP client connection with async callback for responses
 CONN_NET_TCP_JSONRPC    = 'net_tcp_jsonrpc'  # JSON RPC via persistent TCP client connection with async callback for responses
@@ -73,7 +86,7 @@ CONN_SER_ASYNC          = 'serial_async'     # serial connection with only async
 
 CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
 
-# protocol types for PLUGIN_ARG_PROTOCOL
+# protocol types for PLUGIN_ATTR_PROTOCOL
 PROTO_NULL              = ''                 # use base protocol class without added functionality (why??)
 PROTO_JSONRPC           = 'jsonrpc'          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
 PROTO_VIESSMANN         = 'viessmann'        # Viessmann P300 / KW
@@ -106,6 +119,7 @@ MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')
 
 # name of non-model specific key for commands, models and lookups
 INDEX_GENERIC          = 'ALL'
+
 
 #############################################################################################################################################################################################################################################
 #

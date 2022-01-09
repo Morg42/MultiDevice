@@ -30,20 +30,20 @@ class MD_Device(MD_Device):
 
         # set parameter defaults
         self._params = {'command_class': MD_Command_ParseStr, 
-                        PLUGIN_ARG_NET_HOST: '', 
-                        PLUGIN_ARG_NET_PORT: 0, 
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 5, 
-                        PLUGIN_ARG_CONN_CYCLE: 3, 
-                        PLUGIN_ARG_TIMEOUT: 3, 
-                        PLUGIN_ARG_TERMINATOR: b'\r',
+                        PLUGIN_ATTR_NET_HOST: '', 
+                        PLUGIN_ATTR_NET_PORT: 0, 
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 5, 
+                        PLUGIN_ATTR_CONN_CYCLE: 3, 
+                        PLUGIN_ATTR_TIMEOUT: 3, 
+                        PLUGIN_ATTR_TERMINATOR: b'\r',
                         'disconnected_callback': None}
 
         # set our own preferences concerning connections
-        if PLUGIN_ARG_NET_HOST in kwargs and kwargs[PLUGIN_ARG_NET_HOST]:
-            self._params[PLUGIN_ARG_CONNECTION] = CONN_NET_TCP_CLI
-        elif PLUGIN_ARG_SERIAL_PORT in kwargs and kwargs[PLUGIN_ARG_SERIAL_PORT]:
-            self._params[PLUGIN_ARG_CONNECTION] = CONN_SER_DIR
+        if PLUGIN_ATTR_NET_HOST in kwargs and kwargs[PLUGIN_ATTR_NET_HOST]:
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
+        elif PLUGIN_ATTR_SERIAL_PORT in kwargs and kwargs[PLUGIN_ATTR_SERIAL_PORT]:
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_DIR
 
         super().__init__(device_type, device_id, **kwargs)
 
@@ -53,7 +53,7 @@ class MD_Device(MD_Device):
     def _transform_send_data(self, data=None):
         if data:
             try:
-                data['limit_response'] = self._params.get(PLUGIN_ARG_TERMINATOR, b'\r')
+                data['limit_response'] = self._params.get(PLUGIN_ATTR_TERMINATOR, b'\r')
                 data['payload'] = f'{data.get("payload")}\r'
             except Exception as e:
                 self.logger.error(f'ERROR {e}')

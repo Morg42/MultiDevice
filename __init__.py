@@ -522,7 +522,6 @@ if __name__ == '__main__':
     class SmartPluginWebIf():
         pass
 
-    import os
     BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
     sys.path.insert(0, BASE)
 
@@ -688,14 +687,10 @@ class MultiDevice(SmartPlugin):
 
                             self.logger.debug(f'loaded {len(raw_struct.keys())} structs for processing')
                             # replace all mentions of "DEVICE" with the plugin/device's name
-                            try:
-                                mod_struct = eval(str(raw_struct).replace('DEVICENAME', device_id))
-                            except Exception as e:
-                                self.logger.warning(f'importing structs for device {device_id} failed, check struct definitions. Error was: {e}')
-                            else:
-                                for struct_name in mod_struct:
-                                    self.logger.debug(f'adding struct {self.get_shortname()}.{device_id}.{struct_name}')
-                                    self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_id, struct_name, mod_struct[struct_name])
+                            mod_struct = self._process_struct(raw_struct, device_id)
+                            for struct_name in mod_struct:
+                                self.logger.debug(f'adding struct {self.get_shortname()}.{device_id}.{struct_name}')
+                                self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_id, struct_name, mod_struct[struct_name])
 
         if not self._devices:
             self._init_complete = False
@@ -1007,6 +1002,43 @@ class MultiDevice(SmartPlugin):
         if dev:
             log = dev.get('logger', self.logger)
         return log
+
+    def _process_struct(self, raw_struct, device_id):
+        """ clean structs before adding """
+
+        def walk(node, node_name, parent=None, func=None):
+            for child in list(k for k in node.keys() if isinstance(node[k], OrderedDict)):
+                walk(node[child], child, parent=node, func=func)
+            if func is not None:
+                func(node, node_name, parent=parent)
+
+        def removeItems(node, node_name, parent):
+            if node.get(ITEM_ATTR_COMMAND, None) and not self._devices[device_id]['device'].is_valid_command(node.get(ITEM_ATTR_COMMAND, '')):
+                del parent[node_name]
+
+        def removeEmptyItems(node, node_name, parent):
+            if len(node) == 0:
+                del parent[node_name]
+
+        # make struct items' md_device refer to our device
+        try:
+            mod_struct = eval(str(raw_struct).replace('DEVICENAME', device_id))
+        except Exception as e:
+            self.logger.warning(f'importing structs for device {device_id} failed, check struct definitions. Error was: {e}')
+            return {}
+
+        if not self._devices[device_id]['device']._params.get(PLUGIN_ATTR_CLEAN_STRUCT, False):
+            return mod_struct
+
+        obj = OrderedDict({'structs': mod_struct})
+
+        # remove all items with invalid 'md_command' attribute from structs
+        walk(obj['structs'], 'structs', obj, removeItems)
+
+        # remove all empty items from structs
+        walk(obj['structs'], 'structs', obj, removeEmptyItems)
+
+        return obj['structs']
 
 
 #############################################################################################################################################################################################################################################

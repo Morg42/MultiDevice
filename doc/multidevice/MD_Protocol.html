@@ -107,9 +107,9 @@ class MD_Protocol(MD_Connection):
         self._data_received_callback = data_received_callback
 
         # make sure we have a basic set of parameters
-        self._params = {PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CONNECTION: MD_Connection}
+        self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CONNECTION: MD_Connection}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -117,8 +117,8 @@ class MD_Protocol(MD_Connection):
 
         # initialize connection
         conn_params = self._params.copy()
-        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: self.on_connect, PLUGIN_ARG_CB_ON_DISCONNECT: self.on_disconnect})
-        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
+        conn_params.update({PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect, PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect})
+        self._connection = self._params[PLUGIN_ATTR_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
 
         # tell someone about our actual class
         self.logger.debug(f&#39;protocol initialized from {self.__class__.__name__}&#39;)
@@ -184,17 +184,17 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         self._stale_lock = threading.Lock()
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_NET_HOST: &#39;&#39;,
-                        PLUGIN_ARG_NET_PORT: 9090,
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 1,
-                        PLUGIN_ARG_CONN_CYCLE: 3,
-                        PLUGIN_ARG_TIMEOUT: 3,
-                        PLUGIN_ARG_MSG_REPEAT: 3,
-                        PLUGIN_ARG_MSG_TIMEOUT: 5,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI}
+        self._params = {PLUGIN_ATTR_NET_HOST: &#39;&#39;,
+                        PLUGIN_ATTR_NET_PORT: 9090,
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 1,
+                        PLUGIN_ATTR_CONN_CYCLE: 3,
+                        PLUGIN_ATTR_TIMEOUT: 3,
+                        PLUGIN_ATTR_MSG_REPEAT: 3,
+                        PLUGIN_ATTR_MSG_TIMEOUT: 5,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -211,8 +211,8 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
         # initialize connection
         conn_params = self._params.copy()
-        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: self.on_connect, PLUGIN_ARG_CB_ON_DISCONNECT: self.on_disconnect})
-        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
+        conn_params.update({PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect, PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect})
+        self._connection = self._params[PLUGIN_ATTR_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
 
         # tell someone about our actual class
         self.logger.debug(f&#39;protocol initialized from {self.__class__.__name__}&#39;)
@@ -483,18 +483,18 @@ class MD_Protocol_Viessmann(MD_Protocol):
         self._controlset = self._controlsets[self._viess_proto]
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_SERIAL_PORT: &#39;&#39;,
-                        PLUGIN_ARG_SERIAL_BAUD: self._controlset[PLUGIN_ARG_SERIAL_BAUD],
-                        PLUGIN_ARG_SERIAL_BSIZE: self._controlset[PLUGIN_ARG_SERIAL_BSIZE],
-                        PLUGIN_ARG_SERIAL_PARITY: self._controlset[PLUGIN_ARG_SERIAL_PARITY],
-                        PLUGIN_ARG_SERIAL_STOP: self._controlset[PLUGIN_ARG_SERIAL_STOP],
-                        PLUGIN_ARG_TIMEOUT: self._controlset[PLUGIN_ARG_TIMEOUT],
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 0,
-                        PLUGIN_ARG_CONN_CYCLE: 3,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CONNECTION: CONN_SER_DIR}
+        self._params = {PLUGIN_ATTR_SERIAL_PORT: &#39;&#39;,
+                        PLUGIN_ATTR_SERIAL_BAUD: self._controlset[PLUGIN_ATTR_SERIAL_BAUD],
+                        PLUGIN_ATTR_SERIAL_BSIZE: self._controlset[PLUGIN_ATTR_SERIAL_BSIZE],
+                        PLUGIN_ATTR_SERIAL_PARITY: self._controlset[PLUGIN_ATTR_SERIAL_PARITY],
+                        PLUGIN_ATTR_SERIAL_STOP: self._controlset[PLUGIN_ATTR_SERIAL_STOP],
+                        PLUGIN_ATTR_TIMEOUT: self._controlset[PLUGIN_ATTR_TIMEOUT],
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 0,
+                        PLUGIN_ATTR_CONN_CYCLE: 3,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CONNECTION: CONN_SER_DIR}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -503,8 +503,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
         # initialize connection
         conn_params = self._params.copy()
         # don&#39;t supply callback, we do only reply-based work
-        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: None, PLUGIN_ARG_CB_ON_DISCONNECT: None})
-        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, None, **conn_params)
+        conn_params.update({PLUGIN_ATTR_CB_ON_CONNECT: None, PLUGIN_ATTR_CB_ON_DISCONNECT: None})
+        self._connection = self._params[PLUGIN_ATTR_CONNECTION](device_type, device_id, None, **conn_params)
 
         # set &#34;method pointers&#34;
         self._send_bytes = self._connection._send_bytes
@@ -917,9 +917,9 @@ of the device and the connection classes.</p></div>
         self._data_received_callback = data_received_callback
 
         # make sure we have a basic set of parameters
-        self._params = {PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CONNECTION: MD_Connection}
+        self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CONNECTION: MD_Connection}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -927,8 +927,8 @@ of the device and the connection classes.</p></div>
 
         # initialize connection
         conn_params = self._params.copy()
-        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: self.on_connect, PLUGIN_ARG_CB_ON_DISCONNECT: self.on_disconnect})
-        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
+        conn_params.update({PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect, PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect})
+        self._connection = self._params[PLUGIN_ATTR_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
 
         # tell someone about our actual class
         self.logger.debug(f&#39;protocol initialized from {self.__class__.__name__}&#39;)
@@ -1042,17 +1042,17 @@ If callbacks are class members, they need the additional first parameter 'self'<
         self._stale_lock = threading.Lock()
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_NET_HOST: &#39;&#39;,
-                        PLUGIN_ARG_NET_PORT: 9090,
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 1,
-                        PLUGIN_ARG_CONN_CYCLE: 3,
-                        PLUGIN_ARG_TIMEOUT: 3,
-                        PLUGIN_ARG_MSG_REPEAT: 3,
-                        PLUGIN_ARG_MSG_TIMEOUT: 5,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI}
+        self._params = {PLUGIN_ATTR_NET_HOST: &#39;&#39;,
+                        PLUGIN_ATTR_NET_PORT: 9090,
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 1,
+                        PLUGIN_ATTR_CONN_CYCLE: 3,
+                        PLUGIN_ATTR_TIMEOUT: 3,
+                        PLUGIN_ATTR_MSG_REPEAT: 3,
+                        PLUGIN_ATTR_MSG_TIMEOUT: 5,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -1069,8 +1069,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
 
         # initialize connection
         conn_params = self._params.copy()
-        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: self.on_connect, PLUGIN_ARG_CB_ON_DISCONNECT: self.on_disconnect})
-        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
+        conn_params.update({PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect, PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect})
+        self._connection = self._params[PLUGIN_ATTR_CONNECTION](device_type, device_id, self.on_data_received, **conn_params)
 
         # tell someone about our actual class
         self.logger.debug(f&#39;protocol initialized from {self.__class__.__name__}&#39;)
@@ -1377,18 +1377,18 @@ implemented for network access as of this time&hellip;</p></div>
         self._controlset = self._controlsets[self._viess_proto]
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_SERIAL_PORT: &#39;&#39;,
-                        PLUGIN_ARG_SERIAL_BAUD: self._controlset[PLUGIN_ARG_SERIAL_BAUD],
-                        PLUGIN_ARG_SERIAL_BSIZE: self._controlset[PLUGIN_ARG_SERIAL_BSIZE],
-                        PLUGIN_ARG_SERIAL_PARITY: self._controlset[PLUGIN_ARG_SERIAL_PARITY],
-                        PLUGIN_ARG_SERIAL_STOP: self._controlset[PLUGIN_ARG_SERIAL_STOP],
-                        PLUGIN_ARG_TIMEOUT: self._controlset[PLUGIN_ARG_TIMEOUT],
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 0,
-                        PLUGIN_ARG_CONN_CYCLE: 3,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CONNECTION: CONN_SER_DIR}
+        self._params = {PLUGIN_ATTR_SERIAL_PORT: &#39;&#39;,
+                        PLUGIN_ATTR_SERIAL_BAUD: self._controlset[PLUGIN_ATTR_SERIAL_BAUD],
+                        PLUGIN_ATTR_SERIAL_BSIZE: self._controlset[PLUGIN_ATTR_SERIAL_BSIZE],
+                        PLUGIN_ATTR_SERIAL_PARITY: self._controlset[PLUGIN_ATTR_SERIAL_PARITY],
+                        PLUGIN_ATTR_SERIAL_STOP: self._controlset[PLUGIN_ATTR_SERIAL_STOP],
+                        PLUGIN_ATTR_TIMEOUT: self._controlset[PLUGIN_ATTR_TIMEOUT],
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 0,
+                        PLUGIN_ATTR_CONN_CYCLE: 3,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CONNECTION: CONN_SER_DIR}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -1397,8 +1397,8 @@ implemented for network access as of this time&hellip;</p></div>
         # initialize connection
         conn_params = self._params.copy()
         # don&#39;t supply callback, we do only reply-based work
-        conn_params.update({PLUGIN_ARG_CB_ON_CONNECT: None, PLUGIN_ARG_CB_ON_DISCONNECT: None})
-        self._connection = self._params[PLUGIN_ARG_CONNECTION](device_type, device_id, None, **conn_params)
+        conn_params.update({PLUGIN_ATTR_CB_ON_CONNECT: None, PLUGIN_ATTR_CB_ON_DISCONNECT: None})
+        self._connection = self._params[PLUGIN_ATTR_CONNECTION](device_type, device_id, None, **conn_params)
 
         # set &#34;method pointers&#34;
         self._send_bytes = self._connection._send_bytes

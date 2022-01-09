@@ -76,8 +76,8 @@ class MD_Connection(object):
         # set default parameters for the connection
         # as this base connection has no connection, we need no further parameters
         # when overloading, add defaults as needed
-        self._params = {PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CB_ON_CONNECT: None}
+        self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
 
         # convert params to protected properties (self._params['foo'] -> self._foo)
@@ -214,7 +214,7 @@ class MD_Connection(object):
         Try to set some of the common parameters.
         Might need to be overloaded...
         """
-        for arg in PLUGIN_ARGS:
+        for arg in PLUGIN_ATTRS:
             if arg in self._params:
                 setattr(self, '_' + arg, sanitize_param(self._params[arg]))
 
@@ -308,15 +308,15 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self._data_received_callback = data_received_callback
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_NET_HOST: '',
-                        PLUGIN_ARG_NET_PORT: 0,
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 1,
-                        PLUGIN_ARG_CONN_CYCLE: 3,
-                        PLUGIN_ARG_TIMEOUT: 3,
-                        PLUGIN_ARG_TERMINATOR: None,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: None,
-                        PLUGIN_ARG_CB_ON_CONNECT: None}
+        self._params = {PLUGIN_ATTR_NET_HOST: '',
+                        PLUGIN_ATTR_NET_PORT: 0,
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 1,
+                        PLUGIN_ATTR_CONN_CYCLE: 3,
+                        PLUGIN_ATTR_TIMEOUT: 3,
+                        PLUGIN_ATTR_TERMINATOR: None,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
 
         # convert params to protected properties (self._params['foo'] -> self._foo)
@@ -405,18 +405,18 @@ class MD_Connection_Serial(MD_Connection):
         self._read_buffer = b''
 
         # make sure we have a basic set of parameters for the TCP connection
-        self._params = {PLUGIN_ARG_SERIAL_PORT: '',
-                        PLUGIN_ARG_SERIAL_BAUD: 9600,
-                        PLUGIN_ARG_SERIAL_BSIZE: 8,
-                        PLUGIN_ARG_SERIAL_PARITY: 'N',
-                        PLUGIN_ARG_SERIAL_STOP: 1,
-                        PLUGIN_ARG_PROTOCOL: None,
-                        PLUGIN_ARG_TIMEOUT: 1.0,
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 1,
-                        PLUGIN_ARG_CONN_CYCLE: 3,
-                        PLUGIN_ARG_CB_ON_CONNECT: None,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: None}
+        self._params = {PLUGIN_ATTR_SERIAL_PORT: '',
+                        PLUGIN_ATTR_SERIAL_BAUD: 9600,
+                        PLUGIN_ATTR_SERIAL_BSIZE: 8,
+                        PLUGIN_ATTR_SERIAL_PARITY: 'N',
+                        PLUGIN_ATTR_SERIAL_STOP: 1,
+                        PLUGIN_ATTR_PROTOCOL: None,
+                        PLUGIN_ATTR_TIMEOUT: 1.0,
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 1,
+                        PLUGIN_ATTR_CONN_CYCLE: 3,
+                        PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: None}
 
         self._params.update(kwargs)
 

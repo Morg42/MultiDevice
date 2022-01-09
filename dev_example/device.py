@@ -24,14 +24,14 @@ class MD_Device(MD_Device):
         # set parameter defaults
         # TODO: adapt these to actual requirements!
         self._params = {'command_class': MD_Command_Str,            # remember to import the needed class!
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI,    # check MD_Globals.py for constants
-                        PLUGIN_ARG_NET_HOST: '', 
-                        PLUGIN_ARG_NET_PORT: 0, 
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 5, 
-                        PLUGIN_ARG_CONN_CYCLE: 3, 
-                        PLUGIN_ARG_TIMEOUT: 3, 
-                        PLUGIN_ARG_TERMINATOR: b'\r',
+                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,    # check MD_Globals.py for constants
+                        PLUGIN_ATTR_NET_HOST: '', 
+                        PLUGIN_ATTR_NET_PORT: 0, 
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 5, 
+                        PLUGIN_ATTR_CONN_CYCLE: 3, 
+                        PLUGIN_ATTR_TIMEOUT: 3, 
+                        PLUGIN_ATTR_TERMINATOR: b'\r',
                         'disconnected_callback': None}
 
         super().__init__(device_type, device_id, **kwargs)

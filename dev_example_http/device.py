@@ -30,7 +30,7 @@ class MD_Device(MD_Device):
         # set parameter defaults
         # TODO: adapt these to actual requirements!
         self._params = {'command_class': MD_Command_Str,            # remember to import the needed class!
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_REQ}    # check MD_Globals.py for constants
+                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_REQ}    # check MD_Globals.py for constants
 
         super().__init__(device_type, device_id, **kwargs)
 

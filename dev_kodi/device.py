@@ -53,18 +53,18 @@ class MD_Device(MD_Device):
 
         # set parameter defaults
         self._params = {'command_class': MD_Command_JSON, 
-                        PLUGIN_ARG_PROTOCOL: PROTO_JSONRPC,
-                        PLUGIN_ARG_CONNECTION: CONN_NET_TCP_CLI,
-                        PLUGIN_ARG_NET_HOST: '', 
-                        PLUGIN_ARG_NET_PORT: 9090, 
-                        PLUGIN_ARG_AUTORECONNECT: True,
-                        PLUGIN_ARG_CONN_RETRIES: 5, 
-                        PLUGIN_ARG_CONN_CYCLE: 3, 
-                        PLUGIN_ARG_TIMEOUT: 3, 
-                        PLUGIN_ARG_MSG_REPEAT: 3,
-                        PLUGIN_ARG_MSG_TIMEOUT: 5,
-                        PLUGIN_ARG_CB_ON_CONNECT: self.on_connect,
-                        PLUGIN_ARG_CB_ON_DISCONNECT: self.on_disconnect}
+                        PLUGIN_ATTR_PROTOCOL: PROTO_JSONRPC,
+                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,
+                        PLUGIN_ATTR_NET_HOST: '', 
+                        PLUGIN_ATTR_NET_PORT: 9090, 
+                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_RETRIES: 5, 
+                        PLUGIN_ATTR_CONN_CYCLE: 3, 
+                        PLUGIN_ATTR_TIMEOUT: 3, 
+                        PLUGIN_ATTR_MSG_REPEAT: 3,
+                        PLUGIN_ATTR_MSG_TIMEOUT: 5,
+                        PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect,
+                        PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect}
 
         super().__init__(device_type, device_id, **kwargs)
 

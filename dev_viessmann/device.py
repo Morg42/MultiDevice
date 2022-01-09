@@ -25,7 +25,7 @@ class MD_Device(MD_Device):
 
         # set parameter defaults
         self._params = {'command_class': MD_Command_Viessmann, 
-                        PLUGIN_ARG_PROTOCOL: PROTO_VIESSMANN}
+                        PLUGIN_ATTR_PROTOCOL: PROTO_VIESSMANN}
 
         super().__init__(device_type, device_id, **kwargs)
 

@@ -338,11 +338,11 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_NET_HOST: &#39;&#39;,
                         PLUGIN_ATTR_NET_PORT: 0,
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
                         PLUGIN_ATTR_CONN_CYCLE: 3,
-                        PLUGIN_ATTR_TIMEOUT: 3,
-                        PLUGIN_ATTR_TERMINATOR: None,
+                        PLUGIN_ATTR_CONN_TIMEOUT: 3,
+                        PLUGIN_ATTR_CONN_TERMINATOR: None,
                         PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
@@ -439,8 +439,8 @@ class MD_Connection_Serial(MD_Connection):
                         PLUGIN_ATTR_SERIAL_PARITY: &#39;N&#39;,
                         PLUGIN_ATTR_SERIAL_STOP: 1,
                         PLUGIN_ATTR_PROTOCOL: None,
-                        PLUGIN_ATTR_TIMEOUT: 1.0,
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_TIMEOUT: 1.0,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
                         PLUGIN_ATTR_CONN_CYCLE: 3,
                         PLUGIN_ATTR_CB_ON_CONNECT: None,
@@ -1049,11 +1049,11 @@ If callbacks are class members, they need the additional first parameter 'self'<
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_NET_HOST: &#39;&#39;,
                         PLUGIN_ATTR_NET_PORT: 0,
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
                         PLUGIN_ATTR_CONN_CYCLE: 3,
-                        PLUGIN_ATTR_TIMEOUT: 3,
-                        PLUGIN_ATTR_TERMINATOR: None,
+                        PLUGIN_ATTR_CONN_TIMEOUT: 3,
+                        PLUGIN_ATTR_CONN_TERMINATOR: None,
                         PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
@@ -1314,8 +1314,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
                         PLUGIN_ATTR_SERIAL_PARITY: &#39;N&#39;,
                         PLUGIN_ATTR_SERIAL_STOP: 1,
                         PLUGIN_ATTR_PROTOCOL: None,
-                        PLUGIN_ATTR_TIMEOUT: 1.0,
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_TIMEOUT: 1.0,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
                         PLUGIN_ATTR_CONN_CYCLE: 3,
                         PLUGIN_ATTR_CB_ON_CONNECT: None,

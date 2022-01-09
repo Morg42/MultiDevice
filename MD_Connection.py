@@ -310,11 +310,11 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_NET_HOST: '',
                         PLUGIN_ATTR_NET_PORT: 0,
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
                         PLUGIN_ATTR_CONN_CYCLE: 3,
-                        PLUGIN_ATTR_TIMEOUT: 3,
-                        PLUGIN_ATTR_TERMINATOR: None,
+                        PLUGIN_ATTR_CONN_TIMEOUT: 3,
+                        PLUGIN_ATTR_CONN_TERMINATOR: None,
                         PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
@@ -347,11 +347,11 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f'{self.__class__.__name__} closing connection')
         self._tcp.close()
 
-    def on_data_received(self, by, data):
-        # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
-        if isinstance(data, str):
-            data = data.strip()
-        super().on_data_received(by, data)
+    # def on_data_received(self, by, data):
+    #     # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
+    #     # if isinstance(data, str):
+    #     #     data = data.strip()
+    #     super().on_data_received(by, data)
 
     def _send(self, data_dict):
         self._tcp.send(data_dict['payload'])
@@ -411,8 +411,9 @@ class MD_Connection_Serial(MD_Connection):
                         PLUGIN_ATTR_SERIAL_PARITY: 'N',
                         PLUGIN_ATTR_SERIAL_STOP: 1,
                         PLUGIN_ATTR_PROTOCOL: None,
-                        PLUGIN_ATTR_TIMEOUT: 1.0,
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_BINARY: False,
+                        PLUGIN_ATTR_CONN_TIMEOUT: 1.0,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
                         PLUGIN_ATTR_CONN_CYCLE: 3,
                         PLUGIN_ATTR_CB_ON_CONNECT: None,
@@ -520,7 +521,8 @@ class MD_Connection_Serial(MD_Connection):
         if rlen is None:
             return None
         else:
-            return self._read_bytes(rlen)
+            res = self._read_bytes(rlen)
+            return res if self._binary else str(res, 'utf-8').strip()
 
     def _send_bytes(self, packet):
         """

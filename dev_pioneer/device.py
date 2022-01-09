@@ -33,11 +33,11 @@ class MD_Device(MD_Device):
         self._params = {'command_class': MD_Command_ParseStr, 
                         PLUGIN_ATTR_NET_HOST: '', 
                         PLUGIN_ATTR_NET_PORT: 8102, 
-                        PLUGIN_ATTR_AUTORECONNECT: True,
+                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 5, 
                         PLUGIN_ATTR_CONN_CYCLE: 3, 
-                        PLUGIN_ATTR_TIMEOUT: 3, 
-                        PLUGIN_ATTR_TERMINATOR: b'\r',
+                        PLUGIN_ATTR_CONN_TIMEOUT: 3, 
+                        PLUGIN_ATTR_CONN_TERMINATOR: b'\r',
                         'disconnected_callback': None}
 
         # set our own preferences concerning connections
@@ -54,7 +54,7 @@ class MD_Device(MD_Device):
     def _transform_send_data(self, data=None):
         if data:
             try:
-                data['limit_response'] = self._params.get(PLUGIN_ATTR_TERMINATOR, b'\r')
+                data['limit_response'] = self._params.get(PLUGIN_ATTR_CONN_TERMINATOR, b'\r')
                 data['payload'] = f'{data.get("payload")}\r'
             except Exception as e:
                 self.logger.error(f'ERROR {e}')

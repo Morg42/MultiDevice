@@ -47,9 +47,10 @@ PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stu
 PLUGIN_ATTR_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
 PLUGIN_ATTR_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
 PLUGIN_ATTR_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
-PLUGIN_ATTR_TIMEOUT          = 'timeout'                 # timeout for reading from network or serial
-PLUGIN_ATTR_TERMINATOR       = 'terminator'              # terminator for reading from network or serial
-PLUGIN_ATTR_AUTORECONNECT    = 'autoreconnect'           # (re)connect automatically on send
+PLUGIN_ATTR_CONN_TIMEOUT     = 'timeout'                 # timeout for reading from network or serial
+PLUGIN_ATTR_CONN_TERMINATOR  = 'terminator'              # terminator for reading from network or serial
+PLUGIN_ATTR_CONN_BINARY      = 'binary'                  # tell connection to handle data for binary parsing
+PLUGIN_ATTR_CONN_AUTO_CONN    = 'autoreconnect'           # (re)connect automatically on send
 PLUGIN_ATTR_CONN_RETRIES     = 'connect_retries'         # if autoreconnect: how often to reconnect
 PLUGIN_ATTR_CONN_CYCLE       = 'connect_cycle'           # if autoreconnect: how many seconds to wait between retries
 
@@ -70,9 +71,9 @@ PLUGIN_ATTR_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to w
 PLUGIN_ATTR_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
 
 PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT,
-                PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_TIMEOUT,
-                PLUGIN_ATTR_TERMINATOR, PLUGIN_ATTR_AUTORECONNECT, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_CYCLE,
-                PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT,
+                PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_TIMEOUT,
+                PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_CYCLE,
+                PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT,
                 PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_STOP,
                 PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT)
 

@@ -344,7 +344,7 @@ class MD_Device(object):
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
 
-    def get_lookup(self, lookup):
+    def get_lookup(self, lookup, mode='fwd'):
         """ returns the lookup table for name <lookup>, None on error """
         if self._commands:
             return self._commands.get_lookup(lookup)

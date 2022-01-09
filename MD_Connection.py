@@ -522,7 +522,13 @@ class MD_Connection_Serial(MD_Connection):
             return None
         else:
             res = self._read_bytes(rlen)
-            return res if self._binary else str(res, 'utf-8').strip()
+            if not self._binary:
+                res = res(res, 'utf-8').strip()
+
+            if self._data_received_callback:
+                self._data_received_callback(self.__name__, res, None)
+
+            return res
 
     def _send_bytes(self, packet):
         """

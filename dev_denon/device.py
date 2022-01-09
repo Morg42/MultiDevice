@@ -50,6 +50,13 @@ class MD_Device(MD_Device):
         # log own initialization with module (i.e. folder) name
         self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
 
+    # we need to receive data via callback, as the "reply" can be unrelated to
+    # the sent command. Getting it as return value would assign it to the wrong
+    # command and discard it... so break the "return result"-chain
+    def _send(self, data_dict):
+        self._connection.send(data_dict)
+        return None
+
     def _transform_send_data(self, data=None):
         if data:
             try:

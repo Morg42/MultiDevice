@@ -678,6 +678,7 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
         # set additional class members
         self.__receive_thread = None
+        super().__init__(device_type, device_id, data_received_callback, **kwargs)
 
     def _setup_listener(self):
         if not self._is_connected:

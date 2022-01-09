@@ -11,7 +11,7 @@ models = {
 }
 
 commands = {
-    '_': {
+    'ALL': {
         'V200KO1B': {
             # Kessel
             'Aussentemperatur':                         {'read': True,  'write': False, 'opcode': '0800', 'reply_token': '0800', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},     # Aussentemperatur
@@ -414,7 +414,7 @@ commands = {
 }
 
 lookups = {
-    'lookups': {
+    'ALL': {
         'devicetypes': {
             '2098': 'V200KW2',   # Protokoll: KW
             '2053': 'GWG_VBEM',  # Protokoll: GWG

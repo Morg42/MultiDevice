@@ -43,7 +43,7 @@ class MD_Device(MD_Device):
         if PLUGIN_ATTR_NET_HOST in kwargs and kwargs[PLUGIN_ATTR_NET_HOST]:
             self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
         elif PLUGIN_ATTR_SERIAL_PORT in kwargs and kwargs[PLUGIN_ATTR_SERIAL_PORT]:
-            self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_DIR
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
 
         super().__init__(device_type, device_id, **kwargs)
 

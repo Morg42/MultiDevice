@@ -17,6 +17,15 @@ Unterstützte Geräte
 Alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden implementiert. Derzeit sind dies:
 
 * Pioneer AV-Receiver (pioneer)
+
+  * SC-LX87
+  * SC-LX77
+  * SC-LX57
+  * SC-2023
+  * SC-1223
+  * VSX-1123
+  * VSX-923
+
 * Denon AV-Receiver (denon)
 * Kodi Mediencenter (kodi)
 * Viessmann-Heizungen (viessmann)

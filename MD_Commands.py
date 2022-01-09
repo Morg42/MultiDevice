@@ -77,9 +77,9 @@ class MD_Commands(object):
         if not self._read_commands(device_id):
             return None
 
-        if self._commands is not None or MD_standalone:
+        if self._commands is not None:
             self.logger.debug(f'{len(self._commands)} commands initialized')
-        else:
+        elif not MD_standalone:
             self.logger.error('commands could not be initialized')
 
     def is_valid_command(self, command, read=None):
@@ -340,19 +340,22 @@ class MD_Commands(object):
         else:
             lu = lookups
 
-        for table in lu:
-            if isinstance(lu[table], dict):
+        try:
+            for table in lu:
+                if isinstance(lu[table], dict):
 
-                self._lookups[table] = {}
+                    self._lookups[table] = {}
 
-                # original dict
-                self._lookups[table]['fwd'] = lu[table]
-                # reversed dict
-                self._lookups[table]['rev'] = {v: k for (k, v) in lu[table].items()}
-                # reversed dict, keys are lowercase for case insensitive lookup
-                self._lookups[table]['rci'] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lu[table].items()}
+                    # original dict
+                    self._lookups[table]['fwd'] = lu[table]
+                    # reversed dict
+                    self._lookups[table]['rev'] = {v: k for (k, v) in lu[table].items()}
+                    # reversed dict, keys are lowercase for case insensitive lookup
+                    self._lookups[table]['rci'] = {v.lower() if isinstance(v, str) else v: k for (k, v) in lu[table].items()}
 
-                self._lookup_tables.append(table)
-                self.logger.debug(f'imported lookup table {table} with {len(lu[table])} items')
-            else:
-                self.logger.warning(f'key {table} in lookups not in dict format, ignoring')
+                    self._lookup_tables.append(table)
+                    self.logger.debug(f'imported lookup table {table} with {len(lu[table])} items')
+                else:
+                    self.logger.warning(f'key {table} in lookups not in dict format, ignoring')
+        except Exception as e:
+            self.logger.error(f'importing lookup tables not possible, check syntax. Error was: {e}')

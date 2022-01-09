@@ -47,7 +47,7 @@ class MD_Device(MD_Device):
             if res is None:
 
                 # None means no connection, no further tries
-                print(f'Connection could not be established to {serialport}. Please check connection.')
+                print(f'Connection could not be established to {self._params[PLUGIN_ATTR_SERIAL_PORT]}. Please check connection.')
                 break
 
             if res is False:

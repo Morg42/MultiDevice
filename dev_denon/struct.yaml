@@ -176,7 +176,7 @@ zone1:
         md_write: true
         md_read_group: 1
         #eval: None if sh...power() is False else value
-    sourcenames:
+    inputnames:
         all:
             type: dict
             cache: True
@@ -191,66 +191,66 @@ zone1:
         DVD:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_DVD
+            md_command: general/inputname_DVD
             md_read: true
         BD:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_BD
+            md_command: general/inputname_BD
             md_read: true
         TV:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_TV
+            md_command: general/inputname_TV
             md_read: true
         SAT:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_SAT
+            md_command: general/inputname_SAT
             md_read: true
         MPLAY:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_MPLAY
+            md_command: general/inputname_MPLAY
             md_read: true
         AUX1:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_AUX1
+            md_command: general/inputname_AUX1
             md_read: true
         AUX2:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_AUX2
+            md_command: general/inputname_AUX2
             md_read: true
         GAME:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_GAME
+            md_command: general/inputname_GAME
             md_read: true
         CD:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_CD
+            md_command: general/inputname_CD
             md_read: true
         PHONO:
             type: str
             md_deviceid: DEVICENAME
-            md_command: general/sourcename_PHONO
+            md_command: general/inputname_PHONO
             md_read: true
             md_read_initial: true
-    source:
+    input:
         type: str
         md_deviceid: DEVICENAME
-        md_command: zone1/source
+        md_command: zone1/input
         md_read: true
         md_read_initial: true
         md_write: true
-        on_change: .by_name = sh...sourcenames.reverse()[value]
+        on_change: .by_name = sh...inputnames.reverse()[value]
 
         by_name:
             type: str
-            on_change: .. = sh....sourcenames.all()[value]
+            on_change: .. = sh....inputnames.all()[value]
     listeningmode:
         type: str
         md_deviceid: DEVICENAME
@@ -395,14 +395,6 @@ zone1:
                 type: str
                 md_deviceid: DEVICENAME
                 md_command: zone1/audioinput
-                md_read: true
-                md_read_initial: true
-                md_write: true
-                #eval: None if sh.....power() is False else value
-            digitalinput:
-                type: str
-                md_deviceid: DEVICENAME
-                md_command: zone1/digitalinput
                 md_read: true
                 md_read_initial: true
                 md_write: true
@@ -613,10 +605,10 @@ zone2:
         md_deviceid: DEVICENAME
         md_command: zone2/volumedown
         md_write: true
-    source:
+    input:
         type: str
         md_deviceid: DEVICENAME
-        md_command: zone2/source
+        md_command: zone2/input
         md_read: true
         md_write: true
     sleep:
@@ -743,10 +735,10 @@ zone3:
         md_deviceid: DEVICENAME
         md_command: zone3/volumedown
         md_write: true
-    source:
+    input:
         type: str
         md_deviceid: DEVICENAME
-        md_command: zone3/source
+        md_command: zone3/input
         md_read: true
         md_write: true
     sleep:

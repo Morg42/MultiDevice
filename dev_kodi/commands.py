@@ -36,33 +36,3 @@ commands = {
     'action':           {'read': True, 'write': True,  'opcode': 'Input.ExecuteAction',         'reply_token': 'Input.ExecuteAction',         'item_type': 'str',  'dev_datatype': 'raw', 'params': ['action'], 'param_values': ['VAL'], 'settings': {'valid_list': ['left','right','up','down','select','back','menu','info','pause','stop','skipnext','skipprevious','fullscreen','aspectratio','stepforward','stepback','osd','showsubtitles','nextsubtitle','cyclesubtitle','audionextlanguage','number1','number2','number3','number4','number5','number6','number7','number8','number9','fastforward','rewind','play','playpause','volumeup','volumedown','mute','enter']}}
 
 }
-
-
-models = {
-    'ALL': ['update', 'player'],
-    'model1': [],
-    'model2': ['state', 'media', 'title', 'streams', 'subtitles', 'macro', 'ping', 'get_status_au', 'get_players', 'get_actplayer', 'get_status_play', 'get_item', 'get_favourites', 'playpause', 'seek', 'audio', 'speed', 'subtitle', 'stop', 'goto', 'power', 'quit', 'mute', 'volume', 'action'],
-    'model3': ['state', 'media', 'title', 'streams', 'subtitles', 'macro', 'ping', 'get_status_au', 'get_players', 'get_actplayer', 'get_status_play', 'get_item', 'get_favourites', 'playpause']
-}
-
-lookups = {
-    'ALL': {
-        'l1': {
-            '1': 'a',
-            '2': 'b',
-            '3': 'c'
-        },
-        'l2': {
-            '10': 'aa',
-            '11': 'bb',
-            '12': 'cc'
-        }
-    },
-    'model1': {
-        'l1': {
-            '1': 'x',
-            '2': 'y',
-            '3': 'z'
-        }
-    }
-}

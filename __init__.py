@@ -828,7 +828,10 @@ class MultiDevice(SmartPlugin):
             if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
                 table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
                 if table:
-                    lu = device.get_lookup(table)
+                    mode = 'fwd'
+                    if '#' in table:
+                        (table, mode) = table.split('#')
+                    lu = device.get_lookup(table, mode)
                     item.set(lu, 'MultiDevice.' + device_id, source='Init')
                     if lu:
                         self.logger.debug(f'Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}')

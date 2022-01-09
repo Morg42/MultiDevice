@@ -163,6 +163,23 @@ item_attributes:
         description:
             de: 'Der Inhalt der Lookup-Tabelle mit dem angegebenen Namen wird beim Start einmalig als dict in das Item geschrieben.'
             en: 'The lookup table with the given name will be assigned to the item in dict format once on startup.'
+        description_long:
+            de: 'Der Inhalt der Lookup-Tabelle mit dem angegebenen Namen wird beim
+                 Start einmalig als dict in das Item geschrieben.
+
+                 Durch Anhängen von "#<mode>" an den Namen der Tabelle kann die Art
+                 der Tabelle ausgewählt werden:
+                 - fwd liefert die Tabelle Gerät -> SmartHomeNG (Standard)
+                 - rev liefert die Tabelle SmartHomeNG -> Gerät
+                 - rci liefert die Tabelle SmarthomeNG -> Gerät in Kleinbuchstaben'
+            en: 'The lookup table with the given name will be assigned to the item
+                 in dict format once on startup.
+
+                 By appending "#<mode>" to the tables name the type of table can
+                 be selected:
+                 - fwd returns the table device -> SmartHomeNG (default)
+                 - rev returns the table SmartHomeNG -> device
+                 - rci returns the table SmartHomeNG -> device in lower case'
 
 item_structs: NONE
 # Definition of item-structure templates for this plugin (enter 'item_structs: NONE', if section should be empty)

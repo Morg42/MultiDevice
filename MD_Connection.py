@@ -403,6 +403,7 @@ class MD_Connection_Serial(MD_Connection):
         self._lastbytetime = 0
         self._connection_attempts = 0
         self._read_buffer = b''
+        self.__use_read_buffer = True
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_SERIAL_PORT: '',
@@ -434,6 +435,8 @@ class MD_Connection_Serial(MD_Connection):
         self._connection.timeout = self._timeout
 
         self._data_received_callback = data_received_callback
+
+        self._setup_listener()
 
         # tell someone about our actual class
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
@@ -601,9 +604,12 @@ class MD_Connection_Serial(MD_Connection):
                 return totalreadbytes
 
             if term_bytes in totalreadbytes:
-                pos = totalreadbytes.find(term_bytes)
-                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
-                return totalreadbytes[:pos + len(term_bytes)]
+                if self.__use_read_buffer:
+                    pos = totalreadbytes.find(term_bytes)
+                    self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                    return totalreadbytes[:pos + len(term_bytes)]
+                else:
+                    return totalreadbytes
 
         # timeout reached, did we read anything?
         if not totalreadbytes:
@@ -618,7 +624,11 @@ class MD_Connection_Serial(MD_Connection):
         if self._connection:
             self._connection.reset_input_buffer()
 
+    def _setup_listener(self):
+        """ empty, for subclass use """
+        pass
 
-class MD_Connection_Serial_Async(MD_Connection):
+
+class MD_Connection_Serial_Async(MD_Connection_Serial):
     # to be implemented
     pass

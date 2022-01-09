@@ -526,7 +526,7 @@ class MD_Connection_Serial(MD_Connection):
                 res = str(res, 'utf-8').strip()
 
             if self._data_received_callback:
-                self._data_received_callback(self.__name__, res, None)
+                self._data_received_callback(self.__class__.__name__, res, None)
 
             return res
 

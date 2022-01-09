@@ -523,7 +523,7 @@ class MD_Connection_Serial(MD_Connection):
         else:
             res = self._read_bytes(rlen)
             if not self._binary:
-                res = res(res, 'utf-8').strip()
+                res = str(res, 'utf-8').strip()
 
             if self._data_received_callback:
                 self._data_received_callback(self.__name__, res, None)

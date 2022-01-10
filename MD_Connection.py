@@ -475,7 +475,7 @@ class MD_Connection_Serial(MD_Connection):
                 self.logger.info(f'connected to {self._serialport}')
                 self._connection_attempts = 0
                 if self._connected_callback:
-                    self._connected_callback(f'serial_{self._serialport}')
+                    self._connected_callback(self)
                 self._setup_listener()
                 return True
             except (serial.SerialException, ValueError) as e:
@@ -501,7 +501,7 @@ class MD_Connection_Serial(MD_Connection):
             pass
         self.logger.info(f'connection to {self._serialport} closed')
         if self._disconnected_callback:
-            self._disconnected_callback(f'serial_{self._serialport}')
+            self._disconnected_callback(self)
 
     def _send(self, data_dict):
         """
@@ -553,7 +553,7 @@ class MD_Connection_Serial(MD_Connection):
                 res = str(res, 'utf-8').strip()
 
             if self._data_received_callback:
-                self._data_received_callback(self.__class__.__name__, res, None)
+                self._data_received_callback(self, res, None)
 
             return res
 
@@ -689,11 +689,8 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
         if not self._is_connected:
             return
 
-        name = 'Serial_Client'
-        if self.name:
-            name = self.name + '_' + name
         self.__running = True
-        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=name)
+        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=f'{self._device_id}_Serial')
         self.__receive_thread.daemon = True
         self.__receive_thread.start()
 

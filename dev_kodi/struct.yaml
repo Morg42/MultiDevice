@@ -5,42 +5,42 @@ info:
     name: Vorlage-Struktur für Kodi Infos, die nicht aktiv verändert werden können.
 
     state:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: state
         md_read: true
         type: str
         visu_acl: ro
 
     media:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: media
         md_read: true
         type: str
         visu_acl: ro
 
     title:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: title
         md_read: true
         type: str
         visu_acl: ro
 
     audiostreams:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: streams
         md_read: true
         type: list
         visu_acl: ro
 
     subtitles:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: subtitles
         md_read: true
         type: list
         visu_acl: ro
 
     player:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: player
         md_read: true
         type: num
@@ -50,7 +50,7 @@ control:
     name: Vorlage-Struktur für Kodi Befehle zum Steuern
 
     update:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: update
         md_read: true
         md_write: true
@@ -88,7 +88,7 @@ control:
             eval_trigger: ..
 
     stop:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: stop
         md_read: true
         md_write: true
@@ -97,7 +97,7 @@ control:
         enforce_updates: true
 
     playpause:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: playpause
         md_read: true
         md_write: true
@@ -116,7 +116,7 @@ control:
         enforce_updates: true
 
     seek:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: seek
         md_read: true
         md_write: true
@@ -125,7 +125,7 @@ control:
         enforce_updates: true
 
     speed:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: speed
         md_read: true
         md_write: true
@@ -134,7 +134,7 @@ control:
         enforce_updates: true
 
     volume:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: volume
         md_read: true
         md_write: true
@@ -143,7 +143,7 @@ control:
         enforce_updates: true
 
     mute:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: mute
         md_read: true
         md_write: true
@@ -152,7 +152,7 @@ control:
         enforce_updates: true
 
     macro:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: macro
         md_read: true
         md_write: true
@@ -161,7 +161,7 @@ control:
         enforce_updates: true
 
     on_off:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: power
         md_read: true
         md_write: true
@@ -170,7 +170,7 @@ control:
         visu_acl: rw
 
     input:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: action
         md_read: true
         md_write: true
@@ -179,7 +179,7 @@ control:
         enforce_updates: true
 
     favourites:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: get_favourites
         md_read: true
         md_write: true
@@ -188,7 +188,7 @@ control:
         enforce_updates: true
 
     audiostream:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: audio
         md_read: true
         md_write: true
@@ -197,7 +197,7 @@ control:
         enforce_updates: true
 
     subtitle:
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: subtitle
         md_read: true
         md_write: true

@@ -57,7 +57,7 @@ parameters:
         description_long:
             de: 'Liste von Geräten und ggf. deren Konfiguration. Geräte-ID ist eine
                  eindeutige Kennzeichnung, die auch in der Item-Konfiguration in der
-                 Option ``md_deviceid`` angegeben wird; Geräte-Typ ist der Name des
+                 Option ``md_device`` angegeben wird; Geräte-Typ ist der Name des
                  Gerätes im Ordner ``dev_<Geräte-Typ>``. Mindestangabe ist
                  der Geräte-Typ; wenn keine Geräte-ID vergeben wird, ist diese
                  gleich dem Geräte-Typ (beachte: pro Geräte-Typ nur einmal möglich).
@@ -85,7 +85,7 @@ parameters:
                 '
             en: 'List of devices and possibly their configuration. The device id
                  is a unique identifier, which is also used in the item configuration
-                 for the ``md_deviceid`` attribute; device type is the name of the
+                 for the ``md_device`` attribute; device type is the name of the
                  device in the ``dev_<device type>`` folder. Minimal configuration
                  consists of the device type; if no device id is provided, it will
                  be equal to the device type (possible only once per device type).

@@ -4,28 +4,28 @@
 radio:
     title:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: radio/title
         md_read: true
         md_write: true
 
     album:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: radio/album
         md_read: true
         md_write: true
 
     artist:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: radio/artist
         md_read: true
         md_write: true
 
     tunerpreset:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: radio/tunerpreset
         md_read: true
         md_read_initial: true
@@ -34,76 +34,76 @@ radio:
     tunerpresetup:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: radio/tunerpresetup
         md_write: true
 
     tunerpresetdown:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: radio/tunerpresetdown
         md_write: true
 
 general:
     power:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/power
         md_read: true
         md_read_initial: true
         md_write: true
     setupmenu:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/setupmenu
         md_read: true
         md_read_initial: true
         md_write: true
     display:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/display
         md_read: true
         md_write: true
         md_read_initial: true
     soundmode:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/soundmode
         md_read: true
         md_write: true
         md_read_initial: true
     inputresolution:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/inputresolution
         md_read: true
         md_write: true
         md_read_initial: true
     outputresolution:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/outputresolution
         md_read: true
         md_write: true
     inputsignal:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/inputsignal
         md_read: true
         md_write: true
         md_read_initial: true
     inputrate:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/inputrate
         md_read: true
         md_write: true
         md_read_initial: true
     inputformat:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: general/inputformat
         md_read: true
         md_write: true
@@ -112,12 +112,12 @@ general:
 zone1:
     read:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_read_group_trigger: 1
         enforce_updates: true
     power:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/power
         md_read: true
         md_read_initial: true
@@ -134,7 +134,7 @@ zone1:
             initial_value: 0
     mute:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/mute
         md_read: true
         md_read_initial: true
@@ -143,7 +143,7 @@ zone1:
         #eval: None if sh...power() is False else value
     volume:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/volume
         md_read: true
         md_read_initial: true
@@ -152,24 +152,24 @@ zone1:
         #eval: 0 if sh...power() is False else value
     volumemax:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/volumemax
         md_read: true
     volumeup:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/volumeup
         md_write: true
     volumedown:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/volumedown
         md_write: true
     ecomode:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/ecomode
         md_read: true
         md_read_initial: true
@@ -190,58 +190,58 @@ zone1:
             eval: "{'DVD': sh...DVD(), 'BD': sh...BD(), 'TV': sh...TV(), 'SAT': sh...SAT(), 'MPLAY': sh...MPLAY(), 'AUX1': sh...AUX1(), 'AUX2': sh...AUX2(), 'GAME': sh...GAME(), 'CD': sh...CD(), 'PHONO': sh...PHONO()}"
         DVD:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_DVD
             md_read: true
         BD:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_BD
             md_read: true
         TV:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_TV
             md_read: true
         SAT:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_SAT
             md_read: true
         MPLAY:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_MPLAY
             md_read: true
         AUX1:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_AUX1
             md_read: true
         AUX2:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_AUX2
             md_read: true
         GAME:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_GAME
             md_read: true
         CD:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_CD
             md_read: true
         PHONO:
             type: str
-            md_deviceid: DEVICENAME
+            md_device: DEVICENAME
             md_command: general/inputname_PHONO
             md_read: true
             md_read_initial: true
     input:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/input
         md_read: true
         md_read_initial: true
@@ -253,7 +253,7 @@ zone1:
             on_change: .. = sh....inputnames.all()[value]
     listeningmode:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/listeningmode
         md_read: true
         md_read_initial: true
@@ -261,14 +261,14 @@ zone1:
         #eval: None if sh...power() is False else value
     sleep:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/sleep
         md_read: true
         md_read_initial: true
         md_write: true
     standby:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone1/standby
         md_read: true
         md_read_initial: true
@@ -278,49 +278,49 @@ zone1:
         picture:
             videoinput:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/videoinput
                 md_read: true
                 md_read_initial: true
                 md_write: true
             enhancer:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/pictureenhancer
                 md_read: true
                 md_read_initial: true
                 md_write: true
             aspectratio:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/aspectratio
                 md_read: true
                 md_read_initial: true
                 md_write: true
             hdmimonitor:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/hdmimonitor
                 md_read: true
                 md_read_initial: true
                 md_write: true
             hdmiresolution:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/hdmiresolution
                 md_read: true
                 md_read_initial: true
                 md_write: true
             videoresolution:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/videoresolution
                 md_read: true
                 md_read_initial: true
                 md_write: true
             videoprocessingmode:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/videoprocessingmode
                 md_read: true
                 md_read_initial: true
@@ -330,70 +330,70 @@ zone1:
             channel_level:
                 front_left:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_front_left
                     md_read: true
                     md_write: true
                     md_read_initial: true
                 front_right:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_front_right
                     md_read: true
                     md_write: true
                 front_center:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_front_center
                     md_read: true
                     md_write: true
                 front_height_left:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_front_height_left
                     md_read: true
                     md_write: true
                     md_read_initial: true
                 front_height_right:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_front_height_right
                     md_read: true
                     md_write: true
                 surround_left:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_surround_left
                     md_read: true
                     md_write: true
                 surround_right:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_surround_right
                     md_read: true
                     md_write: true
                 rear_height_left:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_rear_height_left
                     md_read: true
                     md_write: true
                     md_read_initial: true
                 rear_height_right:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_rear_height_right
                     md_read: true
                     md_write: true
                 subwoofer:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone1/level_subwoofer
                     md_read: true
                     md_write: true
             audioinput:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/audioinput
                 md_read: true
                 md_read_initial: true
@@ -401,7 +401,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             hdmiaudioout:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/hdmiaudioout
                 md_read: true
                 md_read_initial: true
@@ -409,7 +409,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             speakersetup:
                 type: str
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/speakersetup
                 md_read: true
                 md_read_initial: true
@@ -417,7 +417,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             cinema_eq:
                 type: bool
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/cinema_eq
                 md_read: true
                 md_read_initial: true
@@ -425,7 +425,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             dialogtoggle:
                 type: bool
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/dialogtoggle
                 md_read: true
                 md_read_initial: true
@@ -433,7 +433,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             dynamicrange:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/dynamicrange
                 md_read: true
                 md_read_initial: true
@@ -441,7 +441,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             dialogenhance:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/dialogenhance
                 md_read: true
                 md_read_initial: true
@@ -449,7 +449,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             dialog:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/dialog
                 md_read: true
                 md_read_initial: true
@@ -458,26 +458,26 @@ zone1:
             dialogup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/dialogup
                 md_write: true
             dialogdown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/dialogdown
                 md_write: true
             subwoofertoggle:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/subwoofertoggle
                 md_write: true
                 md_read: true
                 #eval: None if sh.....power() is False else value
             subwoofer:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/subwoofer
                 md_read: true
                 md_read_initial: true
@@ -486,18 +486,18 @@ zone1:
             subwooferup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/subwooferup
                 md_write: true
             subwooferdown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/subwooferdown
                 md_write: true
             lfe:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/lfe
                 md_read: true
                 md_read_initial: true
@@ -506,18 +506,18 @@ zone1:
             lfeup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/lfeup
                 md_write: true
             lfedown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/lfedown
                 md_write: true
             tone:
                 type: bool
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/tone
                 md_read: true
                 md_read_initial: true
@@ -525,7 +525,7 @@ zone1:
                 #eval: None if sh.....power() is False else value
             treble:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/treble
                 md_read: true
                 md_read_initial: true
@@ -534,18 +534,18 @@ zone1:
             trebleup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/trebleup
                 md_write: true
             trebledown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/trebledown
                 md_write: true
             bass:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/bass
                 md_read: true
                 md_read_initial: true
@@ -554,25 +554,25 @@ zone1:
             bassup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/bassup
                 md_write: true
             bassdown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone1/bassdown
                 md_write: true
 
 zone2:
     read:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_read_group_trigger: 2
         enforce_updates: true
     power:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/power
         md_read: true
         md_read_initial: true
@@ -582,52 +582,52 @@ zone2:
           #- sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/mute
         md_read: true
         md_read_initial: true
         md_write: true
     volume:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/volume
         md_read: true
         md_write: true
     volumeup:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/volumeup
         md_write: true
     volumedown:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/volumedown
         md_write: true
     input:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/input
         md_read: true
         md_write: true
     sleep:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/sleep
         md_read: true
         md_read_initial: true
         md_write: true
     standby:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/standby
         md_read: true
         md_read_initial: true
         md_write: true
     hdmiout:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone2/hdmiout
         md_read: true
         md_read_initial: true
@@ -638,27 +638,27 @@ zone2:
             channel_level:
                 front_left:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone2/level_front_left
                     md_read: true
                     md_write: true
                     md_read_initial: true
                 front_right:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone2/level_front_right
                     md_read: true
                     md_write: true
             highpassfilter:
                 type: bool
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/HPF
                 md_read: true
                 md_read_initial: true
                 md_write: true
             treble:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/treble
                 md_read: true
                 md_read_initial: true
@@ -666,18 +666,18 @@ zone2:
             trebleup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/trebleup
                 md_write: true
             trebledown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/trebledown
                 md_write: true
             bass:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/bass
                 md_read: true
                 md_read_initial: true
@@ -685,25 +685,25 @@ zone2:
             bassup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/bassup
                 md_write: true
             bassdown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone2/bassdown
                 md_write: true
 
 zone3:
     read:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_read_group_trigger: 3
         enforce_updates: true
     power:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/power
         md_read: true
         md_read_initial: true
@@ -712,45 +712,45 @@ zone3:
           #- sh...volume(0, 'priv_md.denon') if value is False else None
     mute:
         type: bool
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/mute
         md_read: true
         md_read_initial: true
         md_write: true
     volume:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/volume
         md_read: true
         md_write: true
     volumeup:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/volumeup
         md_write: true
     volumedown:
         type: bool
         enforce_updates: true
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/volumedown
         md_write: true
     input:
         type: str
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/input
         md_read: true
         md_write: true
     sleep:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/sleep
         md_read: true
         md_read_initial: true
         md_write: true
     standby:
         type: num
-        md_deviceid: DEVICENAME
+        md_device: DEVICENAME
         md_command: zone3/standby
         md_read: true
         md_read_initial: true
@@ -761,27 +761,27 @@ zone3:
             channel_level:
                 front_left:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone3/level_front_left
                     md_read: true
                     md_write: true
                     md_read_initial: true
                 front_right:
                     type: num
-                    md_deviceid: DEVICENAME
+                    md_device: DEVICENAME
                     md_command: zone3/level_front_right
                     md_read: true
                     md_write: true
             highpassfilter:
                 type: bool
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/HPF
                 md_read: true
                 md_read_initial: true
                 md_write: true
             treble:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/treble
                 md_read: true
                 md_read_initial: true
@@ -789,18 +789,18 @@ zone3:
             trebleup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/trebleup
                 md_write: true
             trebledown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/trebledown
                 md_write: true
             bass:
                 type: num
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/bass
                 md_read: true
                 md_read_initial: true
@@ -808,12 +808,12 @@ zone3:
             bassup:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/bassup
                 md_write: true
             bassdown:
                 type: bool
                 enforce_updates: true
-                md_deviceid: DEVICENAME
+                md_device: DEVICENAME
                 md_command: zone3/bassdown
                 md_write: true

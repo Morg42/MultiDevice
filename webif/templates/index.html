@@ -227,7 +227,7 @@
 				    {% for item in plgitems %}
 				        <tr>
 				            <td>{{ item }}</td>
-				            <td>{% if 'md_deviceid' in item.conf %}{{ item.conf['md_deviceid'] }}{% endif %}</td>
+				            <td>{% if 'md_device' in item.conf %}{{ item.conf['md_device'] }}{% endif %}</td>
 				            <td>{% if 'md_command' in item.conf %}
 				            		{{ item.conf['md_command'] }}
 				            	{% elif 'md_read_all' in item.conf %}

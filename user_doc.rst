@@ -54,7 +54,7 @@ Liste von Geräten und ggf. deren Konfiguration.
 
 Geräte-ID ist eine
 eindeutige Kennzeichnung, die auch in der Item-Konfiguration in der
-Option ``md_deviceid`` angegeben wird; Geräte-Typ ist der Name des
+Option ``md_device`` angegeben wird; Geräte-Typ ist der Name des
 Gerätes im Ordner ``dev_<Geräte-Typ>``. 
 
 Mindestangabe ist

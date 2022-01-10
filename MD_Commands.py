@@ -244,6 +244,10 @@ class MD_Commands(object):
             raise CommandsError(f'importing commands from external module {"dev_" + self._device_type + "/commands.py"} failed. Error was: "{e}"')
             return False
 
+        if self._model == INDEX_GENERIC:
+            self.logger.warning('configured model is identical to generic identifier, loading all commands.')
+            self._model = None
+
         if self._model:
             if hasattr(cmd_module, 'models'):
                 if isinstance(cmd_module.models, dict):
@@ -264,18 +268,23 @@ class MD_Commands(object):
                 if self._model in cmds[INDEX_GENERIC]:
                     cmds = cmds[INDEX_GENERIC][self._model]
                 elif not self._model:
-                    self.logger.debug(f'model set to empty string, not loading commands. You have been warned...')
+                    self.logger.debug('model set to empty string, not loading commands. You have been warned...')
                     cmds = {}
                 else:
                     raise CommandsError(f'commands require configuration attribute "model", but model {self._model + " not set in commands dict" if self._model else "unknown"}.')
+
             if self._model:
-                cmdlist = cmd_module.models[self._model]
-                self.logger.debug(f'found {len(cmdlist)} commands for model {self._model}')
-                if INDEX_GENERIC in cmd_module.models:
-                    cmdlist += cmd_module.models[INDEX_GENERIC]
-                    self.logger.debug(f'found {len(cmd_module.models[INDEX_GENERIC])} generic commands')
+                cmdlist = cmd_module.models.get(INDEX_GENERIC, []) + cmd_module.models.get(self._model, [])
+                self.logger.debug(f'found {len(cmd_module.models.get(INDEX_GENERIC, []))} generic commands')
+                if self._model:
+                    self.logger.debug(f'found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}')
             if cmdlist is None:
                 cmdlist = cmds.keys()
+
+            # remove command hierarchy
+            cmdlist = self._flatten_commands(cmds, cmdlist)
+
+            # actually import commands
             self._parse_commands(device_id, cmds, cmdlist)
         else:
             if not MD_standalone:
@@ -287,6 +296,41 @@ class MD_Commands(object):
             self.logger.debug('no lookups found')
 
         return True
+
+    def _flatten_commands(self, commands_dict, command_list):
+        """ move nested command definitions to same level, adjust names """
+        def walk(node, node_name, parent=None, func=None):
+            for child in list(k for k in node.keys() if isinstance(node[k], dict)):
+                walk(node[child], child, parent=node, func=func)
+            if func:
+                func(node, node_name, parent=parent)
+
+        def moveItems(node, node_name, parent):
+            # make sure we can move "upwards"
+            if parent:
+                # if node['opcode'] is not present, node is not a command
+                if 'opcode' not in node:
+                    for child in list(k for k in node.keys() if isinstance(node[k], dict)):
+                        # node has dict elements node[child]
+                        parent[node_name + "." + child] = node[child]
+                        del node[child]
+
+        def removeEmptyItems(node, node_name, parent):
+            if len(node) == 0:
+                del parent[node_name]
+
+        # flatten cmds
+        walk(commands_dict, '', None, moveItems)
+
+        # remove empty dicts (old 'level names')
+        walk(commands_dict, '', None, removeEmptyItems)
+
+        new_cmdlist = []
+        for cmd in commands_dict:
+            if any(cmdspec == cmd[:len(cmdspec)] for cmdspec in command_list):
+                new_cmdlist.append(cmd)
+
+        return new_cmdlist
 
     def _parse_commands(self, device_id, commands, cmds=[]):
         """

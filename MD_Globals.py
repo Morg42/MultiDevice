@@ -111,6 +111,7 @@ ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYC
 # command definition
 COMMAND_READ            = True
 COMMAND_WRITE           = False
+COMMAND_SEP             = '.'
 
 # commands definition parameters
 COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings', 'lookup', 'params', 'param_values')

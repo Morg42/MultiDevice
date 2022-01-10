@@ -129,7 +129,7 @@ class MD_Device(object):
             if not self._read_configuration():
                 self.logger.error('configuration could not be read, device disabled')
                 return False
-        except CommandsError as e:
+        except Exception as e:
             self.logger.error(f'configuration could not be read, device disabled. Original error: {e}')
             return False
 

@@ -24,6 +24,7 @@
 #
 #########################################################################
 
+from pprint import pprint as pp
 import logging
 import re
 from pydoc import locate
@@ -226,6 +227,26 @@ class MD_Commands(object):
 
         Errors preventing the device from working raise `Exception`
         """
+        def walk(node, node_name, parent=None, func=None):
+            for child in list(k for k in node.keys() if isinstance(node[k], dict)):
+                walk(node[child], child, parent=node, func=func)
+            if func:
+                func(node, node_name, parent=parent)
+
+        def moveItems(node, node_name, parent):
+            # make sure we can move "upwards"
+            if parent:
+                # if node['opcode'] is not present, node is not a command
+                if 'opcode' not in node:
+                    for child in list(k for k in node.keys() if isinstance(node[k], dict)):
+                        # node has dict elements node[child]
+                        parent[node_name + COMMAND_SEP + child] = node[child]
+                        del node[child]
+
+        def removeEmptyItems(node, node_name, parent):
+            if len(node) == 0:
+                del parent[node_name]
+
         # did we get a device type?
         if not self._device_type:
             raise Exception('device_type not set, not reading commands')
@@ -257,35 +278,43 @@ class MD_Commands(object):
                         raise CommandsError(f'configured model {self._model} not found in commands.py models {cmd_module.models.keys()}')
                 else:
                     raise CommandsError(f'model configuration for device type {self._device_type} invalid, "models" is not a dict')
-            else:
-                self.logger.warning(f'plugin configuration wants model {self._model}, but device type {self._device_type} has no model configuration. Loading all commands...')
-                self._model = None
 
         if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict) and not MD_standalone:
             cmds = cmd_module.commands
             cmdlist = None
             if INDEX_GENERIC in cmds:
-                if self._model in cmds[INDEX_GENERIC]:
-                    cmds = cmds[INDEX_GENERIC][self._model]
-                elif not self._model:
-                    self.logger.debug('model set to empty string, not loading commands. You have been warned...')
-                    cmds = {}
-                else:
-                    raise CommandsError(f'commands require configuration attribute "model", but model {self._model + " not set in commands dict" if self._model else "unknown"}.')
 
-            if self._model:
+                # if INDEX_GENERIC is present, take all generic commands.from commands dict..
+                cmds = cmd_module.commands[INDEX_GENERIC]
+                # and add model-specific, if present
+                cmds.update(cmd_module.commands.get(self._model, {}))
+
+            elif self._model:
+
+                # otherwise, take list of generic and specific commands from models dict
                 cmdlist = cmd_module.models.get(INDEX_GENERIC, []) + cmd_module.models.get(self._model, [])
                 self.logger.debug(f'found {len(cmd_module.models.get(INDEX_GENERIC, []))} generic commands')
                 if self._model:
                     self.logger.debug(f'found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}')
+
+            # flatten cmds
+            walk(cmds, '', None, moveItems)
+            # remove empty dicts (old 'level names')
+            walk(cmds, '', None, removeEmptyItems)
+
+            # now get command list, if not already provided
             if cmdlist is None:
                 cmdlist = cmds.keys()
 
-            # remove command hierarchy
-            cmdlist = self._flatten_commands(cmds, cmdlist)
+            # find all commands starting with any entry in cmdlist to capture categories
+            # e.g. cmdlist = ['generic'] -> get all commands starting with generic + COMMAND_SEP
+            new_cmdlist = []
+            for cmd in cmds:
+                if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
+                    new_cmdlist.append(cmd)
 
             # actually import commands
-            self._parse_commands(device_id, cmds, cmdlist)
+            self._parse_commands(device_id, cmds, new_cmdlist)
         else:
             if not MD_standalone:
                 self.logger.warning('no command definitions found. This device probably will not work...')
@@ -296,41 +325,6 @@ class MD_Commands(object):
             self.logger.debug('no lookups found')
 
         return True
-
-    def _flatten_commands(self, commands_dict, command_list):
-        """ move nested command definitions to same level, adjust names """
-        def walk(node, node_name, parent=None, func=None):
-            for child in list(k for k in node.keys() if isinstance(node[k], dict)):
-                walk(node[child], child, parent=node, func=func)
-            if func:
-                func(node, node_name, parent=parent)
-
-        def moveItems(node, node_name, parent):
-            # make sure we can move "upwards"
-            if parent:
-                # if node['opcode'] is not present, node is not a command
-                if 'opcode' not in node:
-                    for child in list(k for k in node.keys() if isinstance(node[k], dict)):
-                        # node has dict elements node[child]
-                        parent[node_name + COMMAND_SEP + child] = node[child]
-                        del node[child]
-
-        def removeEmptyItems(node, node_name, parent):
-            if len(node) == 0:
-                del parent[node_name]
-
-        # flatten cmds
-        walk(commands_dict, '', None, moveItems)
-
-        # remove empty dicts (old 'level names')
-        walk(commands_dict, '', None, removeEmptyItems)
-
-        new_cmdlist = []
-        for cmd in commands_dict:
-            if any(cmdspec == cmd[:len(cmdspec)] for cmdspec in command_list):
-                new_cmdlist.append(cmd)
-
-        return new_cmdlist
 
     def _parse_commands(self, device_id, commands, cmds=[]):
         """

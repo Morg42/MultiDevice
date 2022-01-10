@@ -27,6 +27,13 @@ Alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden imp
   * VSX-923
 
 * Denon AV-Receiver (denon)
+
+  * AVR-X6300H
+  * AVR-X4300H
+  * AVR-X3300W
+  * AVR-X2300W
+  * AVR-X1300W
+
 * Kodi Mediencenter (kodi)
 * Viessmann-Heizungen (viessmann)
 

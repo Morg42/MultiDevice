@@ -418,6 +418,7 @@ class MD_Connection_Serial(MD_Connection):
         self._is_connected = False
         self._lock = TimeoutLock()
         self.__lock_timeout = 2         # TODO: validate this is a sensible value
+        self._timeout_mult = 3
         self._lastbyte = b''
         self._lastbytetime = 0
         self._connection_attempts = 0
@@ -612,30 +613,33 @@ class MD_Connection_Serial(MD_Connection):
         starttime = time()
 
         # prevent concurrent read attempts; 
-        with self._lock(self.__lock_timeout):
+        with self._lock.acquire_timeout(self.__lock_timeout) as locked:
 
-            # don't wait for input indefinitely, stop after 3 * self._timeout seconds
-            while time() <= starttime + 3 * self._timeout:
-                readbyte = self._connection.read()
-                self._lastbyte = readbyte
-                # self.logger.debug(f'_read_bytes: read {readbyte}')
-                if readbyte != b'':
-                    self._lastbytetime = time()
-                else:
-                    return totalreadbytes
-                totalreadbytes += readbyte
-
-                # limit_response reached?
-                if maxlen and len(totalreadbytes) >= maxlen:
-                    return totalreadbytes
-
-                if term_bytes in totalreadbytes:
-                    if self.__use_read_buffer:
-                        pos = totalreadbytes.find(term_bytes)
-                        self._read_buffer += totalreadbytes[pos + len(term_bytes):]
-                        return totalreadbytes[:pos + len(term_bytes)]
+            if locked:
+                # don't wait for input indefinitely, stop after 3 * self._timeout seconds
+                while time() <= starttime + self._timeout_mult * self._timeout:
+                    readbyte = self._connection.read()
+                    self._lastbyte = readbyte
+                    # self.logger.debug(f'_read_bytes: read {readbyte}')
+                    if readbyte != b'':
+                        self._lastbytetime = time()
                     else:
                         return totalreadbytes
+                    totalreadbytes += readbyte
+
+                    # limit_response reached?
+                    if maxlen and len(totalreadbytes) >= maxlen:
+                        return totalreadbytes
+
+                    if term_bytes in totalreadbytes:
+                        if self.__use_read_buffer:
+                            pos = totalreadbytes.find(term_bytes)
+                            self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                            return totalreadbytes[:pos + len(term_bytes)]
+                        else:
+                            return totalreadbytes
+            else:
+                self.logger.warning(f'read_bytes couldn\'t get lock on serial. Ths is unintended...')
 
         # timeout reached, did we read anything?
         if not totalreadbytes and not self.__running:
@@ -679,6 +683,7 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
         # set additional class members
         self.__receive_thread = None
         super().__init__(device_type, device_id, data_received_callback, **kwargs)
+        # self._timeout_mult = 1.5
 
     def _setup_listener(self):
         if not self._is_connected:

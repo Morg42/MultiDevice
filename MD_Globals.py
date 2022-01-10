@@ -95,7 +95,7 @@ PROTO_VIESSMANN         = 'viessmann'        # Viessmann P300 / KW
 PROTOCOL_TYPES = (PROTO_NULL, PROTO_JSONRPC, PROTO_VIESSMANN)
 
 # item attributes (as defines in plugin.yaml)
-ITEM_ATTR_DEVICE        = 'md_deviceid'
+ITEM_ATTR_DEVICE        = 'md_device'
 ITEM_ATTR_COMMAND       = 'md_command'
 ITEM_ATTR_READ          = 'md_read'
 ITEM_ATTR_CYCLE         = 'md_read_cycle'

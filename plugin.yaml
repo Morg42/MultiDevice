@@ -113,7 +113,7 @@ parameters:
                 '
 item_attributes:
     # Definition of item attributes defined by this plugin (enter 'item_attributes: NONE', if section should be empty)
-    md_deviceid:
+    md_device:
         type: str
         description:
             de: 'Weist dem Item das Gerät mit dem angegebenen Namen zu'

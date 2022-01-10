@@ -45,16 +45,16 @@ commands = {
         'settings': {
             'sound': {
                 'channel_level': {
-                    'level_front_left': {'read': True, 'write': True, 'read_cmd': '?L__CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'L__MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVL__(\d{2})'},
-                    'level_front_right': {'read': True, 'write': True, 'read_cmd': '?R__CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVR__(\d{2})'},
-                    'level_front_center': {'read': True, 'write': True, 'read_cmd': '?C__CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'C__MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVC__(\d{2})'},
-                    'level_surround_left': {'read': True, 'write': True, 'read_cmd': '?SL_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SL_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSL_(\d{2})'},
-                    'level_surround_right': {'read': True, 'write': True, 'read_cmd': '?SR_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SR_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSR_(\d{2})'},
-                    'level_front_height_left': {'read': True, 'write': True, 'read_cmd': '?LH_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'LH_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVLH_(\d{2})'},
-                    'level_front_height_right': {'read': True, 'write': True, 'read_cmd': '?RH_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'RH_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVRH_(\d{2})'},
-                    'level_front_wide_left': {'read': True, 'write': True, 'read_cmd': '?LW_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'LW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'LWVSW_(\d{2})'},
-                    'level_front_wide_right': {'read': True, 'write': True, 'read_cmd': '?RW_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'RW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'RWVSW_(\d{2})'},
-                    'level_subwoofer': {'read': True, 'write': True, 'read_cmd': '?SW_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSW_(\d{2})'}
+                    'front_left': {'read': True, 'write': True, 'read_cmd': '?L__CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'L__MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVL__(\d{2})'},
+                    'front_right': {'read': True, 'write': True, 'read_cmd': '?R__CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVR__(\d{2})'},
+                    'front_center': {'read': True, 'write': True, 'read_cmd': '?C__CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'C__MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVC__(\d{2})'},
+                    'surround_left': {'read': True, 'write': True, 'read_cmd': '?SL_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SL_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSL_(\d{2})'},
+                    'surround_right': {'read': True, 'write': True, 'read_cmd': '?SR_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SR_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSR_(\d{2})'},
+                    'front_height_left': {'read': True, 'write': True, 'read_cmd': '?LH_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'LH_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVLH_(\d{2})'},
+                    'front_height_right': {'read': True, 'write': True, 'read_cmd': '?RH_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'RH_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVRH_(\d{2})'},
+                    'front_wide_left': {'read': True, 'write': True, 'read_cmd': '?LW_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'LW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'LWVSW_(\d{2})'},
+                    'front_wide_right': {'read': True, 'write': True, 'read_cmd': '?RW_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'RW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'RWVSW_(\d{2})'},
+                    'subwoofer': {'read': True, 'write': True, 'read_cmd': '?SW_CLV', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSW_(\d{2})'}
                 },
                 'tone_control': {
                     'tone': {'read': True, 'write': True, 'read_cmd': '?TO', 'item_type': 'bool', 'write_cmd': ':{VAL:01}TO:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TO(\d)'},
@@ -92,8 +92,8 @@ commands = {
         'settings': {
             'sound': {
                 'channel_level': {
-                    'level_front_left': {'read': True, 'write': True, 'read_cmd': '?ZGEL___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'L__MD_VALUEZGE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZGEL__(\d{2})'},
-                    'level_front_right': {'read': True, 'write': True, 'read_cmd': '?ZGER___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUEZGE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZGER__(\d{2})'}
+                    'front_left': {'read': True, 'write': True, 'read_cmd': '?ZGEL___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'L__MD_VALUEZGE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZGEL__(\d{2})'},
+                    'front_right': {'read': True, 'write': True, 'read_cmd': '?ZGER___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUEZGE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZGER__(\d{2})'}
                 },
                 'tone_control': {
                     'tone': {'read': True, 'write': True, 'read_cmd': '?ZGA', 'item_type': 'bool', 'write_cmd': ':{VAL:01}ZGA:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGA(\d)'},
@@ -117,8 +117,8 @@ commands = {
         'settings': {
             'sound': {
                 'channel_level': {
-                    'level_front_left': {'read': True, 'write': True, 'read_cmd': '?ZHEL___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'L__MD_VALUEZHE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZHEL__(\d{2})'},
-                    'level_front_right': {'read': True, 'write': True, 'read_cmd': '?ZHER___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUEZHE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZHER__(\d{2})'}
+                    'front_left': {'read': True, 'write': True, 'read_cmd': '?ZHEL___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'L__MD_VALUEZHE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZHEL__(\d{2})'},
+                    'front_right': {'read': True, 'write': True, 'read_cmd': '?ZHER___', 'item_type': 'num', 'settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUEZHE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZHER__(\d{2})'}
                 }
             }
         }

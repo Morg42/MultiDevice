@@ -312,7 +312,7 @@ class MD_Commands(object):
                 if 'opcode' not in node:
                     for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                         # node has dict elements node[child]
-                        parent[node_name + "." + child] = node[child]
+                        parent[node_name + COMMAND_SEP + child] = node[child]
                         del node[child]
 
         def removeEmptyItems(node, node_name, parent):

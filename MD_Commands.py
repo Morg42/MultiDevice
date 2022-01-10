@@ -237,7 +237,7 @@ class MD_Commands(object):
             # make sure we can move "upwards"
             if parent:
                 # if node['opcode'] is not present, node is not a command
-                if 'opcode' not in node:
+                if 'item_type' not in node:
                     for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                         # node has dict elements node[child]
                         parent[node_name + COMMAND_SEP + child] = node[child]

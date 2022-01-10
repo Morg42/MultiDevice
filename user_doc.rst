@@ -35,6 +35,7 @@ Alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden imp
   * AVR-X1300W
 
 * Kodi Mediencenter (kodi)
+
 * Viessmann-Heizungen (viessmann)
 
   * V200KW2

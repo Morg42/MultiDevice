@@ -5,10 +5,16 @@
 """ commands for dev example
 
 This section consists of a single dict which defines all the devices' commands.
-Alternatively, if models are supported and required, see second example for
-commands definition.
+The first example illustrates the generic syntax and the possible attributes and
+the second example shows nested command definitions.
 
-In this example, only one command is given to define possible keys and their
+If models are defined and commands with the same name are identical on different
+models, this definition syntax can be used. For specifying which commands are
+present on which model, see below.
+Alternatively, if commands with the same name are different on different models,
+see the third example for commands definition.
+
+In the first example, only one command is given to define possible keys and their
 values' meaning.
 """
 
@@ -17,25 +23,34 @@ commands = {
     'cmd': {
         # can this command read = receive information from the device?
         'read': True,
+
         # can this command write = send item values to the device?
         'write': True,
+
         # general / fallback command sequence/string/..., HTTP URL for MD_Connection_Net_Tcp_Request
         'opcode': '',
+
         # optional, specific command to read value from device (if not defined, use opcode)
         'read_cmd': '',
+
         # optional, specific command to write item value to device (if not defined, use opcode)
         'write_cmd': '',
+
         # expected SmartHomeNG item type of associated item == default item type into which to convert replies
         'item_type': 'bool',
+
         # datatype used to talk to the device (see ../datatypes.py). For DT_xyz class, use 'xyz'
         'dev_datatype': 'raw',
+
         # optional, start sequence/beginning of reply to indicate reply belongs to this command
         # this can be a string or a list of strings
         # only in MD_Command_ParseStr, this can be 'REGEX' to enable the next parameter...
         'reply_token': [''],
+
         # optional, regex with one capturing group to automatically extract reply values from the reply
         # implemented only in MD_Command_ParseStr as of now
         'reply_pattern': '',
+
         # optional, this dict defines limits for value validity for sending data to the device.
         # - 'min': minimum value, error if value is below
         # - 'max': maximum value, error if value is above
@@ -45,6 +60,7 @@ commands = {
         # - 'read_val': value to trigger (forced) reading of value from device
         #               (e.g. -1, can be combined with min=0)
         'settings': {'min': 0, 'max': 255, 'force_min': 0, 'force_max': 255, 'valid_list': [1, 2, 3, 4, 5]},
+
         # optional, specifies lookup table to use (see below)
         # if a lookup table is defined, the value from SmartHomeNG is looked up
         # in the named table and the resulting value is processed by the device
@@ -57,36 +73,72 @@ commands = {
     }
 }
 
+""" nested command definitions
+
+If many commands are present, it might be beneficial to create a hierarchical
+structure via nested dicts. This is simple as nesting can - more or less - be
+used as you like. 
+In the item definition, the combined command names from the following example
+are:
+
+* level1a.level2a.cmd1
+* level1a.level2b.cmd1
+* level1a.level2b.cmd2
+
+Note that the two commands 'cmd1' are completely independent, as the internal
+name includes the full path.
 """
-    The following commands example is for a scenario where different models are
-    configured and have overlapping command definitions with different contents.
 
-    The only key on the first level is an underscore, this signals the model-variant.
-    The keys on the second level are the model names.
-    Below the model names, commands are defined as in the first example. There
-    exist no common or dependent command definitions between the different
-    models.
+commands = {
+    'level1a': {
+        'level2a': {
+            'cmd1': {'contents': 'like first example'}
+        },
+        'level2b': {
+            'cmd1': {'as': 'above'},
+            'cmd2': {'still': 'unchanged'}
+        }
+    }
+}
 
-    In this case, a model _must_ be specified in the device configuration; the
-    ``models`` dict (see next paragraph) is not necessary and will be ignored.
+""" model-specific commands definitions
+
+The following commands example is for a scenario where different models are
+configured and have overlapping command definitions with different contents.
+
+The key on the first level specify the model or 'ALL' for commands common to
+all models. 'ALL' needs to be present, even if it is an empty dict, as this
+indicates the second definition syntax. Models not present on the first level
+will load only the commands from the 'ALL' section.
+Below the first level, commands are defined as in the first or second example,
+nesting commands is supported.
+There exist no dependencies between the different models.
+
+In this case, the ``models`` dict (see next paragraph) is not necessary and
+will be ignored.
 """
 
 commands = {
     'ALL': {
-        'model1': {
-            'cmd1': {'read': True, 'write': True, 'opcode': '1a', 'attrib': '...'}, 
-            'cmd2': {'read': False, 'write': True, 'opcode': '2b', 'attrib': '...'}, 
-            'cmd3': {'read': True, 'write': False, 'opcode': '3c', 'attrib': '...'}, 
-            'cmd4': {'read': False, 'write': False, 'opcode': '4d', 'attrib': '...'}, 
+        'cmd1': {'read': True, 'write': True, 'opcode': '1a', 'attrib': '...'}, 
+        'cmd2': {'read': False, 'write': True, 'opcode': '2b', 'attrib': '...'}, 
+    },
+    'model1': {
+        'cmd3': {'read': True, 'write': False, 'opcode': '3c', 'attrib': '...'}, 
+        'cmd4': {'read': False, 'write': False, 'opcode': '4d', 'attrib': '...'}, 
+    },
+    'model3': {
+        'cmd1': {'read': True, 'write': True, 'opcode': '3a', 'attrib': '...'},  # note different opcode
+        'cmd3': {'read': True, 'write': False, 'opcode': '3z', 'attrib': '...'}, 
+    },
+    'model4': {
+        'section1': {
+            'cmd1': {'read': True, 'write': True, 'opcode': 'VI', 'attrib': '...'}, 
+            'cmd2': {'read': False, 'write': True, 'opcode': 'VII', 'attrib': '...'}, 
         },
-        'model2': {
-            'cmd1': {'read': True, 'write': True, 'opcode': '1c', 'attrib': '...'}, 
-            'cmd2': {'read': False, 'write': True, 'opcode': '2d', 'attrib': '...'}, 
-        },
-        'model3': {
-            'cmd1': {'read': True, 'write': True, 'opcode': '1x', 'attrib': '...'}, 
-            'cmd2': {'read': False, 'write': True, 'opcode': '2y', 'attrib': '...'}, 
-            'cmd3': {'read': True, 'write': False, 'opcode': '3z', 'attrib': '...'}, 
+        'section2': {
+            'cmd1': {'read': True, 'write': True, 'opcode': 'XX', 'attrib': '...'}, 
+            'cmd2': {'read': False, 'write': True, 'opcode': 'YY', 'attrib': '...'},         
         }
     }
 }
@@ -109,7 +161,8 @@ commands = {
     If the device is configured with a model name, but the ``models`` dict is not
     present, the device will have all commands available.
 
-    If the second variant of defining commands is chosen, this dict will be ignored.
+    If the second variant (see example 3 above) of defining commands is chosen,
+    this dict will be ignored.
 
     Hint: as this example only defines one command, the following example is purely
           fictional...

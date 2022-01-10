@@ -775,11 +775,15 @@ class MultiDevice(SmartPlugin):
                     # read in group?
                     if self.has_iattr(item.conf, ITEM_ATTR_GROUP):
                         group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
-                        if group and isinstance(group, int) and group > 0:
-                            if group not in self._commands_read_grp[device_id]:
-                                self._commands_read_grp[device_id][group] = []
-                            self._commands_read_grp[device_id][group].append(command)
-                            self.logger.debug(f'Item {item} saved for reading in group {group} on device {device_id}')
+                        if isinstance(group, str):
+                            group = [group]
+                        if isinstance(group, list):
+                            for grp in group:
+                                if grp:
+                                    if grp not in self._commands_read_grp[device_id]:
+                                        self._commands_read_grp[device_id][grp] = []
+                                    self._commands_read_grp[device_id][grp].append(command)
+                                    self.logger.debug(f'Item {item} saved for reading in group {grp} on device {device_id}')
                         else:
                             self.logger.warning(f'Item {item} wants to be read in group with invalid group identifier "{group}", ignoring.')
 
@@ -803,18 +807,16 @@ class MultiDevice(SmartPlugin):
                         self.logger.debug(f'Item {item} saved for writing command {command} on device {device_id}')
                         return self.update_item
 
-            # is read_all item?
-            if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
-                self._items_read_all[item.id()] = device_id
-                self.logger.debug(f'Item {item} saved for read_all on device {device_id}')
-                return self.update_item
-
             # is read_grp item?
             if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
                 grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
-                if grp and isinstance(grp, int) and grp > 0:
-                    self._items_read_grp[item.id()] = [device_id, grp]
+                if grp == '0':
+                    self._items_read_all[item.id()] = device_id
                     self.logger.debug(f'Item {item} saved for read_all on device {device_id}')
+                    return self.update_item
+                elif grp:
+                    self._items_read_grp[item.id()] = [device_id, grp]
+                    self.logger.debug(f'Item {item} saved for reading group {grp} on device {device_id}')
                     return self.update_item
                 else:
                     self.logger.warning(f'Item {item} wants to trigger group read with invalid group identifier "{grp}", ignoring.')

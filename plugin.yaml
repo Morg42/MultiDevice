@@ -129,7 +129,7 @@ item_attributes:
             de: 'Liest/erhält Werte vom Gerät'
             en: 'Reads/receives data from the device'
     md_read_group:
-        type: str|list(str)
+        type: list(str)
         description:
             de: 'Weist das Item der angegebenen Gruppe zum gesammelten Lesen zu. Gruppe kann int oder str sein, mehrere Gruppen können als Liste angegeben werden.'
             en: 'Assigns the item to the given group for collective reading. Groups can be int or str, multiple groups can be provided as a list.'

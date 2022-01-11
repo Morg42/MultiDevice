@@ -409,7 +409,7 @@ The configuration can include the attribute ``device_type`` to specify the type
 of the device (if different from the id) and - optionally - the attribute
 ``model``, if a device offers multiple model configurations.
 
-The item configuration is supplemented by the attributes ``md_deviceid`` and
+The item configuration is supplemented by the attributes ``md_device`` and
 ``md_command``, which designate the device id from plugin configuration and
 the command name from the device configuration, respectively.
 
@@ -685,10 +685,13 @@ class MultiDevice(SmartPlugin):
                         # if valid struct definition is found
                         if raw_struct is not None:
 
-                            self.logger.debug(f'loaded {len(raw_struct.keys())} structs for processing')
+                            struct_list = device_instance.get_structs()
+                            if not struct_list:
+                                struct_list = list(raw_struct.keys())
+                            self.logger.debug(f'loaded {len(struct_list)} structs for processing')
                             # replace all mentions of "DEVICE" with the plugin/device's name
                             mod_struct = self._process_struct(raw_struct, device_id)
-                            for struct_name in mod_struct:
+                            for struct_name in struct_list:
                                 self.logger.debug(f'adding struct {self.get_shortname()}.{device_id}.{struct_name}')
                                 self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_id, struct_name, mod_struct[struct_name])
 

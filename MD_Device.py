@@ -619,3 +619,6 @@ class MD_Device(object):
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
         return True
+
+    def get_structs(self):
+        return getattr(self._commands, '_dev_structs', [])

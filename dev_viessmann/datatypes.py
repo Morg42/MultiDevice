@@ -11,6 +11,7 @@ import dateutil
 import datetime
 
 
+# V = Viessmann, generic numeric type
 class DT_V(DT.Datatype):
     def get_send_data(self, data, **kwargs):
         if data is None:
@@ -40,7 +41,8 @@ class DT_V(DT.Datatype):
             return type(val)
 
 
-class DT_SN(DT_V):
+# S = serial
+class DT_S(DT_V):
     def get_send_data(self, data, **kwargs):
         raise RuntimeError('write of serial number not possible')
 
@@ -53,7 +55,8 @@ class DT_SN(DT_V):
         return hex(sn).upper()
 
 
-class DT_TI(DT_V):
+# T = time
+class DT_T(DT_V):
     def get_send_data(self, data, **kwargs):
         try:
             datestring = dateutil.parser.isoparse(data).strftime('%Y%m%d%w%H%M%S')
@@ -69,12 +72,14 @@ class DT_TI(DT_V):
         return datetime.strptime(data.hex(), '%Y%m%d%W%H%M%S').isoformat()
 
 
-class DT_DA(DT_TI):
+# D = date
+class DT_D(DT_T):
     def get_shng_data(self, data, type=None, **kwargs):
         return datetime.strptime(data.hex(), '%Y%m%d%W%H%M%S').date().isoformat()
 
 
-class DT_CT(DT_V):
+# C = control timer (?)
+class DT_C(DT_V):
     def get_send_data(self, data, **kwargs):
         try:
             times = ''
@@ -92,7 +97,8 @@ class DT_CT(DT_V):
         return [{'An': on_time, 'Aus': off_time} for on_time, off_time in zip(timer, timer)]
 
 
-class DT_HEX(DT_V):
+# H = hex (only for manual read)
+class DT_H(DT_V):
     def get_shng_data(self, data, type=None, **kwargs):
         return data.hex()
         # return ' '.join([hexstr[i:i + 2] for i in range(0, len(hexstr), 2)])

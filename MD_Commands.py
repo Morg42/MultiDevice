@@ -64,6 +64,7 @@ class MD_Commands(object):
         self._commands = None         # { 'cmd_x': MD_Command(params), ... }
         self._lookups = {}          # { 'name_x': {'fwd': {'K1': 'V1', ...}, 'rev': {'V1': 'K1', ...}, 'rci': {'v1': 'K1', ...}}}
         self._lookup_tables = []
+        self._dev_structs = []
         self.device_id = device_id
         self._device_type = device_type
         self._cmd_class = command_obj_class
@@ -323,6 +324,13 @@ class MD_Commands(object):
             self._parse_lookups(device_id, cmd_module.lookups)
         else:
             self.logger.debug('no lookups found')
+
+        if hasattr(cmd_module, 'structs') and isinstance(cmd_module.structs, dict):
+            self._dev_structs = cmd_module.structs.get(INDEX_GENERIC, [])
+            self.logger.debug(f'found {len(self._dev_structs)} generic structs')
+            if self._model:
+                self._dev_structs += cmd_module.structs.get(self._model, [])
+                self.logger.debug(f'found {len(cmd_module.structs.get(self._model, []))} model-specific structs')
 
         return True
 

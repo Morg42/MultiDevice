@@ -32,7 +32,7 @@ from it.
 If the commands dict is in "generic/model" form (contains 'ALL' key), the tool
 will create one struct for each model (with the commands from the 'ALL' key
 combined); otherwise it will create a struct for each top-level key in the
-commands dict.
+commands dict and one struct 'all' containing all top-level structs.
 
 It will create read groups and associated read trigger items on every nesting
 level and assign each item to all ancestor read groups.
@@ -103,9 +103,13 @@ def print_item(node, node_name, parent, path, indent, gpath, gpathlist):
     def _p_attr(key, val, add=0):
         """ print indented 'key: node[val]' """
         if val in node:
-            print(f'{INDENT * (indent + 1 + add)}{key}: {node[val]}')
+            if isinstance(node[val], bool):
+                print(f'{INDENT * (indent + 1 + add)}{key}: {str(node[val]).lower()}')
+            else:
+                print(f'{INDENT * (indent + 1 + add)}{key}: {node[val]}')
 
     # skip known command sub-dict nodes, but include command nodes
+    # TODO: check if settings has dict children -> then it is a section, include...
     if node_name not in ('settings', 'params', 'param_values') or 'item_type' in node:
 
         # item / level definition
@@ -157,3 +161,10 @@ for dev in devices:
 
     # traverse from root node
     walk(c[dev], dev, commands, print_item, '', 0, dev, [dev], has_models)
+
+# if no models, make "all inclusive" struct
+if not has_models:
+    print('all:')
+    print(f'{INDENT}struct:')
+    for node in commands.keys():
+        print(f'{INDENT * 2}- multidevice.DEVICENAME.{node}')

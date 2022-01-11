@@ -22,7 +22,6 @@ general:
         md_command: general.display
         md_read: true
         md_read_group: ['general']
-        md_read_initial: true
 
     pqls:
         type: str
@@ -33,7 +32,6 @@ general:
         md_read_group: ['general']
 
     dimmer:
-        remark: "0 = very bright, 1 = bright, 2 = dark, 3 = off"
         type: num
         md_device: DEVICENAME
         md_command: general.dimmer
@@ -42,7 +40,6 @@ general:
         md_read_group: ['general']
 
     sleep:
-        remark: "0 = off, 30 = 30 minutes, 60 = 60 minutes, 90 = 90 minutes"
         type: num
         md_device: DEVICENAME
         md_command: general.sleep
@@ -51,18 +48,12 @@ general:
         md_read_group: ['general']
 
     amp:
-        remark: "0 = AMP, 1 = THR"
         type: str
         md_device: DEVICENAME
         md_command: general.amp
         md_read: true
         md_write: true
         md_read_group: ['general']
-
-        lookup:
-            type: dict
-            md_device: DEVICENAME
-            md_lookup: AMP
 
     multizone:
         type: str
@@ -90,17 +81,17 @@ tuner:
 
     tunerpresetup:
         type: bool
-        enforce_updates: true
         md_device: DEVICENAME
         md_command: tuner.tunerpresetup
         md_write: true
+        md_read_group: ['tuner']
 
     tunerpresetdown:
         type: bool
-        enforce_updates: true
         md_device: DEVICENAME
         md_command: tuner.tunerpresetdown
         md_write: true
+        md_read_group: ['tuner']
 
     title:
         type: str
@@ -139,38 +130,13 @@ zone1:
             md_device: DEVICENAME
             md_read_group_trigger: zone1.control
 
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: 'zone1.onpower'
-                on_update: ..soundsettings = True
-
-            soundsettings:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: 'zone1.sound'
-                on_update:
-                    - ....settings.sound.tone_control.read = True
-                    - ....settings.sound.channel_level.read = True
-
         power:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone1.control.power
             md_read: true
             md_write: true
             md_read_group: ['zone1', 'zone1.control']
-            md_read_initial: true
-            on_update:
-                - sh...read.on_power.timer(sh..readdelay(), True) if value else None
-                - sh....settings.sound.read.timer(sh..readdelay(), True) if value else None
-
-            readdelay:
-                type: num
-                initial_value: 1
 
         mute:
             type: bool
@@ -178,8 +144,7 @@ zone1:
             md_command: zone1.control.mute
             md_read: true
             md_write: true
-            md_read_group: ['zone1', 'zone1.control', 'zone1.onpower']
-            md_read_initial: true
+            md_read_group: ['zone1', 'zone1.control']
 
         volume:
             type: num
@@ -187,22 +152,21 @@ zone1:
             md_command: zone1.control.volume
             md_read: true
             md_write: true
-            md_read_group: ['zone1', 'zone1.control', 'zone1.onpower']
-            md_read_initial: true
+            md_read_group: ['zone1', 'zone1.control']
 
         volumeup:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone1.control.volumeup
             md_write: true
+            md_read_group: ['zone1', 'zone1.control']
 
         volumedown:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone1.control.volumedown
             md_write: true
+            md_read_group: ['zone1', 'zone1.control']
 
         input:
             type: str
@@ -211,23 +175,20 @@ zone1:
             md_read: true
             md_write: true
             md_read_group: ['zone1', 'zone1.control']
-            md_read_initial: true
 
         inputup:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone1.control.inputup
             md_write: true
+            md_read_group: ['zone1', 'zone1.control']
 
         inputdown:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone1.control.inputdown
             md_write: true
-
-    settings:
+            md_read_group: ['zone1', 'zone1.control']
 
         sound:
 
@@ -340,7 +301,6 @@ zone1:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
-                    on_change: ..read = True if value else None
 
                 treble:
                     type: num
@@ -374,17 +334,17 @@ zone1:
 
                 bassup:
                     type: bool
-                    enforce_updates: true
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.tone_control.bassup
                     md_write: true
+                    md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
 
                 bassdown:
                     type: bool
-                    enforce_updates: true
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.tone_control.bassdown
                     md_write: true
+                    md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
 
             general:
 
@@ -402,11 +362,6 @@ zone1:
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
-                    lookup:
-                        type: dict
-                        md_device: DEVICENAME
-                        md_lookup: HDMIOUT
-
                 hdmiaudio:
                     type: str
                     md_device: DEVICENAME
@@ -414,11 +369,6 @@ zone1:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
-
-                    lookup:
-                        type: dict
-                        md_device: DEVICENAME
-                        md_lookup: HDMIAUDIO
 
                 dialog:
                     type: num
@@ -430,19 +380,19 @@ zone1:
 
                 dialogup:
                     type: bool
-                    enforce_updates: true
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.general.dialogup
                     md_read: true
                     md_write: true
+                    md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                 dialogdown:
                     type: bool
-                    enforce_updates: true
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.general.dialogdown
                     md_read: true
                     md_write: true
+                    md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                 listeningmode:
                     type: num
@@ -452,11 +402,6 @@ zone1:
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
-                    lookup:
-                        type: dict
-                        md_device: DEVICENAME
-                        md_lookup: LISTENINGMODE
-
                 playingmode:
                     type: str
                     md_device: DEVICENAME
@@ -465,11 +410,6 @@ zone1:
                     md_write: false
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
-                    lookup:
-                        type: dict
-                        md_device: DEVICENAME
-                        md_lookup: PLAYINGMODE
-
                 speakers:
                     type: num
                     md_device: DEVICENAME
@@ -477,17 +417,6 @@ zone1:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
-                    on_change:
-                        - .speakera = True if value in [1, 3] else False
-                        - .speakerb = True if value in [2, 3] else False
-
-                    speakera:
-                        type: bool
-                        on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
-
-                    speakerb:
-                        type: bool
-                        on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
 
 zone2:
 
@@ -505,22 +434,6 @@ zone2:
             md_device: DEVICENAME
             md_read_group_trigger: zone2.control
 
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: 'zone2.onpower'
-                on_update: ..soundsettings = True
-
-            soundsettings:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: 'zone2.sound'
-                on_update:
-                    - ....settings.sound.tone_control.read = True
-                    - ....settings.sound.channel_level.read = True
-
         power:
             type: bool
             md_device: DEVICENAME
@@ -528,12 +441,6 @@ zone2:
             md_read: true
             md_write: true
             md_read_group: ['zone2', 'zone2.control']
-            md_read_initial: true
-            on_change: sh...read.soundsettings.timer(sh..readdelay(), True) if value else None
-
-            readdelay:
-                type: num
-                initial_value: 1
 
         mute:
             type: bool
@@ -542,7 +449,6 @@ zone2:
             md_read: true
             md_write: true
             md_read_group: ['zone2', 'zone2.control']
-            md_read_initial: true
 
         volume:
             type: num
@@ -551,21 +457,20 @@ zone2:
             md_read: true
             md_write: true
             md_read_group: ['zone2', 'zone2.control']
-            md_read_initial: true
 
         volumeup:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone2.control.volumeup
             md_write: true
+            md_read_group: ['zone2', 'zone2.control']
 
         volumedown:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone2.control.volumedown
             md_write: true
+            md_read_group: ['zone2', 'zone2.control']
 
         input:
             type: str
@@ -574,23 +479,20 @@ zone2:
             md_read: true
             md_write: true
             md_read_group: ['zone2', 'zone2.control']
-            md_read_initial: true
 
         inputup:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone2.control.inputup
             md_write: true
+            md_read_group: ['zone2', 'zone2.control']
 
         inputdown:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone2.control.inputdown
             md_write: true
-
-    settings:
+            md_read_group: ['zone2', 'zone2.control']
 
         sound:
 
@@ -639,7 +541,6 @@ zone2:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
-                    on_change: ..read = True if value else None
 
                 treble:
                     type: num
@@ -673,33 +574,13 @@ zone3:
             md_device: DEVICENAME
             md_read_group_trigger: zone3.control
 
-            soundsettings:
-                type: bool
-                enforce_updates: true
-                on_update: .channel_level = True
-
-                channel_level:
-                    type: bool
-                    enforce_updates: true
-                    md_device: DEVICENAME
-                    md_read_group_trigger: 'zone3.settings.sound.channel_level'
-
         power:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone3.control.power
             md_read: true
             md_write: true
             md_read_group: ['zone3', 'zone3.control']
-            md_read_initial: true
-            on_change:
-                - sh...read.timer(sh..readdelay(), True) if value else None
-                - sh...read.soundsettings.timer(sh..readdelay(), True) if value else None
-
-            readdelay:
-                type: num
-                initial_value: 1
 
         mute:
             type: bool
@@ -708,7 +589,6 @@ zone3:
             md_read: true
             md_write: true
             md_read_group: ['zone3', 'zone3.control']
-            md_read_initial: true
 
         volume:
             type: num
@@ -717,21 +597,20 @@ zone3:
             md_read: true
             md_write: true
             md_read_group: ['zone3', 'zone3.control']
-            md_read_initial: true
 
         volumeup:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone3.control.volumeup
             md_write: true
+            md_read_group: ['zone3', 'zone3.control']
 
         volumedown:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone3.control.volumedown
             md_write: true
+            md_read_group: ['zone3', 'zone3.control']
 
         input:
             type: str
@@ -740,23 +619,20 @@ zone3:
             md_read: true
             md_write: true
             md_read_group: ['zone3', 'zone3.control']
-            md_read_initial: true
 
         inputup:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone3.control.inputup
             md_write: true
+            md_read_group: ['zone3', 'zone3.control']
 
         inputdown:
             type: bool
-            enforce_updates: true
             md_device: DEVICENAME
             md_command: zone3.control.inputdown
             md_write: true
-
-    settings:
+            md_read_group: ['zone3', 'zone3.control']
 
         sound:
 
@@ -813,7 +689,6 @@ hdzone:
             md_read: true
             md_write: true
             md_read_group: ['hdzone', 'hdzone.control']
-            md_read_initial: true
 
 all:
     struct:

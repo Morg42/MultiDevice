@@ -692,8 +692,9 @@ class MultiDevice(SmartPlugin):
                             # replace all mentions of "DEVICE" with the plugin/device's name
                             mod_struct = self._process_struct(raw_struct, device_id)
                             for struct_name in struct_list:
-                                self.logger.debug(f'adding struct {self.get_shortname()}.{device_id}.{struct_name}')
-                                self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_id, struct_name, mod_struct[struct_name])
+                                if struct_name in mod_struct:
+                                    self.logger.debug(f'adding struct {self.get_shortname()}.{device_id}.{struct_name}')
+                                    self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_id, struct_name, mod_struct[struct_name])
 
         if not self._devices:
             self._init_complete = False
@@ -1017,9 +1018,17 @@ class MultiDevice(SmartPlugin):
             if func is not None:
                 func(node, node_name, parent=parent)
 
-        def removeItems(node, node_name, parent):
+        def removeItemsUndefCmd(node, node_name, parent):
             if node.get(ITEM_ATTR_COMMAND, None) and not self._devices[device_id]['device'].is_valid_command(node.get(ITEM_ATTR_COMMAND, '')):
                 del parent[node_name]
+
+        def collectReadGroups(node, node_name, parent):
+            self._collected_read_groups += node.get(ITEM_ATTR_GROUP, '')
+
+        def removeItemsReadTrigger(node, node_name, parent):
+            if ITEM_ATTR_READ_GRP in node:
+                if node.get(ITEM_ATTR_READ_GRP) not in self._collected_read_groups:
+                    del parent[node_name]
 
         def removeEmptyItems(node, node_name, parent):
             if len(node) == 0:
@@ -1038,7 +1047,15 @@ class MultiDevice(SmartPlugin):
         obj = OrderedDict({'structs': mod_struct})
 
         # remove all items with invalid 'md_command' attribute from structs
-        walk(obj['structs'], 'structs', obj, removeItems)
+        walk(obj['structs'], 'structs', obj, removeItemsUndefCmd)
+
+        # find all read groups
+        self._collected_read_groups = []
+        walk(obj['structs'], 'structs', obj, collectReadGroups)
+
+        # remove all items with read group trigger for unknown read group
+        self._collected_read_groups = set(self._collected_read_groups)
+        walk(obj['structs'], 'structs', obj, removeItemsReadTrigger)
 
         # remove all empty items from structs
         walk(obj['structs'], 'structs', obj, removeEmptyItems)

@@ -15,7 +15,7 @@ models = {
 
 commands = {
     'general': {
-        'error': {'opcode': 'MD_VALUE', 'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'E0', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR'},
+        'error': {'opcode': 'MD_VALUE', 'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'E0', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR', 'item_attrs': {enforce_updates': False, initial_read': False, has_read_group': True, addon': {'on_update': 'sh...item()'}, 'read_grp': [{'name': 'foo', 'trigger_item': 'control.power.on_power.read'},{'name': 'bar', 'trigger_item': 'control.power.on_power.read'}]}},
         'display': {'read': True, 'read_cmd': '?FL', 'item_type': 'str', 'dev_datatype': 'PioDisplay', 'reply_token': 'REGEX', 'reply_pattern': 'FL(.{28}).*'},
         'pqls': {'read': True, 'write': True, 'read_cmd': '?PQ', 'write_cmd': ':{VAL:01}PQ:', 'item_type': 'str', 'dev_datatype': 'bool', 'reply_token': 'REGEX', 'reply_pattern': r'PQ(\d)'},
         'dimmer': {'read': True, 'write': True, 'write_cmd': '{VAL}SAA', 'settings': {'force_min': 0, 'force_max': 3}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SAA(\d)'},

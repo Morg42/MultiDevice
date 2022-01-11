@@ -690,7 +690,7 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
             return
 
         self.__running = True
-        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=f'{self._device_id}_Serial')
+        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=f'{self.device_id}_Serial')
         self.__receive_thread.daemon = True
         self.__receive_thread.start()
 

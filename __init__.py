@@ -520,6 +520,7 @@ import cherrypy
 import json
 from ast import literal_eval
 
+__pdoc__ = {"multidevice.tools": False}
 
 if __name__ == '__main__':
     # just needed for standalone mode

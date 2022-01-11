@@ -79,12 +79,12 @@ else:
 class MD_Device(object):
     &#34;&#34;&#34; MD_Device class to handle device instances in MultiDevice plugin
 
-    This class is the base class for a simple device class. It can process commands
-    by sending values to the device and collect data by parsing data received from
-    the device.
+    This class is the base class for a simple device class. It can process
+    commands by sending values to the device and collect data by parsing data
+    received from the device.
 
-    Configuration is done via ``dev_&lt;device_type&gt;/commands.py`` (for documentation
-    of the format see ``dev_example/commands.py``)
+    Configuration is done via ``dev_&lt;device_type&gt;/commands.py``
+    (for documentation of the format see ``dev_example/commands.py``)
 
     :param device_type: device type as used in derived class names
     :param device_id: device id for use in item configuration and logs
@@ -96,9 +96,10 @@ class MD_Device(object):
         &#34;&#34;&#34;
         This initializes the class object.
 
-        As additional device classes are expected to be implemented as subclasses,
-        most initialization steps are modularized as methods which can be overwritten
-        as needed.
+        As additional device classes are expected to be implemented as
+        subclasses, most initialization steps are modularized as methods which
+        can be overwritten as needed. 
+
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn&#39;t need to be changed.
         &#34;&#34;&#34;
@@ -116,11 +117,8 @@ class MD_Device(object):
         # the commands object
         self._commands = None
 
-        # set parameter defaults only if not set by derived class...
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, &#39;_params&#39;):
-            self._params = {}
+        # set device-dependent default attributes for device and connection
+        self._set_default_params()
 
         # set class properties
         self._params.update(kwargs)
@@ -157,7 +155,7 @@ class MD_Device(object):
             if not self._read_configuration():
                 self.logger.error(&#39;configuration could not be read, device disabled&#39;)
                 return False
-        except CommandsError as e:
+        except Exception as e:
             self.logger.error(f&#39;configuration could not be read, device disabled. Original error: {e}&#39;)
             return False
 
@@ -172,6 +170,9 @@ class MD_Device(object):
             self.logger.debug(f&#39;device initialized from {self.__class__.__name__}&#39;)
 
         self.disabled = False
+
+        # call method for possible custom work...
+        self._post_init()
 
     def start(self):
         if self.alive:
@@ -372,7 +373,7 @@ class MD_Device(object):
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
 
-    def get_lookup(self, lookup):
+    def get_lookup(self, lookup, mode=&#39;fwd&#39;):
         &#34;&#34;&#34; returns the lookup table for name &lt;lookup&gt;, None on error &#34;&#34;&#34;
         if self._commands:
             return self._commands.get_lookup(lookup)
@@ -384,6 +385,22 @@ class MD_Device(object):
     # check if overwriting needed
     #
     #
+
+    def _set_default_params(self):
+        &#34;&#34;&#34; Set (empty) default parameters. Overwrite as needed... &#34;&#34;&#34;
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, &#39;_params&#39;):
+            self._params = {}
+
+    def _post_init(self):
+        &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed. 
+
+        If for some reason you find compelling argument to stop loading the
+        device instance, set self._disabled to true.
+        &#34;&#34;&#34;
+        pass
 
     def _transform_send_data(self, data_dict):
         &#34;&#34;&#34;
@@ -646,7 +663,10 @@ class MD_Device(object):
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
-        return True</code></pre>
+        return True
+
+    def get_structs(self):
+        return getattr(self._commands, &#39;_dev_structs&#39;, [])</code></pre>
 </details>
 </section>
 <section>
@@ -664,20 +684,20 @@ class MD_Device(object):
 </code></dt>
 <dd>
 <div class="desc"><p>MD_Device class to handle device instances in MultiDevice plugin</p>
-<p>This class is the base class for a simple device class. It can process commands
-by sending values to the device and collect data by parsing data received from
-the device.</p>
-<p>Configuration is done via <code>dev_&lt;device_type&gt;/commands.py</code> (for documentation
-of the format see <code>dev_example/commands.py</code>)</p>
+<p>This class is the base class for a simple device class. It can process
+commands by sending values to the device and collect data by parsing data
+received from the device.</p>
+<p>Configuration is done via <code>dev_&lt;device_type&gt;/commands.py</code>
+(for documentation of the format see <code>dev_example/commands.py</code>)</p>
 <p>:param device_type: device type as used in derived class names
 :param device_id: device id for use in item configuration and logs
 :type device_type: str
 :type device_id: str</p>
 <p>This initializes the class object.</p>
-<p>As additional device classes are expected to be implemented as subclasses,
-most initialization steps are modularized as methods which can be overwritten
-as needed.
-As all pre-implemented methods are called in hopefully-logical sequence,
+<p>As additional device classes are expected to be implemented as
+subclasses, most initialization steps are modularized as methods which
+can be overwritten as needed. </p>
+<p>As all pre-implemented methods are called in hopefully-logical sequence,
 this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <details class="source">
 <summary>
@@ -686,12 +706,12 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <pre><code class="python">class MD_Device(object):
     &#34;&#34;&#34; MD_Device class to handle device instances in MultiDevice plugin
 
-    This class is the base class for a simple device class. It can process commands
-    by sending values to the device and collect data by parsing data received from
-    the device.
+    This class is the base class for a simple device class. It can process
+    commands by sending values to the device and collect data by parsing data
+    received from the device.
 
-    Configuration is done via ``dev_&lt;device_type&gt;/commands.py`` (for documentation
-    of the format see ``dev_example/commands.py``)
+    Configuration is done via ``dev_&lt;device_type&gt;/commands.py``
+    (for documentation of the format see ``dev_example/commands.py``)
 
     :param device_type: device type as used in derived class names
     :param device_id: device id for use in item configuration and logs
@@ -703,9 +723,10 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34;
         This initializes the class object.
 
-        As additional device classes are expected to be implemented as subclasses,
-        most initialization steps are modularized as methods which can be overwritten
-        as needed.
+        As additional device classes are expected to be implemented as
+        subclasses, most initialization steps are modularized as methods which
+        can be overwritten as needed. 
+
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn&#39;t need to be changed.
         &#34;&#34;&#34;
@@ -723,11 +744,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         # the commands object
         self._commands = None
 
-        # set parameter defaults only if not set by derived class...
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, &#39;_params&#39;):
-            self._params = {}
+        # set device-dependent default attributes for device and connection
+        self._set_default_params()
 
         # set class properties
         self._params.update(kwargs)
@@ -764,7 +782,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             if not self._read_configuration():
                 self.logger.error(&#39;configuration could not be read, device disabled&#39;)
                 return False
-        except CommandsError as e:
+        except Exception as e:
             self.logger.error(f&#39;configuration could not be read, device disabled. Original error: {e}&#39;)
             return False
 
@@ -779,6 +797,9 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self.logger.debug(f&#39;device initialized from {self.__class__.__name__}&#39;)
 
         self.disabled = False
+
+        # call method for possible custom work...
+        self._post_init()
 
     def start(self):
         if self.alive:
@@ -979,7 +1000,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
 
-    def get_lookup(self, lookup):
+    def get_lookup(self, lookup, mode=&#39;fwd&#39;):
         &#34;&#34;&#34; returns the lookup table for name &lt;lookup&gt;, None on error &#34;&#34;&#34;
         if self._commands:
             return self._commands.get_lookup(lookup)
@@ -991,6 +1012,22 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     # check if overwriting needed
     #
     #
+
+    def _set_default_params(self):
+        &#34;&#34;&#34; Set (empty) default parameters. Overwrite as needed... &#34;&#34;&#34;
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, &#39;_params&#39;):
+            self._params = {}
+
+    def _post_init(self):
+        &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed. 
+
+        If for some reason you find compelling argument to stop loading the
+        device instance, set self._disabled to true.
+        &#34;&#34;&#34;
+        pass
 
     def _transform_send_data(self, data_dict):
         &#34;&#34;&#34;
@@ -1253,17 +1290,19 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
-        return True</code></pre>
+        return True
+
+    def get_structs(self):
+        return getattr(self._commands, &#39;_dev_structs&#39;, [])</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="multidevice.dev_example.device.MD_Device" href="dev_example/device.html#multidevice.dev_example.device.MD_Device">MD_Device</a></li>
-<li><a title="multidevice.dev_example_http.device.MD_Device" href="dev_example_http/device.html#multidevice.dev_example_http.device.MD_Device">MD_Device</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="multidevice.MD_Device.MD_Device.get_lookup"><code class="name flex">
-<span>def <span class="ident">get_lookup</span></span>(<span>self, lookup)</span>
+<span>def <span class="ident">get_lookup</span></span>(<span>self, lookup, mode='fwd')</span>
 </code></dt>
 <dd>
 <div class="desc"><p>returns the lookup table for name <lookup>, None on error</p></div>
@@ -1271,12 +1310,25 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_lookup(self, lookup):
+<pre><code class="python">def get_lookup(self, lookup, mode=&#39;fwd&#39;):
     &#34;&#34;&#34; returns the lookup table for name &lt;lookup&gt;, None on error &#34;&#34;&#34;
     if self._commands:
         return self._commands.get_lookup(lookup)
     else:
         return None</code></pre>
+</details>
+</dd>
+<dt id="multidevice.MD_Device.MD_Device.get_structs"><code class="name flex">
+<span>def <span class="ident">get_structs</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_structs(self):
+    return getattr(self._commands, &#39;_dev_structs&#39;, [])</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Device.MD_Device.is_valid_command"><code class="name flex">
@@ -1618,6 +1670,7 @@ from the device and writing it to the associated item.</p>
 <h4><code><a title="multidevice.MD_Device.MD_Device" href="#multidevice.MD_Device.MD_Device">MD_Device</a></code></h4>
 <ul class="">
 <li><code><a title="multidevice.MD_Device.MD_Device.get_lookup" href="#multidevice.MD_Device.MD_Device.get_lookup">get_lookup</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.get_structs" href="#multidevice.MD_Device.MD_Device.get_structs">get_structs</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.is_valid_command" href="#multidevice.MD_Device.MD_Device.is_valid_command">is_valid_command</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_connect" href="#multidevice.MD_Device.MD_Device.on_connect">on_connect</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_data_received" href="#multidevice.MD_Device.MD_Device.on_data_received">on_data_received</a></code></li>

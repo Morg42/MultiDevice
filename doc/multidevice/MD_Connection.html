@@ -56,7 +56,8 @@ import logging
 from time import sleep, time
 import requests
 import serial
-from threading import Lock
+from threading import Lock, Thread
+from contextlib import contextmanager
 
 from lib.network import Tcp_client
 
@@ -375,11 +376,11 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f&#39;{self.__class__.__name__} closing connection&#39;)
         self._tcp.close()
 
-    def on_data_received(self, by, data):
-        # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
-        if isinstance(data, str):
-            data = data.strip()
-        super().on_data_received(by, data)
+    # def on_data_received(self, by, data):
+    #     # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
+    #     # if isinstance(data, str):
+    #     #     data = data.strip()
+    #     super().on_data_received(by, data)
 
     def _send(self, data_dict):
         self._tcp.send(data_dict[&#39;payload&#39;])
@@ -414,6 +415,23 @@ class MD_Connection_Serial(MD_Connection):
     &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
+        class TimeoutLock(object):
+            def __init__(self):
+                self._lock = Lock()
+
+            def acquire(self, blocking=True, timeout=-1):
+                return self._lock.acquire(blocking, timeout)
+
+            @contextmanager
+            def acquire_timeout(self, timeout):
+                result = self._lock.acquire(timeout=timeout)
+                yield result
+                if result:
+                    self._lock.release()
+
+            def release(self):
+                self._lock.release()
+
         # get MultiDevice.device logger
         self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
@@ -426,11 +444,15 @@ class MD_Connection_Serial(MD_Connection):
         self.device_type = device_type
         self.device_id = device_id
         self._is_connected = False
-        self._lock = Lock()
+        self._lock = TimeoutLock()
+        self.__lock_timeout = 2         # TODO: validate this is a sensible value
+        self._timeout_mult = 3
         self._lastbyte = b&#39;&#39;
         self._lastbytetime = 0
         self._connection_attempts = 0
         self._read_buffer = b&#39;&#39;
+        self.__use_read_buffer = True
+        self.__running = False
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_SERIAL_PORT: &#39;&#39;,
@@ -439,6 +461,7 @@ class MD_Connection_Serial(MD_Connection):
                         PLUGIN_ATTR_SERIAL_PARITY: &#39;N&#39;,
                         PLUGIN_ATTR_SERIAL_STOP: 1,
                         PLUGIN_ATTR_PROTOCOL: None,
+                        PLUGIN_ATTR_CONN_BINARY: False,
                         PLUGIN_ATTR_CONN_TIMEOUT: 1.0,
                         PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
@@ -480,7 +503,8 @@ class MD_Connection_Serial(MD_Connection):
                 self.logger.info(f&#39;connected to {self._serialport}&#39;)
                 self._connection_attempts = 0
                 if self._connected_callback:
-                    self._connected_callback(f&#39;serial_{self._serialport}&#39;)
+                    self._connected_callback(self)
+                self._setup_listener()
                 return True
             except (serial.SerialException, ValueError) as e:
                 self.logger.error(f&#39;error on connection to {self._serialport}. Error was: {e}&#39;)
@@ -505,7 +529,7 @@ class MD_Connection_Serial(MD_Connection):
             pass
         self.logger.info(f&#39;connection to {self._serialport} closed&#39;)
         if self._disconnected_callback:
-            self._disconnected_callback(f&#39;serial_{self._serialport}&#39;)
+            self._disconnected_callback(self)
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
@@ -544,11 +568,22 @@ class MD_Connection_Serial(MD_Connection):
             self.is_connected = False
             raise serial.SerialException(f&#39;data {data} could not be sent&#39;)
 
+        # don&#39;t try to read response if listener is active
+        if self.__running:
+            return None
+
         rlen = data_dict.get(&#39;limit_response&#39;, None)
         if rlen is None:
             return None
         else:
-            return self._read_bytes(rlen)
+            res = self._read_bytes(rlen)
+            if not self._binary:
+                res = str(res, &#39;utf-8&#39;).strip()
+
+            if self._data_received_callback:
+                self._data_received_callback(self, res, None)
+
+            return res
 
     def _send_bytes(self, packet):
         &#34;&#34;&#34;
@@ -605,28 +640,37 @@ class MD_Connection_Serial(MD_Connection):
         # self.logger.debug(&#39;_read_bytes: start read&#39;)
         starttime = time()
 
-        # don&#39;t wait for input indefinitely, stop after 3 * self._timeout seconds
-        while time() &lt;= starttime + 3 * self._timeout:
-            readbyte = self._connection.read()
-            self._lastbyte = readbyte
-            # self.logger.debug(f&#39;_read_bytes: read {readbyte}&#39;)
-            if readbyte != b&#39;&#39;:
-                self._lastbytetime = time()
+        # prevent concurrent read attempts; 
+        with self._lock.acquire_timeout(self.__lock_timeout) as locked:
+
+            if locked:
+                # don&#39;t wait for input indefinitely, stop after 3 * self._timeout seconds
+                while time() &lt;= starttime + self._timeout_mult * self._timeout:
+                    readbyte = self._connection.read()
+                    self._lastbyte = readbyte
+                    # self.logger.debug(f&#39;_read_bytes: read {readbyte}&#39;)
+                    if readbyte != b&#39;&#39;:
+                        self._lastbytetime = time()
+                    else:
+                        return totalreadbytes
+                    totalreadbytes += readbyte
+
+                    # limit_response reached?
+                    if maxlen and len(totalreadbytes) &gt;= maxlen:
+                        return totalreadbytes
+
+                    if term_bytes in totalreadbytes:
+                        if self.__use_read_buffer:
+                            pos = totalreadbytes.find(term_bytes)
+                            self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                            return totalreadbytes[:pos + len(term_bytes)]
+                        else:
+                            return totalreadbytes
             else:
-                return totalreadbytes
-            totalreadbytes += readbyte
-
-            # limit_response reached?
-            if maxlen and len(totalreadbytes) &gt;= maxlen:
-                return totalreadbytes
-
-            if term_bytes in totalreadbytes:
-                pos = totalreadbytes.find(term_bytes)
-                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
-                return totalreadbytes[:pos + len(term_bytes)]
+                self.logger.warning(f&#39;read_bytes couldn\&#39;t get lock on serial. Ths is unintended...&#39;)
 
         # timeout reached, did we read anything?
-        if not totalreadbytes:
+        if not totalreadbytes and not self.__running:
 
             # just in case, force plugin to reconnect
             self._is_connected = False
@@ -638,10 +682,101 @@ class MD_Connection_Serial(MD_Connection):
         if self._connection:
             self._connection.reset_input_buffer()
 
+    def _setup_listener(self):
+        &#34;&#34;&#34; empty, for subclass use &#34;&#34;&#34;
+        pass
 
-class MD_Connection_Serial_Async(MD_Connection):
-    # to be implemented
-    pass</code></pre>
+
+class MD_Connection_Serial_Async(MD_Connection_Serial):
+    &#34;&#34;&#34; Connection for serial connectivity with async listener
+
+    This class implements a serial connection for call-based sending and a
+    threaded listener for async reading with callbacks.
+
+    As this is derived from ``MD_Connection_Serial``, most of the documentation
+    is identical.
+
+    The timeout needs to be set small enough not to block reading for too long.
+    Recommended times are between 0.2 and 0.8 seconds.
+
+    The ``data_received_callback`` needs to be set or you won&#39;t get data.
+
+    Callback syntax is:
+        def connected_callback(by=None)
+        def disconnected_callback(by=None)
+        def data_received_callback(by, message)
+    If callbacks are class members, they need the additional first parameter &#39;self&#39;
+    &#34;&#34;&#34;
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
+        # set additional class members
+        self.__receive_thread = None
+        super().__init__(device_type, device_id, data_received_callback, **kwargs)
+        # self._timeout_mult = 1.5
+
+    def _setup_listener(self):
+        if not self._is_connected:
+            return
+
+        self.__running = True
+        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=f&#39;{self.device_id}_Serial&#39;)
+        self.__receive_thread.daemon = True
+        self.__receive_thread.start()
+
+    def _close(self):
+        self.logger.debug(f&#39;stopping receive thread {self.__receive_thread.name}&#39;)
+        self.__running = False
+        try:
+            self.__receive_thread.join()
+        except Exception:
+            pass
+
+    def __receive_thread_worker(self):
+        &#34;&#34;&#34; thread worker to handle receiving &#34;&#34;&#34;
+        __buffer = b&#39;&#39;
+
+        self._is_receiving = True
+        # try to find possible &#34;hidden&#34; errors
+        try:
+            while self._is_connected and self.__running:
+                try:
+                    msg = self._read_bytes(0)
+                except serial.SerialTimeoutException:
+                    pass
+
+                if msg:
+
+                    # If we work in line mode (with a terminator) slice buffer into single chunks based on terminator
+                    if self._terminator:
+                        __buffer += msg
+                        while True:
+                            # terminator = int means fixed size chunks
+                            if isinstance(self._terminator, int):
+                                i = self._terminator
+                                if i &gt; len(__buffer):
+                                    break
+                            # terminator is str or bytes means search for it
+                            else:
+                                i = __buffer.find(self._terminator)
+                                if i == -1:
+                                    break
+                                i += len(self._terminator)
+                            line = __buffer[:i]
+                            __buffer = __buffer[i:]
+                            if self._data_received_callback:
+                                self._data_received_callback(self, line if self._binary else str(line, &#39;utf-8&#39;).strip())
+                    # If not in terminator mode just forward what we received
+
+                if not self.__running:
+                    # socket shut down by self.close, no error
+                    self.logger.debug(&#39;serial connection shut down by call to close method&#39;)
+                    return
+
+        except Exception as e:
+            if not self.__running:
+                self.logger.debug(f&#39;serial receive thread {self.__receive_thread.name} shutting down&#39;)
+                return
+            else:
+                self.logger.error(f&#39;serial receive thread {self.__receive_thread.name} died with unexpected error: {e}&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -853,7 +988,6 @@ is something to implement in the interface-specific derived classes.</p>
 <li><a title="multidevice.MD_Connection.MD_Connection_Net_Tcp_Request" href="#multidevice.MD_Connection.MD_Connection_Net_Tcp_Request">MD_Connection_Net_Tcp_Request</a></li>
 <li><a title="multidevice.MD_Connection.MD_Connection_Net_Udp_Server" href="#multidevice.MD_Connection.MD_Connection_Net_Udp_Server">MD_Connection_Net_Udp_Server</a></li>
 <li><a title="multidevice.MD_Connection.MD_Connection_Serial" href="#multidevice.MD_Connection.MD_Connection_Serial">MD_Connection_Serial</a></li>
-<li><a title="multidevice.MD_Connection.MD_Connection_Serial_Async" href="#multidevice.MD_Connection.MD_Connection_Serial_Async">MD_Connection_Serial_Async</a></li>
 <li><a title="multidevice.MD_Protocol.MD_Protocol" href="MD_Protocol.html#multidevice.MD_Protocol.MD_Protocol">MD_Protocol</a></li>
 </ul>
 <h3>Methods</h3>
@@ -1086,11 +1220,11 @@ If callbacks are class members, they need the additional first parameter 'self'<
         self.logger.debug(f&#39;{self.__class__.__name__} closing connection&#39;)
         self._tcp.close()
 
-    def on_data_received(self, by, data):
-        # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
-        if isinstance(data, str):
-            data = data.strip()
-        super().on_data_received(by, data)
+    # def on_data_received(self, by, data):
+    #     # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
+    #     # if isinstance(data, str):
+    #     #     data = data.strip()
+    #     super().on_data_received(by, data)
 
     def _send(self, data_dict):
         self._tcp.send(data_dict[&#39;payload&#39;])
@@ -1289,6 +1423,23 @@ If callbacks are class members, they need the additional first parameter 'self'<
     &#34;&#34;&#34;
     def __init__(self, device_type, device_id, data_received_callback, **kwargs):
 
+        class TimeoutLock(object):
+            def __init__(self):
+                self._lock = Lock()
+
+            def acquire(self, blocking=True, timeout=-1):
+                return self._lock.acquire(blocking, timeout)
+
+            @contextmanager
+            def acquire_timeout(self, timeout):
+                result = self._lock.acquire(timeout=timeout)
+                yield result
+                if result:
+                    self._lock.release()
+
+            def release(self):
+                self._lock.release()
+
         # get MultiDevice.device logger
         self.logger = logging.getLogger(&#39;.&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + f&#39;.{device_id}&#39;)
 
@@ -1301,11 +1452,15 @@ If callbacks are class members, they need the additional first parameter 'self'<
         self.device_type = device_type
         self.device_id = device_id
         self._is_connected = False
-        self._lock = Lock()
+        self._lock = TimeoutLock()
+        self.__lock_timeout = 2         # TODO: validate this is a sensible value
+        self._timeout_mult = 3
         self._lastbyte = b&#39;&#39;
         self._lastbytetime = 0
         self._connection_attempts = 0
         self._read_buffer = b&#39;&#39;
+        self.__use_read_buffer = True
+        self.__running = False
 
         # make sure we have a basic set of parameters for the TCP connection
         self._params = {PLUGIN_ATTR_SERIAL_PORT: &#39;&#39;,
@@ -1314,6 +1469,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
                         PLUGIN_ATTR_SERIAL_PARITY: &#39;N&#39;,
                         PLUGIN_ATTR_SERIAL_STOP: 1,
                         PLUGIN_ATTR_PROTOCOL: None,
+                        PLUGIN_ATTR_CONN_BINARY: False,
                         PLUGIN_ATTR_CONN_TIMEOUT: 1.0,
                         PLUGIN_ATTR_CONN_AUTO_CONN: True,
                         PLUGIN_ATTR_CONN_RETRIES: 1,
@@ -1355,7 +1511,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
                 self.logger.info(f&#39;connected to {self._serialport}&#39;)
                 self._connection_attempts = 0
                 if self._connected_callback:
-                    self._connected_callback(f&#39;serial_{self._serialport}&#39;)
+                    self._connected_callback(self)
+                self._setup_listener()
                 return True
             except (serial.SerialException, ValueError) as e:
                 self.logger.error(f&#39;error on connection to {self._serialport}. Error was: {e}&#39;)
@@ -1380,7 +1537,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
             pass
         self.logger.info(f&#39;connection to {self._serialport} closed&#39;)
         if self._disconnected_callback:
-            self._disconnected_callback(f&#39;serial_{self._serialport}&#39;)
+            self._disconnected_callback(self)
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
@@ -1419,11 +1576,22 @@ If callbacks are class members, they need the additional first parameter 'self'<
             self.is_connected = False
             raise serial.SerialException(f&#39;data {data} could not be sent&#39;)
 
+        # don&#39;t try to read response if listener is active
+        if self.__running:
+            return None
+
         rlen = data_dict.get(&#39;limit_response&#39;, None)
         if rlen is None:
             return None
         else:
-            return self._read_bytes(rlen)
+            res = self._read_bytes(rlen)
+            if not self._binary:
+                res = str(res, &#39;utf-8&#39;).strip()
+
+            if self._data_received_callback:
+                self._data_received_callback(self, res, None)
+
+            return res
 
     def _send_bytes(self, packet):
         &#34;&#34;&#34;
@@ -1480,28 +1648,37 @@ If callbacks are class members, they need the additional first parameter 'self'<
         # self.logger.debug(&#39;_read_bytes: start read&#39;)
         starttime = time()
 
-        # don&#39;t wait for input indefinitely, stop after 3 * self._timeout seconds
-        while time() &lt;= starttime + 3 * self._timeout:
-            readbyte = self._connection.read()
-            self._lastbyte = readbyte
-            # self.logger.debug(f&#39;_read_bytes: read {readbyte}&#39;)
-            if readbyte != b&#39;&#39;:
-                self._lastbytetime = time()
+        # prevent concurrent read attempts; 
+        with self._lock.acquire_timeout(self.__lock_timeout) as locked:
+
+            if locked:
+                # don&#39;t wait for input indefinitely, stop after 3 * self._timeout seconds
+                while time() &lt;= starttime + self._timeout_mult * self._timeout:
+                    readbyte = self._connection.read()
+                    self._lastbyte = readbyte
+                    # self.logger.debug(f&#39;_read_bytes: read {readbyte}&#39;)
+                    if readbyte != b&#39;&#39;:
+                        self._lastbytetime = time()
+                    else:
+                        return totalreadbytes
+                    totalreadbytes += readbyte
+
+                    # limit_response reached?
+                    if maxlen and len(totalreadbytes) &gt;= maxlen:
+                        return totalreadbytes
+
+                    if term_bytes in totalreadbytes:
+                        if self.__use_read_buffer:
+                            pos = totalreadbytes.find(term_bytes)
+                            self._read_buffer += totalreadbytes[pos + len(term_bytes):]
+                            return totalreadbytes[:pos + len(term_bytes)]
+                        else:
+                            return totalreadbytes
             else:
-                return totalreadbytes
-            totalreadbytes += readbyte
-
-            # limit_response reached?
-            if maxlen and len(totalreadbytes) &gt;= maxlen:
-                return totalreadbytes
-
-            if term_bytes in totalreadbytes:
-                pos = totalreadbytes.find(term_bytes)
-                self._read_buffer += totalreadbytes[pos + len(term_bytes):]
-                return totalreadbytes[:pos + len(term_bytes)]
+                self.logger.warning(f&#39;read_bytes couldn\&#39;t get lock on serial. Ths is unintended...&#39;)
 
         # timeout reached, did we read anything?
-        if not totalreadbytes:
+        if not totalreadbytes and not self.__running:
 
             # just in case, force plugin to reconnect
             self._is_connected = False
@@ -1511,11 +1688,19 @@ If callbacks are class members, they need the additional first parameter 'self'<
 
     def reset_input_buffer(self):
         if self._connection:
-            self._connection.reset_input_buffer()</code></pre>
+            self._connection.reset_input_buffer()
+
+    def _setup_listener(self):
+        &#34;&#34;&#34; empty, for subclass use &#34;&#34;&#34;
+        pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection_Serial_Async" href="#multidevice.MD_Connection.MD_Connection_Serial_Async">MD_Connection_Serial_Async</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1554,37 +1739,130 @@ If callbacks are class members, they need the additional first parameter 'self'<
 <span>(</span><span>device_type, device_id, data_received_callback, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>MD_Connection class to provide actual connection support</p>
-<p>This class is the base class for further connection classes. It can - well,
-not much. Opening and closing of connections and writing and receiving data
-is something to implement in the interface-specific derived classes.</p>
-<p>:param device_type: device type as used in commands.py name
-:param device_id: device id for use in item configuration and logs
-:type device_type: str
-:type device_id: str</p></div>
+<div class="desc"><p>Connection for serial connectivity with async listener</p>
+<p>This class implements a serial connection for call-based sending and a
+threaded listener for async reading with callbacks.</p>
+<p>As this is derived from <code><a title="multidevice.MD_Connection.MD_Connection_Serial" href="#multidevice.MD_Connection.MD_Connection_Serial">MD_Connection_Serial</a></code>, most of the documentation
+is identical.</p>
+<p>The timeout needs to be set small enough not to block reading for too long.
+Recommended times are between 0.2 and 0.8 seconds.</p>
+<p>The <code>data_received_callback</code> needs to be set or you won't get data.</p>
+<p>Callback syntax is:
+def connected_callback(by=None)
+def disconnected_callback(by=None)
+def data_received_callback(by, message)
+If callbacks are class members, they need the additional first parameter 'self'</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class MD_Connection_Serial_Async(MD_Connection):
-    # to be implemented
-    pass</code></pre>
+<pre><code class="python">class MD_Connection_Serial_Async(MD_Connection_Serial):
+    &#34;&#34;&#34; Connection for serial connectivity with async listener
+
+    This class implements a serial connection for call-based sending and a
+    threaded listener for async reading with callbacks.
+
+    As this is derived from ``MD_Connection_Serial``, most of the documentation
+    is identical.
+
+    The timeout needs to be set small enough not to block reading for too long.
+    Recommended times are between 0.2 and 0.8 seconds.
+
+    The ``data_received_callback`` needs to be set or you won&#39;t get data.
+
+    Callback syntax is:
+        def connected_callback(by=None)
+        def disconnected_callback(by=None)
+        def data_received_callback(by, message)
+    If callbacks are class members, they need the additional first parameter &#39;self&#39;
+    &#34;&#34;&#34;
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
+        # set additional class members
+        self.__receive_thread = None
+        super().__init__(device_type, device_id, data_received_callback, **kwargs)
+        # self._timeout_mult = 1.5
+
+    def _setup_listener(self):
+        if not self._is_connected:
+            return
+
+        self.__running = True
+        self.__receive_thread = Thread(target=self.__receive_thread_worker, name=f&#39;{self.device_id}_Serial&#39;)
+        self.__receive_thread.daemon = True
+        self.__receive_thread.start()
+
+    def _close(self):
+        self.logger.debug(f&#39;stopping receive thread {self.__receive_thread.name}&#39;)
+        self.__running = False
+        try:
+            self.__receive_thread.join()
+        except Exception:
+            pass
+
+    def __receive_thread_worker(self):
+        &#34;&#34;&#34; thread worker to handle receiving &#34;&#34;&#34;
+        __buffer = b&#39;&#39;
+
+        self._is_receiving = True
+        # try to find possible &#34;hidden&#34; errors
+        try:
+            while self._is_connected and self.__running:
+                try:
+                    msg = self._read_bytes(0)
+                except serial.SerialTimeoutException:
+                    pass
+
+                if msg:
+
+                    # If we work in line mode (with a terminator) slice buffer into single chunks based on terminator
+                    if self._terminator:
+                        __buffer += msg
+                        while True:
+                            # terminator = int means fixed size chunks
+                            if isinstance(self._terminator, int):
+                                i = self._terminator
+                                if i &gt; len(__buffer):
+                                    break
+                            # terminator is str or bytes means search for it
+                            else:
+                                i = __buffer.find(self._terminator)
+                                if i == -1:
+                                    break
+                                i += len(self._terminator)
+                            line = __buffer[:i]
+                            __buffer = __buffer[i:]
+                            if self._data_received_callback:
+                                self._data_received_callback(self, line if self._binary else str(line, &#39;utf-8&#39;).strip())
+                    # If not in terminator mode just forward what we received
+
+                if not self.__running:
+                    # socket shut down by self.close, no error
+                    self.logger.debug(&#39;serial connection shut down by call to close method&#39;)
+                    return
+
+        except Exception as e:
+            if not self.__running:
+                self.logger.debug(f&#39;serial receive thread {self.__receive_thread.name} shutting down&#39;)
+                return
+            else:
+                self.logger.error(f&#39;serial receive thread {self.__receive_thread.name} died with unexpected error: {e}&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="multidevice.MD_Connection.MD_Connection_Serial" href="#multidevice.MD_Connection.MD_Connection_Serial">MD_Connection_Serial</a></li>
 <li><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="multidevice.MD_Connection.MD_Connection" href="#multidevice.MD_Connection.MD_Connection">MD_Connection</a></b></code>:
+<li><code><b><a title="multidevice.MD_Connection.MD_Connection_Serial" href="#multidevice.MD_Connection.MD_Connection_Serial">MD_Connection_Serial</a></b></code>:
 <ul class="hlist">
-<li><code><a title="multidevice.MD_Connection.MD_Connection.close" href="#multidevice.MD_Connection.MD_Connection.close">close</a></code></li>
-<li><code><a title="multidevice.MD_Connection.MD_Connection.connected" href="#multidevice.MD_Connection.MD_Connection.connected">connected</a></code></li>
-<li><code><a title="multidevice.MD_Connection.MD_Connection.on_connect" href="#multidevice.MD_Connection.MD_Connection.on_connect">on_connect</a></code></li>
-<li><code><a title="multidevice.MD_Connection.MD_Connection.on_data_received" href="#multidevice.MD_Connection.MD_Connection.on_data_received">on_data_received</a></code></li>
-<li><code><a title="multidevice.MD_Connection.MD_Connection.on_disconnect" href="#multidevice.MD_Connection.MD_Connection.on_disconnect">on_disconnect</a></code></li>
-<li><code><a title="multidevice.MD_Connection.MD_Connection.open" href="#multidevice.MD_Connection.MD_Connection.open">open</a></code></li>
-<li><code><a title="multidevice.MD_Connection.MD_Connection.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.close" href="#multidevice.MD_Connection.MD_Connection.close">close</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.connected" href="#multidevice.MD_Connection.MD_Connection.connected">connected</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.on_connect" href="#multidevice.MD_Connection.MD_Connection.on_connect">on_connect</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.on_data_received" href="#multidevice.MD_Connection.MD_Connection.on_data_received">on_data_received</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.on_disconnect" href="#multidevice.MD_Connection.MD_Connection.on_disconnect">on_disconnect</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.open" href="#multidevice.MD_Connection.MD_Connection.open">open</a></code></li>
+<li><code><a title="multidevice.MD_Connection.MD_Connection_Serial.send" href="#multidevice.MD_Connection.MD_Connection.send">send</a></code></li>
 </ul>
 </li>
 </ul>

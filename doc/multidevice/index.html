@@ -25,21 +25,24 @@
 <p>MultiDevice-Plugin to interface different devices</p>
 <h1 id="the-multidevice-plugin-md">The MultiDevice-Plugin (MD)</h1>
 <p>This plugin aims to support a wide range of devices which work by sending
-commands to a device and reading data from it.
-By abstracting devices and connections, most devices will be able to be
-interfaced by this plugin.</p>
+commands to a device and reading data from it. By abstracting devices and
+connections, most devices will be able to be interfaced by this plugin.</p>
 <h1 id="general-description">General description</h1>
 <p>The whole MultiDevice-plugin is organized and abstracted into multiple levels
-of (reference) base classes and derived classes handling special implementations.</p>
-<p>The plugin manages item association and updates. For each device it handles,
-it creates an object based on <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> or derived classes.</p>
-<p>The device object handles starting and stopping the device and its configuration.</p>
-<p>Possible commands are bundled by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code> class which handles loading,
-validating and calling the separate <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> or derived objects. </p>
-<p>Each <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> object handles one command and is responsible for creating<br>
+of (reference) base classes and derived classes handling special
+implementations.</p>
+<p>The plugin manages item association and updates. For each device it handles, it
+creates an object based on <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> or derived classes.</p>
+<p>The device object handles starting and stopping the device and its
+configuration.</p>
+<p>Possible commands are bundled by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code> class which handles
+loading, validating and calling the separate <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> or derived
+objects. </p>
+<p>Each <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> object handles one command and is responsible for creating
 command tokens/strings to/from the real device. </p>
 <p>Each command is assigned a data type, which is represented by a <code>Datatype</code>-
-derived class and transforms values between the real device and the command object.</p>
+derived class and transforms values between the real device and the command
+object.</p>
 <p>To actually talk to the real device, that is, send commands/values and receive
 replies, it uses a standardized interface via one of the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> or
 derived classes. </p>
@@ -57,8 +60,8 @@ parsing will not be able to detect or cope with some data type conversions.</p>
 </div>
 <p>(New) devices each reside in their respective subfolder of the plugin folder,
 providing a derived device class, a command definition and - if applicable -
-additional necessary datatypes. These are automatically loaded by the plugin
-if the respective device has a configuration entry in <code>/etc/plugin.yaml</code>.</p>
+additional necessary datatypes. These are automatically loaded by the plugin if
+the respective device has a configuration entry in <code>/etc/plugin.yaml</code>.</p>
 <p>This concept is meant to</p>
 <ul>
 <li>minimize the amount of (repeating) code needed to implement a new device,</li>
@@ -114,8 +117,13 @@ changed by device configuration.</p>
 <li><code>on_connect(by=None)</code></li>
 <li><code>on_disconnect(by=None)</code></li>
 </ul>
+<p>Methods probably necessary to overwrite:</p>
+<ul>
+<li><code>_set_default_params()</code></li>
+</ul>
 <p>Methods possibly needed to overwrite for inherited classes:</p>
 <ul>
+<li><code>_post_init()</code></li>
 <li><code>run_standalone()</code></li>
 <li><code>_transform_send_data(data_dict)</code></li>
 <li><code>_send(data_dict)</code></li>
@@ -125,10 +133,10 @@ changed by device configuration.</p>
 <h2 id="md_connection">Md_Connection</h2>
 <p>This class and the derived classes provide frameworks for sending and receiving
 data to and from devices via serial or network connections. For both hardware
-layers implementation of query-response-connections and listening servers
-with asynchronous push-to-callback are already available.
-If more complex communication setup is needed, this can be implemented on top
-of the existing classes.</p>
+layers implementation of query-response-connections and listening servers with
+asynchronous push-to-callback are already available. If more complex
+communication setup is needed, this can be implemented on top of the existing
+classes.</p>
 <p>Data is exchanged with <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> in a special dict format:</p>
 <div class="admonition code">
 <p class="admonition-title">Code:&ensp;python</p>
@@ -179,19 +187,19 @@ for event-loop serial connection with async callback</li>
 <p>For detailed information and necessary configuration parameters, see the
 respective class definition docstring.</p>
 <h2 id="md_protocol">Md_Protocol</h2>
-<p>For some device communication, the need arises to add another layer of
-protocol handling - either for special handshake, initialization or general
+<p>For some device communication, the need arises to add another layer of protocol
+handling - either for special handshake, initialization or general
 communication and data handling, e.g. send queues or command tracking.</p>
 <p>In these cases, instead of misusing the (physical) connection class or the
 (command-oriented) device class, an additional protocol layer can be inserted
 to handle this.</p>
 <p>The <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> class is a subclass of <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> and used by the
-device instead of the actual connection class. The protocol class creates
-the connection class instance itself and functions as a proxy.</p>
+device instead of the actual connection class. The protocol class creates the
+connection class instance itself and functions as a proxy.</p>
 <p>To activate the protocol layer, configure the device with the <code>protocol</code>
-option, giving the name of an existing protocol class or the empty string
-for the <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> base class, which has no additional function and can
-be used for testing.</p>
+option, giving the name of an existing protocol class or the empty string for
+the <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code> base class, which has no additional function and can be
+used for testing.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Supplying the <code>protocol</code> attribute as a kind of "empty default" is
@@ -204,11 +212,12 @@ prone to break devices relying on protocol support.</p>
 <li><code>MD_Protocol_Viessmann</code> for P300- and KW-protocol communication</li>
 </ul>
 <h2 id="md_commands">Md_Commands</h2>
-<p>This class is a 'dict on steroids' of <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code>-objects with error checking as
-added value. In addition, it also loads command and lookup definitions from the file
-<code>commands.py</code> in the device folder and datatype sets and handles datatype association.</p>
-<p>No need to find out if <code>command</code> is defined, just call the method
-and the class will handle failure cases. Beware of NoneType-return values, though.</p>
+<p>This class is a 'dict on steroids' of <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code>-objects with error checking
+as added value. In addition, it also loads command and lookup definitions from
+the file <code>commands.py</code> in the device folder and datatype sets and handles
+datatype association.</p>
+<p>No need to find out if <code>command</code> is defined, just call the method and the
+class will handle failure cases. Beware of NoneType-return values, though.</p>
 <p><code>MD_Commands(device_type, device_id, command_obj_class=MD_Command, **kwargs)</code></p>
 <p>Public methods:</p>
 <ul>
@@ -262,10 +271,10 @@ for JSON-RPC 2.0 commands with multiple arguments</li>
 for the binary Viessmann heating protocols</li>
 </ul>
 <p>The classes <code>MD_Command_Str</code> and <code>MD_Command_ParseStr</code> are examples for
-defining own command classes according to your needs.
-These examples utilize strings and dicts to build request URLs as payload data
-e.g. for the <code>MD_Connection_Net_TCP_Request</code> or <code>MD_Connection_Net_Tcp_Client</code>
-classes. They also demonstrate parameter substitution in command definitions on
+defining own command classes according to your needs. These examples utilize
+strings and dicts to build request URLs as payload data e.g. for the
+<code>MD_Connection_Net_TCP_Request</code> or <code>MD_Connection_Net_Tcp_Client</code> classes.
+They also demonstrate parameter substitution in command definitions on
 different levels of complexity.</p>
 <h2 id="datatype">Datatype</h2>
 <p>This is one of the most important classes. By declaration, it contains
@@ -319,11 +328,10 @@ They should not need further configuration, as all data transformation is done
 by the device classes and the connection-specific attributes are provided
 from plugin configuration.</p>
 <p>If the additional protocol layer is necessary, usually the device class will
-provide for proper loading (it loads in place of the connection class). If
-for some reason the protocol layer should be selected and loaded manually,
-it can be forced by providing the <code>protocol: &lt;protocolname&gt;</code> attribute.
-As with the model, this attribute should normally not be present in the
-configuration.</p>
+provide for proper loading (it loads in place of the connection class). If for
+some reason the protocol layer should be selected and loaded manually, it can
+be forced by providing the <code>protocol: &lt;protocolname&gt;</code> attribute. As with the
+model, this attribute should normally not be present in the configuration.</p>
 <p>A list of all currently supported attributes is found in the <code>MD_Globals.py</code>
 file next to their respective identifiers.</p>
 <p>Example for <code>etc/plugin.yaml</code> configuration:</p>
@@ -394,9 +402,9 @@ commands.py file structure.</p>
 for the needed effort to implement a new device.</p>
 <p>Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
-or requiring a more complex approach, e.g. if it is not practical to store
-all information in items immediately, or if multiple data points are trans-
-mitted at one, which requires splitting or other means of data management.</p>
+or requiring a more complex approach, e.g. if it is not practical to store all
+information in items immediately, or if multiple data points are trans- mitted
+at one, which requires splitting or other means of data management.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -434,33 +442,36 @@ The MultiDevice-Plugin (MD)
 ===========================
 
 This plugin aims to support a wide range of devices which work by sending
-commands to a device and reading data from it.
-By abstracting devices and connections, most devices will be able to be
-interfaced by this plugin.
+commands to a device and reading data from it. By abstracting devices and
+connections, most devices will be able to be interfaced by this plugin.
 
 General description
 ===================
 
 The whole MultiDevice-plugin is organized and abstracted into multiple levels
-of (reference) base classes and derived classes handling special implementations.
+of (reference) base classes and derived classes handling special
+implementations.
 
 
-The plugin manages item association and updates. For each device it handles,
-it creates an object based on ``MD_Device`` or derived classes.
+The plugin manages item association and updates. For each device it handles, it
+creates an object based on ``MD_Device`` or derived classes.
 
-The device object handles starting and stopping the device and its configuration.
+The device object handles starting and stopping the device and its
+configuration.
 
-Possible commands are bundled by the ``MD_Commands`` class which handles loading, 
-validating and calling the separate ``MD_Command`` or derived objects. 
+Possible commands are bundled by the ``MD_Commands`` class which handles
+loading, validating and calling the separate ``MD_Command`` or derived
+objects. 
 
-Each ``MD_Command`` object handles one command and is responsible for creating  
+Each ``MD_Command`` object handles one command and is responsible for creating
 command tokens/strings to/from the real device. 
 
 Each command is assigned a data type, which is represented by a ``Datatype``-
-derived class and transforms values between the real device and the command object.
+derived class and transforms values between the real device and the command
+object.
 
 To actually talk to the real device, that is, send commands/values and receive
-replies, it uses a standardized interface via one of the ``MD_Connection`` or 
+replies, it uses a standardized interface via one of the ``MD_Connection`` or
 derived classes. 
 
 Thus, the plugin, devices and commands are ignorant of physical connection
@@ -480,8 +491,8 @@ with validity of data sent or received.
 
 (New) devices each reside in their respective subfolder of the plugin folder,
 providing a derived device class, a command definition and - if applicable -
-additional necessary datatypes. These are automatically loaded by the plugin
-if the respective device has a configuration entry in ``/etc/plugin.yaml``.
+additional necessary datatypes. These are automatically loaded by the plugin if
+the respective device has a configuration entry in ``/etc/plugin.yaml``.
 
 
 This concept is meant to
@@ -564,8 +575,14 @@ Public callback methods:
 * ``on_disconnect(by=None)``
 
 
+Methods probably necessary to overwrite:
+
+* ``_set_default_params()``
+
+
 Methods possibly needed to overwrite for inherited classes:
 
+* ``_post_init()``
 * ``run_standalone()``
 * ``_transform_send_data(data_dict)``
 * ``_send(data_dict)``
@@ -578,10 +595,10 @@ MD_Connection
 
 This class and the derived classes provide frameworks for sending and receiving
 data to and from devices via serial or network connections. For both hardware
-layers implementation of query-response-connections and listening servers
-with asynchronous push-to-callback are already available.
-If more complex communication setup is needed, this can be implemented on top
-of the existing classes.
+layers implementation of query-response-connections and listening servers with
+asynchronous push-to-callback are already available. If more complex
+communication setup is needed, this can be implemented on top of the existing
+classes.
 
 
 Data is exchanged with ``MD_Device`` in a special dict format:
@@ -642,8 +659,8 @@ respective class definition docstring.
 MD_Protocol
 -----------
 
-For some device communication, the need arises to add another layer of
-protocol handling - either for special handshake, initialization or general
+For some device communication, the need arises to add another layer of protocol
+handling - either for special handshake, initialization or general
 communication and data handling, e.g. send queues or command tracking.
 
 In these cases, instead of misusing the (physical) connection class or the
@@ -652,13 +669,13 @@ to handle this.
 
 
 The ``MD_Protocol`` class is a subclass of ``MD_Connection`` and used by the
-device instead of the actual connection class. The protocol class creates
-the connection class instance itself and functions as a proxy.
+device instead of the actual connection class. The protocol class creates the
+connection class instance itself and functions as a proxy.
 
 To activate the protocol layer, configure the device with the ``protocol``
-option, giving the name of an existing protocol class or the empty string
-for the ``MD_Protocol`` base class, which has no additional function and can
-be used for testing.
+option, giving the name of an existing protocol class or the empty string for
+the ``MD_Protocol`` base class, which has no additional function and can be
+used for testing.
 
 .. warning::
 
@@ -678,12 +695,13 @@ This class has subclasses defined for the following types of protocols:
 MD_Commands
 -----------
 
-This class is a &#39;dict on steroids&#39; of ``MD_Command``-objects with error checking as
-added value. In addition, it also loads command and lookup definitions from the file
-``commands.py`` in the device folder and datatype sets and handles datatype association.
+This class is a &#39;dict on steroids&#39; of ``MD_Command``-objects with error checking
+as added value. In addition, it also loads command and lookup definitions from
+the file ``commands.py`` in the device folder and datatype sets and handles
+datatype association.
 
-No need to find out if ``command`` is defined, just call the method
-and the class will handle failure cases. Beware of NoneType-return values, though.
+No need to find out if ``command`` is defined, just call the method and the
+class will handle failure cases. Beware of NoneType-return values, though.
 
 
 ``MD_Commands(device_type, device_id, command_obj_class=MD_Command, **kwargs)``
@@ -749,11 +767,11 @@ This class has subclasses defined for the following types of commands:
 * ``MD_Command_Jsonrpc``    for JSON-RPC 2.0 commands with multiple arguments
 * ``MD_Command_Viessmann``  for the binary Viessmann heating protocols
 
-The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for 
-defining own command classes according to your needs.
-These examples utilize strings and dicts to build request URLs as payload data
-e.g. for the ``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client``
-classes. They also demonstrate parameter substitution in command definitions on
+The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for
+defining own command classes according to your needs. These examples utilize
+strings and dicts to build request URLs as payload data e.g. for the
+``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client`` classes.
+They also demonstrate parameter substitution in command definitions on
 different levels of complexity.
 
 
@@ -835,11 +853,10 @@ from plugin configuration.
 
 
 If the additional protocol layer is necessary, usually the device class will
-provide for proper loading (it loads in place of the connection class). If
-for some reason the protocol layer should be selected and loaded manually,
-it can be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute.
-As with the model, this attribute should normally not be present in the
-configuration.
+provide for proper loading (it loads in place of the connection class). If for
+some reason the protocol layer should be selected and loaded manually, it can
+be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute. As with the
+model, this attribute should normally not be present in the configuration.
 
 A list of all currently supported attributes is found in the ``MD_Globals.py``
 file next to their respective identifiers.
@@ -898,9 +915,9 @@ for the needed effort to implement a new device.
 
 Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
-or requiring a more complex approach, e.g. if it is not practical to store
-all information in items immediately, or if multiple data points are trans-
-mitted at one, which requires splitting or other means of data management.
+or requiring a more complex approach, e.g. if it is not practical to store all
+information in items immediately, or if multiple data points are trans- mitted
+at one, which requires splitting or other means of data management.
 &#34;&#34;&#34;
 
 from collections import OrderedDict
@@ -914,6 +931,7 @@ import cherrypy
 import json
 from ast import literal_eval
 
+__pdoc__ = {&#34;multidevice.tools&#34;: False}
 
 if __name__ == &#39;__main__&#39;:
     # just needed for standalone mode
@@ -925,7 +943,6 @@ if __name__ == &#39;__main__&#39;:
     class SmartPluginWebIf():
         pass
 
-    import os
     BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
     sys.path.insert(0, BASE)
 
@@ -951,15 +968,15 @@ class MultiDevice(SmartPlugin):
     &#34;&#34;&#34; MultiDevice class provides the SmartPlugin class for SmartHomeNG
     
     This class does the actual interface work between SmartHomeNG and the device
-    classes. Mainly it parses plugin and item configuration data, sets up associations
-    between devices and items and handles data exchange between SmartHomeNG and
-    the device classes. Furthermore, it calls all devices&#39; run() and stop() methods
-    if so instructed by SmartHomeNG.
+    classes. Mainly it parses plugin and item configuration data, sets up
+    associations between devices and items and handles data exchange between
+    SmartHomeNG and the device classes. Furthermore, it calls all devices&#39; run
+    () and stop() methods if so instructed by SmartHomeNG.
 
     It also looks good.
     &#34;&#34;&#34;
 
-    PLUGIN_VERSION = &#39;0.2.0&#39;
+    PLUGIN_VERSION = &#39;0.3.0&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
         &#34;&#34;&#34;
@@ -1089,14 +1106,14 @@ class MultiDevice(SmartPlugin):
                         # if valid struct definition is found
                         if raw_struct is not None:
 
-                            self.logger.debug(f&#39;loaded {len(raw_struct.keys())} structs for processing&#39;)
+                            struct_list = device_instance.get_structs()
+                            if not struct_list:
+                                struct_list = list(raw_struct.keys())
+                            self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
                             # replace all mentions of &#34;DEVICE&#34; with the plugin/device&#39;s name
-                            try:
-                                mod_struct = eval(str(raw_struct).replace(&#39;DEVICENAME&#39;, device_id))
-                            except Exception as e:
-                                self.logger.warning(f&#39;importing structs for device {device_id} failed, check struct definitions. Error was: {e}&#39;)
-                            else:
-                                for struct_name in mod_struct:
+                            mod_struct = self._process_struct(raw_struct, device_id)
+                            for struct_name in struct_list:
+                                if struct_name in mod_struct:
                                     self.logger.debug(f&#39;adding struct {self.get_shortname()}.{device_id}.{struct_name}&#39;)
                                     self._sh.items.add_struct_definition(self.get_shortname() + &#39;.&#39; + device_id, struct_name, mod_struct[struct_name])
 
@@ -1136,16 +1153,12 @@ class MultiDevice(SmartPlugin):
 
     def parse_item(self, item):
         &#34;&#34;&#34;
-        Default plugin parse_item method. Is called when the plugin is initialized.
-        The plugin can, corresponding to its attribute keywords, decide what to do with
-        the item in future, like adding it to an internal array for future reference
+        Default plugin parse_item method. Is called when the plugin is
+        initialized. The plugin can, corresponding to its attribute keywords,
+        decide what to do with the item in future, like adding it to an
+        internal array for future reference
         :param item:    The item to process.
-        :return:        If the plugin needs to be informed of an items change you should return a call back function
-                        like the function update_item down below. An example when this is needed is the knx plugin
-                        where parse_item returns the update_item function when the attribute knx_send is found.
-                        This means that when the items value is about to be updated, the call back function is called
-                        with the item, caller, source and dest as arguments and in case of the knx plugin the value
-                        can be sent to the knx with a knx write function within the knx plugin.
+        :return:        Recall function for item updates
         &#34;&#34;&#34;
         if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
@@ -1183,11 +1196,15 @@ class MultiDevice(SmartPlugin):
                     # read in group?
                     if self.has_iattr(item.conf, ITEM_ATTR_GROUP):
                         group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
-                        if group and isinstance(group, int) and group &gt; 0:
-                            if group not in self._commands_read_grp[device_id]:
-                                self._commands_read_grp[device_id][group] = []
-                            self._commands_read_grp[device_id][group].append(command)
-                            self.logger.debug(f&#39;Item {item} saved for reading in group {group} on device {device_id}&#39;)
+                        if isinstance(group, str):
+                            group = [group]
+                        if isinstance(group, list):
+                            for grp in group:
+                                if grp:
+                                    if grp not in self._commands_read_grp[device_id]:
+                                        self._commands_read_grp[device_id][grp] = []
+                                    self._commands_read_grp[device_id][grp].append(command)
+                                    self.logger.debug(f&#39;Item {item} saved for reading in group {grp} on device {device_id}&#39;)
                         else:
                             self.logger.warning(f&#39;Item {item} wants to be read in group with invalid group identifier &#34;{group}&#34;, ignoring.&#39;)
 
@@ -1211,18 +1228,16 @@ class MultiDevice(SmartPlugin):
                         self.logger.debug(f&#39;Item {item} saved for writing command {command} on device {device_id}&#39;)
                         return self.update_item
 
-            # is read_all item?
-            if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
-                self._items_read_all[item.id()] = device_id
-                self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
-                return self.update_item
-
             # is read_grp item?
             if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
                 grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
-                if grp and isinstance(grp, int) and grp &gt; 0:
-                    self._items_read_grp[item.id()] = [device_id, grp]
+                if grp == &#39;0&#39;:
+                    self._items_read_all[item.id()] = device_id
                     self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
+                    return self.update_item
+                elif grp:
+                    self._items_read_grp[item.id()] = [device_id, grp]
+                    self.logger.debug(f&#39;Item {item} saved for reading group {grp} on device {device_id}&#39;)
                     return self.update_item
                 else:
                     self.logger.warning(f&#39;Item {item} wants to trigger group read with invalid group identifier &#34;{grp}&#34;, ignoring.&#39;)
@@ -1231,7 +1246,10 @@ class MultiDevice(SmartPlugin):
             if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
                 table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
                 if table:
-                    lu = device.get_lookup(table)
+                    mode = &#39;fwd&#39;
+                    if &#39;#&#39; in table:
+                        (table, mode) = table.split(&#39;#&#39;)
+                    lu = device.get_lookup(table, mode)
                     item.set(lu, &#39;MultiDevice.&#39; + device_id, source=&#39;Init&#39;)
                     if lu:
                         self.logger.debug(f&#39;Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}&#39;)
@@ -1244,9 +1262,9 @@ class MultiDevice(SmartPlugin):
         &#34;&#34;&#34;
         Item has been updated
 
-        This method is called, if the value of an item has been updated by SmartHomeNG.
-        It should write the changed value out to the device (hardware/interface) that
-        is managed by this plugin.
+        This method is called, if the value of an item has been updated by
+        SmartHomeNG. It should write the changed value out to the device
+        (hardware/interface) that is managed by this plugin.
 
         :param item: item to be updated towards the plugin
         :param caller: if given it represents the callers name
@@ -1336,6 +1354,9 @@ class MultiDevice(SmartPlugin):
         :param device_id: device id (surprise!)
         :type device:name: string
         &#34;&#34;&#34;
+        if self.alive:
+            return
+
         self.logger.debug(f&#39;updating parameters for device {device_id}&#39;)
         device = self._get_device(device_id)
         if device:
@@ -1407,6 +1428,59 @@ class MultiDevice(SmartPlugin):
         if dev:
             log = dev.get(&#39;logger&#39;, self.logger)
         return log
+
+    def _process_struct(self, raw_struct, device_id):
+        &#34;&#34;&#34; clean structs before adding &#34;&#34;&#34;
+
+        def walk(node, node_name, parent=None, func=None):
+            for child in list(k for k in node.keys() if isinstance(node[k], OrderedDict)):
+                walk(node[child], child, parent=node, func=func)
+            if func is not None:
+                func(node, node_name, parent=parent)
+
+        def removeItemsUndefCmd(node, node_name, parent):
+            if node.get(ITEM_ATTR_COMMAND, None) and not self._devices[device_id][&#39;device&#39;].is_valid_command(node.get(ITEM_ATTR_COMMAND, &#39;&#39;)):
+                del parent[node_name]
+
+        def collectReadGroups(node, node_name, parent):
+            self._collected_read_groups += node.get(ITEM_ATTR_GROUP, &#39;&#39;)
+
+        def removeItemsReadTrigger(node, node_name, parent):
+            if ITEM_ATTR_READ_GRP in node:
+                if node.get(ITEM_ATTR_READ_GRP) not in self._collected_read_groups:
+                    del parent[node_name]
+
+        def removeEmptyItems(node, node_name, parent):
+            if len(node) == 0:
+                del parent[node_name]
+
+        # make struct items&#39; md_device refer to our device
+        try:
+            mod_struct = eval(str(raw_struct).replace(&#39;DEVICENAME&#39;, device_id))
+        except Exception as e:
+            self.logger.warning(f&#39;importing structs for device {device_id} failed, check struct definitions. Error was: {e}&#39;)
+            return {}
+
+        if not self._devices[device_id][&#39;device&#39;]._params.get(PLUGIN_ATTR_CLEAN_STRUCT, False):
+            return mod_struct
+
+        obj = OrderedDict({&#39;structs&#39;: mod_struct})
+
+        # remove all items with invalid &#39;md_command&#39; attribute from structs
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, removeItemsUndefCmd)
+
+        # find all read groups
+        self._collected_read_groups = []
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, collectReadGroups)
+
+        # remove all items with read group trigger for unknown read group
+        self._collected_read_groups = set(self._collected_read_groups)
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, removeItemsReadTrigger)
+
+        # remove all empty items from structs
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, removeEmptyItems)
+
+        return obj[&#39;structs&#39;]
 
 
 #############################################################################################################################################################################################################################################
@@ -1540,13 +1614,13 @@ if __name__ == &#39;__main__&#39;:
     This plugin is meant to be used inside SmartHomeNG.
 
     Is is generally possible to run this plugin in standalone mode, usually for
-    diagnostic purposes - IF the specified device supports this mode.
-    As devices are modular extensions, it is not possible to print a list of supported
-    devices.
+    diagnostic purposes - IF the specified device supports this mode. As
+    devices are modular extensions, it is not possible to print a list of
+    supported devices.
 
     You need to call this plugin with the device id as the first parameter, any
-    necessary configuration options either as arg=value pairs or as a python dict
-    (this needs to be enclosed in quotes).
+    necessary configuration options either as arg=value pairs or as a python
+    dict(this needs to be enclosed in quotes). 
     Be aware that later parameters, be they dict or pair type, overwrite earlier
     parameters of the same name.
 
@@ -1661,10 +1735,6 @@ if __name__ == &#39;__main__&#39;:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt><code class="name"><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 </dl>
 </section>
 <section>
@@ -1681,10 +1751,10 @@ if __name__ == &#39;__main__&#39;:
 <dd>
 <div class="desc"><p>MultiDevice class provides the SmartPlugin class for SmartHomeNG</p>
 <p>This class does the actual interface work between SmartHomeNG and the device
-classes. Mainly it parses plugin and item configuration data, sets up associations
-between devices and items and handles data exchange between SmartHomeNG and
-the device classes. Furthermore, it calls all devices' run() and stop() methods
-if so instructed by SmartHomeNG.</p>
+classes. Mainly it parses plugin and item configuration data, sets up
+associations between devices and items and handles data exchange between
+SmartHomeNG and the device classes. Furthermore, it calls all devices' run
+() and stop() methods if so instructed by SmartHomeNG.</p>
 <p>It also looks good.</p>
 <p>Initalizes the plugin. For this plugin, this means collecting all device
 modules and initializing them by instantiating the proper class.</p></div>
@@ -1696,15 +1766,15 @@ modules and initializing them by instantiating the proper class.</p></div>
     &#34;&#34;&#34; MultiDevice class provides the SmartPlugin class for SmartHomeNG
     
     This class does the actual interface work between SmartHomeNG and the device
-    classes. Mainly it parses plugin and item configuration data, sets up associations
-    between devices and items and handles data exchange between SmartHomeNG and
-    the device classes. Furthermore, it calls all devices&#39; run() and stop() methods
-    if so instructed by SmartHomeNG.
+    classes. Mainly it parses plugin and item configuration data, sets up
+    associations between devices and items and handles data exchange between
+    SmartHomeNG and the device classes. Furthermore, it calls all devices&#39; run
+    () and stop() methods if so instructed by SmartHomeNG.
 
     It also looks good.
     &#34;&#34;&#34;
 
-    PLUGIN_VERSION = &#39;0.2.0&#39;
+    PLUGIN_VERSION = &#39;0.3.0&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
         &#34;&#34;&#34;
@@ -1834,14 +1904,14 @@ modules and initializing them by instantiating the proper class.</p></div>
                         # if valid struct definition is found
                         if raw_struct is not None:
 
-                            self.logger.debug(f&#39;loaded {len(raw_struct.keys())} structs for processing&#39;)
+                            struct_list = device_instance.get_structs()
+                            if not struct_list:
+                                struct_list = list(raw_struct.keys())
+                            self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
                             # replace all mentions of &#34;DEVICE&#34; with the plugin/device&#39;s name
-                            try:
-                                mod_struct = eval(str(raw_struct).replace(&#39;DEVICENAME&#39;, device_id))
-                            except Exception as e:
-                                self.logger.warning(f&#39;importing structs for device {device_id} failed, check struct definitions. Error was: {e}&#39;)
-                            else:
-                                for struct_name in mod_struct:
+                            mod_struct = self._process_struct(raw_struct, device_id)
+                            for struct_name in struct_list:
+                                if struct_name in mod_struct:
                                     self.logger.debug(f&#39;adding struct {self.get_shortname()}.{device_id}.{struct_name}&#39;)
                                     self._sh.items.add_struct_definition(self.get_shortname() + &#39;.&#39; + device_id, struct_name, mod_struct[struct_name])
 
@@ -1881,16 +1951,12 @@ modules and initializing them by instantiating the proper class.</p></div>
 
     def parse_item(self, item):
         &#34;&#34;&#34;
-        Default plugin parse_item method. Is called when the plugin is initialized.
-        The plugin can, corresponding to its attribute keywords, decide what to do with
-        the item in future, like adding it to an internal array for future reference
+        Default plugin parse_item method. Is called when the plugin is
+        initialized. The plugin can, corresponding to its attribute keywords,
+        decide what to do with the item in future, like adding it to an
+        internal array for future reference
         :param item:    The item to process.
-        :return:        If the plugin needs to be informed of an items change you should return a call back function
-                        like the function update_item down below. An example when this is needed is the knx plugin
-                        where parse_item returns the update_item function when the attribute knx_send is found.
-                        This means that when the items value is about to be updated, the call back function is called
-                        with the item, caller, source and dest as arguments and in case of the knx plugin the value
-                        can be sent to the knx with a knx write function within the knx plugin.
+        :return:        Recall function for item updates
         &#34;&#34;&#34;
         if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
@@ -1928,11 +1994,15 @@ modules and initializing them by instantiating the proper class.</p></div>
                     # read in group?
                     if self.has_iattr(item.conf, ITEM_ATTR_GROUP):
                         group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
-                        if group and isinstance(group, int) and group &gt; 0:
-                            if group not in self._commands_read_grp[device_id]:
-                                self._commands_read_grp[device_id][group] = []
-                            self._commands_read_grp[device_id][group].append(command)
-                            self.logger.debug(f&#39;Item {item} saved for reading in group {group} on device {device_id}&#39;)
+                        if isinstance(group, str):
+                            group = [group]
+                        if isinstance(group, list):
+                            for grp in group:
+                                if grp:
+                                    if grp not in self._commands_read_grp[device_id]:
+                                        self._commands_read_grp[device_id][grp] = []
+                                    self._commands_read_grp[device_id][grp].append(command)
+                                    self.logger.debug(f&#39;Item {item} saved for reading in group {grp} on device {device_id}&#39;)
                         else:
                             self.logger.warning(f&#39;Item {item} wants to be read in group with invalid group identifier &#34;{group}&#34;, ignoring.&#39;)
 
@@ -1956,18 +2026,16 @@ modules and initializing them by instantiating the proper class.</p></div>
                         self.logger.debug(f&#39;Item {item} saved for writing command {command} on device {device_id}&#39;)
                         return self.update_item
 
-            # is read_all item?
-            if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
-                self._items_read_all[item.id()] = device_id
-                self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
-                return self.update_item
-
             # is read_grp item?
             if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
                 grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
-                if grp and isinstance(grp, int) and grp &gt; 0:
-                    self._items_read_grp[item.id()] = [device_id, grp]
+                if grp == &#39;0&#39;:
+                    self._items_read_all[item.id()] = device_id
                     self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
+                    return self.update_item
+                elif grp:
+                    self._items_read_grp[item.id()] = [device_id, grp]
+                    self.logger.debug(f&#39;Item {item} saved for reading group {grp} on device {device_id}&#39;)
                     return self.update_item
                 else:
                     self.logger.warning(f&#39;Item {item} wants to trigger group read with invalid group identifier &#34;{grp}&#34;, ignoring.&#39;)
@@ -1976,7 +2044,10 @@ modules and initializing them by instantiating the proper class.</p></div>
             if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
                 table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
                 if table:
-                    lu = device.get_lookup(table)
+                    mode = &#39;fwd&#39;
+                    if &#39;#&#39; in table:
+                        (table, mode) = table.split(&#39;#&#39;)
+                    lu = device.get_lookup(table, mode)
                     item.set(lu, &#39;MultiDevice.&#39; + device_id, source=&#39;Init&#39;)
                     if lu:
                         self.logger.debug(f&#39;Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}&#39;)
@@ -1989,9 +2060,9 @@ modules and initializing them by instantiating the proper class.</p></div>
         &#34;&#34;&#34;
         Item has been updated
 
-        This method is called, if the value of an item has been updated by SmartHomeNG.
-        It should write the changed value out to the device (hardware/interface) that
-        is managed by this plugin.
+        This method is called, if the value of an item has been updated by
+        SmartHomeNG. It should write the changed value out to the device
+        (hardware/interface) that is managed by this plugin.
 
         :param item: item to be updated towards the plugin
         :param caller: if given it represents the callers name
@@ -2081,6 +2152,9 @@ modules and initializing them by instantiating the proper class.</p></div>
         :param device_id: device id (surprise!)
         :type device:name: string
         &#34;&#34;&#34;
+        if self.alive:
+            return
+
         self.logger.debug(f&#39;updating parameters for device {device_id}&#39;)
         device = self._get_device(device_id)
         if device:
@@ -2151,7 +2225,60 @@ modules and initializing them by instantiating the proper class.</p></div>
         dev = self._devices.get(device_id, None)
         if dev:
             log = dev.get(&#39;logger&#39;, self.logger)
-        return log</code></pre>
+        return log
+
+    def _process_struct(self, raw_struct, device_id):
+        &#34;&#34;&#34; clean structs before adding &#34;&#34;&#34;
+
+        def walk(node, node_name, parent=None, func=None):
+            for child in list(k for k in node.keys() if isinstance(node[k], OrderedDict)):
+                walk(node[child], child, parent=node, func=func)
+            if func is not None:
+                func(node, node_name, parent=parent)
+
+        def removeItemsUndefCmd(node, node_name, parent):
+            if node.get(ITEM_ATTR_COMMAND, None) and not self._devices[device_id][&#39;device&#39;].is_valid_command(node.get(ITEM_ATTR_COMMAND, &#39;&#39;)):
+                del parent[node_name]
+
+        def collectReadGroups(node, node_name, parent):
+            self._collected_read_groups += node.get(ITEM_ATTR_GROUP, &#39;&#39;)
+
+        def removeItemsReadTrigger(node, node_name, parent):
+            if ITEM_ATTR_READ_GRP in node:
+                if node.get(ITEM_ATTR_READ_GRP) not in self._collected_read_groups:
+                    del parent[node_name]
+
+        def removeEmptyItems(node, node_name, parent):
+            if len(node) == 0:
+                del parent[node_name]
+
+        # make struct items&#39; md_device refer to our device
+        try:
+            mod_struct = eval(str(raw_struct).replace(&#39;DEVICENAME&#39;, device_id))
+        except Exception as e:
+            self.logger.warning(f&#39;importing structs for device {device_id} failed, check struct definitions. Error was: {e}&#39;)
+            return {}
+
+        if not self._devices[device_id][&#39;device&#39;]._params.get(PLUGIN_ATTR_CLEAN_STRUCT, False):
+            return mod_struct
+
+        obj = OrderedDict({&#39;structs&#39;: mod_struct})
+
+        # remove all items with invalid &#39;md_command&#39; attribute from structs
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, removeItemsUndefCmd)
+
+        # find all read groups
+        self._collected_read_groups = []
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, collectReadGroups)
+
+        # remove all items with read group trigger for unknown read group
+        self._collected_read_groups = set(self._collected_read_groups)
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, removeItemsReadTrigger)
+
+        # remove all empty items from structs
+        walk(obj[&#39;structs&#39;], &#39;structs&#39;, obj, removeEmptyItems)
+
+        return obj[&#39;structs&#39;]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -2214,34 +2341,26 @@ and update value</p>
 <span>def <span class="ident">parse_item</span></span>(<span>self, item)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Default plugin parse_item method. Is called when the plugin is initialized.
-The plugin can, corresponding to its attribute keywords, decide what to do with
-the item in future, like adding it to an internal array for future reference
+<div class="desc"><p>Default plugin parse_item method. Is called when the plugin is
+initialized. The plugin can, corresponding to its attribute keywords,
+decide what to do with the item in future, like adding it to an
+internal array for future reference
 :param item:
 The item to process.
 :return:
-If the plugin needs to be informed of an items change you should return a call back function
-like the function update_item down below. An example when this is needed is the knx plugin
-where parse_item returns the update_item function when the attribute knx_send is found.
-This means that when the items value is about to be updated, the call back function is called
-with the item, caller, source and dest as arguments and in case of the knx plugin the value
-can be sent to the knx with a knx write function within the knx plugin.</p></div>
+Recall function for item updates</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def parse_item(self, item):
     &#34;&#34;&#34;
-    Default plugin parse_item method. Is called when the plugin is initialized.
-    The plugin can, corresponding to its attribute keywords, decide what to do with
-    the item in future, like adding it to an internal array for future reference
+    Default plugin parse_item method. Is called when the plugin is
+    initialized. The plugin can, corresponding to its attribute keywords,
+    decide what to do with the item in future, like adding it to an
+    internal array for future reference
     :param item:    The item to process.
-    :return:        If the plugin needs to be informed of an items change you should return a call back function
-                    like the function update_item down below. An example when this is needed is the knx plugin
-                    where parse_item returns the update_item function when the attribute knx_send is found.
-                    This means that when the items value is about to be updated, the call back function is called
-                    with the item, caller, source and dest as arguments and in case of the knx plugin the value
-                    can be sent to the knx with a knx write function within the knx plugin.
+    :return:        Recall function for item updates
     &#34;&#34;&#34;
     if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
@@ -2279,11 +2398,15 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
                 # read in group?
                 if self.has_iattr(item.conf, ITEM_ATTR_GROUP):
                     group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
-                    if group and isinstance(group, int) and group &gt; 0:
-                        if group not in self._commands_read_grp[device_id]:
-                            self._commands_read_grp[device_id][group] = []
-                        self._commands_read_grp[device_id][group].append(command)
-                        self.logger.debug(f&#39;Item {item} saved for reading in group {group} on device {device_id}&#39;)
+                    if isinstance(group, str):
+                        group = [group]
+                    if isinstance(group, list):
+                        for grp in group:
+                            if grp:
+                                if grp not in self._commands_read_grp[device_id]:
+                                    self._commands_read_grp[device_id][grp] = []
+                                self._commands_read_grp[device_id][grp].append(command)
+                                self.logger.debug(f&#39;Item {item} saved for reading in group {grp} on device {device_id}&#39;)
                     else:
                         self.logger.warning(f&#39;Item {item} wants to be read in group with invalid group identifier &#34;{group}&#34;, ignoring.&#39;)
 
@@ -2307,18 +2430,16 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
                     self.logger.debug(f&#39;Item {item} saved for writing command {command} on device {device_id}&#39;)
                     return self.update_item
 
-        # is read_all item?
-        if self.has_iattr(item.conf, ITEM_ATTR_READ_ALL):
-            self._items_read_all[item.id()] = device_id
-            self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
-            return self.update_item
-
         # is read_grp item?
         if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
-            if grp and isinstance(grp, int) and grp &gt; 0:
-                self._items_read_grp[item.id()] = [device_id, grp]
+            if grp == &#39;0&#39;:
+                self._items_read_all[item.id()] = device_id
                 self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
+                return self.update_item
+            elif grp:
+                self._items_read_grp[item.id()] = [device_id, grp]
+                self.logger.debug(f&#39;Item {item} saved for reading group {grp} on device {device_id}&#39;)
                 return self.update_item
             else:
                 self.logger.warning(f&#39;Item {item} wants to trigger group read with invalid group identifier &#34;{grp}&#34;, ignoring.&#39;)
@@ -2327,7 +2448,10 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
         if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
             table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
             if table:
-                lu = device.get_lookup(table)
+                mode = &#39;fwd&#39;
+                if &#39;#&#39; in table:
+                    (table, mode) = table.split(&#39;#&#39;)
+                lu = device.get_lookup(table, mode)
                 item.set(lu, &#39;MultiDevice.&#39; + device_id, source=&#39;Init&#39;)
                 if lu:
                     self.logger.debug(f&#39;Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}&#39;)
@@ -2387,9 +2511,9 @@ can be sent to the knx with a knx write function within the knx plugin.</p></div
 </code></dt>
 <dd>
 <div class="desc"><p>Item has been updated</p>
-<p>This method is called, if the value of an item has been updated by SmartHomeNG.
-It should write the changed value out to the device (hardware/interface) that
-is managed by this plugin.</p>
+<p>This method is called, if the value of an item has been updated by
+SmartHomeNG. It should write the changed value out to the device
+(hardware/interface) that is managed by this plugin.</p>
 <p>:param item: item to be updated towards the plugin
 :param caller: if given it represents the callers name
 :param source: if given it represents the source
@@ -2402,9 +2526,9 @@ is managed by this plugin.</p>
     &#34;&#34;&#34;
     Item has been updated
 
-    This method is called, if the value of an item has been updated by SmartHomeNG.
-    It should write the changed value out to the device (hardware/interface) that
-    is managed by this plugin.
+    This method is called, if the value of an item has been updated by
+    SmartHomeNG. It should write the changed value out to the device
+    (hardware/interface) that is managed by this plugin.
 
     :param item: item to be updated towards the plugin
     :param caller: if given it represents the callers name
@@ -2764,7 +2888,6 @@ def submit(self, button=None, param=None):
 <li><code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code></li>
 <li><code><a title="multidevice.datatypes" href="datatypes.html">multidevice.datatypes</a></code></li>
 <li><code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></li>
-<li><code><a title="multidevice.dev_example_http" href="dev_example_http/index.html">multidevice.dev_example_http</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

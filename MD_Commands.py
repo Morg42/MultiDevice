@@ -53,7 +53,7 @@ class MD_Commands(object):
     here, most calls check for errors and pass thru the request to the selected
     MD_Command-object
 
-    Furthermore, this could be overloaded if so needed for special extensions.
+    Furthermore, this could be overwritten if so needed for special extensions.
     """
     def __init__(self, device_type, device_id, command_obj_class=MD_Command, **kwargs):
 
@@ -338,7 +338,7 @@ class MD_Commands(object):
         """
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
-        For special purposes, this can be overloaded, if you want to use your
+        For special purposes, this can be overwritten, if you want to use your
         own file format.
         """
         self._commands = {}
@@ -373,7 +373,7 @@ class MD_Commands(object):
         """
         This is a reference implementation for parsing the lookups dict imported
         from the commands.py file in the device subdirectory.
-        For special purposes, this can be overloaded, if you want to use your
+        For special purposes, this can be overwritten, if you want to use your
         own file format.
         """
         if INDEX_GENERIC in lookups:

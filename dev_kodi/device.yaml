@@ -24,7 +24,7 @@ parameters:
 
     autoreconnect:
         type: bool
-        default: True
+        default: true
         description: 'Verbindung automatisch wieder aufbauen'
 
     connect_retries:

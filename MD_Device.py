@@ -51,12 +51,12 @@ else:
 class MD_Device(object):
     """ MD_Device class to handle device instances in MultiDevice plugin
 
-    This class is the base class for a simple device class. It can process commands
-    by sending values to the device and collect data by parsing data received from
-    the device.
+    This class is the base class for a simple device class. It can process
+    commands by sending values to the device and collect data by parsing data
+    received from the device.
 
-    Configuration is done via ``dev_<device_type>/commands.py`` (for documentation
-    of the format see ``dev_example/commands.py``)
+    Configuration is done via ``dev_<device_type>/commands.py``
+    (for documentation of the format see ``dev_example/commands.py``)
 
     :param device_type: device type as used in derived class names
     :param device_id: device id for use in item configuration and logs
@@ -68,9 +68,10 @@ class MD_Device(object):
         """
         This initializes the class object.
 
-        As additional device classes are expected to be implemented as subclasses,
-        most initialization steps are modularized as methods which can be overloaded
-        as needed.
+        As additional device classes are expected to be implemented as
+        subclasses, most initialization steps are modularized as methods which
+        can be overwritten as needed. 
+
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn't need to be changed.
         """
@@ -88,11 +89,8 @@ class MD_Device(object):
         # the commands object
         self._commands = None
 
-        # set parameter defaults only if not set by derived class...
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, '_params'):
-            self._params = {}
+        # set device-dependent default attributes for device and connection
+        self._set_default_params()
 
         # set class properties
         self._params.update(kwargs)
@@ -144,6 +142,9 @@ class MD_Device(object):
             self.logger.debug(f'device initialized from {self.__class__.__name__}')
 
         self.disabled = False
+
+        # call method for possible custom work...
+        self._post_init()
 
     def start(self):
         if self.alive:
@@ -325,7 +326,7 @@ class MD_Device(object):
         """
         Updates / changes configuration parametes for device. Needs device to not be running
 
-        overload as needed.
+        overwrite as needed.
         """
         if self.alive:
             self.logger.warning(f'tried to update params with {kwargs}, but device is still running. Ignoring request')
@@ -353,9 +354,25 @@ class MD_Device(object):
 
     #
     #
-    # check if overloading needed
+    # check if overwriting needed
     #
     #
+
+    def _set_default_params(self):
+        """ Set (empty) default parameters. Overwrite as needed... """
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, '_params'):
+            self._params = {}
+
+    def _post_init(self):
+        """ do something after default initializing is done. Overwrite if needed. 
+
+        If for some reason you find compelling argument to stop loading the
+        device instance, set self._disabled to true.
+        """
+        pass
 
     def _transform_send_data(self, data_dict):
         """
@@ -384,7 +401,7 @@ class MD_Device(object):
         """
         This method parses self._params for parameters it needs itself and does the
         necessary initialization.
-        Needs to be overloaded for maximum effect...
+        Needs to be overwritten for maximum effect...
         """
         pass
 
@@ -612,7 +629,7 @@ class MD_Device(object):
         """
         This initiates reading of configuration.
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
-        this can be overloaded to do something else.
+        this can be overwritten to do something else.
         """
         cls = self._command_class
         if cls is None:

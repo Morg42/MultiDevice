@@ -114,7 +114,7 @@ changed by device configuration.</p>
 <li><code>on_connect(by=None)</code></li>
 <li><code>on_disconnect(by=None)</code></li>
 </ul>
-<p>Methods possibly needed to overload for inherited classes:</p>
+<p>Methods possibly needed to overwrite for inherited classes:</p>
 <ul>
 <li><code>run_standalone()</code></li>
 <li><code>_transform_send_data(data_dict)</code></li>
@@ -153,13 +153,13 @@ of the existing classes.</p>
 <li><code>on_connected(by=None)</code></li>
 <li><code>on_disconnected(by=None)</code></li>
 </ul>
-<p>Methods necessary to overload for derived classes:</p>
+<p>Methods necessary to overwrite for derived classes:</p>
 <ul>
 <li><code>_open()</code></li>
 <li><code>_close()</code></li>
 <li><code>_send(data_dict)</code></li>
 </ul>
-<p>Methods possible to overload for derived classes:</p>
+<p>Methods possible to overwrite for derived classes:</p>
 <ul>
 <li><code>_send_init_on_open()</code></li>
 <li><code>_send_init_on_send()</code></li>
@@ -218,7 +218,7 @@ and the class will handle failure cases. Beware of NoneType-return values, thoug
 <li><code>get_command_from_reply(data)</code></li>
 <li><code>get_lookup(lookup)</code></li>
 </ul>
-<p>Methods possible to overload, if a custom format for <code>commands.py</code> is necessary:</p>
+<p>Methods possible to overwrite, if a custom format for <code>commands.py</code> is necessary:</p>
 <ul>
 <li><code>_read_commands(device_id)</code></li>
 <li><code>_parse_commands(device_id, commands, cmds=[])</code></li>
@@ -244,7 +244,7 @@ command configuration.</p>
 <li><code>get_shng_data(data, **kwargs)</code></li>
 <li><code>get_lookup()</code></li>
 </ul>
-<p>Methods possible to overload:</p>
+<p>Methods possible to overwrite:</p>
 <ul>
 <li><code>get_send_data(data, **kwargs)</code></li>
 <li><code>get_shng_data(data, **kwargs)</code></li>
@@ -285,7 +285,7 @@ examples.</p>
 <li><code>get_send_data(data, **kwargs)</code></li>
 <li><code>get_shng_data(data, type=None, **kwargs)</code></li>
 </ul>
-<p>Methods necessary to overload:</p>
+<p>Methods necessary to overwrite:</p>
 <ul>
 <li><code>get_send_data(data, **kwargs)</code></li>
 <li><code>get_shng_data(data, type=None, **kwargs)</code></li>
@@ -564,7 +564,7 @@ Public callback methods:
 * ``on_disconnect(by=None)``
 
 
-Methods possibly needed to overload for inherited classes:
+Methods possibly needed to overwrite for inherited classes:
 
 * ``run_standalone()``
 * ``_transform_send_data(data_dict)``
@@ -614,14 +614,14 @@ Public callback methods:
 * ``on_disconnected(by=None)``
 
 
-Methods necessary to overload for derived classes:
+Methods necessary to overwrite for derived classes:
 
 * ``_open()``
 * ``_close()``
 * ``_send(data_dict)``
 
 
-Methods possible to overload for derived classes:
+Methods possible to overwrite for derived classes:
 
 * ``_send_init_on_open()``
 * ``_send_init_on_send()``
@@ -698,7 +698,7 @@ Public methods:
 * ``get_lookup(lookup)``
 
 
-Methods possible to overload, if a custom format for ``commands.py`` is necessary:
+Methods possible to overwrite, if a custom format for ``commands.py`` is necessary:
 
 * ``_read_commands(device_id)``
 * ``_parse_commands(device_id, commands, cmds=[])``
@@ -735,7 +735,7 @@ Public methods:
 * ``get_lookup()``
 
 
-Methods possible to overload:
+Methods possible to overwrite:
 
 * ``get_send_data(data, **kwargs)``
 * ``get_shng_data(data, **kwargs)``
@@ -788,7 +788,7 @@ Public methods:
 * ``get_shng_data(data, type=None, **kwargs)``
 
 
-Methods necessary to overload:
+Methods necessary to overwrite:
 
 * ``get_send_data(data, **kwargs)``
 * ``get_shng_data(data, type=None, **kwargs)``

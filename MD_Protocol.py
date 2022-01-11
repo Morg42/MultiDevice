@@ -58,7 +58,7 @@ class MD_Protocol(MD_Connection):
     This implementation can also be seen as a 'NULL' protocol, it only passes
     along everything.
 
-    By overloading this class, different protocols can be implemented independent
+    By overwriting this class, different protocols can be implemented independent
     of the device and the connection classes.
     """
 

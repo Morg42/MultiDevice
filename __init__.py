@@ -31,33 +31,36 @@ The MultiDevice-Plugin (MD)
 ===========================
 
 This plugin aims to support a wide range of devices which work by sending
-commands to a device and reading data from it.
-By abstracting devices and connections, most devices will be able to be
-interfaced by this plugin.
+commands to a device and reading data from it. By abstracting devices and
+connections, most devices will be able to be interfaced by this plugin.
 
 General description
 ===================
 
 The whole MultiDevice-plugin is organized and abstracted into multiple levels
-of (reference) base classes and derived classes handling special implementations.
+of (reference) base classes and derived classes handling special
+implementations.
 
 
-The plugin manages item association and updates. For each device it handles,
-it creates an object based on ``MD_Device`` or derived classes.
+The plugin manages item association and updates. For each device it handles, it
+creates an object based on ``MD_Device`` or derived classes.
 
-The device object handles starting and stopping the device and its configuration.
+The device object handles starting and stopping the device and its
+configuration.
 
-Possible commands are bundled by the ``MD_Commands`` class which handles loading, 
-validating and calling the separate ``MD_Command`` or derived objects. 
+Possible commands are bundled by the ``MD_Commands`` class which handles
+loading, validating and calling the separate ``MD_Command`` or derived
+objects. 
 
-Each ``MD_Command`` object handles one command and is responsible for creating  
+Each ``MD_Command`` object handles one command and is responsible for creating
 command tokens/strings to/from the real device. 
 
 Each command is assigned a data type, which is represented by a ``Datatype``-
-derived class and transforms values between the real device and the command object.
+derived class and transforms values between the real device and the command
+object.
 
 To actually talk to the real device, that is, send commands/values and receive
-replies, it uses a standardized interface via one of the ``MD_Connection`` or 
+replies, it uses a standardized interface via one of the ``MD_Connection`` or
 derived classes. 
 
 Thus, the plugin, devices and commands are ignorant of physical connection
@@ -77,8 +80,8 @@ with validity of data sent or received.
 
 (New) devices each reside in their respective subfolder of the plugin folder,
 providing a derived device class, a command definition and - if applicable -
-additional necessary datatypes. These are automatically loaded by the plugin
-if the respective device has a configuration entry in ``/etc/plugin.yaml``.
+additional necessary datatypes. These are automatically loaded by the plugin if
+the respective device has a configuration entry in ``/etc/plugin.yaml``.
 
 
 This concept is meant to
@@ -161,8 +164,14 @@ Public callback methods:
 * ``on_disconnect(by=None)``
 
 
-Methods possibly needed to overload for inherited classes:
+Methods probably necessary to overwrite:
 
+* ``_set_default_params()``
+
+
+Methods possibly needed to overwrite for inherited classes:
+
+* ``_post_init()``
 * ``run_standalone()``
 * ``_transform_send_data(data_dict)``
 * ``_send(data_dict)``
@@ -175,10 +184,10 @@ MD_Connection
 
 This class and the derived classes provide frameworks for sending and receiving
 data to and from devices via serial or network connections. For both hardware
-layers implementation of query-response-connections and listening servers
-with asynchronous push-to-callback are already available.
-If more complex communication setup is needed, this can be implemented on top
-of the existing classes.
+layers implementation of query-response-connections and listening servers with
+asynchronous push-to-callback are already available. If more complex
+communication setup is needed, this can be implemented on top of the existing
+classes.
 
 
 Data is exchanged with ``MD_Device`` in a special dict format:
@@ -211,14 +220,14 @@ Public callback methods:
 * ``on_disconnected(by=None)``
 
 
-Methods necessary to overload for derived classes:
+Methods necessary to overwrite for derived classes:
 
 * ``_open()``
 * ``_close()``
 * ``_send(data_dict)``
 
 
-Methods possible to overload for derived classes:
+Methods possible to overwrite for derived classes:
 
 * ``_send_init_on_open()``
 * ``_send_init_on_send()``
@@ -239,8 +248,8 @@ respective class definition docstring.
 MD_Protocol
 -----------
 
-For some device communication, the need arises to add another layer of
-protocol handling - either for special handshake, initialization or general
+For some device communication, the need arises to add another layer of protocol
+handling - either for special handshake, initialization or general
 communication and data handling, e.g. send queues or command tracking.
 
 In these cases, instead of misusing the (physical) connection class or the
@@ -249,13 +258,13 @@ to handle this.
 
 
 The ``MD_Protocol`` class is a subclass of ``MD_Connection`` and used by the
-device instead of the actual connection class. The protocol class creates
-the connection class instance itself and functions as a proxy.
+device instead of the actual connection class. The protocol class creates the
+connection class instance itself and functions as a proxy.
 
 To activate the protocol layer, configure the device with the ``protocol``
-option, giving the name of an existing protocol class or the empty string
-for the ``MD_Protocol`` base class, which has no additional function and can
-be used for testing.
+option, giving the name of an existing protocol class or the empty string for
+the ``MD_Protocol`` base class, which has no additional function and can be
+used for testing.
 
 .. warning::
 
@@ -275,12 +284,13 @@ This class has subclasses defined for the following types of protocols:
 MD_Commands
 -----------
 
-This class is a 'dict on steroids' of ``MD_Command``-objects with error checking as
-added value. In addition, it also loads command and lookup definitions from the file
-``commands.py`` in the device folder and datatype sets and handles datatype association.
+This class is a 'dict on steroids' of ``MD_Command``-objects with error checking
+as added value. In addition, it also loads command and lookup definitions from
+the file ``commands.py`` in the device folder and datatype sets and handles
+datatype association.
 
-No need to find out if ``command`` is defined, just call the method
-and the class will handle failure cases. Beware of NoneType-return values, though.
+No need to find out if ``command`` is defined, just call the method and the
+class will handle failure cases. Beware of NoneType-return values, though.
 
 
 ``MD_Commands(device_type, device_id, command_obj_class=MD_Command, **kwargs)``
@@ -295,7 +305,7 @@ Public methods:
 * ``get_lookup(lookup)``
 
 
-Methods possible to overload, if a custom format for ``commands.py`` is necessary:
+Methods possible to overwrite, if a custom format for ``commands.py`` is necessary:
 
 * ``_read_commands(device_id)``
 * ``_parse_commands(device_id, commands, cmds=[])``
@@ -332,7 +342,7 @@ Public methods:
 * ``get_lookup()``
 
 
-Methods possible to overload:
+Methods possible to overwrite:
 
 * ``get_send_data(data, **kwargs)``
 * ``get_shng_data(data, **kwargs)``
@@ -346,11 +356,11 @@ This class has subclasses defined for the following types of commands:
 * ``MD_Command_Jsonrpc``    for JSON-RPC 2.0 commands with multiple arguments
 * ``MD_Command_Viessmann``  for the binary Viessmann heating protocols
 
-The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for 
-defining own command classes according to your needs.
-These examples utilize strings and dicts to build request URLs as payload data
-e.g. for the ``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client``
-classes. They also demonstrate parameter substitution in command definitions on
+The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for
+defining own command classes according to your needs. These examples utilize
+strings and dicts to build request URLs as payload data e.g. for the
+``MD_Connection_Net_TCP_Request`` or ``MD_Connection_Net_Tcp_Client`` classes.
+They also demonstrate parameter substitution in command definitions on
 different levels of complexity.
 
 
@@ -385,7 +395,7 @@ Public methods:
 * ``get_shng_data(data, type=None, **kwargs)``
 
 
-Methods necessary to overload:
+Methods necessary to overwrite:
 
 * ``get_send_data(data, **kwargs)``
 * ``get_shng_data(data, type=None, **kwargs)``
@@ -432,11 +442,10 @@ from plugin configuration.
 
 
 If the additional protocol layer is necessary, usually the device class will
-provide for proper loading (it loads in place of the connection class). If
-for some reason the protocol layer should be selected and loaded manually,
-it can be forced by providing the ``protocol: <protocolname>`` attribute.
-As with the model, this attribute should normally not be present in the
-configuration.
+provide for proper loading (it loads in place of the connection class). If for
+some reason the protocol layer should be selected and loaded manually, it can
+be forced by providing the ``protocol: <protocolname>`` attribute. As with the
+model, this attribute should normally not be present in the configuration.
 
 A list of all currently supported attributes is found in the ``MD_Globals.py``
 file next to their respective identifiers.
@@ -495,9 +504,9 @@ for the needed effort to implement a new device.
 
 Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
-or requiring a more complex approach, e.g. if it is not practical to store
-all information in items immediately, or if multiple data points are trans-
-mitted at one, which requires splitting or other means of data management.
+or requiring a more complex approach, e.g. if it is not practical to store all
+information in items immediately, or if multiple data points are trans- mitted
+at one, which requires splitting or other means of data management.
 """
 
 from collections import OrderedDict
@@ -547,15 +556,15 @@ class MultiDevice(SmartPlugin):
     """ MultiDevice class provides the SmartPlugin class for SmartHomeNG
     
     This class does the actual interface work between SmartHomeNG and the device
-    classes. Mainly it parses plugin and item configuration data, sets up associations
-    between devices and items and handles data exchange between SmartHomeNG and
-    the device classes. Furthermore, it calls all devices' run() and stop() methods
-    if so instructed by SmartHomeNG.
+    classes. Mainly it parses plugin and item configuration data, sets up
+    associations between devices and items and handles data exchange between
+    SmartHomeNG and the device classes. Furthermore, it calls all devices' run
+    () and stop() methods if so instructed by SmartHomeNG.
 
     It also looks good.
     """
 
-    PLUGIN_VERSION = '0.2.0'
+    PLUGIN_VERSION = '0.3.0'
 
     def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         """
@@ -732,16 +741,12 @@ class MultiDevice(SmartPlugin):
 
     def parse_item(self, item):
         """
-        Default plugin parse_item method. Is called when the plugin is initialized.
-        The plugin can, corresponding to its attribute keywords, decide what to do with
-        the item in future, like adding it to an internal array for future reference
+        Default plugin parse_item method. Is called when the plugin is
+        initialized. The plugin can, corresponding to its attribute keywords,
+        decide what to do with the item in future, like adding it to an
+        internal array for future reference
         :param item:    The item to process.
-        :return:        If the plugin needs to be informed of an items change you should return a call back function
-                        like the function update_item down below. An example when this is needed is the knx plugin
-                        where parse_item returns the update_item function when the attribute knx_send is found.
-                        This means that when the items value is about to be updated, the call back function is called
-                        with the item, caller, source and dest as arguments and in case of the knx plugin the value
-                        can be sent to the knx with a knx write function within the knx plugin.
+        :return:        Recall function for item updates
         """
         if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
 
@@ -845,9 +850,9 @@ class MultiDevice(SmartPlugin):
         """
         Item has been updated
 
-        This method is called, if the value of an item has been updated by SmartHomeNG.
-        It should write the changed value out to the device (hardware/interface) that
-        is managed by this plugin.
+        This method is called, if the value of an item has been updated by
+        SmartHomeNG. It should write the changed value out to the device
+        (hardware/interface) that is managed by this plugin.
 
         :param item: item to be updated towards the plugin
         :param caller: if given it represents the callers name
@@ -937,6 +942,9 @@ class MultiDevice(SmartPlugin):
         :param device_id: device id (surprise!)
         :type device:name: string
         """
+        if self.alive:
+            return
+
         self.logger.debug(f'updating parameters for device {device_id}')
         device = self._get_device(device_id)
         if device:
@@ -1194,13 +1202,13 @@ if __name__ == '__main__':
     This plugin is meant to be used inside SmartHomeNG.
 
     Is is generally possible to run this plugin in standalone mode, usually for
-    diagnostic purposes - IF the specified device supports this mode.
-    As devices are modular extensions, it is not possible to print a list of supported
-    devices.
+    diagnostic purposes - IF the specified device supports this mode. As
+    devices are modular extensions, it is not possible to print a list of
+    supported devices.
 
     You need to call this plugin with the device id as the first parameter, any
-    necessary configuration options either as arg=value pairs or as a python dict
-    (this needs to be enclosed in quotes).
+    necessary configuration options either as arg=value pairs or as a python
+    dict(this needs to be enclosed in quotes). 
     Be aware that later parameters, be they dict or pair type, overwrite earlier
     parameters of the same name.
 

@@ -3,9 +3,8 @@
 ---
 
 device:
-    description: 'Pioneer AV-Receiver'
-    maintainer: OnkelAndy
-    tester: Morg
+    description: 'Example device with network connection'
+    maintainer: Morg
 
 parameters:
     host:
@@ -14,7 +13,7 @@ parameters:
 
     port:
         type: int
-        default: 8102
+        default: 9090
         description: 'Port'
 
     timeout:
@@ -36,7 +35,3 @@ parameters:
         type: int
         default: 3
         description: 'Anzahl der Verbindungsversuche'
-
-    serialport:
-        type: str
-        description: 'Serieller Port'

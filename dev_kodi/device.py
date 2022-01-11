@@ -12,46 +12,43 @@ else:
     from ..MD_Command import MD_Command_JSON
     from ..MD_Protocol import MD_Protocol_Jsonrpc
 
-import logging
-
 
 class MD_Device(MD_Device):
     """
     Device class for Kodi Mediacenter.
 
-    This is a bit more complex than e.g. the Pioneer/Denon family device classes.
+    The protocol work is a bit more complex than e.g. the Pioneer/Denon family
+    device classes, therefore we need to write some additional code for handling
+    responses. See for yourself...
 
     Complex response or notification datagrams with multiple data points can not
-    easily - and usefully - be crammed into a single item, so we need a logic to
-    separate the data points and split them into different items (better: command
-    responses). This is mostly handled in ``on_data_received()``.
+    easily - and usefully - be crammed into a single item, so we need a logic
+    to separate the data points and split them into different items (better:
+    command responses). This is mostly handled in ``on_data_received()``.
 
     Due to multiple device namespaces, some responses require us to ask for
     additional specific information from the device. This is handled by
     ``send_command()`` and ``_update_status()``.
 
-    The "special" (a.k.a. fake) commands (as they are not a single command to send
-    to the device) have to be recognized, so we also tamper with ``is_valid_command()``.
+    The "special" (a.k.a. fake) commands (as they are not a single command to
+    send to the device) have to be recognized, so we also tamper with
+    ``is_valid_command()``.
 
-    NOTE: quite some of the logic in ``on_data_received()``, especially most of the
-          code for handling notifications could be achieved by adding complex commands
-          which control the ``playpause`` and ``stop`` command; the dependent settings
-          could then be accomplished by more or less complex item and eval constructs.
+    NOTE: quite some of the logic in ``on_data_received()``, especially most of
+          the code for handling notifications could be achieved by adding complex
+          commands which control the ``playpause`` and ``stop`` command; the
+          dependent settings could then be accomplished by more or less complex
+          item and eval constructs.
 
-          As this is - foremost - a port of the kodi plugin and a demonstrator for
-          how to and how not to use the MultiDevice capabilities, I've not yet changed
-          much.
+          As this is - foremost - a port of the kodi plugin and a demonstrator
+          for how to and how not to use the MultiDevice capabilities, I've not
+          yet changed much.
 
-          Any complexity moved out of the ``device.py`` code will need to find another
-          place, in ``commands.py`` and/or the item configuration.
+          Any complexity moved out of the ``device.py`` code will need to find
+          another place, in ``commands.py`` and/or the item configuration.
     """
 
-    def __init__(self, device_type, device_id, **kwargs):
-
-        # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
-
-        # set parameter defaults
+    def _set_default_params(self):
         self._params = {'command_class': MD_Command_JSON, 
                         PLUGIN_ATTR_PROTOCOL: PROTO_JSONRPC,
                         PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,
@@ -66,26 +63,18 @@ class MD_Device(MD_Device):
                         PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect,
                         PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect}
 
-        super().__init__(device_type, device_id, **kwargs)
-
+    def _post_init(self):
         if not self.disabled:
 
             self._activeplayers = []
             self._playerid = 0
 
             # these commands are not meant to control the kodi device, but to
-            # communicate with the device class, e.g. triggering updating player
-            # info or returning the player_id.
-            # As these commands are not sent (directly) to the device, they should
-            # not be processed via the MD_Commands class and not listed in commands.py
+            # communicate with the device class, e.g. triggering updating
+            # player info or returning the player_id. As these commands are not
+            # sent (directly) to the device, they should not be processed via
+            # the MD_Commands class and not listed in commands.py
             self._special_commands = {'read': ['player'], 'write': ['update']}
-
-            # log own initialization with module (i.e. folder) name
-            self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
-
-#
-# further overloaded methods
-#
 
     def on_connect(self, by=None):
         super().on_connect(by)
@@ -399,93 +388,3 @@ class MD_Device(MD_Device):
             if self._playerid:
                 self.send_command('get_status_play', None)
                 self.send_command('get_item', None)
-
-    # def _check_commands_data(self):
-    #     """
-    #     Method checks consistency of imported commands data
-# 
-    #     This is ported directly from the old kodi plugin; to not clutter things
-    #     this method is implemented in the device class, even though it works
-    #     on the commands and should have been implemented there. But overloading
-    #     the commands class is not something (yet) planned...
-# 
-    #     :return: True if data is consistent
-    #     :rtype: bool
-    #     """
-    #     no_method = []
-    #     wrong_keys = []
-    #     unmatched = []
-    #     bounds = []
-    #     values = []
-    #     for command, cmd_obj in self._commands._commands.items():
-# 
-    #         if not cmd_obj:
-    #             print(f'no obj: {cmd_obj}')
-    #             
-    #         # verify all keys are present
-    #         if not ['method', 'set', 'get', 'params', 'values', 'bounds'].sort() == list(entry.keys()).sort():
-    #             wrong_keys.append(command)
-    #         elif not ['set', 'special'].sort() == list(entry.keys()).sort():
-    #             # check that method is not empty
-    #             if not entry['method']:
-    #                 no_method.append(command)
-    #             par = entry['params']
-    #             val = entry['values']
-    #             bnd = entry['bounds']
-    #             # params and values must be either both None or both lists of equal length
-    #             if par is None and val is not None or par is not None and val is None:
-    #                 unmatched.append(command)
-    #             elif par is not None and val is not None and len(par) != len(val):
-    #                 unmatched.append(command)
-    #             vals = 0
-    #             if val is not None:
-    #                 # check that max. one 'VAL' entry is present
-    #                 for item in val:
-    #                     if item == 'VAL':
-    #                         vals += 1
-    #                 if vals > 1:
-    #                     values.append(command)
-    #             # check that bounds are None or list or (tuple and len(bounds)=2)
-    #             if bnd is not None and \
-    #                not isinstance(bnd, list) and \
-    #                (not (isinstance(bnd, tuple) and len(bnd) == 2)):
-    #                 bounds.append(command)
-    #             # check that bounds are only defined if 'VAL' is present
-    #             if vals == 0 and bnd is not None:
-    #                 bounds.append(command)
-# 
-    #     # found any errors?
-    #     if len(no_method + wrong_keys + unmatched + bounds + values) > 0:
-    #         if len(wrong_keys) > 0:
-    #             self.logger.error('Commands data not consistent: commands "' + '", "'.join(wrong_keys) + '" have wrong keys')
-    #         if len(no_method) > 0:
-    #             self.logger.error('Commands data not consistent: commands "' + '", "'.join(no_method) + '" have no method')
-    #         if len(unmatched) > 0:
-    #             self.logger.error('Commands data not consistent: commands "' + '", "'.join(unmatched) + '" have unmatched params/values')
-    #         if len(bounds) > 0:
-    #             self.logger.error('Commands data not consistent: commands "' + '", "'.join(bounds) + '" have erroneous bounds')
-    #         if len(values) > 0:
-    #             self.logger.error('Commands data not consistent: commands "' + '", "'.join(values) + '" have more than one "VAL" field')
-# 
-    #         return False
-# 
-    #     macros = []
-    #     for macro, entry in commands.macros.items():
-    #         if not isinstance(entry, list):
-    #             macros.append(macro)
-    #         else:
-    #             for step in entry:
-    #                 if not isinstance(step, list) or len(step) != 2:
-    #                     macros.append(macro)
-# 
-    #     if len(macros) > 0:
-    #         self.logger.error('Macro data not consistent for macros "' + '", "'.join(macros) + '"')
-    #         # errors in macro definition don't hinder normal plugin functionality, so just
-    #         # refill self._MACRO omitting erroneous entries. With bad luck, _MACRO is empty ;)
-    #         self._MACRO = {}
-    #         for command, entry in command.macros:
-    #             if command not in macros:
-    #                 self._MACRO[command] = entry
-# 
-    #     return True
-

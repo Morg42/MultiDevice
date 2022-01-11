@@ -10,8 +10,6 @@ else:
     from ..MD_Device import MD_Device
     from ..MD_Command import MD_Command_Str
 
-import logging
-
 
 class MD_Device(MD_Device):
     """ Example class for TCP request connections.
@@ -22,17 +20,9 @@ class MD_Device(MD_Device):
     See ``commands.py`` for command usage.
     """
 
-    def __init__(self, device_type, device_id, **kwargs):
-
-        # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
+    def _set_default_params(self):
 
         # set parameter defaults
         # TODO: adapt these to actual requirements!
         self._params = {'command_class': MD_Command_Str,            # remember to import the needed class!
                         PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_REQ}    # check MD_Globals.py for constants
-
-        super().__init__(device_type, device_id, **kwargs)
-
-        # log own initialization with module (i.e. folder) name
-        self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')

@@ -103,7 +103,7 @@ class MD_Connection(object):
 
         # set default parameters for the connection
         # as this base connection has no connection, we need no further parameters
-        # when overloading, add defaults as needed
+        # when overwriting, add defaults as needed
         self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
@@ -115,7 +115,7 @@ class MD_Connection(object):
         self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
 
     def open(self):
-        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
         self.logger.debug(&#39;open method called for connection&#39;)
         if self._open():
             self._is_connected = True
@@ -124,7 +124,7 @@ class MD_Connection(object):
         return self._is_connected        
 
     def close(self):
-        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
         self.logger.debug(&#39;close method called for connection&#39;)
         self._close()
         self._is_connected = False
@@ -181,13 +181,13 @@ class MD_Connection(object):
 
     #
     #
-    # overloading needed for at least some of the following methods...
+    # overwriting needed for at least some of the following methods...
     #
     #
 
     def _open(self):
         &#34;&#34;&#34;
-        Overload with opening of connection
+        overwrite with opening of connection
 
         :return: True if successful
         :rtype: bool
@@ -197,13 +197,13 @@ class MD_Connection(object):
 
     def _close(self):
         &#34;&#34;&#34;
-        Overload with closing of connection
+        overwrite with closing of connection
         &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating closing connection as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
-        Overload with sending of data and - possibly - returning response data
+        overwrite with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
         &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating to send data {data_dict}...&#39;)
@@ -211,10 +211,10 @@ class MD_Connection(object):
 
     def _send_init_on_open(self):
         &#34;&#34;&#34;
-        This class can be overloaded if anything special is needed to make the
+        This class can be overwritten if anything special is needed to make the
         other side talk after opening the connection... ;)
 
-        Using class properties instead of arguments makes overloading easy.
+        Using class properties instead of arguments makes overwriting easy.
 
         It is routinely called by self.open()
         &#34;&#34;&#34;
@@ -222,7 +222,7 @@ class MD_Connection(object):
 
     def _send_init_on_send(self):
         &#34;&#34;&#34;
-        This class can be overloaded if anything special is needed to make the
+        This class can be overwritten if anything special is needed to make the
         other side talk before sending commands... ;)
 
         Cancel sending if it returns False...
@@ -240,7 +240,7 @@ class MD_Connection(object):
     def _set_connection_params(self):
         &#34;&#34;&#34;
         Try to set some of the common parameters.
-        Might need to be overloaded...
+        Might need to be overwritten...
         &#34;&#34;&#34;
         for arg in PLUGIN_ATTRS:
             if arg in self._params:
@@ -701,7 +701,7 @@ is something to implement in the interface-specific derived classes.</p>
 
         # set default parameters for the connection
         # as this base connection has no connection, we need no further parameters
-        # when overloading, add defaults as needed
+        # when overwriting, add defaults as needed
         self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
@@ -713,7 +713,7 @@ is something to implement in the interface-specific derived classes.</p>
         self.logger.debug(f&#39;connection initialized from {self.__class__.__name__}&#39;)
 
     def open(self):
-        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
         self.logger.debug(&#39;open method called for connection&#39;)
         if self._open():
             self._is_connected = True
@@ -722,7 +722,7 @@ is something to implement in the interface-specific derived classes.</p>
         return self._is_connected        
 
     def close(self):
-        &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
+        &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
         self.logger.debug(&#39;close method called for connection&#39;)
         self._close()
         self._is_connected = False
@@ -779,13 +779,13 @@ is something to implement in the interface-specific derived classes.</p>
 
     #
     #
-    # overloading needed for at least some of the following methods...
+    # overwriting needed for at least some of the following methods...
     #
     #
 
     def _open(self):
         &#34;&#34;&#34;
-        Overload with opening of connection
+        overwrite with opening of connection
 
         :return: True if successful
         :rtype: bool
@@ -795,13 +795,13 @@ is something to implement in the interface-specific derived classes.</p>
 
     def _close(self):
         &#34;&#34;&#34;
-        Overload with closing of connection
+        overwrite with closing of connection
         &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating closing connection as {__name__} with params {self._params}&#39;)
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
-        Overload with sending of data and - possibly - returning response data
+        overwrite with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
         &#34;&#34;&#34;
         self.logger.debug(f&#39;simulating to send data {data_dict}...&#39;)
@@ -809,10 +809,10 @@ is something to implement in the interface-specific derived classes.</p>
 
     def _send_init_on_open(self):
         &#34;&#34;&#34;
-        This class can be overloaded if anything special is needed to make the
+        This class can be overwritten if anything special is needed to make the
         other side talk after opening the connection... ;)
 
-        Using class properties instead of arguments makes overloading easy.
+        Using class properties instead of arguments makes overwriting easy.
 
         It is routinely called by self.open()
         &#34;&#34;&#34;
@@ -820,7 +820,7 @@ is something to implement in the interface-specific derived classes.</p>
 
     def _send_init_on_send(self):
         &#34;&#34;&#34;
-        This class can be overloaded if anything special is needed to make the
+        This class can be overwritten if anything special is needed to make the
         other side talk before sending commands... ;)
 
         Cancel sending if it returns False...
@@ -838,7 +838,7 @@ is something to implement in the interface-specific derived classes.</p>
     def _set_connection_params(self):
         &#34;&#34;&#34;
         Try to set some of the common parameters.
-        Might need to be overloaded...
+        Might need to be overwritten...
         &#34;&#34;&#34;
         for arg in PLUGIN_ATTRS:
             if arg in self._params:
@@ -862,13 +862,13 @@ is something to implement in the interface-specific derived classes.</p>
 <span>def <span class="ident">close</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>wrapper method provides stable interface and allows overloading</p></div>
+<div class="desc"><p>wrapper method provides stable interface and allows overwriting</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def close(self):
-    &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
+    &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
     self.logger.debug(&#39;close method called for connection&#39;)
     self._close()
     self._is_connected = False</code></pre>
@@ -943,13 +943,13 @@ is something to implement in the interface-specific derived classes.</p>
 <span>def <span class="ident">open</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>wrapper method provides stable interface and allows overloading</p></div>
+<div class="desc"><p>wrapper method provides stable interface and allows overwriting</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def open(self):
-    &#34;&#34;&#34; wrapper method provides stable interface and allows overloading &#34;&#34;&#34;
+    &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
     self.logger.debug(&#39;open method called for connection&#39;)
     if self._open():
         self._is_connected = True

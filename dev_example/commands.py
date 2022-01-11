@@ -73,7 +73,7 @@ commands = {
     }
 }
 
-""" nested command definitions
+""" commands: nested definitions
 
 If many commands are present, it might be beneficial to create a hierarchical
 structure via nested dicts. This is simple as nesting can - more or less - be
@@ -101,7 +101,7 @@ commands = {
     }
 }
 
-""" model-specific commands definitions
+""" commands: model-specific definitions
 
 The following commands example is for a scenario where different models are
 configured and have overlapping command definitions with different contents.
@@ -143,29 +143,28 @@ commands = {
     }
 }
 
-"""
-    (optional) model specifications for dev example
+""" model: (optional) specifications for dev example
 
-    Different models of a type (eg. different heating models of the same manufacturer
-    or different AV receivers of the same series) might require different command
-    sets.
+Different models of a type (eg. different heating models of the same manufacturer
+or different AV receivers of the same series) might require different command
+sets.
 
-    This - optional - dict allows to specify sets of commands which are supported
-    by different models. The keys are the model names and the values are lists of
-    all commands supported by the respective model. Commands listed under the
-    special - optional - key `ALL` are added to all models.
+This - optional - dict allows to specify sets of commands which are supported
+by different models. The keys are the model names and the values are lists of
+all commands supported by the respective model. Commands listed under the
+special - optional - key `ALL` are added to all models.
 
-    If the device is configured without a model name, all commands will be available.
-    If the device is configured with a model name not listed here (but the ``models``
-    dict is present), the device will not load.
-    If the device is configured with a model name, but the ``models`` dict is not
-    present, the device will have all commands available.
+If the device is configured without a model name, all commands will be available.
+If the device is configured with a model name not listed here (but the ``models``
+dict is present), the device will not load.
+If the device is configured with a model name, but the ``models`` dict is not
+present, the device will have all commands available.
 
-    If the second variant (see example 3 above) of defining commands is chosen,
-    this dict will be ignored.
+If the second variant (see example 3 above) of defining commands is chosen,
+this dict will be ignored.
 
-    Hint: as this example only defines one command, the following example is purely
-          fictional...
+Hint: as this example only defines one command, the following example is purely
+      fictional...
 """
 
 models = {
@@ -176,23 +175,22 @@ models = {
 }
 
 
-"""
-    (optional) definition of lookup tables (see commands table)
+""" lookup: (optional) definition of lookup tables (see commands table)
 
-    Each table is a plain dict containing device values as keys and corresponding
-    SmartHomeNG item values as values. Lookup tables are used both for forward
-    (device -> shng) and reverse (shng -> device) lookups. By default, reverse
-    lookups are case insensitive to allow for typos.
+Each table is a plain dict containing device values as keys and corresponding
+SmartHomeNG item values as values. Lookup tables are used both for forward
+(device -> shng) and reverse (shng -> device) lookups. By default, reverse
+lookups are case insensitive to allow for typos.
 
-    The lookups dict can have two forms:
+The lookups dict can have two forms:
 
-    a) without the ability to contain model specific data
-    b) with the ability to contain model specific data
+a) without the ability to contain model specific data
+b) with the ability to contain model specific data
 
-    Case a) is the easier one: each key is a lookup table name and each value is
-    a plain dict with ``<device value>: <shng item value>`` dict entries.
+Case a) is the easier one: each key is a lookup table name and each value is
+a plain dict with ``<device value>: <shng item value>`` dict entries.
 
-    Example:
+Example:
 """
 
 lookups = {
@@ -208,21 +206,21 @@ lookups = {
     }
 }
 
-"""
-    Case b) is basically the same, but with an additional first level inserted.
-    The first level MUST contain a key named 'ALL' (duh), which specifies
-    "generic" lookup tables valid for all models. The value to this key is a dict
-    like the one in case a).
-    The first level CAN (and should, why would you do it otherwise?) have
-    additional entries named for the supported models. Its value again is a dict
-    like the one in case a). These entries are ADDED to the generic entries,
-    while tables existent in both are taken from the model-specific dict.
+""" lookup: (optional) model-specific lookup tables
+Case b) is basically the same, but with an additional first level inserted.
+The first level MUST contain a key named 'ALL' (duh), which specifies
+"generic" lookup tables valid for all models. The value to this key is a dict
+like the one in case a).
+The first level CAN (and should, why would you do it otherwise?) have
+additional entries named for the supported models. Its value again is a dict
+like the one in case a). These entries are ADDED to the generic entries,
+while tables existent in both are taken from the model-specific dict.
 
-    In the following example, all models will use ``table1`` and ``table2``;
-    both model1 and model2 will have the additional ``table3``, while only
-    model1 has a modified ``table1``.
+In the following example, all models will use ``table1`` and ``table2``;
+both model1 and model2 will have the additional ``table3``, while only
+model1 has a modified ``table1``.
 
-    Example:
+Example:
 """
 
 lookups = {
@@ -259,4 +257,24 @@ lookups = {
             3.14: 'pi'
         }
     }
+}
+
+""" structs: (optional) structs applicability for models
+
+If the device supports models and provides structs, it may be that not
+all struct apply to the specific device; e.g. a low-end AV receiver may
+not have a second or third audio zone.
+
+With this struct, you can define which structs apply to all devices and
+which only to some devices. The syntax is identical to the ``models`` dict.
+
+Even though the structs will be named multidevice.<device_id>.<struct_name>
+in the item config, you must use the names from the ``structs.yaml`` file only.
+"""
+
+structs = {
+    'ALL': ['general', 'control'],
+    'model1': ['zone1'],
+    'model2': ['zone1', 'zone2'],
+    'model3': ['zone1', 'zone2', 'zone3', 'zonetwilight']
 }

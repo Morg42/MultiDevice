@@ -11,8 +11,6 @@ else:
     from ..MD_Device import MD_Device
     from ..MD_Command import MD_Command_ParseStr
 
-import logging
-
 
 class MD_Device(MD_Device):
     """ Device class for Pioneer AV function.
@@ -24,11 +22,7 @@ class MD_Device(MD_Device):
     The know-how is in the commands.py (and some DT_ classes...)
     """
 
-    def __init__(self, device_type, device_id, **kwargs):
-
-        # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
-
+    def _set_default_params(self):
         # set parameter defaults
         self._params = {'command_class': MD_Command_ParseStr, 
                         PLUGIN_ATTR_NET_HOST: '', 
@@ -45,11 +39,6 @@ class MD_Device(MD_Device):
             self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
         elif PLUGIN_ATTR_SERIAL_PORT in kwargs and kwargs[PLUGIN_ATTR_SERIAL_PORT]:
             self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_DIR
-
-        super().__init__(device_type, device_id, **kwargs)
-
-        # log own initialization with module (i.e. folder) name
-        self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
 
     def _transform_send_data(self, data=None):
         if data:

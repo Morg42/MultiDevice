@@ -53,22 +53,22 @@ class Datatype(object):
 
     New devices probably create the need for new data types.
 
-    For details concerning API and implementation, refer to the reference classes as
-    examples.
+    For details concerning API and implementation, refer to the reference
+    classes as examples.
 
     As nearly all return values are possible, error handling cannot be done via
     return code. In consequence, errors are transmitted via exceptions, either
-    explicitly or by just letting it happen (e.g. int('abc') -> ValueError)
-    The whole data type conversion is enclosed in try/except higher up.
-    Keep it simple here :)
+    explicitly or by just letting it happen (e.g. int('abc') -> ValueError) The
+    whole data type conversion is enclosed in try/except higher up. Keep it
+    simple here :)
 
     This class describes the basic structure of all derived datatype classes.
 
     Basically, it defines the conversion from item value to device "value" and
-    vice versa, e.g. bool <-> text, float <-> encoded number, or 
-    str <-> int for clear text status messages in SmartHomeNG.
+    vice versa, e.g. bool <-> text, float <-> encoded number, or str <-> int
+    for clear text status messages in SmartHomeNG.
 
-    To define own Datatype classes, define derived class and overload at least
+    To define own Datatype classes, define derived class and overwrite at least
     get_shng_data() and/or get_send_data().
     """
     def __init__(self, fail_silent=True):

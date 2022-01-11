@@ -97,7 +97,7 @@ class MD_Device(object):
         This initializes the class object.
 
         As additional device classes are expected to be implemented as subclasses,
-        most initialization steps are modularized as methods which can be overloaded
+        most initialization steps are modularized as methods which can be overwritten
         as needed.
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn&#39;t need to be changed.
@@ -353,7 +353,7 @@ class MD_Device(object):
         &#34;&#34;&#34;
         Updates / changes configuration parametes for device. Needs device to not be running
 
-        overload as needed.
+        overwrite as needed.
         &#34;&#34;&#34;
         if self.alive:
             self.logger.warning(f&#39;tried to update params with {kwargs}, but device is still running. Ignoring request&#39;)
@@ -381,7 +381,7 @@ class MD_Device(object):
 
     #
     #
-    # check if overloading needed
+    # check if overwriting needed
     #
     #
 
@@ -412,7 +412,7 @@ class MD_Device(object):
         &#34;&#34;&#34;
         This method parses self._params for parameters it needs itself and does the
         necessary initialization.
-        Needs to be overloaded for maximum effect...
+        Needs to be overwritten for maximum effect...
         &#34;&#34;&#34;
         pass
 
@@ -640,7 +640,7 @@ class MD_Device(object):
         &#34;&#34;&#34;
         This initiates reading of configuration.
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
-        this can be overloaded to do something else.
+        this can be overwritten to do something else.
         &#34;&#34;&#34;
         cls = self._command_class
         if cls is None:
@@ -675,7 +675,7 @@ of the format see <code>dev_example/commands.py</code>)</p>
 :type device_id: str</p>
 <p>This initializes the class object.</p>
 <p>As additional device classes are expected to be implemented as subclasses,
-most initialization steps are modularized as methods which can be overloaded
+most initialization steps are modularized as methods which can be overwritten
 as needed.
 As all pre-implemented methods are called in hopefully-logical sequence,
 this <strong>init</strong> probably doesn't need to be changed.</p></div>
@@ -704,7 +704,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         This initializes the class object.
 
         As additional device classes are expected to be implemented as subclasses,
-        most initialization steps are modularized as methods which can be overloaded
+        most initialization steps are modularized as methods which can be overwritten
         as needed.
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn&#39;t need to be changed.
@@ -960,7 +960,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34;
         Updates / changes configuration parametes for device. Needs device to not be running
 
-        overload as needed.
+        overwrite as needed.
         &#34;&#34;&#34;
         if self.alive:
             self.logger.warning(f&#39;tried to update params with {kwargs}, but device is still running. Ignoring request&#39;)
@@ -988,7 +988,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
     #
     #
-    # check if overloading needed
+    # check if overwriting needed
     #
     #
 
@@ -1019,7 +1019,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34;
         This method parses self._params for parameters it needs itself and does the
         necessary initialization.
-        Needs to be overloaded for maximum effect...
+        Needs to be overwritten for maximum effect...
         &#34;&#34;&#34;
         pass
 
@@ -1247,7 +1247,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34;
         This initiates reading of configuration.
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
-        this can be overloaded to do something else.
+        this can be overwritten to do something else.
         &#34;&#34;&#34;
         cls = self._command_class
         if cls is None:
@@ -1567,7 +1567,7 @@ from the device and writing it to the associated item.</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Updates / changes configuration parametes for device. Needs device to not be running</p>
-<p>overload as needed.</p></div>
+<p>overwrite as needed.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1576,7 +1576,7 @@ from the device and writing it to the associated item.</p>
     &#34;&#34;&#34;
     Updates / changes configuration parametes for device. Needs device to not be running
 
-    overload as needed.
+    overwrite as needed.
     &#34;&#34;&#34;
     if self.alive:
         self.logger.warning(f&#39;tried to update params with {kwargs}, but device is still running. Ignoring request&#39;)

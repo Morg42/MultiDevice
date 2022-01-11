@@ -166,7 +166,7 @@ class MD_Command(object):
 
         non-compliance will raise ValueError
 
-        This can be overloaded; make sure to call
+        This can be overwritten; make sure to call
         data = super()._check_value(data)
         to run this code in addition to your own extension, if applicable.
         Take care of the sequence of changing data, though...

@@ -14,7 +14,8 @@ Notwendige Software
 Unterstützte Geräte
 ~~~~~~~~~~~~~~~~~~~
 
-Alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden implementiert. Derzeit sind dies:
+Alle Geräte, für die jemand die Konfiguration und ggf. notwendige Methoden
+implementiert. Derzeit sind dies:
 
 * Pioneer AV-Receiver (pioneer)
 
@@ -52,26 +53,25 @@ plugin.yaml
 
 Liste von Geräten und ggf. deren Konfiguration. 
 
-Geräte-ID ist eine
-eindeutige Kennzeichnung, die auch in der Item-Konfiguration in der
-Option ``md_device`` angegeben wird; Geräte-Typ ist der Name des
-Gerätes im Ordner ``dev_<Geräte-Typ>``. 
+Geräte-ID ist eine eindeutige Kennzeichnung, die auch in der Item-Konfiguration
+in der Option ``md_device`` angegeben wird; Geräte-Typ ist der Name des Gerätes
+im Ordner ``dev_<Geräte-Typ>``. 
 
-Mindestangabe ist
-der Geräte-Typ; wenn keine Geräte-ID vergeben wird, ist diese
+Mindestangabe ist der Geräte-Typ; wenn keine Geräte-ID vergeben wird, ist diese
 gleich dem Geräte-Typ (beachte: pro Geräte-Typ nur einmal möglich).
 
-Unterhalb der Listenebene der Geräte sind weitere Konfigurations-
-attribute für die Geräte in der Listenform <Attribut>: <Wert>
-möglich, z.B. Verbindungsattribute wie `host`, `port`, `serial` o.ä.
+Unterhalb der Listenebene der Geräte sind weitere Konfigurations- attribute für
+die Geräte in der Listenform <Attribut>: <Wert> möglich, z.B.
+Verbindungsattribute wie `host`, `port`, `serial` o.ä.
 
-Eine Auflistung der grundsätzlich unterstützten Attribute findet sich
-in der Datei ``MD_Globals.py``. Dort finden sich auch symbolische
-Bezeichner ("Konstanten") für einige der Attribute. Diese können in 
-der Konfiguration für bessere Übersichtlichkeit verwendet werden.
+Eine Auflistung der grundsätzlich unterstützten Attribute findet sich in der
+Datei ``MD_Globals.py``. Dort finden sich auch symbolische Bezeichner
+("Konstanten") für einige der Attribute. Diese können in der Konfiguration für
+bessere Übersichtlichkeit verwendet werden.
 
-Für die Konfiguration der einzelnen Geräte sollte sich die Dokumentation der jeweils
-notwendigen und unterstützen Attribute im Geräte-Ordner ``dev_<device>`` finden.
+Für die Konfiguration der einzelnen Geräte sollte sich die Dokumentation der
+jeweils notwendigen und unterstützen Attribute im Geräte-Ordner
+``dev_<device>`` finden.
 
 Beispiel:
 

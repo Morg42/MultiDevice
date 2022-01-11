@@ -76,7 +76,7 @@ class MD_Connection(object):
 
         # set default parameters for the connection
         # as this base connection has no connection, we need no further parameters
-        # when overloading, add defaults as needed
+        # when overwriting, add defaults as needed
         self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
@@ -88,7 +88,7 @@ class MD_Connection(object):
         self.logger.debug(f'connection initialized from {self.__class__.__name__}')
 
     def open(self):
-        """ wrapper method provides stable interface and allows overloading """
+        """ wrapper method provides stable interface and allows overwriting """
         self.logger.debug('open method called for connection')
         if self._open():
             self._is_connected = True
@@ -97,7 +97,7 @@ class MD_Connection(object):
         return self._is_connected        
 
     def close(self):
-        """ wrapper method provides stable interface and allows overloading """
+        """ wrapper method provides stable interface and allows overwriting """
         self.logger.debug('close method called for connection')
         self._close()
         self._is_connected = False
@@ -154,13 +154,13 @@ class MD_Connection(object):
 
     #
     #
-    # overloading needed for at least some of the following methods...
+    # overwriting needed for at least some of the following methods...
     #
     #
 
     def _open(self):
         """
-        Overload with opening of connection
+        overwrite with opening of connection
 
         :return: True if successful
         :rtype: bool
@@ -170,13 +170,13 @@ class MD_Connection(object):
 
     def _close(self):
         """
-        Overload with closing of connection
+        overwrite with closing of connection
         """
         self.logger.debug(f'simulating closing connection as {__name__} with params {self._params}')
 
     def _send(self, data_dict):
         """
-        Overload with sending of data and - possibly - returning response data
+        overwrite with sending of data and - possibly - returning response data
         Return None if no response is received or expected.
         """
         self.logger.debug(f'simulating to send data {data_dict}...')
@@ -184,10 +184,10 @@ class MD_Connection(object):
 
     def _send_init_on_open(self):
         """
-        This class can be overloaded if anything special is needed to make the
+        This class can be overwritten if anything special is needed to make the
         other side talk after opening the connection... ;)
 
-        Using class properties instead of arguments makes overloading easy.
+        Using class properties instead of arguments makes overwriting easy.
 
         It is routinely called by self.open()
         """
@@ -195,7 +195,7 @@ class MD_Connection(object):
 
     def _send_init_on_send(self):
         """
-        This class can be overloaded if anything special is needed to make the
+        This class can be overwritten if anything special is needed to make the
         other side talk before sending commands... ;)
 
         Cancel sending if it returns False...
@@ -213,7 +213,7 @@ class MD_Connection(object):
     def _set_connection_params(self):
         """
         Try to set some of the common parameters.
-        Might need to be overloaded...
+        Might need to be overwritten...
         """
         for arg in PLUGIN_ATTRS:
             if arg in self._params:

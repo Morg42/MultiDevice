@@ -13,24 +13,23 @@ else:
     from ..MD_Command import MD_Command_Viessmann
     from ..MD_Protocol import MD_Protocol_Viessmann
 
-import logging
-
 
 class MD_Device(MD_Device):
-    """ Device class for Viessmann heating systems. """
+    """ Device class for Viessmann heating systems. 
 
-    def __init__(self, device_type, device_id, **kwargs):
-        # get MultiDevice.device logger
-        self.logger = logging.getLogger('.'.join(__name__.split('.')[:-2]) + f'.{device_id}')
+    Standalone mode is automatic device type discovery
+    """
 
+    def _set_default_params(self):
         # set parameter defaults
+        # Note: connection defaults are fixed for Viessmann heating devices
+        #       and set by the protocol class
         self._params = {'command_class': MD_Command_Viessmann, 
                         PLUGIN_ATTR_PROTOCOL: PROTO_VIESSMANN}
 
-        super().__init__(device_type, device_id, **kwargs)
-
-        # log own initialization with module (i.e. folder) name
-        self.logger.debug(f'device initialized from {__spec__.name} with arguments {kwargs}')
+#
+# methods for standalone mode
+#
 
     def run_standalone(self):
         """

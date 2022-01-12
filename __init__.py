@@ -520,6 +520,7 @@ import cherrypy
 import json
 from copy import deepcopy
 from ast import literal_eval
+from pprint import pprint as pp
 
 __pdoc__ = {"multidevice.tools": False}
 
@@ -614,6 +615,7 @@ class MultiDevice(SmartPlugin):
         #             - host: somehost
         #         - dev4:                     # -> case 4, id = dev4, type = dev4, folder = dev_dev4
         #             - host: someotherhost   #    handled implicitly by case 3
+
         for device in devices:
             param = {}
             if MD_standalone:
@@ -1220,14 +1222,13 @@ class WebInterface(SmartPluginWebIf):
 #
 #############################################################################################################################################################################################################################################
 
-def log(x):
-    print(x)
+read_group_triggers = {}
 
 
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     """ read commands.py and export struct.yaml """
 
-    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models):
+    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models, func_first=True):
         """ traverses a nested dict
 
         :param node: starting node
@@ -1238,7 +1239,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         :param indent: indent level (indent is INDENT ** indent)
         :param gpath: path of "current" (next above) read group
         :param gpathlist: list of all current (above) read groups
-        :param has_models: True is command dict has models ('ALL') -> then include top level = model name in read groups
+        :param has_models: True is command dict has models ('ALL') -> then include top level = model name in read groups and in command paths
+        :param func_first: True if "first work, then walk", False if "first walk, then work"
         :type node: dict
         :type node_name: str
         :type parent: dict
@@ -1248,17 +1250,31 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         :type gpath: str
         :type gpathlist: list
         :type has_models: bool
+        :type func_first: bool
         """
 
-        # first call func -> print current node before descending
-        if func is not None:
+        if func and func_first:
+            # first call func -> print current node before descending
             func(node, node_name, parent, path, indent, gpath, gpathlist)
 
         # iterate over all children who are dicts
         for child in list(k for k in node.keys() if isinstance(node[k], dict)):
 
-            # and recursively walk them. path and gpathlist is a bit messy...
-            walk(node[child], child, node, func, (path if path else ('' if has_models else node_name)) + ('.' if path or not has_models else '') + child, indent + 1, path, gpathlist + ([path] if path else []), has_models)
+            # (path if path else ('' if has_models else node_name)) + ('.' if path or not has_models else '') + child
+            if path:
+                new_path = path + '.'
+            elif not has_models:
+                new_path = node_name + '.'
+            else:
+                new_path = ''
+            new_path += child
+
+            # and recursively walk them
+            walk(node[child], child, node, func, new_path, indent + 1, path, gpathlist + ([path] if path else []), has_models, func_first)
+
+        if func and not func_first:
+            # last call func -> process current node after descending
+            func(node, node_name, parent, path, indent, gpath, gpathlist)
 
     def print_item(node, node_name, parent, path, indent, gpath, gpathlist):
         """ print item or read item for current node/command
@@ -1280,7 +1296,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                     p_text(f'{key}: {node[val]}', add)
 
         # skip known command sub-dict nodes, but include command nodes
-        if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS) or CMD_ATTR_ITEM_TYPE in node:
+        if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) or CMD_ATTR_ITEM_TYPE in node:
 
             # item / level definition
             print(INDENT * indent + node_name + ':')
@@ -1322,12 +1338,12 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
                 # custom item attributes: copy 1:1
                 # catch TypeError if 'attributes' is not defined
-                if inode:
+                if inode and inode.get(CMD_IATTR_ATTRIBUTES):
                     for key in inode[CMD_IATTR_ATTRIBUTES]:
-                        if isinstance(node[CMD_IATTR_ATTRIBUTES], bool):
-                            p_text(f'{key}: {str(node[CMD_IATTR_ATTRIBUTES][key]).lower()}')
+                        if isinstance(inode[CMD_IATTR_ATTRIBUTES][key], bool):
+                            p_text(f'{key}: {str(inode[CMD_IATTR_ATTRIBUTES][key]).lower()}')
                         else:
-                            p_text(f'{key}: {node[CMD_IATTR_ATTRIBUTES][key]}')
+                            p_text(f'{key}: {inode[CMD_IATTR_ATTRIBUTES][key]}')
 
                 print()
 
@@ -1344,7 +1360,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                     print()
 
             # "level node" -> print read item
-            elif node_name not in ('settings', 'params', 'param_values'):
+            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
                 print()
                 p_text('read:')
                 p_text('type: bool', 1)
@@ -1362,6 +1378,14 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                     pass
                 print()
 
+    def removeItemsUndefCmd(node, node_name, parent, path, indent, gpath, gpathlist):
+        if CMD_ATTR_ITEM_TYPE in node and path not in cmdlist:
+            del parent[node_name]
+
+    def removeEmptyItems(node, node_name, parent, path, indent, gpath, gpathlist):
+        if len(node) == 0:
+            del parent[node_name]
+
     INDENT = ' ' * indentwidth
     MODELINE = f'# vim: expandtab:ts={indentwidth}:sw={indentwidth}'
 
@@ -1373,7 +1397,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
     commands = cmd_module.commands
     top_level_entries = list(commands.keys())
-    log(top_level_entries)
 
     old_stdout = sys.stdout
     err = None
@@ -1392,61 +1415,56 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         cmds_has_models = INDEX_GENERIC in top_level_entries
 
         if cmds_has_models:
-            log('cmds has models')
 
-            # create obj for model <device> consisting of all tle
+            for model in top_level_entries:
 
-            # process obj
+                m_commands = {}
+                m_commands.update(commands.get(INDEX_GENERIC, {}))
+                m_commands.update(commands.get(model))
 
-            for entry in top_level_entries:
                 # create obj for entry
+                obj = {model: {key: m_commands[key] for key in m_commands.keys()}}
 
-                # process obj
-                pass
+                # output obj
+                walk(obj[model], model, commands, print_item, '', 0, model, [model], True)
+
         else:
-            log('cmds no has models')
 
-            # read models
-            cmd_models = top_level_entries
+            # create flat commands for comparison
             flat_commands = deepcopy(commands)
             MD_Commands._flatten_cmds(None, flat_commands)
 
-            for model in cmd_models:
+            # output sections
+            for section in top_level_entries:
+                obj = {section: commands[section]}
+                walk(obj[section], section, commands, print_item, '', 0, section, [section], cmds_has_models)
 
-                log(f'model {model}')
+            # get model definitions
+            # if not present, fake it to include all sections
+            models = getattr(cmd_module, 'models', [])
+            if not models:
+                models = {'ALL': list(commands.keys())}
+
+            for model in models:
+
                 # create list of valid commands
-                cmdlist = []
-                models = getattr(cmd_module, 'models')
-                if not models:
-                    cmdlist = list(commands[model].keys())
-                else:
-                    cmdlist = models.get(model, [])
-                    if model != INDEX_GENERIC:
-                        cmdlist += models.get(INDEX_GENERIC, [])
-
-                    # make usable copy of commands
-                    cmdlist = MD_Commands._get_cmdlist(None, flat_commands, cmdlist)
-                    log(cmdlist)
+                cmdlist = models[model]
+                if model != INDEX_GENERIC:
+                    cmdlist += models.get(INDEX_GENERIC, [])
+                cmdlist = MD_Commands._get_cmdlist(None, flat_commands, cmdlist)
 
                 # create obj for model m, include m['ALL']
-                # obj = {model: comm}
+                obj = {model: deepcopy(commands)}
 
-                # process obj
-                read_group_triggers = {}
-                pass
+                # remove all items with model-invalid 'md_command' attribute obj
+                walk(obj[model], model, obj, removeItemsUndefCmd, '', 0, model, [model], True, False)
 
-        # for entry in top_level_entries:
-        #     read_group_triggers = {}
-# 
-        #     # get dict as ref
-        #     c = {entry: commands[entry]}
-# 
-        #     # add in 'ALL' commands if present
-        #     # each key is only visited once, so we can risk changing the `commands` dict
-        #     c[entry].update(commands.get(INDEX_GENERIC, {}))
-# 
-        #     # traverse from root node
-        #     walk(c[entry], entry, commands, print_item, '', 0, entry, [entry], has_models)
+                # remove all empty items from obj
+                walk(obj[model], model, obj, removeEmptyItems, '', 0, model, [model], True, False)
+
+                # output obj
+                walk(obj[model], model, commands, print_item, '', 0, model, [model], True)
+
     except OSError as e:
         err = f'Error: file {file} could not be opened. Original error: {e}'
     except Exception as e:
@@ -1458,16 +1476,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         print(err)
     elif write_output:
         print(f'Created file {file}')
-
-    # this makes no sense, as nesting structs is only possible on the top level
-    # means - all structs are pulled into the same item, eliminating the structure
-    #
-    # # if no models, make "all inclusive" struct
-    # if not has_models:
-    #     print('all:')
-    #     print(f'{INDENT}struct:')
-    #     for node in commands.keys():
-    #         print(f'{INDENT * 2}- multidevice.DEVICENAME.{node}')
 
 
 if __name__ == '__main__':

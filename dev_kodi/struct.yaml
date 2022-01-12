@@ -243,8 +243,3 @@ control:
         md_write: true
         md_read_group: ['control']
 
-all:
-    struct:
-        - multidevice.DEVICENAME.info
-        - multidevice.DEVICENAME.status
-        - multidevice.DEVICENAME.control

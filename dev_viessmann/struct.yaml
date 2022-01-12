@@ -1,6 +1,23 @@
 %YAML 1.1
 ---
 # vim: expandtab:ts=4:sw=4
+ALL:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: ALL
+
+    Anlagentyp:
+        type: num
+        md_device: DEVICENAME
+        md_command: Anlagentyp
+        md_read: true
+        md_write: false
+        md_read_group: ['ALL']
+        md_read_initial: true
+
 V200KO1B:
 
     read:
@@ -8,6 +25,15 @@ V200KO1B:
         enforce_updates: true
         md_device: DEVICENAME
         md_read_group_trigger: V200KO1B
+
+    Anlagentyp:
+        type: num
+        md_device: DEVICENAME
+        md_command: Anlagentyp
+        md_read: true
+        md_write: false
+        md_read_group: ['V200KO1B']
+        md_read_initial: true
 
     Allgemein:
 
@@ -154,7 +180,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Allgemein']
 
         TempKOffset:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.TempKOffset
             md_read: true
@@ -170,7 +196,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Allgemein']
 
         Anlagenschema:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Anlagenschema
             md_read: true
@@ -186,7 +212,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Allgemein']
 
         CtrlId:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.CtrlId
             md_read: true
@@ -234,7 +260,7 @@ V200KO1B:
             md_read_group_trigger: Fehler
 
         Sammelstoerung:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Sammelstoerung
             md_read: true
@@ -242,7 +268,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error0:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error0
             md_read: true
@@ -250,7 +276,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error1:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error1
             md_read: true
@@ -258,7 +284,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error2:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error2
             md_read: true
@@ -266,7 +292,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error3:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error3
             md_read: true
@@ -274,7 +300,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error4:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error4
             md_read: true
@@ -282,7 +308,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error5:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error5
             md_read: true
@@ -290,7 +316,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error6:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error6
             md_read: true
@@ -298,7 +324,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error7:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error7
             md_read: true
@@ -306,7 +332,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error8:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error8
             md_read: true
@@ -314,7 +340,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Fehler']
 
         Error9:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error9
             md_read: true
@@ -402,7 +428,7 @@ V200KO1B:
             md_read_group_trigger: Brenner
 
         Starts:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Brenner.Starts
             md_read: true
@@ -434,7 +460,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Brenner']
 
         Oeldurchsatz:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Brenner.Oeldurchsatz
             md_read: true
@@ -498,7 +524,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Solar']
 
         Steuerung:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Solar.Steuerung
             md_read: true
@@ -538,7 +564,7 @@ V200KO1B:
                         md_read_group_trigger: Heizkreis.A1M1.Temperatur.Raum
 
                     Ist:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Ist
                         md_read: true
@@ -546,7 +572,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Raum']
 
                     Soll_Normalbetrieb:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Soll_Normalbetrieb
                         md_read: true
@@ -554,7 +580,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Raum']
 
                     Soll_Red_Betrieb:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Soll_Red_Betrieb
                         md_read: true
@@ -562,7 +588,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Raum']
 
                     Soll_Party_Betrieb:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Soll_Party_Betrieb
                         md_read: true
@@ -594,7 +620,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Vorlauf']
 
                     Min:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Vorlauf.Min
                         md_read: true
@@ -602,7 +628,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Vorlauf']
 
                     Max:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Vorlauf.Max
                         md_read: true
@@ -610,7 +636,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Vorlauf']
 
                     Erhoehung_Soll:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Vorlauf.Erhoehung_Soll
                         md_read: true
@@ -618,7 +644,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Vorlauf']
 
                     Erhoehung_Zeit:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Vorlauf.Erhoehung_Zeit
                         md_read: true
@@ -626,7 +652,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Vorlauf']
 
                 Grenze_red_Betrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Temperatur.Grenze_red_Betrieb
                     md_read: true
@@ -634,7 +660,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur']
 
                 Grenze_red_Raumtemp:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Temperatur.Grenze_red_Raumtemp
                     md_read: true
@@ -650,7 +676,7 @@ V200KO1B:
                     md_read_group_trigger: Heizkreis.A1M1.Status
 
                 Aktuelle_Betriebsart:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Aktuelle_Betriebsart
                     md_read: true
@@ -658,7 +684,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Betriebsart:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Betriebsart
                     md_read: true
@@ -666,7 +692,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Sparbetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Sparbetrieb
                     md_read: true
@@ -674,7 +700,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Zustand_Sparbetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Zustand_Sparbetrieb
                     md_read: true
@@ -682,7 +708,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Partybetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Partybetrieb
                     md_read: true
@@ -690,7 +716,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Zustand_Partybetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Zustand_Partybetrieb
                     md_read: true
@@ -698,7 +724,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 StatusFrost:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.StatusFrost
                     md_read: true
@@ -706,7 +732,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Externe_Raumsolltemperatur_Normal:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Externe_Raumsolltemperatur_Normal
                     md_read: true
@@ -714,7 +740,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Externe_Betriebsartenumschaltung:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Externe_Betriebsartenumschaltung
                     md_read: true
@@ -722,7 +748,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Speichervorrang:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Speichervorrang
                     md_read: true
@@ -730,7 +756,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Frostschutzgrenze:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Frostschutzgrenze
                     md_read: true
@@ -738,7 +764,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Frostschutz:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Frostschutz
                     md_read: true
@@ -746,7 +772,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Heizkreispumpenlogik:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Heizkreispumpenlogik
                     md_read: true
@@ -754,7 +780,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Sparschaltung:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Sparschaltung
                     md_read: true
@@ -762,7 +788,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Mischersparfunktion:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Mischersparfunktion
                     md_read: true
@@ -770,7 +796,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Status']
 
                 Pumpenstillstandzeit:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Status.Pumpenstillstandzeit
                     md_read: true
@@ -794,7 +820,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Heizkennlinie']
 
                 Niveau:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Heizkennlinie.Niveau
                     md_read: true
@@ -802,7 +828,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Heizkennlinie']
 
             Partybetrieb_Zeitbegrenzung:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Partybetrieb_Zeitbegrenzung
                 md_read: true
@@ -834,7 +860,7 @@ V200KO1B:
                         md_read_group_trigger: Heizkreis.M2.Temperatur.Raum
 
                     Ist:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Ist
                         md_read: true
@@ -842,7 +868,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Raum']
 
                     Soll_Normalbetrieb:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Soll_Normalbetrieb
                         md_read: true
@@ -850,7 +876,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Raum']
 
                     Soll_Red_Betrieb:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Soll_Red_Betrieb
                         md_read: true
@@ -858,7 +884,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Raum']
 
                     Soll_Party_Betrieb:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Soll_Party_Betrieb
                         md_read: true
@@ -890,7 +916,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                     Min:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Vorlauf.Min
                         md_read: true
@@ -898,7 +924,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                     Max:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Vorlauf.Max
                         md_read: true
@@ -906,7 +932,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                     Erhoehung_Soll:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Vorlauf.Erhoehung_Soll
                         md_read: true
@@ -914,7 +940,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                     Erhoehung_Zeit:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Vorlauf.Erhoehung_Zeit
                         md_read: true
@@ -922,7 +948,7 @@ V200KO1B:
                         md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                 Grenze_red_Betrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Temperatur.Grenze_red_Betrieb
                     md_read: true
@@ -930,7 +956,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur']
 
                 Grenze_red_Raumtemp:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Temperatur.Grenze_red_Raumtemp
                     md_read: true
@@ -946,7 +972,7 @@ V200KO1B:
                     md_read_group_trigger: Heizkreis.M2.Status
 
                 Aktuelle_Betriebsart:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Aktuelle_Betriebsart
                     md_read: true
@@ -954,7 +980,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Betriebsart:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Betriebsart
                     md_read: true
@@ -962,7 +988,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Sparbetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Sparbetrieb
                     md_read: true
@@ -970,7 +996,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Zustand_Sparbetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Zustand_Sparbetrieb
                     md_read: true
@@ -978,7 +1004,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Partybetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Partybetrieb
                     md_read: true
@@ -986,7 +1012,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Zustand_Partybetrieb:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Zustand_Partybetrieb
                     md_read: true
@@ -994,7 +1020,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 StatusFrost:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.StatusFrost
                     md_read: true
@@ -1002,7 +1028,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Externe_Raumsolltemperatur_Normal:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Externe_Raumsolltemperatur_Normal
                     md_read: true
@@ -1010,7 +1036,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Externe_Betriebsartenumschaltung:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Externe_Betriebsartenumschaltung
                     md_read: true
@@ -1018,7 +1044,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Speichervorrang:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Speichervorrang
                     md_read: true
@@ -1026,7 +1052,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Frostschutzgrenze:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Frostschutzgrenze
                     md_read: true
@@ -1034,7 +1060,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Frostschutz:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Frostschutz
                     md_read: true
@@ -1042,7 +1068,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Heizkreispumpenlogik:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Heizkreispumpenlogik
                     md_read: true
@@ -1050,7 +1076,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Sparschaltung:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Sparschaltung
                     md_read: true
@@ -1058,7 +1084,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Mischersparfunktion:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Mischersparfunktion
                     md_read: true
@@ -1066,7 +1092,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Status']
 
                 Pumpenstillstandzeit:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Status.Pumpenstillstandzeit
                     md_read: true
@@ -1090,7 +1116,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Heizkennlinie']
 
                 Niveau:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Heizkennlinie.Niveau
                     md_read: true
@@ -1098,7 +1124,7 @@ V200KO1B:
                     md_read_group: ['V200KO1B', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Heizkennlinie']
 
             Partybetrieb_Zeitbegrenzung:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Partybetrieb_Zeitbegrenzung
                 md_read: true
@@ -1122,7 +1148,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Warmwasser']
 
         Soll:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.Soll
             md_read: true
@@ -1138,7 +1164,7 @@ V200KO1B:
             md_read_group: ['V200KO1B', 'Warmwasser']
 
         PumpenNachlauf:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.PumpenNachlauf
             md_read: true
@@ -1162,7 +1188,7 @@ V200KO1B:
                 md_read_group_trigger: Ferienprogramm.A1M1
 
             Status:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Ferienprogramm.A1M1.Status
                 md_read: true
@@ -1194,7 +1220,7 @@ V200KO1B:
                 md_read_group_trigger: Ferienprogramm.M2
 
             Status:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Ferienprogramm.M2.Status
                 md_read: true
@@ -1481,14 +1507,6 @@ V200KO1B:
                 md_write: true
                 md_read_group: ['V200KO1B', 'Timer', 'Timer.Zirkulation']
 
-    Anlagentyp:
-        type: int
-        md_device: DEVICENAME
-        md_command: Anlagentyp
-        md_read: true
-        md_write: false
-        md_read_group: ['V200KO1B']
-
 V200HO1C:
 
     read:
@@ -1496,6 +1514,15 @@ V200HO1C:
         enforce_updates: true
         md_device: DEVICENAME
         md_read_group_trigger: V200HO1C
+
+    Anlagentyp:
+        type: num
+        md_device: DEVICENAME
+        md_command: Anlagentyp
+        md_read: true
+        md_write: false
+        md_read_group: ['V200HO1C']
+        md_read_initial: true
 
     Allgemein:
 
@@ -1506,7 +1533,7 @@ V200HO1C:
             md_read_group_trigger: Allgemein
 
         Anlagenschema:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Anlagenschema
             md_read: true
@@ -1514,7 +1541,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Allgemein']
 
         Frostgefahr:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Frostgefahr
             md_read: true
@@ -1594,7 +1621,7 @@ V200HO1C:
             md_read_group_trigger: Fehler
 
         Sammelstoerung:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Sammelstoerung
             md_read: true
@@ -1602,7 +1629,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error0:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error0
             md_read: true
@@ -1610,7 +1637,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error1:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error1
             md_read: true
@@ -1618,7 +1645,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error2:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error2
             md_read: true
@@ -1626,7 +1653,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error3:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error3
             md_read: true
@@ -1634,7 +1661,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error4:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error4
             md_read: true
@@ -1642,7 +1669,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error5:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error5
             md_read: true
@@ -1650,7 +1677,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error6:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error6
             md_read: true
@@ -1658,7 +1685,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error7:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error7
             md_read: true
@@ -1666,7 +1693,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error8:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error8
             md_read: true
@@ -1674,7 +1701,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Fehler']
 
         Error9:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error9
             md_read: true
@@ -1738,7 +1765,7 @@ V200HO1C:
             md_read_group_trigger: Brenner
 
         Starts:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Brenner.Starts
             md_read: true
@@ -1802,7 +1829,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Solar']
 
         Waermemenge:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Solar.Waermemenge
             md_read: true
@@ -1810,7 +1837,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Solar']
 
         Ausbeute:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Solar.Ausbeute
             md_read: true
@@ -1834,7 +1861,7 @@ V200HO1C:
                 md_read_group_trigger: Heizkreis.1
 
             Betriebsart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.1.Betriebsart
                 md_read: true
@@ -1842,7 +1869,7 @@ V200HO1C:
                 md_read_group: ['V200HO1C', 'Heizkreis', 'Heizkreis.1']
 
             Heizart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.1.Heizart
                 md_read: true
@@ -1882,7 +1909,7 @@ V200HO1C:
                 md_read_group_trigger: Heizkreis.2
 
             Betriebsart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.2.Betriebsart
                 md_read: true
@@ -1890,7 +1917,7 @@ V200HO1C:
                 md_read_group: ['V200HO1C', 'Heizkreis', 'Heizkreis.2']
 
             Heizart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.2.Heizart
                 md_read: true
@@ -1938,7 +1965,7 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Warmwasser']
 
         Soll:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.Soll
             md_read: true
@@ -1953,14 +1980,6 @@ V200HO1C:
             md_write: false
             md_read_group: ['V200HO1C', 'Warmwasser']
 
-    Anlagentyp:
-        type: int
-        md_device: DEVICENAME
-        md_command: Anlagentyp
-        md_read: true
-        md_write: false
-        md_read_group: ['V200HO1C']
-
 V200KW2:
 
     read:
@@ -1968,6 +1987,15 @@ V200KW2:
         enforce_updates: true
         md_device: DEVICENAME
         md_read_group_trigger: V200KW2
+
+    Anlagentyp:
+        type: num
+        md_device: DEVICENAME
+        md_command: Anlagentyp
+        md_read: true
+        md_write: false
+        md_read_group: ['V200KW2']
+        md_read_initial: true
 
     Allgemein:
 
@@ -2002,7 +2030,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Allgemein', 'Allgemein.Temperatur']
 
         Anlagenschema:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Anlagenschema
             md_read: true
@@ -2010,7 +2038,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Allgemein']
 
         AnlagenSoftwareIndex:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.AnlagenSoftwareIndex
             md_read: true
@@ -2034,7 +2062,7 @@ V200KW2:
             md_read_group_trigger: Kessel
 
         TempKOffset:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Kessel.TempKOffset
             md_read: true
@@ -2066,7 +2094,7 @@ V200KW2:
             md_read_group_trigger: Fehler
 
         Sammelstoerung:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Sammelstoerung
             md_read: true
@@ -2074,7 +2102,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Brennerstoerung:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Brennerstoerung
             md_read: true
@@ -2082,7 +2110,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error0:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error0
             md_read: true
@@ -2090,7 +2118,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error1:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error1
             md_read: true
@@ -2098,7 +2126,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error2:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error2
             md_read: true
@@ -2106,7 +2134,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error3:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error3
             md_read: true
@@ -2114,7 +2142,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error4:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error4
             md_read: true
@@ -2122,7 +2150,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error5:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error5
             md_read: true
@@ -2130,7 +2158,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error6:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error6
             md_read: true
@@ -2138,7 +2166,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error7:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error7
             md_read: true
@@ -2146,7 +2174,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error8:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error8
             md_read: true
@@ -2154,7 +2182,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Fehler']
 
         Error9:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Fehler.Error9
             md_read: true
@@ -2210,7 +2238,7 @@ V200KW2:
             md_read_group_trigger: Brenner
 
         Typ:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Brenner.Typ
             md_read: true
@@ -2218,7 +2246,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Brenner']
 
         Stufe:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Brenner.Stufe
             md_read: true
@@ -2226,7 +2254,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Brenner']
 
         Starts:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Brenner.Starts
             md_read: true
@@ -2298,7 +2326,7 @@ V200KW2:
                         md_read_group_trigger: Heizkreis.A1M1.Temperatur.Raum
 
                     Soll_Normal:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Soll_Normal
                         md_read: true
@@ -2306,7 +2334,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Raum']
 
                     Soll_Reduziert:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Soll_Reduziert
                         md_read: true
@@ -2314,7 +2342,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Raum']
 
                     Soll_Party:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.A1M1.Temperatur.Raum.Soll_Party
                         md_read: true
@@ -2346,7 +2374,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Temperatur', 'Heizkreis.A1M1.Temperatur.Vorlauf']
 
             Betriebsart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Betriebsart
                 md_read: true
@@ -2354,7 +2382,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1']
 
             Aktuelle_Betriebsart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Aktuelle_Betriebsart
                 md_read: true
@@ -2362,7 +2390,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1']
 
             Sparbetrieb:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Sparbetrieb
                 md_read: true
@@ -2370,7 +2398,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1']
 
             Partybetrieb_Zeit:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Partybetrieb_Zeit
                 md_read: true
@@ -2378,7 +2406,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1']
 
             Partybetrieb:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Partybetrieb
                 md_read: true
@@ -2394,7 +2422,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1']
 
             Heizkreispumpenlogik:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Heizkreispumpenlogik
                 md_read: true
@@ -2402,7 +2430,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1']
 
             Sparschaltung:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.A1M1.Sparschaltung
                 md_read: true
@@ -2426,7 +2454,7 @@ V200KW2:
                     md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.A1M1', 'Heizkreis.A1M1.Heizkennlinie']
 
                 Niveau:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.A1M1.Heizkennlinie.Niveau
                     md_read: true
@@ -2458,7 +2486,7 @@ V200KW2:
                         md_read_group_trigger: Heizkreis.M2.Temperatur.Raum
 
                     Soll_Normal:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Soll_Normal
                         md_read: true
@@ -2466,7 +2494,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Raum']
 
                     Soll_Reduziert:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Soll_Reduziert
                         md_read: true
@@ -2474,7 +2502,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Raum']
 
                     Soll_Party:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Raum.Soll_Party
                         md_read: true
@@ -2506,7 +2534,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                     Min:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Vorlauf.Min
                         md_read: true
@@ -2514,7 +2542,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
                     Max:
-                        type: int
+                        type: num
                         md_device: DEVICENAME
                         md_command: Heizkreis.M2.Temperatur.Vorlauf.Max
                         md_read: true
@@ -2522,7 +2550,7 @@ V200KW2:
                         md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Temperatur', 'Heizkreis.M2.Temperatur.Vorlauf']
 
             Betriebsart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Betriebsart
                 md_read: true
@@ -2530,7 +2558,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2']
 
             Aktuelle_Betriebsart:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Aktuelle_Betriebsart
                 md_read: true
@@ -2538,7 +2566,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2']
 
             Sparbetrieb:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Sparbetrieb
                 md_read: true
@@ -2546,7 +2574,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2']
 
             Partybetrieb:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Partybetrieb
                 md_read: true
@@ -2554,7 +2582,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2']
 
             Partybetrieb_Zeit:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Partybetrieb_Zeit
                 md_read: true
@@ -2586,7 +2614,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2']
 
             Heizkreispumpenlogik:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Heizkreispumpenlogik
                 md_read: true
@@ -2594,7 +2622,7 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2']
 
             Sparschaltung:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Heizkreis.M2.Sparschaltung
                 md_read: true
@@ -2634,7 +2662,7 @@ V200KW2:
                     md_read_group: ['V200KW2', 'Heizkreis', 'Heizkreis.M2', 'Heizkreis.M2.Heizkennlinie']
 
                 Niveau:
-                    type: int
+                    type: num
                     md_device: DEVICENAME
                     md_command: Heizkreis.M2.Heizkennlinie.Niveau
                     md_read: true
@@ -2658,7 +2686,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Warmwasser']
 
         KesselOffset:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.KesselOffset
             md_read: true
@@ -2666,7 +2694,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Warmwasser']
 
         BeiPartyDNormal:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.BeiPartyDNormal
             md_read: true
@@ -2682,7 +2710,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Warmwasser']
 
         Soll:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.Soll
             md_read: true
@@ -2698,7 +2726,7 @@ V200KW2:
             md_read_group: ['V200KW2', 'Warmwasser']
 
         SollMax:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Warmwasser.SollMax
             md_read: true
@@ -2722,7 +2750,7 @@ V200KW2:
                 md_read_group_trigger: Ferienprogramm.A1M1
 
             Status:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Ferienprogramm.A1M1.Status
                 md_read: true
@@ -2754,7 +2782,7 @@ V200KW2:
                 md_read_group_trigger: Ferienprogramm.M2
 
             Status:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Ferienprogramm.M2.Status
                 md_read: true
@@ -2977,14 +3005,6 @@ V200KW2:
                 md_write: true
                 md_read_group: ['V200KW2', 'Timer', 'Timer.M2']
 
-    Anlagentyp:
-        type: int
-        md_device: DEVICENAME
-        md_command: Anlagentyp
-        md_read: true
-        md_write: false
-        md_read_group: ['V200KW2']
-
 V200WO1C:
 
     read:
@@ -2992,6 +3012,15 @@ V200WO1C:
         enforce_updates: true
         md_device: DEVICENAME
         md_read_group_trigger: V200WO1C
+
+    Anlagentyp:
+        type: num
+        md_device: DEVICENAME
+        md_command: Anlagentyp
+        md_read: true
+        md_write: false
+        md_read_group: ['V200WO1C']
+        md_read_initial: true
 
     Allgemein:
 
@@ -3018,15 +3047,21 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Allgemein', 'Allgemein.Temperatur']
 
         Betriebsart:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Betriebsart
             md_read: true
             md_write: true
             md_read_group: ['V200WO1C', 'Allgemein']
+            md_read_initial: true
+
+                lookup:
+                    type: list
+                    md_device: DEVICENAME
+                    md_lookup: operatingmodes#list
 
         Manuell:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Manuell
             md_read: true
@@ -3034,7 +3069,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Allgemein']
 
         Outdoor_Fanspeed:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Outdoor_Fanspeed
             md_read: true
@@ -3042,7 +3077,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Allgemein']
 
         Status_Fanspeed:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Status_Fanspeed
             md_read: true
@@ -3050,7 +3085,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Allgemein']
 
         Kompressor_Freq:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.Kompressor_Freq
             md_read: true
@@ -3058,7 +3093,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Allgemein']
 
         SollLeistungVerdichter:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Allgemein.SollLeistungVerdichter
             md_read: true
@@ -3274,7 +3309,7 @@ V200WO1C:
                 md_read_group_trigger: Statistik.Einschaltungen
 
             Sekundaer:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Einschaltungen.Sekundaer
                 md_read: true
@@ -3282,7 +3317,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Einschaltungen']
 
             Heizstab1:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Einschaltungen.Heizstab1
                 md_read: true
@@ -3290,7 +3325,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Einschaltungen']
 
             Heizstab2:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Einschaltungen.Heizstab2
                 md_read: true
@@ -3298,7 +3333,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Einschaltungen']
 
             HK:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Einschaltungen.HK
                 md_read: true
@@ -3354,7 +3389,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Laufzeiten']
 
             VerdichterStufe1:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Laufzeiten.VerdichterStufe1
                 md_read: true
@@ -3362,7 +3397,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Laufzeiten']
 
             VerdichterStufe2:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Laufzeiten.VerdichterStufe2
                 md_read: true
@@ -3370,7 +3405,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Laufzeiten']
 
             VerdichterStufe3:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Laufzeiten.VerdichterStufe3
                 md_read: true
@@ -3378,7 +3413,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Laufzeiten']
 
             VerdichterStufe4:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Laufzeiten.VerdichterStufe4
                 md_read: true
@@ -3386,7 +3421,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Laufzeiten']
 
             VerdichterStufe5:
-                type: int
+                type: num
                 md_device: DEVICENAME
                 md_command: Statistik.Laufzeiten.VerdichterStufe5
                 md_read: true
@@ -3402,7 +3437,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Statistik', 'Statistik.Laufzeiten']
 
         OAT_Temperature:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Statistik.OAT_Temperature
             md_read: true
@@ -3410,7 +3445,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Statistik']
 
         ICT_Temperature:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Statistik.ICT_Temperature
             md_read: true
@@ -3418,7 +3453,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Statistik']
 
         CCT_Temperature:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Statistik.CCT_Temperature
             md_read: true
@@ -3426,7 +3461,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Statistik']
 
         HST_Temperature:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Statistik.HST_Temperature
             md_read: true
@@ -3434,7 +3469,7 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Statistik']
 
         OMT_Temperature:
-            type: int
+            type: num
             md_device: DEVICENAME
             md_command: Statistik.OMT_Temperature
             md_read: true
@@ -3456,12 +3491,4 @@ V200WO1C:
             md_read: true
             md_write: false
             md_read_group: ['V200WO1C', 'Statistik']
-
-    Anlagentyp:
-        type: int
-        md_device: DEVICENAME
-        md_command: Anlagentyp
-        md_read: true
-        md_write: false
-        md_read_group: ['V200WO1C']
 

@@ -224,7 +224,7 @@ class MD_Commands(object):
         if cust_mod:
             _enum_dt_cls(cust_mod)
 
-    def _get_cmdlist(self, cmds, cmdlist):
+    def _flatten_cmds(self, cmds):
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                 walk(node[child], child, parent=node, func=func)
@@ -250,6 +250,7 @@ class MD_Commands(object):
         # remove empty dicts (old 'level names')
         walk(cmds, '', None, removeEmptyItems)
 
+    def _get_cmdlist(self, cmds, cmdlist):
         # now get command list, if not already provided
         if cmdlist is None:
             cmdlist = cmds.keys()
@@ -324,7 +325,9 @@ class MD_Commands(object):
                 if self._model:
                     self.logger.debug(f'found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}')
 
-        # actually import commands
+            self._flatten_cmds(cmds)
+
+            # actually import commands
             self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
         else:
             if not MD_standalone:

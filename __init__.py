@@ -518,6 +518,7 @@ import os
 import sys
 import cherrypy
 import json
+from copy import deepcopy
 from ast import literal_eval
 
 __pdoc__ = {"multidevice.tools": False}
@@ -536,6 +537,7 @@ if __name__ == '__main__':
     sys.path.insert(0, BASE)
 
     from MD_Globals import *
+    from MD_Commands import MD_Commands
 
 else:
     builtins.MD_standalone = False
@@ -766,9 +768,8 @@ class MultiDevice(SmartPlugin):
             device = self._get_device(device_id)
             self.logger.debug(f'Item {item}: parse for device {device_id}')
 
-            if self.has_iattr(item.conf, ITEM_ATTR_COMMAND):
-
-                command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+            command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+            if command:
 
                 # command found, validate command for device
                 if not device.is_valid_command(command):
@@ -776,7 +777,7 @@ class MultiDevice(SmartPlugin):
                     return
 
                 # command marked for reading
-                if self.has_iattr(item.conf, ITEM_ATTR_READ) and self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
                     if device.is_valid_command(command, COMMAND_READ):
                         if command in self._commands_read[device_id]:
                             self.logger.warning(f'Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item')
@@ -787,8 +788,8 @@ class MultiDevice(SmartPlugin):
                         self.logger.warning(f'Item {item} requests command {command} for reading on device {device_id}, which is not allowed, read configuration is ignored')
 
                     # read in group?
-                    if self.has_iattr(item.conf, ITEM_ATTR_GROUP):
-                        group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
+                    group = self.get_iattr_value(item.conf, ITEM_ATTR_GROUP)
+                    if group:
                         if isinstance(group, str):
                             group = [group]
                         if isinstance(group, list):
@@ -802,31 +803,31 @@ class MultiDevice(SmartPlugin):
                             self.logger.warning(f'Item {item} wants to be read in group with invalid group identifier "{group}", ignoring.')
 
                     # read on startup?
-                    if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
+                    if self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                         if command not in self._commands_initial[device_id]:
                             self._commands_initial[device_id].append(command)
                             self.logger.debug(f'Item {item} saved for startup reading command {command} on device {device_id}')
 
                     # read cyclically?
-                    if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
-                        cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
+                    cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
+                    if cycle:
                         # if cycle is already set for command, use the lower value of the two
                         self._commands_cyclic[device_id][command] = { 'cycle': min(cycle, self._commands_cyclic[device_id].get(command, cycle)), 'next': 0}
                         self.logger.debug(f'Item {item} saved for cyclic reading command {command} on device {device_id}')
 
                 # command marked for writing
-                if self.has_iattr(item.conf, ITEM_ATTR_WRITE) and self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
+                if self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
                     if device.is_valid_command(command, COMMAND_WRITE):
                         self._items_write[item.id()] = {'device_id': device_id, 'command': command}
                         self.logger.debug(f'Item {item} saved for writing command {command} on device {device_id}')
                         return self.update_item
 
             # is read_grp trigger item?
-            if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
-                grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
+            grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
+            if grp:
 
                 # trigger read on startup?
-                if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
+                if self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                     if grp not in self._triggers_initial[device_id]:
                         self._triggers_initial[device_id].append(grp)
                         self.logger.debug(f'Item {item} saved for startup triggering of read group {grp} on device {device_id}')
@@ -850,20 +851,19 @@ class MultiDevice(SmartPlugin):
                     self.logger.warning(f'Item {item} wants to trigger group read with invalid group identifier "{grp}", ignoring.')
 
             # is lookup table item?
-            if self.has_iattr(item.conf, ITEM_ATTR_LOOKUP):
-                table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
-                if table:
-                    mode = 'fwd'
-                    if '#' in table:
-                        (table, mode) = table.split('#')
-                    lu = device.get_lookup(table, mode)
-                    item.set(lu, 'MultiDevice.' + device_id, source='Init')
-                    if lu:
-                        self.logger.debug(f'Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}')
-                    else:
-                        self.logger.info(f'Item {item} requested lookup {table} from device {device_id}, which was empty or non-existent')
+            table = self.get_iattr_value(item.conf, ITEM_ATTR_LOOKUP)
+            if table:
+                mode = 'fwd'
+                if '#' in table:
+                    (table, mode) = table.split('#')
+                lu = device.get_lookup(table, mode)
+                item.set(lu, 'MultiDevice.' + device_id, source='Init')
+                if lu:
+                    self.logger.debug(f'Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}')
                 else:
-                    self.logger.warning(f'Item {item} has attribute {ITEM_ATTR_LOOKUP} without a value set. Ignoring.')
+                    self.logger.info(f'Item {item} requested lookup {table} from device {device_id}, which was empty or non-existent')
+            else:
+                self.logger.warning(f'Item {item} has attribute {ITEM_ATTR_LOOKUP} without a value set. Ignoring.')
 
     def update_item(self, item, caller=None, source=None, dest=None):
         """
@@ -1214,6 +1214,16 @@ class WebInterface(SmartPluginWebIf):
         return {}
 
 
+#############################################################################################################################################################################################################################################
+#
+# Standalone functions
+#
+#############################################################################################################################################################################################################################################
+
+def log(x):
+    print(x)
+
+
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     """ read commands.py and export struct.yaml """
 
@@ -1363,10 +1373,10 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
     commands = cmd_module.commands
     top_level_entries = list(commands.keys())
+    log(top_level_entries)
 
     old_stdout = sys.stdout
     err = None
-    outfile = None
 
     try:
         if write_output:
@@ -1379,40 +1389,64 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
         # this means the commands dict has 'ALL' and model names at the top level
         # otherwise, these be commands or sections
-        has_models = 'ALL' in top_level_entries
+        cmds_has_models = INDEX_GENERIC in top_level_entries
 
-        if has_models:
-            # read models
-            models = top_level_entries
+        if cmds_has_models:
+            log('cmds has models')
 
-            for m in models:
-                # create obj for model m, include m['ALL']
-
-                # process obj
-                pass
-        else:
             # create obj for model <device> consisting of all tle
 
             # process obj
 
-            for entry in tle:
+            for entry in top_level_entries:
                 # create obj for entry
 
                 # process obj
                 pass
+        else:
+            log('cmds no has models')
 
-        for entry in top_level_entries:
-            read_group_triggers = {}
+            # read models
+            cmd_models = top_level_entries
+            flat_commands = deepcopy(commands)
+            MD_Commands._flatten_cmds(None, flat_commands)
 
-            # get dict as ref
-            c = {entry: commands[entry]}
+            for model in cmd_models:
 
-            # add in 'ALL' commands if present
-            # each key is only visited once, so we can risk changing the `commands` dict
-            c[entry].update(commands.get('ALL', {}))
+                log(f'model {model}')
+                # create list of valid commands
+                cmdlist = []
+                models = getattr(cmd_module, 'models')
+                if not models:
+                    cmdlist = list(commands[model].keys())
+                else:
+                    cmdlist = models.get(model, [])
+                    if model != INDEX_GENERIC:
+                        cmdlist += models.get(INDEX_GENERIC, [])
 
-            # traverse from root node
-            walk(c[entry], entry, commands, print_item, '', 0, entry, [entry], has_models)
+                    # make usable copy of commands
+                    cmdlist = MD_Commands._get_cmdlist(None, flat_commands, cmdlist)
+                    log(cmdlist)
+
+                # create obj for model m, include m['ALL']
+                # obj = {model: comm}
+
+                # process obj
+                read_group_triggers = {}
+                pass
+
+        # for entry in top_level_entries:
+        #     read_group_triggers = {}
+# 
+        #     # get dict as ref
+        #     c = {entry: commands[entry]}
+# 
+        #     # add in 'ALL' commands if present
+        #     # each key is only visited once, so we can risk changing the `commands` dict
+        #     c[entry].update(commands.get(INDEX_GENERIC, {}))
+# 
+        #     # traverse from root node
+        #     walk(c[entry], entry, commands, print_item, '', 0, entry, [entry], has_models)
     except OSError as e:
         err = f'Error: file {file} could not be opened. Original error: {e}'
     except Exception as e:

@@ -268,6 +268,10 @@ class MD_Commands(object):
             raise CommandsError(f'importing commands from external module {"dev_" + self._device_type + "/commands.py"} failed. Error was: "{e}"')
             return False
 
+        # param is read by yaml parser which converts None to "None"... 
+        if self._model == 'None':
+            self._model = None
+
         if self._model == INDEX_GENERIC:
             self.logger.warning('configured model is identical to generic identifier, loading all commands.')
             self._model = None
@@ -346,6 +350,10 @@ class MD_Commands(object):
         self._commands = {}
 
         for cmd in cmds:
+            # we found a "section" entry for which initial or cyclic read is specified. Just skip it...
+            if cmd[-len(CMD_ATTR_ITEM_ATTRS)-1:] == '.' + CMD_ATTR_ITEM_ATTRS:
+                continue
+
             kw = {}
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:

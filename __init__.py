@@ -1235,43 +1235,101 @@ def create_struct_yaml(device, indentwidth):
 
         for params see walk() above, they are the same there
         """
-        def _p_text(text, add=0):
+        global read_group_triggers
+
+        def p_text(text, add=0):
             """ print indented text """
             print(f'{INDENT * (indent + 1 + add)}{text}')
 
-        def _p_attr(key, val, add=0):
+        def p_attr(key, val, add=0):
             """ print indented 'key: node[val]' """
             if val in node:
                 if isinstance(node[val], bool):
-                    print(f'{INDENT * (indent + 1 + add)}{key}: {str(node[val]).lower()}')
+                    p_text(f'{key}: {str(node[val]).lower()}', add)
                 else:
-                    print(f'{INDENT * (indent + 1 + add)}{key}: {node[val]}')
+                    p_text(f'{key}: {node[val]}', add)
 
         # skip known command sub-dict nodes, but include command nodes
-        # TODO: check if settings has dict children -> then it is a section, include...
         if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS) or CMD_ATTR_ITEM_TYPE in node:
 
             # item / level definition
             print(INDENT * indent + node_name + ':')
 
             # item -> print item attributes
-            if 'item_type' in node:
-                _p_attr('type', 'item_type')
-                _p_text('md_device: DEVICENAME')
-                _p_text(f'md_command: {path if path else node_name}')
-                _p_attr('md_read', 'read')
-                _p_attr('md_write', 'write')
-                _p_text(f'md_read_group: {gpathlist}')
+            if CMD_ATTR_ITEM_TYPE in node:
+                # set sub-node for readability
+                inode = node.get(CMD_ATTR_ITEM_ATTRS)
+                p_attr('type', CMD_ATTR_ITEM_TYPE)
+                if inode and inode.get(CMD_IATTR_ENFORCE):
+                    p_text('enforce_updates: true')
+                p_text(f'{ITEM_ATTR_DEVICE}: DEVICENAME')
+                p_text(f'{ITEM_ATTR_COMMAND}: {path if path else node_name}')
+                p_attr(ITEM_ATTR_READ, CMD_ATTR_READ)
+                p_attr(ITEM_ATTR_WRITE, CMD_ATTR_WRITE)
+
+                # rg_level = None: print all read groups (default)
+                # rg_level = 0: don't print read groups
+                # rg_level > 0: print last <x> levels of read groups plus custom read groups
+                grps = gpathlist
+                if inode:
+                    rg_level = inode.get(CMD_IATTR_NO_READ_GRP)
+                    if rg_level != 0:
+                        if rg_level is not None:
+                            grps = grps[-rg_level:]
+                        rg_list = inode.get(CMD_IATTR_READ_GROUPS)
+                        if rg_list:
+                            if not isinstance(rg_list, list):
+                                rg_list = [rg_list]
+                            for entry in rg_list:
+                                grp = entry.get('name')
+                                grps += grp
+                                read_group_triggers[grp] = entry.get('trigger')
+                p_text(f'{ITEM_ATTR_GROUP}: {grps}')
+                if inode and inode.get(CMD_IATTR_INITIAL):
+                    p_text(f'{ITEM_ATTR_READ_INIT}: true')
+                if inode and inode.get(CMD_IATTR_CYCLE):
+                    p_text(f'{ITEM_ATTR_CYCLE}: {inode.get(CMD_IATTR_CYCLE)}')
+
+                # custom item attributes: copy 1:1
+                # catch TypeError if 'attributes' is not defined
+                if inode:
+                    for key in inode[CMD_IATTR_ATTRIBUTES]:
+                        if isinstance(node[CMD_IATTR_ATTRIBUTES], bool):
+                            p_text(f'{key}: {str(node[CMD_IATTR_ATTRIBUTES][key]).lower()}')
+                        else:
+                            p_text(f'{key}: {node[CMD_IATTR_ATTRIBUTES][key]}')
+
                 print()
+
+                # if item has 'md_lookup' and item_attrs['lookup_item'] is set,
+                # create additional item with lookup values
+                if inode and inode.get(CMD_IATTR_LOOKUP_ITEM) and node.get(CMD_ATTR_LOOKUP):
+                    p_text('lookup:', 1)
+                    ltyp = inode.get(CMD_IATTR_LOOKUP_ITEM)
+                    if ltyp is True:
+                        ltyp = 'list'
+                    p_text(f'type: {"list" if ltyp == "list" else "dict"}', 2)
+                    p_text(f'{ITEM_ATTR_DEVICE}: DEVICENAME', 2)
+                    p_text(f'{ITEM_ATTR_LOOKUP}: {node.get(CMD_ATTR_LOOKUP)}#{ltyp}', 2)
+                    print()
 
             # "level node" -> print read item
             elif node_name not in ('settings', 'params', 'param_values'):
                 print()
-                _p_text('read:')
-                _p_text('type: bool', 1)
-                _p_text('enforce_updates: true', 1)
-                _p_text('md_device: DEVICENAME', 1)
-                _p_text(f'md_read_group_trigger: {path if path else node_name}', 1)
+                p_text('read:')
+                p_text('type: bool', 1)
+                p_text('enforce_updates: true', 1)
+                p_text('md_device: DEVICENAME', 1)
+                p_text(f'md_read_group_trigger: {path if path else node_name}', 1)
+                try:
+                    # set sub-node for readability
+                    inode = node.get(CMD_ATTR_ITEM_ATTRS)
+                    if inode.get(CMD_IATTR_INITIAL):
+                        p_text(f'{ITEM_ATTR_READ_INIT}: true', 1)
+                    if inode.get(CMD_IATTR_CYCLE):
+                        p_text(f'{ITEM_ATTR_CYCLE}: {inode.get(CMD_IATTR_CYCLE)}', 1)
+                except AttributeError:
+                    pass
                 print()
 
     INDENT = ' ' * indentwidth
@@ -1284,7 +1342,7 @@ def create_struct_yaml(device, indentwidth):
         raise ImportError(f'error on importing commands, aborting. Error was {e}')
 
     commands = cmd_module.commands
-    devices = list(commands.keys())
+    top_level_entries = list(commands.keys())
 
     print('%YAML 1.1')
     print('---')
@@ -1292,27 +1350,31 @@ def create_struct_yaml(device, indentwidth):
 
     has_models = False
 
-    if 'ALL' in devices:
+    if 'ALL' in top_level_entries:
         has_models = True
-        devices.remove('ALL')
 
-    for dev in devices:
+    for entry in top_level_entries:
+        read_group_triggers = {}
+
         # get dict as ref
-        c = {dev: commands[dev]}
+        c = {entry: commands[entry]}
 
         # add in 'ALL' commands if present
         # each key is only visited once, so we can risk changing the `commands` dict
-        c[dev].update(commands.get('ALL', {}))
+        c[entry].update(commands.get('ALL', {}))
 
         # traverse from root node
-        walk(c[dev], dev, commands, print_item, '', 0, dev, [dev], has_models)
+        walk(c[entry], entry, commands, print_item, '', 0, entry, [entry], has_models)
 
-    # if no models, make "all inclusive" struct
-    if not has_models:
-        print('all:')
-        print(f'{INDENT}struct:')
-        for node in commands.keys():
-            print(f'{INDENT * 2}- multidevice.DEVICENAME.{node}')
+    # this makes no sense, as nesting structs is only possible on the top level
+    # means - all structs are pulled into the same item, eliminating the structure
+    #
+    # # if no models, make "all inclusive" struct
+    # if not has_models:
+    #     print('all:')
+    #     print(f'{INDENT}struct:')
+    #     for node in commands.keys():
+    #         print(f'{INDENT * 2}- multidevice.DEVICENAME.{node}')
 
 
 if __name__ == '__main__':

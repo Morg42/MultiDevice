@@ -2,206 +2,249 @@
 ---
 # vim: expandtab:ts=4:sw=4
 info:
-    name: Vorlage-Struktur für Kodi Infos, die nicht aktiv verändert werden können.
 
-    state:
+    read:
+        type: bool
+        enforce_updates: true
         md_device: DEVICENAME
-        md_command: state
-        md_read: true
-        type: str
-        visu_acl: ro
-
-    media:
-        md_device: DEVICENAME
-        md_command: media
-        md_read: true
-        type: str
-        visu_acl: ro
-
-    title:
-        md_device: DEVICENAME
-        md_command: title
-        md_read: true
-        type: str
-        visu_acl: ro
-
-    audiostreams:
-        md_device: DEVICENAME
-        md_command: streams
-        md_read: true
-        type: list
-        visu_acl: ro
-
-    subtitles:
-        md_device: DEVICENAME
-        md_command: subtitles
-        md_read: true
-        type: list
-        visu_acl: ro
+        md_read_group_trigger: info
 
     player:
-        md_device: DEVICENAME
-        md_command: player
-        md_read: true
         type: num
-        visu_acl: ro
-
-control:
-    name: Vorlage-Struktur für Kodi Befehle zum Steuern
-
-    update:
         md_device: DEVICENAME
-        md_command: update
+        md_command: info.player
         md_read: true
-        md_write: true
-        type: bool
-        visu_acl: rw
-        enforce_updates: true
-        autotimer: 1 = false = latest
+        md_write: false
+        md_read_group: ['info']
 
-    play:
-        type: bool
-        eval: sh...playpause() and not sh...stop()
-        enforce_updates: true
-        eval_trigger:
-            - ..stop
-            - ..playpause
-
-        play_cmd:
-            type: bool
-            enforce_updates: true
-            eval: sh....input('play') if not (sh...property.last_update_by.lower()[:4] in ('kodi', 'init', 'eval')) else None
-            eval_trigger: ..
-
-    pause:
-        type: bool
-        eval: not sh...playpause() and not sh...stop()
-        enforce_updates: true
-        eval_trigger:
-            - ..stop
-            - ..playpause
-
-        pause_cmd:
-            type: bool
-            enforce_updates: true
-            eval: sh....input('pause') if not (sh...property.last_update_by.lower()[:4] in ('kodi', 'init', 'eval')) else None
-            eval_trigger: ..
-
-    stop:
+    state:
+        type: str
         md_device: DEVICENAME
-        md_command: stop
+        md_command: info.state
         md_read: true
-        md_write: true
-        type: bool
-        visu_acl: rw
-        enforce_updates: true
+        md_write: false
+        md_read_group: ['info']
 
-    playpause:
+    media:
+        type: str
         md_device: DEVICENAME
-        md_command: playpause
+        md_command: info.media
         md_read: true
-        md_write: true
-        type: bool
-        visu_acl: rw
-        enforce_updates: true
+        md_write: false
+        md_read_group: ['info']
 
-    previous:
-        type: bool
-        eval: sh...input('skipprevious')
-        enforce_updates: true
-
-    next:
-        type: bool
-        eval: sh...input('skipnext')
-        enforce_updates: true
-
-    seek:
+    title:
+        type: str
         md_device: DEVICENAME
-        md_command: seek
+        md_command: info.title
         md_read: true
-        md_write: true
-        type: num
-        visu_acl: rw
-        enforce_updates: true
+        md_write: false
+        md_read_group: ['info']
 
-    speed:
+    streams:
+        type: dict
         md_device: DEVICENAME
-        md_command: speed
+        md_command: info.streams
         md_read: true
-        md_write: true
-        type: num
-        visu_acl: rw
-        enforce_updates: true
+        md_write: false
+        md_read_group: ['info']
 
-    volume:
+    subtitles:
+        type: dict
         md_device: DEVICENAME
-        md_command: volume
+        md_command: info.subtitles
         md_read: true
-        md_write: true
-        type: num
-        visu_acl: rw
-        enforce_updates: true
-
-    mute:
-        md_device: DEVICENAME
-        md_command: mute
-        md_read: true
-        md_write: true
-        type: bool
-        visu_acl: rw
-        enforce_updates: true
+        md_write: false
+        md_read_group: ['info']
 
     macro:
-        md_device: DEVICENAME
-        md_command: macro
-        md_read: true
-        md_write: true
-        type: str
-        visu_acl: rw
-        enforce_updates: true
-
-    on_off:
-        md_device: DEVICENAME
-        md_command: power
-        md_read: true
-        md_write: true
-        enforce_updates: true
         type: bool
-        visu_acl: rw
-
-    input:
         md_device: DEVICENAME
-        md_command: action
+        md_command: info.macro
         md_read: true
         md_write: true
+        md_read_group: ['info']
+
+status:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: status
+        md_read_initial: true
+        md_read_cycle: 300
+
+    update:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.update
+        md_read: true
+        md_write: true
+        md_read_group: ['status']
+
+    ping:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.ping
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+    get_status_au:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.get_status_au
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+    get_players:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.get_players
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+    get_actplayer:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.get_actplayer
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+    get_status_play:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.get_status_play
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+    get_item:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.get_item
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+    get_favourites:
+        type: bool
+        md_device: DEVICENAME
+        md_command: status.get_favourites
+        md_read: true
+        md_write: false
+        md_read_group: ['status']
+
+control:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: control
+
+    playpause:
+        type: bool
+        md_device: DEVICENAME
+        md_command: control.playpause
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    seek:
+        type: num
+        md_device: DEVICENAME
+        md_command: control.seek
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    audio:
         type: str
-        visu_acl: rw
-        enforce_updates: true
-
-    favourites:
         md_device: DEVICENAME
-        md_command: get_favourites
+        md_command: control.audio
         md_read: true
         md_write: true
-        type: dict
-        visu_acl: rw
-        enforce_updates: true
+        md_read_group: ['control']
 
-    audiostream:
+    speed:
+        type: num
         md_device: DEVICENAME
-        md_command: audio
+        md_command: control.speed
         md_read: true
         md_write: true
-        type: foo
-        visu_acl: rw
-        enforce_updates: true
+        md_read_group: ['control']
 
     subtitle:
+        type: str
         md_device: DEVICENAME
-        md_command: subtitle
+        md_command: control.subtitle
         md_read: true
         md_write: true
-        type: foo
-        visu_acl: rw
-        enforce_updates: true
+        md_read_group: ['control']
 
+    stop:
+        type: bool
+        md_device: DEVICENAME
+        md_command: control.stop
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    goto:
+        type: str
+        md_device: DEVICENAME
+        md_command: control.goto
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    power:
+        type: bool
+        md_device: DEVICENAME
+        md_command: control.power
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    quit:
+        type: bool
+        md_device: DEVICENAME
+        md_command: control.quit
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    mute:
+        type: bool
+        md_device: DEVICENAME
+        md_command: control.mute
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    volume:
+        type: num
+        md_device: DEVICENAME
+        md_command: control.volume
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+    action:
+        type: str
+        md_device: DEVICENAME
+        md_command: control.action
+        md_read: true
+        md_write: true
+        md_read_group: ['control']
+
+all:
+    struct:
+        - multidevice.DEVICENAME.info
+        - multidevice.DEVICENAME.status
+        - multidevice.DEVICENAME.control

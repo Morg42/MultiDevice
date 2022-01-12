@@ -48,7 +48,7 @@ commands = {
     'zone1': {
         'control': {
             'power': {'read': True, 'write': True, 'read_cmd': '?P', 'write_cmd': 'PMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'PWR(\d{1})', 'item_attrs': {'attributes': {'on_update': ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']}}},
-            'mute': {'read': True, 'write': True, 'read_cmd': '?M', 'write_cmd': 'MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'MUT(\d{1})', 'item_attrs': {'read_groups': { [{'name': 'zone1.onpower', 'trigger': '..read.on_power'}]}}},
+            'mute': {'read': True, 'write': True, 'read_cmd': '?M', 'write_cmd': 'MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'MUT(\d{1})', 'item_attrs': {'read_groups': [{'name': 'zone1.onpower', 'trigger': '..read.on_power'}]}},
             'volume': {'read': True, 'write': True, 'read_cmd': '?V', 'write_cmd': ':{VAL:03}VL:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'VOL(\d{3})', 'cmd_settings': {'force_min': 0, 'valid_max': 185}},
             'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'VU', 'dev_datatype': 'raw'},
             'volumedown': {'write_cmd': 'VD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},

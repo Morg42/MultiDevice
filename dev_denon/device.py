@@ -21,24 +21,16 @@ class MD_Device(MD_Device):
     The know-how is in the commands.py (and some DT_ classes...)
     """
 
-    def _set_default_params(self):
-
-        # set parameter defaults
-        self._params = {'command_class': MD_Command_ParseStr, 
-                        PLUGIN_ATTR_NET_HOST: '', 
-                        PLUGIN_ATTR_NET_PORT: 0, 
-                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
-                        PLUGIN_ATTR_CONN_RETRIES: 5, 
-                        PLUGIN_ATTR_CONN_CYCLE: 3, 
-                        PLUGIN_ATTR_CONN_TIMEOUT: 3, 
-                        PLUGIN_ATTR_CONN_TERMINATOR: b'\r',
-                        'disconnected_callback': None}
-
-        # set our own preferences concerning connections
-        if PLUGIN_ATTR_NET_HOST in kwargs and kwargs[PLUGIN_ATTR_NET_HOST]:
-            self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
-        elif PLUGIN_ATTR_SERIAL_PORT in kwargs and kwargs[PLUGIN_ATTR_SERIAL_PORT]:
-            self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
+    def _set_custom_vars(self):
+        #set our own preferences concerning connections
+        if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
+           self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
+        elif PLUGIN_ATTR_SERIAL_PORT in self._params and self._params[PLUGIN_ATTR_SERIAL_PORT]:
+           self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
+        if PLUGIN_ATTR_CONN_TERMINATOR in self._params:
+            b = self._params[PLUGIN_ATTR_CONN_TERMINATOR].encode()
+            b = b.decode('unicode-escape').encode()
+            self._params[PLUGIN_ATTR_CONN_TERMINATOR] = b
 
     # we need to receive data via callback, as the "reply" can be unrelated to
     # the sent command. Getting it as return value would assign it to the wrong

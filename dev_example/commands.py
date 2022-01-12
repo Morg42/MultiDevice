@@ -75,11 +75,23 @@ commands = {
         'item_attrs': {
             # the following attributes are directives for the struct.yaml generator
 
+            # create md_read_initial: true entry
+            'initial': False,
+
+            # create md_read_cycle entry with given cycle time
+            'cycle': None,
+
+            # create enforce_updates: true entry
+            'enforce': False,
+
             # don't autocreate item read groups
             'no_read_groups': False,
 
-            # create item containing lookup table, relative to struct
-            'lookup_item': 'path.to.item',
+            # create subitem 'lookup' containing lookup table
+            'lookup_item': False,
+
+            # type of lookup ('fwd', 'rev', 'rci', 'list')
+            'lookup_type': 'rev',
 
             # attributes to add to the item definition verbatim
             # e.g. 'enforce_updates': 'true', 'md_initial_read': 'true'
@@ -100,7 +112,7 @@ commands = {
                     'name': '<read group 2>', 
                     'trigger': 'path.to.other.item'
                 }
-            ]
+            ],
         }
     }
 }

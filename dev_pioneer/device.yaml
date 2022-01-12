@@ -46,6 +46,19 @@ parameters:
         default: None
         valid_list: [SC-LX87', 'SC-LX77', 'SC-LX57', 'SC-2023', 'SC-1223', 'VSX-1123', 'VSX-923']
 
+    # nicht ändern
+    terminator:
+        type: str
+        default: '\r'
+        description: 'Ende einer Kommandozeile'
+
+    # nicht ändern
+    command_class:
+        type: str
+        default: MD_Command_ParseStr
+        description: 'Name der Klasse für Commands'
+
+
 structs:
     SC-LX87:
         - general
@@ -60,4 +73,3 @@ structs:
 
     V200KO1B:
         - V200KO1B
-

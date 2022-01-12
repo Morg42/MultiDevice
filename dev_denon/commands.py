@@ -120,7 +120,6 @@ commands = {
         'sleep': {'read': True, 'write': True, 'item_type': 'num', 'read_cmd': 'Z2SLP?', 'write_cmd': 'Z2SLPMD_VALUE', 'dev_datatype': 'convert0', 'reply_token': 'REGEX', 'reply_pattern': r'Z2SLP(\d{3}|OFF)', 'settings': {'force_min': 0, 'force_max': 120} },
         'standby': {'read': True, 'write': True, 'item_type': 'num', 'read_cmd': 'Z2STBY?', 'write_cmd': 'Z2STBYMD_VALUE', 'dev_datatype': 'DenonStandby', 'reply_token': 'REGEX', 'reply_pattern': r'Z2STBY(\dH|OFF)', 'settings': {'valid_list_ci': [0, 2, 4, 8]} },
         'hdmiout': {'read': True, 'write': True, 'item_type': 'str', 'read_cmd': 'Z2HDA?', 'write_cmd': ':Z2HDA {VAL_UPPER}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'Z2HDA (THR|PCM)', 'settings': {'valid_list_ci': ['THR', 'PCM']} },
-        'input': {'read': True, 'write': True, 'read_cmd': 'Z2?', 'write_cmd': 'Z2MD_VALUE', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'Z2(.*)', 'lookup': 'INPUT'},
         'treble': {'read': True, 'write': True, 'read_cmd': 'Z2PSTRE ?', 'item_type': 'num', 'settings': {'force_min': -10, 'force_max': 10}, 'write_cmd': 'Z2PSTRE MD_VALUE', 'dev_datatype': 'remap50to0', 'reply_token': 'REGEX', 'reply_pattern': r'Z2PSTRE (\d{2})'},
         'trebleup': {'write': True, 'item_type': 'bool', 'write_cmd': 'Z2PSTRE UP', 'dev_datatype': 'raw'},
         'trebledown': {'write': True, 'item_type': 'bool', 'write_cmd': 'Z2PSTRE DOWN', 'dev_datatype': 'raw'},
@@ -130,6 +129,7 @@ commands = {
         'level_front_left': {'read': True, 'write': True, 'settings': {'force_min': -12, 'valid_max': 12}, 'read_cmd': 'Z2CV?', 'item_type': 'num', 'write_cmd': 'Z2CVFL MD_VALUE', 'dev_datatype': 'remap50to0', 'reply_token': 'REGEX', 'reply_pattern': r'Z2CVFL (\d{2})'},
         'level_front_right': {'read': True, 'write': True, 'settings': {'force_min': -12, 'valid_max': 12}, 'read_cmd': 'Z2CV?', 'item_type': 'num', 'write_cmd': 'Z2CVFR MD_VALUE', 'dev_datatype': 'remap50to0', 'reply_token': 'REGEX', 'reply_pattern': r'Z2CVFR (\d{2})'},
         'HPF': {'read': True, 'write': True, 'read_cmd': 'Z2HPF?', 'write_cmd': 'Z2HPFMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': 'Z2HPF(ON|OFF)'},
+        'input': {'read': True, 'write': True, 'read_cmd': 'Z2?', 'write_cmd': 'Z2MD_VALUE', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'Z2(.*)', 'lookup': 'INPUT'}
     },
     'zone3': {
         'power': {'read': True, 'write': True, 'read_cmd': 'Z3?', 'write_cmd': 'Z3MD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': 'Z3(ON|OFF)'},
@@ -137,7 +137,6 @@ commands = {
         'volume': {'read': True, 'write': True, 'read_cmd': 'Z3?', 'item_type': 'num', 'dev_datatype': 'DenonVol', 'reply_token': 'REGEX', 'reply_pattern': r'Z3(\d{2,3})', 'settings': {'force_min': 0.0, 'valid_max': 98.0} },
         'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'Z3UP', 'dev_datatype': 'raw'},
         'volumedown': {'write_cmd': 'Z3DOWN', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
-        'input': {'read': True, 'write': True, 'read_cmd': 'Z3?', 'write_cmd': ':Z3{VAL_UPPER}:', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'Z3(.*)', 'lookup': 'INPUT3'},
         'sleep': {'read': True, 'write': True, 'item_type': 'num', 'read_cmd': 'Z3SLP?', 'write_cmd': 'Z3SLPMD_VALUE', 'dev_datatype': 'convert0', 'reply_token': 'REGEX', 'reply_pattern': r'Z3SLP(\d{3}|OFF)', 'settings': {'force_min': 0, 'valid_max': 120} },
         'standby': {'read': True, 'write': True, 'item_type': 'num', 'read_cmd': 'Z3STBY?', 'write_cmd': 'Z3STBYMD_VALUE', 'dev_datatype': 'DenonStandby', 'reply_token': 'REGEX', 'reply_pattern': r'Z3STBY(\dH|OFF)', 'settings': {'valid_list_ci': [0, 2, 4, 8]} },
         'treble': {'read': True, 'write': True, 'read_cmd': 'Z3PSTRE ?', 'item_type': 'num', 'settings': {'force_min': -10, 'force_max': 10}, 'write_cmd': 'Z3PSTRE MD_VALUE', 'dev_datatype': 'remap50to0', 'reply_token': 'REGEX', 'reply_pattern': r'Z3PSTRE (\d{2})'},
@@ -148,7 +147,8 @@ commands = {
         'bassdown': {'write': True, 'item_type': 'bool', 'write_cmd': 'Z3PSBAS DOWN', 'dev_datatype': 'raw'},
         'level_front_left': {'read': True, 'write': True, 'settings': {'force_min': -12, 'valid_max': 12}, 'read_cmd': 'Z3CV?', 'item_type': 'num', 'write_cmd': 'Z3CVFL MD_VALUE', 'dev_datatype': 'remap50to0', 'reply_token': 'REGEX', 'reply_pattern': r'Z3CVFL (\d{2})'},
         'level_front_right': {'read': True, 'write': True, 'settings': {'force_min': -12, 'valid_max': 12}, 'read_cmd': 'Z3CV?', 'item_type': 'num', 'write_cmd': 'Z3CVFR MD_VALUE', 'dev_datatype': 'remap50to0', 'reply_token': 'REGEX', 'reply_pattern': r'Z3CVFR (\d{2})'},
-        'HPF': {'read': True, 'write': True, 'read_cmd': 'Z3HPF?', 'write_cmd': 'Z3HPFMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': 'Z3HPF(ON|OFF)'}
+        'HPF': {'read': True, 'write': True, 'read_cmd': 'Z3HPF?', 'write_cmd': 'Z3HPFMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': 'Z3HPF(ON|OFF)'},
+        'input': {'read': True, 'write': True, 'read_cmd': 'Z3?', 'write_cmd': ':Z3{VAL_UPPER}:', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'Z3(.*)', 'lookup': 'INPUT3'}
     }
 }
 

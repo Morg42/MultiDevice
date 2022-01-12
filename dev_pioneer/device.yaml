@@ -40,3 +40,24 @@ parameters:
     serialport:
         type: str
         description: 'Serieller Port'
+
+    model:
+        type: foo
+        default: None
+        valid_list: [SC-LX87', 'SC-LX77', 'SC-LX57', 'SC-2023', 'SC-1223', 'VSX-1123', 'VSX-923']
+
+structs:
+    SC-LX87:
+        - general
+        - zone1
+        - zone2
+
+    SC-LX77:
+        - general
+        - zone1
+        - zone2
+        - zone3
+
+    V200KO1B:
+        - V200KO1B
+

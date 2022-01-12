@@ -410,8 +410,8 @@ class MD_Command_JSON(MD_Command):
     from it.
 
     The command is sent as 'method', the params-dict is populated from the
-    'params' attribute of the command, while the parameter values are
-    taken from the 'param-values' attribute. 'VAL' is replaced with the
+    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    taken from the CMD_ATTR_PARAM_VALUES attribute. 'VAL' is replaced with the
     actual item value.
 
     params and param_value need to be None or lists of the same length.
@@ -449,10 +449,10 @@ class MD_Command_JSON(MD_Command):
         :rtype: dict
         """
         params = {}
-        if not hasattr(self, 'params'):
+        if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, 'param_values'):
+        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
             raise SyntaxError(f'params {kwargs["params"]} given, but no param_values')
 
         if len(self.params) != len(self.param_values):
@@ -483,8 +483,8 @@ class MD_Command_Viessmann(MD_Command):
     With this class, you can send commands to Viessmann heating systems
 
     The command is sent as 'method', the params-dict is populated from the
-    'params' attribute of the command, while the parameter values are
-    taken from the 'param-values' attribute. 'VAL' is replaced with the
+    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    taken from the CMD_ATTR_PARAM_VALUES attribute. 'VAL' is replaced with the
     actual item value.
 
     params and param_value need to be None or lists of the same length.
@@ -527,10 +527,10 @@ class MD_Command_Viessmann(MD_Command):
         :rtype: dict
         """
         params = {}
-        if not hasattr(self, 'params'):
+        if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, 'param_values'):
+        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
             raise SyntaxError(f'params {kwargs["params"]} given, but no param_values')
 
         if len(self.params) != len(self.param_values):

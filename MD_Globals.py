@@ -42,6 +42,7 @@ from ast import literal_eval
 PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to disable loading of device
 PLUGIN_ATTR_MODEL            = 'model'                   # select model if applicable. Don't set if not necessary!
 PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stucts not supported by chosen model
+PLUGIN_ATTR_CMD_CLASS        = 'command_class'           # name of class to use for commands
 
 # general connection attributes
 PLUGIN_ATTR_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
@@ -50,7 +51,7 @@ PLUGIN_ATTR_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, ca
 PLUGIN_ATTR_CONN_TIMEOUT     = 'timeout'                 # timeout for reading from network or serial
 PLUGIN_ATTR_CONN_TERMINATOR  = 'terminator'              # terminator for reading from network or serial
 PLUGIN_ATTR_CONN_BINARY      = 'binary'                  # tell connection to handle data for binary parsing
-PLUGIN_ATTR_CONN_AUTO_CONN    = 'autoreconnect'           # (re)connect automatically on send
+PLUGIN_ATTR_CONN_AUTO_CONN   = 'autoreconnect'           # (re)connect automatically on send
 PLUGIN_ATTR_CONN_RETRIES     = 'connect_retries'         # if autoreconnect: how often to reconnect
 PLUGIN_ATTR_CONN_CYCLE       = 'connect_cycle'           # if autoreconnect: how many seconds to wait between retries
 
@@ -70,7 +71,7 @@ PLUGIN_ATTR_PROTOCOL         = 'protocol'                # manually choose proto
 PLUGIN_ATTR_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to wait for reply to command (JSON-RPC only)
 PLUGIN_ATTR_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
 
-PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT,
+PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT, PLUGIN_ATTR_CMD_CLASS,
                 PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_TIMEOUT,
                 PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_CYCLE,
                 PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT,
@@ -112,8 +113,33 @@ COMMAND_READ            = True
 COMMAND_WRITE           = False
 COMMAND_SEP             = '.'
 
+# command definition attributes
+CMD_ATTR_OPCODE         = 'opcode'
+CMD_ATTR_READ           = 'read'
+CMD_ATTR_WRITE          = 'write'
+CMD_ATTR_ITEM_TYPE      = 'item_type'
+CMD_ATTR_DEV_TYPE       = 'dev_datatype'
+CMD_ATTR_READ_CMD       = 'read_cmd'
+CMD_ATTR_WRITE_CMD      = 'write_cmd'
+CMD_ATTR_REPLY_TOKEN    = 'reply_token'
+CMD_ATTR_REPLY_PATTERN  = 'reply_pattern'
+CMD_ATTR_CMD_SETTINGS   = 'cmd_settings'
+CMD_ATTR_LOOKUP         = 'lookup'
+CMD_ATTR_PARAMS         = 'params'
+CMD_ATTR_PARAM_VALUES   = 'param_values'
+CMD_ATTR_ITEM_ATTRS     = 'item_attrs'
+
+CMD_IATTR_NO_READ_GRP   = 'no_read_group'
+CMD_IATTR_LOOKUP_ITEM   = 'lookup_item'
+CMD_IATTR_ATTRIBUTES    = 'attributes'
+CMD_IATTR_READ_GROUPS   = 'read_groups'
+
 # commands definition parameters
-COMMAND_PARAMS          = ('opcode', 'read', 'write', 'item_type', 'dev_datatype', 'read_cmd', 'write_cmd', 'read_data', 'reply_token', 'reply_pattern', 'settings', 'lookup', 'params', 'param_values')
+COMMAND_PARAMS          = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE, CMD_ATTR_READ_CMD,
+                           CMD_ATTR_WRITE_CMD, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_CMD_SETTINGS,
+                           CMD_ATTR_LOOKUP, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS)
+
+COMMAND_ITEM_ATTRS      = (CMD_IATTR_NO_READ_GRP, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS)
 
 # keys for min / max values for data bounds
 MINMAXKEYS              = ('valid_min', 'valid_max', 'force_min', 'force_max')

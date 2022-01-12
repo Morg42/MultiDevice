@@ -27,6 +27,8 @@
 import logging
 import time
 import sys
+from lib.shyaml import yaml_load
+import importlib
 
 if MD_standalone:
     from MD_Globals import *
@@ -63,6 +65,7 @@ class MD_Device(object):
     :type device_type: str
     :type device_id: str
     """
+    DEVICE_ATTRS = ('viess_proto',)
 
     def __init__(self, device_type, device_id, **kwargs):
         """
@@ -89,11 +92,7 @@ class MD_Device(object):
         # the commands object
         self._commands = None
 
-        # set device-dependent default attributes for device and connection
-        self._set_default_params()
-
         # set class properties
-        self._params.update(kwargs)
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -101,7 +100,6 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-        self._plugin = self._params.get('plugin', None)
 
         self._data_received_callback = None
         self._commands_read = {}
@@ -109,10 +107,23 @@ class MD_Device(object):
         self._commands_initial = []
         self._commands_cyclic = {}
 
+        # read device.yaml and set default attributes for device / connection
+        try:
+            self._set_default_params()
+        except Exception as e:
+            self.logger.error(f'couldn\'t load device defaults, disabling device. Error was: {e}')
+            return
+
+        self._params.update(kwargs)
+        self._plugin = self._params.get('plugin', None)
+
+        # possibly initialize additional 
+        self._set_custom_vars()
+
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
-            self.logger.warning(f'attribute enabled set to false, not loading device')
-            return False
+            self.logger.warning('device attribute "enabled" set to False, not loading device')
+            return
 
         # this is only viable for the base class. All derived classes from
         # MD_Device will probably be created towards a specific command class
@@ -126,16 +137,16 @@ class MD_Device(object):
         try:
             if not self._read_configuration():
                 self.logger.error('configuration could not be read, device disabled')
-                return False
+                return
         except Exception as e:
             self.logger.error(f'configuration could not be read, device disabled. Original error: {e}')
-            return False
+            return
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
             self.logger.error(f'could not setup connection with {kwargs}, device disabled')
-            return False
+            return
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
@@ -348,7 +359,7 @@ class MD_Device(object):
     def get_lookup(self, lookup, mode='fwd'):
         """ returns the lookup table for name <lookup>, None on error """
         if self._commands:
-            return self._commands.get_lookup(lookup)
+            return self._commands.get_lookup(lookup, mode)
         else:
             return None
 
@@ -358,13 +369,9 @@ class MD_Device(object):
     #
     #
 
-    def _set_default_params(self):
-        """ Set (empty) default parameters. Overwrite as needed... """
-
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, '_params'):
-            self._params = {}
+    def _set_custom_vars(self):
+        """ Set custom class properties. Overwrite as needed... """
+        pass
 
     def _post_init(self):
         """ do something after default initializing is done. Overwrite if needed. 
@@ -449,8 +456,10 @@ class MD_Device(object):
                 conn_classname = conn_cls.__name__
             elif self._params[PLUGIN_ATTR_CONNECTION] in CONNECTION_TYPES:
                 conn_type = self._params[PLUGIN_ATTR_CONNECTION]
+            else:
+                conn_classname = self._params[PLUGIN_ATTR_CONNECTION]
         
-        if not conn_type and not conn_cls:
+        if not conn_type and not conn_cls and not conn_classname:
             if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
                 # no further information on network specifics, use basic HTTP TCP client
@@ -476,10 +485,7 @@ class MD_Device(object):
         self.logger.debug(f'wanting connection class named {conn_classname}')
 
         if not conn_cls:
-            if hasattr(conn_module, conn_classname):
-                conn_cls = getattr(conn_module, conn_classname)
-            else:
-                conn_cls = getattr(conn_module, 'MD_Connection')
+            conn_cls = getattr(conn_module, conn_classname, getattr(conn_module, 'MD_Connection'))
 
         self.logger.debug(f'using connection class {conn_cls}')
 
@@ -497,10 +503,12 @@ class MD_Device(object):
                 proto_cls = self._params[PLUGIN_ATTR_PROTOCOL]
             elif self._params[PLUGIN_ATTR_PROTOCOL] in PROTOCOL_TYPES:
                 proto_type = self._params[PLUGIN_ATTR_PROTOCOL]
+            else:
+                proto_classname = self._params[PLUGIN_ATTR_PROTOCOL]
 
-            if proto_type is None and not proto_cls:
+            if proto_type is None and not proto_cls and not proto_classname:
                 # class not known and not provided
-                self.logger.error(f'protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type')
+                self.logger.error(f'protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type or class name')
                 return None
 
             if proto_type == PROTO_NULL:
@@ -509,9 +517,8 @@ class MD_Device(object):
                 proto_classname = 'MD_Protocol_' + '_'.join([tok.capitalize() for tok in proto_type.split('_')])
 
             if not proto_cls:
-                if hasattr(proto_module, proto_classname):
-                    proto_cls = getattr(proto_module, proto_classname)
-                else:
+                proto_cls = getattr(proto_module, proto_classname, None)
+                if not proto_cls:
                     self.logger.error(f'protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but not loadable')
                     return None
 
@@ -532,6 +539,19 @@ class MD_Device(object):
     def on_disconnect(self, by=None):
         """ callback if connection is broken. """
         pass
+
+    def _set_default_params(self):
+        """ load default params from device.yaml """
+        info_file = '/'.join(__name__.split('.')[:-1]) + '/dev_' + self.device_type + '/device.yaml'
+        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, '_params'):
+            self._params = {}
+
+        p = yaml.get('parameters', {})
+        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
 
     #
     #
@@ -631,7 +651,24 @@ class MD_Device(object):
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overwritten to do something else.
         """
-        cls = self._command_class
+        cls = None        
+        if isinstance(self._command_class, type):
+            cls = self._command_class
+        elif isinstance(self._command_class, str):
+
+            mod_str = 'MD_Command'
+            if not MD_standalone:
+                mod_str = '..' + mod_str
+
+            try:
+                # get module
+                print(mod_str)
+                cmd_module = importlib.import_module(mod_str, __name__)
+            except Exception as e:
+                raise ImportError(f'importing module {mod_str} failed. Error was: "{e}"')
+
+            cls = getattr(cmd_module, self._command_class, None)
+
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)

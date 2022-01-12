@@ -5,13 +5,9 @@
 if MD_standalone:
     from MD_Globals import *
     from MD_Device import MD_Device
-    from MD_Command import MD_Command_Viessmann
-    from MD_Protocol import MD_Protocol_Viessmann
 else:
     from ..MD_Globals import *
     from ..MD_Device import MD_Device
-    from ..MD_Command import MD_Command_Viessmann
-    from ..MD_Protocol import MD_Protocol_Viessmann
 
 
 class MD_Device(MD_Device):
@@ -19,13 +15,6 @@ class MD_Device(MD_Device):
 
     Standalone mode is automatic device type discovery
     """
-
-    def _set_default_params(self):
-        # set parameter defaults
-        # Note: connection defaults are fixed for Viessmann heating devices
-        #       and set by the protocol class
-        self._params = {'command_class': MD_Command_Viessmann, 
-                        PLUGIN_ATTR_PROTOCOL: PROTO_VIESSMANN}
 
 #
 # methods for standalone mode

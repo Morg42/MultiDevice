@@ -1194,6 +1194,127 @@ class WebInterface(SmartPluginWebIf):
         return {}
 
 
+def create_struct_yaml(device, indentwidth):
+    """ read commands.py and export struct.yaml """
+
+    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models):
+        """ traverses a nested dict
+
+        :param node: starting node
+        :param node_name: name of the starting node on parent level ("key")
+        :param parent: parent node
+        :param func: function to call for each node
+        :param path: path of the current node (pparent.parent.node)
+        :param indent: indent level (indent is INDENT ** indent)
+        :param gpath: path of "current" (next above) read group
+        :param gpathlist: list of all current (above) read groups
+        :param has_models: True is command dict has models ('ALL') -> then include top level = model name in read groups
+        :type node: dict
+        :type node_name: str
+        :type parent: dict
+        :type func: function
+        :type path: str
+        :type indent: int
+        :type gpath: str
+        :type gpathlist: list
+        :type has_models: bool
+        """
+
+        # first call func -> print current node before descending
+        if func is not None:
+            func(node, node_name, parent, path, indent, gpath, gpathlist)
+
+        # iterate over all children who are dicts
+        for child in list(k for k in node.keys() if isinstance(node[k], dict)):
+
+            # and recursively walk them. path and gpathlist is a bit messy...
+            walk(node[child], child, node, func, (path if path else ('' if has_models else node_name)) + ('.' if path or not has_models else '') + child, indent + 1, path, gpathlist + ([path] if path else []), has_models)
+
+    def print_item(node, node_name, parent, path, indent, gpath, gpathlist):
+        """ print item or read item for current node/command
+
+        for params see walk() above, they are the same there
+        """
+        def _p_text(text, add=0):
+            """ print indented text """
+            print(f'{INDENT * (indent + 1 + add)}{text}')
+
+        def _p_attr(key, val, add=0):
+            """ print indented 'key: node[val]' """
+            if val in node:
+                if isinstance(node[val], bool):
+                    print(f'{INDENT * (indent + 1 + add)}{key}: {str(node[val]).lower()}')
+                else:
+                    print(f'{INDENT * (indent + 1 + add)}{key}: {node[val]}')
+
+        # skip known command sub-dict nodes, but include command nodes
+        # TODO: check if settings has dict children -> then it is a section, include...
+        if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS) or CMD_ATTR_ITEM_TYPE in node:
+
+            # item / level definition
+            print(INDENT * indent + node_name + ':')
+
+            # item -> print item attributes
+            if 'item_type' in node:
+                _p_attr('type', 'item_type')
+                _p_text('md_device: DEVICENAME')
+                _p_text(f'md_command: {path if path else node_name}')
+                _p_attr('md_read', 'read')
+                _p_attr('md_write', 'write')
+                _p_text(f'md_read_group: {gpathlist}')
+                print()
+
+            # "level node" -> print read item
+            elif node_name not in ('settings', 'params', 'param_values'):
+                print()
+                _p_text('read:')
+                _p_text('type: bool', 1)
+                _p_text('enforce_updates: true', 1)
+                _p_text('md_device: DEVICENAME', 1)
+                _p_text(f'md_read_group_trigger: {path if path else node_name}', 1)
+                print()
+
+    INDENT = ' ' * indentwidth
+    MODELINE = f'# vim: expandtab:ts={indentwidth}:sw={indentwidth}'
+
+    mod_str = 'plugins.multidevice.dev_' + device + '.commands'
+    try:
+        cmd_module = importlib.import_module(mod_str, __name__)
+    except Exception as e:
+        raise ImportError(f'error on importing commands, aborting. Error was {e}')
+
+    commands = cmd_module.commands
+    devices = list(commands.keys())
+
+    print('%YAML 1.1')
+    print('---')
+    print(MODELINE)
+
+    has_models = False
+
+    if 'ALL' in devices:
+        has_models = True
+        devices.remove('ALL')
+
+    for dev in devices:
+        # get dict as ref
+        c = {dev: commands[dev]}
+
+        # add in 'ALL' commands if present
+        # each key is only visited once, so we can risk changing the `commands` dict
+        c[dev].update(commands.get('ALL', {}))
+
+        # traverse from root node
+        walk(c[dev], dev, commands, print_item, '', 0, dev, [dev], has_models)
+
+    # if no models, make "all inclusive" struct
+    if not has_models:
+        print('all:')
+        print(f'{INDENT}struct:')
+        for node in commands.keys():
+            print(f'{INDENT * 2}- multidevice.DEVICENAME.{node}')
+
+
 if __name__ == '__main__':
 
     usage = """
@@ -1224,6 +1345,15 @@ if __name__ == '__main__':
 
     ./__init__.py MD_Device -v
 
+    If you call it with -s as a parameter after the device id, the plugin will
+    create a struct.yaml file from the devices' commands.py:
+
+    ./__init__.py MD_Device -s
+
+    An additional number can change the indent width from default 4:
+
+    ./__init__.py MD_Device -s2
+
     """
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.CRITICAL)
@@ -1238,6 +1368,7 @@ if __name__ == '__main__':
     logger.addHandler(ch)
 
     device = ""
+    struct_mode = False
 
     if len(sys.argv) > 1:
         device = sys.argv[1]
@@ -1252,6 +1383,18 @@ if __name__ == '__main__':
             if arg_str == '-v':
                 print('Debug logging enabled')
                 logger.setLevel(logging.DEBUG)
+
+            elif arg_str[:2] == '-s':
+                # don't print('struct.yaml creation mode enabled')
+                # only output the struct.yaml
+                indent = 4
+                try:
+                    indent = int(arg_str[2:])
+                except Exception:
+                    pass
+
+                create_struct_yaml(device, indent)
+                exit(0)
 
             else:
                 try:

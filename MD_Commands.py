@@ -92,7 +92,7 @@ class MD_Commands(object):
             return True
 
         # if the corresponding attribute is not defined, assume False (fail safe)
-        return getattr(self._commands[command], 'read' if read else 'write', False)
+        return getattr(self._commands[command], CMD_ATTR_READ if read else CMD_ATTR_WRITE, False)
 
     def get_send_data(self, command, data=None, **kwargs):
         if command in self._commands:
@@ -118,16 +118,16 @@ class MD_Commands(object):
             data = str(data.decode('utf-8'))
 
         for command in self._commands:
-            tokens = getattr(self._commands[command], 'reply_token', None)
+            tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
             if tokens:
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    if token == 'REGEX' and getattr(self._commands[command], 'reply_pattern', None):
+                    if token == 'REGEX' and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
 
                         # token is "REGEX" - parse read_cmd as regex
                         try:
-                            regex = re.compile(getattr(self._commands[command], 'reply_pattern'))
+                            regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
                             if regex.match(data) is not None:
                                 self.logger.debug(f'matched reply_pattern {getattr(self._commands[command], "reply_pattern")} as regex against data {data}, found command {command}')
                                 return command
@@ -143,6 +143,8 @@ class MD_Commands(object):
         """ returns the contents of the lookup table named <lookup>, None on error """
         if lookup in self._lookups and type in ('fwd', 'rev', 'rci'):
             return self._lookups[lookup][type]
+        elif lookup in self._lookups and type == 'list':
+            return list(self._lookups[lookup]['rev'].keys())
         else:
             return None
 
@@ -237,8 +239,8 @@ class MD_Commands(object):
         def moveItems(node, node_name, parent):
             # make sure we can move "upwards"
             if parent:
-                # if node['opcode'] is not present, node is not a command
-                if 'item_type' not in node:
+                # if node[CMD_ATTR_OPCODE] is not present, node is not a command
+                if CMD_ATTR_ITEM_TYPE not in node:
                     for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                         # node has dict elements node[child]
                         parent[node_name + COMMAND_SEP + child] = node[child]
@@ -355,14 +357,14 @@ class MD_Commands(object):
                     kw['settings']['valid_list_ci'] = [entry.lower() if isinstance(entry, str) else entry for entry in kw['settings']['valid_list_ci']]
 
             dt_class = None
-            dev_datatype = kw.get('dev_datatype', '')
+            dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, '')
             if dev_datatype:
                 class_name = '' if dev_datatype[:2] == 'DT_' else 'DT_' + dev_datatype
                 dt_class = self._dt.get(class_name)
 
-            if kw.get('read', False) and kw.get('opcode', '') == '' and kw.get('read_cmd', '') == '':
+            if kw.get(CMD_ATTR_READ, False) and kw.get(CMD_ATTR_OPCODE, '') == '' and kw.get(CMD_ATTR_READ_CMD, '') == '':
                 self.logger.info(f'command {cmd} will not create a command for reading values. Check commands.py configuration...')
-            if kw.get('write', False) and kw.get('opcode', '') == '' and kw.get('write_cmd', '') == '':
+            if kw.get(CMD_ATTR_WRITE, False) and kw.get(CMD_ATTR_OPCODE, '') == '' and kw.get(CMD_ATTR_WRITE_CMD, '') == '':
                 self.logger.info(f'command {cmd} will not create a command for writing values. Check commands.py configuration...')
             if not dt_class:
                 self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')

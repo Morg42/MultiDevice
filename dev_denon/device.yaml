@@ -40,3 +40,15 @@ parameters:
     serialport:
         type: str
         description: 'Serieller Port'
+
+    # nicht ändern
+    terminator:
+        type: str
+        default: '\r'
+        description: 'Ende einer Kommandozeile'
+
+    # nicht ändern
+    command_class:
+        type: str
+        default: MD_Command_ParseStr
+        description: 'Name der Klasse für Commands'

@@ -34,7 +34,7 @@ commands = {
         'pqls': {'read': True, 'write': True, 'read_cmd': '?PQ', 'write_cmd': ':{VAL:01}PQ:', 'item_type': 'str', 'dev_datatype': 'bool', 'reply_token': 'REGEX', 'reply_pattern': r'PQ(\d)'},
         'dimmer': {'read': True, 'write': True, 'write_cmd': '{VAL}SAA', 'cmd_settings': {'force_min': 0, 'force_max': 3}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SAA(\d)', 'item_attrs': {'attributes': {'remark': '0 = very bright, 1 = bright, 2 = dark, 3 = off'}}},
         'sleep': {'read': True, 'write': True, 'read_cmd': '?SAB', 'write_cmd': 'MD_VALUESAB', 'item_type': 'num', 'dev_datatype': 'PioSleep', 'reply_token': 'REGEX', 'reply_pattern': r'SAB(\d{3})', 'item_attrs': {'attributes': {'remark': '0 = off, 30 = 30 minutes, 60 = 60 minutes, 90 = 90 minutes'}}},
-        'amp': {'read': True, 'write': True, 'read_cmd': '?SAC', 'write_cmd': 'MD_VALUESAC', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SAC(\d{2})', 'lookup': 'AMP', 'item_attrs': {'attributes': {'remark': '0 = AMP, 1 = THR'}, 'lookup_item': 'lookup'}},
+        'amp': {'read': True, 'write': True, 'read_cmd': '?SAC', 'write_cmd': 'MD_VALUESAC', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SAC(\d{2})', 'lookup': 'AMP', 'item_attrs': {'attributes': {'remark': '0 = AMP, 1 = THR'}, 'lookup_item': True}},
         'multizone': {'read': True, 'write': True, 'write_cmd': 'ZZ', 'item_type': 'str', 'dev_datatype': 'str'}
     },
     'tuner': {

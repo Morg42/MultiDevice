@@ -1344,13 +1344,13 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 # if item has 'md_lookup' and item_attrs['lookup_item'] is set,
                 # create additional item with lookup values
                 if inode and inode.get(CMD_IATTR_LOOKUP_ITEM) and node.get(CMD_ATTR_LOOKUP):
-                    p_text('lookup:', 1)
+                    p_text('lookup:')
                     ltyp = inode.get(CMD_IATTR_LOOKUP_ITEM)
                     if ltyp is True:
                         ltyp = 'list'
-                    p_text(f'type: {"list" if ltyp == "list" else "dict"}', 2)
-                    p_text(f'{ITEM_ATTR_DEVICE}: DEVICENAME', 2)
-                    p_text(f'{ITEM_ATTR_LOOKUP}: {node.get(CMD_ATTR_LOOKUP)}#{ltyp}', 2)
+                    p_text(f'type: {"list" if ltyp == "list" else "dict"}', 1)
+                    p_text(f'{ITEM_ATTR_DEVICE}: DEVICENAME', 1)
+                    p_text(f'{ITEM_ATTR_LOOKUP}: {node.get(CMD_ATTR_LOOKUP)}#{ltyp}', 1)
                     print()
 
             # "level node" -> print read item

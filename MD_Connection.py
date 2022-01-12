@@ -599,7 +599,7 @@ class MD_Connection_Serial(MD_Connection):
         term_bytes = None
         if isinstance(limit_response, int):
             maxlen = limit_response
-        elif isinstance(limit_response, (bytes, bytearray)):
+        elif isinstance(limit_response, (bytes, bytearray, str)):
             term_bytes = bytes(limit_response)
 
         # take care of "overflow" from last read
@@ -631,7 +631,7 @@ class MD_Connection_Serial(MD_Connection):
                     if maxlen and len(totalreadbytes) >= maxlen:
                         return totalreadbytes
 
-                    if term_bytes in totalreadbytes:
+                    if term_bytes and term_bytes in totalreadbytes:
                         if self.__use_read_buffer:
                             pos = totalreadbytes.find(term_bytes)
                             self._read_buffer += totalreadbytes[pos + len(term_bytes):]
@@ -639,7 +639,7 @@ class MD_Connection_Serial(MD_Connection):
                         else:
                             return totalreadbytes
             else:
-                self.logger.warning(f'read_bytes couldn\'t get lock on serial. Ths is unintended...')
+                self.logger.warning('read_bytes couldn\'t get lock on serial. Ths is unintended...')
 
         # timeout reached, did we read anything?
         if not totalreadbytes and not self.__running:

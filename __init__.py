@@ -164,13 +164,9 @@ Public callback methods:
 * ``on_disconnect(by=None)``
 
 
-Methods probably necessary to overwrite:
-
-* ``_set_default_params()``
-
-
 Methods possibly needed to overwrite for inherited classes:
 
+* ``_set_custom_vars()``
 * ``_post_init()``
 * ``run_standalone()``
 * ``_transform_send_data(data_dict)``
@@ -864,8 +860,6 @@ class MultiDevice(SmartPlugin):
                     self.logger.debug(f'Item {item} assigned lookup {table} from device {device_id} with contents {device.get_lookup(table)}')
                 else:
                     self.logger.info(f'Item {item} requested lookup {table} from device {device_id}, which was empty or non-existent')
-            else:
-                self.logger.warning(f'Item {item} has attribute {ITEM_ATTR_LOOKUP} without a value set. Ignoring.')
 
     def update_item(self, item, caller=None, source=None, dest=None):
         """

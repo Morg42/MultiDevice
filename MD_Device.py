@@ -420,6 +420,37 @@ class MD_Device(object):
         """
         pass
 
+    def on_connect(self, by=None):
+        """ callback if connection is made. """
+        pass
+
+    def on_disconnect(self, by=None):
+        """ callback if connection is broken. """
+        pass
+
+    #
+    #
+    # utility methods
+    #
+    #
+
+    def _set_default_params(self):
+        """ load default params from device.yaml """
+        info_file = '/'.join(__name__.split('.')[:-1]) + '/dev_' + self.device_type + '/device.yaml'
+        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, '_params'):
+            self._params = {}
+
+        p = yaml.get('parameters', {})
+        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
+
+        if self._use_callbacks:
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
     def _get_connection(self):
         """
         return connection object. Try to identify the wanted connection  and return
@@ -435,11 +466,6 @@ class MD_Device(object):
         If you need to use other connection types for your device, implement it
         and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
-        Otherwise, just parse them in after calling super()._set_connection_params()
-
-        HINT: If you need to modify this, just write something new.
-        The "autodetect"-code will probably only be used with unaltered connection
-        classes. Just return the wanted connection object and ride into the light.
         """
         conn_type = None
         conn_classname = None
@@ -539,38 +565,6 @@ class MD_Device(object):
             return proto_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
 
         return conn_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
-
-    def on_connect(self, by=None):
-        """ callback if connection is made. """
-        pass
-
-    def on_disconnect(self, by=None):
-        """ callback if connection is broken. """
-        pass
-
-    def _set_default_params(self):
-        """ load default params from device.yaml """
-        info_file = '/'.join(__name__.split('.')[:-1]) + '/dev_' + self.device_type + '/device.yaml'
-        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
-
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, '_params'):
-            self._params = {}
-
-        p = yaml.get('parameters', {})
-        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
-
-        if self._use_callbacks:
-            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
-            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
-
-
-    #
-    #
-    # utility methods
-    #
-    #
 
     def _create_cyclic_scheduler(self):
         """

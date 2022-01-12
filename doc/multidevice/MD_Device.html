@@ -55,6 +55,8 @@
 import logging
 import time
 import sys
+from lib.shyaml import yaml_load
+import importlib
 
 if MD_standalone:
     from MD_Globals import *
@@ -91,6 +93,7 @@ class MD_Device(object):
     :type device_type: str
     :type device_id: str
     &#34;&#34;&#34;
+    DEVICE_ATTRS = (&#39;viess_proto&#39;,)
 
     def __init__(self, device_type, device_id, **kwargs):
         &#34;&#34;&#34;
@@ -117,11 +120,7 @@ class MD_Device(object):
         # the commands object
         self._commands = None
 
-        # set device-dependent default attributes for device and connection
-        self._set_default_params()
-
         # set class properties
-        self._params.update(kwargs)
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -129,18 +128,33 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-        self._plugin = self._params.get(&#39;plugin&#39;, None)
+        self._use_callbacks = False
 
         self._data_received_callback = None
         self._commands_read = {}
         self._commands_read_grp = {}
         self._commands_initial = []
         self._commands_cyclic = {}
+        self._triggers_initial = []
+        self._triggers_cyclic = {}
+
+        # read device.yaml and set default attributes for device / connection
+        try:
+            self._set_default_params()
+        except Exception as e:
+            self.logger.error(f&#39;couldn\&#39;t load device defaults, disabling device. Error was: {e}&#39;)
+            return
+
+        self._params.update(kwargs)
+        self._plugin = self._params.get(&#39;plugin&#39;, None)
+
+        # possibly initialize additional 
+        self._set_custom_vars()
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
-            self.logger.warning(f&#39;attribute enabled set to false, not loading device&#39;)
-            return False
+            self.logger.warning(&#39;device attribute &#34;enabled&#34; set to False, not loading device&#39;)
+            return
 
         # this is only viable for the base class. All derived classes from
         # MD_Device will probably be created towards a specific command class
@@ -154,16 +168,16 @@ class MD_Device(object):
         try:
             if not self._read_configuration():
                 self.logger.error(&#39;configuration could not be read, device disabled&#39;)
-                return False
+                return
         except Exception as e:
             self.logger.error(f&#39;configuration could not be read, device disabled. Original error: {e}&#39;)
-            return False
+            return
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
             self.logger.error(f&#39;could not setup connection with {kwargs}, device disabled&#39;)
-            return False
+            return
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
@@ -345,6 +359,8 @@ class MD_Device(object):
             self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
             self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
             self._commands_initial = kwargs[&#39;initial_commands&#39;]
+            self._triggers_cyclic = kwargs[&#39;cycle_triggers&#39;]
+            self._triggers_initial = kwargs[&#39;initial_triggers&#39;]
             self._data_received_callback = kwargs[&#39;callback&#39;]
             self._runtime_data_set = True
         except KeyError as e:
@@ -376,7 +392,7 @@ class MD_Device(object):
     def get_lookup(self, lookup, mode=&#39;fwd&#39;):
         &#34;&#34;&#34; returns the lookup table for name &lt;lookup&gt;, None on error &#34;&#34;&#34;
         if self._commands:
-            return self._commands.get_lookup(lookup)
+            return self._commands.get_lookup(lookup, mode)
         else:
             return None
 
@@ -386,13 +402,12 @@ class MD_Device(object):
     #
     #
 
-    def _set_default_params(self):
-        &#34;&#34;&#34; Set (empty) default parameters. Overwrite as needed... &#34;&#34;&#34;
+    def _set_custom_vars(self):
+        &#34;&#34;&#34; Set custom class properties. Overwrite as needed... &#34;&#34;&#34;
 
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, &#39;_params&#39;):
-            self._params = {}
+        # if you want to enable callbacks, overwrite this method and set
+        # self._use_callbacks = True
+        pass
 
     def _post_init(self):
         &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed. 
@@ -433,6 +448,40 @@ class MD_Device(object):
         &#34;&#34;&#34;
         pass
 
+    def on_connect(self, by=None):
+        &#34;&#34;&#34; callback if connection is made. &#34;&#34;&#34;
+        pass
+
+    def on_disconnect(self, by=None):
+        &#34;&#34;&#34; callback if connection is broken. &#34;&#34;&#34;
+        pass
+
+    #
+    #
+    # utility methods
+    #
+    #
+
+    def _set_default_params(self):
+        &#34;&#34;&#34; load default params from device.yaml &#34;&#34;&#34;
+        if MD_standalone:
+            info_file = &#39;plugins/multidevice/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
+        else:
+            info_file = &#39;/&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + &#39;/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
+        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, &#39;_params&#39;):
+            self._params = {}
+
+        p = yaml.get(&#39;parameters&#39;, {})
+        self._params.update({k: v.get(&#39;default&#39;, None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
+
+        if self._use_callbacks:
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
     def _get_connection(self):
         &#34;&#34;&#34;
         return connection object. Try to identify the wanted connection  and return
@@ -448,11 +497,6 @@ class MD_Device(object):
         If you need to use other connection types for your device, implement it
         and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
-        Otherwise, just parse them in after calling super()._set_connection_params()
-
-        HINT: If you need to modify this, just write something new.
-        The &#34;autodetect&#34;-code will probably only be used with unaltered connection
-        classes. Just return the wanted connection object and ride into the light.
         &#34;&#34;&#34;
         conn_type = None
         conn_classname = None
@@ -477,8 +521,10 @@ class MD_Device(object):
                 conn_classname = conn_cls.__name__
             elif self._params[PLUGIN_ATTR_CONNECTION] in CONNECTION_TYPES:
                 conn_type = self._params[PLUGIN_ATTR_CONNECTION]
+            else:
+                conn_classname = self._params[PLUGIN_ATTR_CONNECTION]
         
-        if not conn_type and not conn_cls:
+        if not conn_type and not conn_cls and not conn_classname:
             if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
                 # no further information on network specifics, use basic HTTP TCP client
@@ -504,10 +550,7 @@ class MD_Device(object):
         self.logger.debug(f&#39;wanting connection class named {conn_classname}&#39;)
 
         if not conn_cls:
-            if hasattr(conn_module, conn_classname):
-                conn_cls = getattr(conn_module, conn_classname)
-            else:
-                conn_cls = getattr(conn_module, &#39;MD_Connection&#39;)
+            conn_cls = getattr(conn_module, conn_classname, getattr(conn_module, &#39;MD_Connection&#39;))
 
         self.logger.debug(f&#39;using connection class {conn_cls}&#39;)
 
@@ -525,10 +568,12 @@ class MD_Device(object):
                 proto_cls = self._params[PLUGIN_ATTR_PROTOCOL]
             elif self._params[PLUGIN_ATTR_PROTOCOL] in PROTOCOL_TYPES:
                 proto_type = self._params[PLUGIN_ATTR_PROTOCOL]
+            else:
+                proto_classname = self._params[PLUGIN_ATTR_PROTOCOL]
 
-            if proto_type is None and not proto_cls:
+            if proto_type is None and not proto_cls and not proto_classname:
                 # class not known and not provided
-                self.logger.error(f&#39;protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type&#39;)
+                self.logger.error(f&#39;protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type or class name&#39;)
                 return None
 
             if proto_type == PROTO_NULL:
@@ -537,9 +582,8 @@ class MD_Device(object):
                 proto_classname = &#39;MD_Protocol_&#39; + &#39;_&#39;.join([tok.capitalize() for tok in proto_type.split(&#39;_&#39;)])
 
             if not proto_cls:
-                if hasattr(proto_module, proto_classname):
-                    proto_cls = getattr(proto_module, proto_classname)
-                else:
+                proto_cls = getattr(proto_module, proto_classname, None)
+                if not proto_cls:
                     self.logger.error(f&#39;protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but not loadable&#39;)
                     return None
 
@@ -552,20 +596,6 @@ class MD_Device(object):
             return proto_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
 
         return conn_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
-
-    def on_connect(self, by=None):
-        &#34;&#34;&#34; callback if connection is made. &#34;&#34;&#34;
-        pass
-
-    def on_disconnect(self, by=None):
-        &#34;&#34;&#34; callback if connection is broken. &#34;&#34;&#34;
-        pass
-
-    #
-    #
-    # utility methods
-    #
-    #
 
     def _create_cyclic_scheduler(self):
         &#34;&#34;&#34;
@@ -584,6 +614,12 @@ class MD_Device(object):
             cycle = self._commands_cyclic[cmd][&#39;cycle&#39;]
             if shortestcycle == -1 or cycle &lt; shortestcycle:
                 shortestcycle = cycle
+        for grp in self._triggers_cyclic:
+            cycle = self._triggers_cyclic[grp][&#39;cycle&#39;]
+            if shortestcycle == -1 or cycle &lt; shortestcycle:
+                shortestcycle = cycle
+
+        print(f&#39;I 1234 123456 shortestcycle is {shortestcycle}&#39;)
 
         # Start the worker thread
         if shortestcycle != -1:
@@ -599,17 +635,24 @@ class MD_Device(object):
 
     def _read_initial_values(self):
         &#34;&#34;&#34;
-        Read all values configured to be read at startup / after reconnect
+        Read all values configured to be read/triggered at startup / after reconnect
         &#34;&#34;&#34;
-        if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
-            self.logger.info(&#39;Starting initial read commands&#39;)
-            for cmd in self._commands_initial:
-                self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
-                self.send_command(cmd)
-            self._initial_values_read = True
-            self.logger.info(&#39;Initial read commands sent&#39;)
-        elif self._initial_values_read:
+        if self._initial_values_read:
             self.logger.debug(&#39;_read_initial_values() called, but inital values were already read. Ignoring&#39;)
+        else:
+            if self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
+                self.logger.info(&#39;Starting initial read commands&#39;)
+                for cmd in self._commands_initial:
+                    self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
+                    self.send_command(cmd)
+                self._initial_values_read = True
+                self.logger.info(&#39;Initial read commands sent&#39;)
+            if self._triggers_initial != []:  # also read after reconnect and not self._initial_values_read:
+                self.logger.info(&#39;Starting initial read group triggers&#39;)
+                for grp in self._triggers_initial:
+                    self.logger.debug(f&#39;Triggering initial read group {grp}&#39;)
+                    self.read_all_commands(grp)
+                self.logger.info(&#39;Initial read group triggers sent&#39;)
 
     def _read_cyclic_values(self):
         &#34;&#34;&#34;
@@ -649,9 +692,38 @@ class MD_Device(object):
             self._commands_cyclic[cmd][&#39;next&#39;] = currenttime + self._commands_cyclic[cmd][&#39;cycle&#39;]
             read_cmds += 1
  
-        self._cyclic_update_active = False
         if read_cmds:
             self.logger.debug(f&#39;Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items&#39;)
+
+        currenttime = time.time()
+        read_grps = 0
+        todo = []
+        for grp in self._triggers_cyclic:
+ 
+            # Is the trigger already due?
+            if self._triggers_cyclic[grp][&#39;next&#39;] &lt;= currenttime:
+                todo.append(grp)
+ 
+        for grp in todo:
+            # as this loop can take considerable time, repeatedly check if shng wants to stop
+            if not self.alive:
+                self.logger.info(&#39;Stop command issued, cancelling cyclic trigger&#39;)
+                return
+
+            # also leave early on disconnect
+            if not self._connection.connected():
+                self.logger.info(&#39;Disconnect detected, cancelling cyclic trigger&#39;)
+                return
+
+            self.logger.debug(f&#39;Triggering cyclic read of group {grp}&#39;)
+            self.read_all_commands(grp)
+            self._triggers_cyclic[grp][&#39;next&#39;] = currenttime + self._triggers_cyclic[grp][&#39;cycle&#39;]
+            read_grps += 1
+ 
+        if read_grps:
+            self.logger.debug(f&#39;Cyclic triggers took {(time.time() - currenttime):.1f} seconds for {read_grps} groups&#39;)
+
+        self._cyclic_update_active = False
 
     def _read_configuration(self):
         &#34;&#34;&#34;
@@ -659,7 +731,23 @@ class MD_Device(object):
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overwritten to do something else.
         &#34;&#34;&#34;
-        cls = self._command_class
+        cls = None        
+        if isinstance(self._command_class, type):
+            cls = self._command_class
+        elif isinstance(self._command_class, str):
+
+            mod_str = &#39;MD_Command&#39;
+            if not MD_standalone:
+                mod_str = &#39;..&#39; + mod_str
+
+            try:
+                # get module
+                cmd_module = importlib.import_module(mod_str, __name__)
+            except Exception as e:
+                raise ImportError(f&#39;importing module {mod_str} failed. Error was: &#34;{e}&#34;&#39;)
+
+            cls = getattr(cmd_module, self._command_class, None)
+
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
@@ -718,6 +806,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     :type device_type: str
     :type device_id: str
     &#34;&#34;&#34;
+    DEVICE_ATTRS = (&#39;viess_proto&#39;,)
 
     def __init__(self, device_type, device_id, **kwargs):
         &#34;&#34;&#34;
@@ -744,11 +833,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         # the commands object
         self._commands = None
 
-        # set device-dependent default attributes for device and connection
-        self._set_default_params()
-
         # set class properties
-        self._params.update(kwargs)
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -756,18 +841,33 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-        self._plugin = self._params.get(&#39;plugin&#39;, None)
+        self._use_callbacks = False
 
         self._data_received_callback = None
         self._commands_read = {}
         self._commands_read_grp = {}
         self._commands_initial = []
         self._commands_cyclic = {}
+        self._triggers_initial = []
+        self._triggers_cyclic = {}
+
+        # read device.yaml and set default attributes for device / connection
+        try:
+            self._set_default_params()
+        except Exception as e:
+            self.logger.error(f&#39;couldn\&#39;t load device defaults, disabling device. Error was: {e}&#39;)
+            return
+
+        self._params.update(kwargs)
+        self._plugin = self._params.get(&#39;plugin&#39;, None)
+
+        # possibly initialize additional 
+        self._set_custom_vars()
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
-            self.logger.warning(f&#39;attribute enabled set to false, not loading device&#39;)
-            return False
+            self.logger.warning(&#39;device attribute &#34;enabled&#34; set to False, not loading device&#39;)
+            return
 
         # this is only viable for the base class. All derived classes from
         # MD_Device will probably be created towards a specific command class
@@ -781,16 +881,16 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         try:
             if not self._read_configuration():
                 self.logger.error(&#39;configuration could not be read, device disabled&#39;)
-                return False
+                return
         except Exception as e:
             self.logger.error(f&#39;configuration could not be read, device disabled. Original error: {e}&#39;)
-            return False
+            return
 
         # instantiate connection object
         self._connection = self._get_connection()
         if not self._connection:
             self.logger.error(f&#39;could not setup connection with {kwargs}, device disabled&#39;)
-            return False
+            return
 
         # the following code should only be run if not called from subclass via super()
         if self.__class__ is MD_Device:
@@ -972,6 +1072,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
             self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
             self._commands_initial = kwargs[&#39;initial_commands&#39;]
+            self._triggers_cyclic = kwargs[&#39;cycle_triggers&#39;]
+            self._triggers_initial = kwargs[&#39;initial_triggers&#39;]
             self._data_received_callback = kwargs[&#39;callback&#39;]
             self._runtime_data_set = True
         except KeyError as e:
@@ -1003,7 +1105,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     def get_lookup(self, lookup, mode=&#39;fwd&#39;):
         &#34;&#34;&#34; returns the lookup table for name &lt;lookup&gt;, None on error &#34;&#34;&#34;
         if self._commands:
-            return self._commands.get_lookup(lookup)
+            return self._commands.get_lookup(lookup, mode)
         else:
             return None
 
@@ -1013,13 +1115,12 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     #
     #
 
-    def _set_default_params(self):
-        &#34;&#34;&#34; Set (empty) default parameters. Overwrite as needed... &#34;&#34;&#34;
+    def _set_custom_vars(self):
+        &#34;&#34;&#34; Set custom class properties. Overwrite as needed... &#34;&#34;&#34;
 
-        # if derived class sets defaults before calling us, they must not be
-        # overwritten
-        if not hasattr(self, &#39;_params&#39;):
-            self._params = {}
+        # if you want to enable callbacks, overwrite this method and set
+        # self._use_callbacks = True
+        pass
 
     def _post_init(self):
         &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed. 
@@ -1060,6 +1161,40 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34;
         pass
 
+    def on_connect(self, by=None):
+        &#34;&#34;&#34; callback if connection is made. &#34;&#34;&#34;
+        pass
+
+    def on_disconnect(self, by=None):
+        &#34;&#34;&#34; callback if connection is broken. &#34;&#34;&#34;
+        pass
+
+    #
+    #
+    # utility methods
+    #
+    #
+
+    def _set_default_params(self):
+        &#34;&#34;&#34; load default params from device.yaml &#34;&#34;&#34;
+        if MD_standalone:
+            info_file = &#39;plugins/multidevice/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
+        else:
+            info_file = &#39;/&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + &#39;/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
+        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
+
+        # if derived class sets defaults before calling us, they must not be
+        # overwritten
+        if not hasattr(self, &#39;_params&#39;):
+            self._params = {}
+
+        p = yaml.get(&#39;parameters&#39;, {})
+        self._params.update({k: v.get(&#39;default&#39;, None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
+
+        if self._use_callbacks:
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
     def _get_connection(self):
         &#34;&#34;&#34;
         return connection object. Try to identify the wanted connection  and return
@@ -1075,11 +1210,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         If you need to use other connection types for your device, implement it
         and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
-        Otherwise, just parse them in after calling super()._set_connection_params()
-
-        HINT: If you need to modify this, just write something new.
-        The &#34;autodetect&#34;-code will probably only be used with unaltered connection
-        classes. Just return the wanted connection object and ride into the light.
         &#34;&#34;&#34;
         conn_type = None
         conn_classname = None
@@ -1104,8 +1234,10 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
                 conn_classname = conn_cls.__name__
             elif self._params[PLUGIN_ATTR_CONNECTION] in CONNECTION_TYPES:
                 conn_type = self._params[PLUGIN_ATTR_CONNECTION]
+            else:
+                conn_classname = self._params[PLUGIN_ATTR_CONNECTION]
         
-        if not conn_type and not conn_cls:
+        if not conn_type and not conn_cls and not conn_classname:
             if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
                 # no further information on network specifics, use basic HTTP TCP client
@@ -1131,10 +1263,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         self.logger.debug(f&#39;wanting connection class named {conn_classname}&#39;)
 
         if not conn_cls:
-            if hasattr(conn_module, conn_classname):
-                conn_cls = getattr(conn_module, conn_classname)
-            else:
-                conn_cls = getattr(conn_module, &#39;MD_Connection&#39;)
+            conn_cls = getattr(conn_module, conn_classname, getattr(conn_module, &#39;MD_Connection&#39;))
 
         self.logger.debug(f&#39;using connection class {conn_cls}&#39;)
 
@@ -1152,10 +1281,12 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
                 proto_cls = self._params[PLUGIN_ATTR_PROTOCOL]
             elif self._params[PLUGIN_ATTR_PROTOCOL] in PROTOCOL_TYPES:
                 proto_type = self._params[PLUGIN_ATTR_PROTOCOL]
+            else:
+                proto_classname = self._params[PLUGIN_ATTR_PROTOCOL]
 
-            if proto_type is None and not proto_cls:
+            if proto_type is None and not proto_cls and not proto_classname:
                 # class not known and not provided
-                self.logger.error(f&#39;protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type&#39;)
+                self.logger.error(f&#39;protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but unknown and not class type or class name&#39;)
                 return None
 
             if proto_type == PROTO_NULL:
@@ -1164,9 +1295,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
                 proto_classname = &#39;MD_Protocol_&#39; + &#39;_&#39;.join([tok.capitalize() for tok in proto_type.split(&#39;_&#39;)])
 
             if not proto_cls:
-                if hasattr(proto_module, proto_classname):
-                    proto_cls = getattr(proto_module, proto_classname)
-                else:
+                proto_cls = getattr(proto_module, proto_classname, None)
+                if not proto_cls:
                     self.logger.error(f&#39;protocol {self._params[PLUGIN_ATTR_PROTOCOL]} specified, but not loadable&#39;)
                     return None
 
@@ -1179,20 +1309,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             return proto_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
 
         return conn_cls(self.device_type, self.device_id, self.on_data_received, **self._params)
-
-    def on_connect(self, by=None):
-        &#34;&#34;&#34; callback if connection is made. &#34;&#34;&#34;
-        pass
-
-    def on_disconnect(self, by=None):
-        &#34;&#34;&#34; callback if connection is broken. &#34;&#34;&#34;
-        pass
-
-    #
-    #
-    # utility methods
-    #
-    #
 
     def _create_cyclic_scheduler(self):
         &#34;&#34;&#34;
@@ -1211,6 +1327,12 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             cycle = self._commands_cyclic[cmd][&#39;cycle&#39;]
             if shortestcycle == -1 or cycle &lt; shortestcycle:
                 shortestcycle = cycle
+        for grp in self._triggers_cyclic:
+            cycle = self._triggers_cyclic[grp][&#39;cycle&#39;]
+            if shortestcycle == -1 or cycle &lt; shortestcycle:
+                shortestcycle = cycle
+
+        print(f&#39;I 1234 123456 shortestcycle is {shortestcycle}&#39;)
 
         # Start the worker thread
         if shortestcycle != -1:
@@ -1226,17 +1348,24 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
     def _read_initial_values(self):
         &#34;&#34;&#34;
-        Read all values configured to be read at startup / after reconnect
+        Read all values configured to be read/triggered at startup / after reconnect
         &#34;&#34;&#34;
-        if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
-            self.logger.info(&#39;Starting initial read commands&#39;)
-            for cmd in self._commands_initial:
-                self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
-                self.send_command(cmd)
-            self._initial_values_read = True
-            self.logger.info(&#39;Initial read commands sent&#39;)
-        elif self._initial_values_read:
+        if self._initial_values_read:
             self.logger.debug(&#39;_read_initial_values() called, but inital values were already read. Ignoring&#39;)
+        else:
+            if self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
+                self.logger.info(&#39;Starting initial read commands&#39;)
+                for cmd in self._commands_initial:
+                    self.logger.debug(f&#39;Sending initial command {cmd}&#39;)
+                    self.send_command(cmd)
+                self._initial_values_read = True
+                self.logger.info(&#39;Initial read commands sent&#39;)
+            if self._triggers_initial != []:  # also read after reconnect and not self._initial_values_read:
+                self.logger.info(&#39;Starting initial read group triggers&#39;)
+                for grp in self._triggers_initial:
+                    self.logger.debug(f&#39;Triggering initial read group {grp}&#39;)
+                    self.read_all_commands(grp)
+                self.logger.info(&#39;Initial read group triggers sent&#39;)
 
     def _read_cyclic_values(self):
         &#34;&#34;&#34;
@@ -1276,9 +1405,38 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self._commands_cyclic[cmd][&#39;next&#39;] = currenttime + self._commands_cyclic[cmd][&#39;cycle&#39;]
             read_cmds += 1
  
-        self._cyclic_update_active = False
         if read_cmds:
             self.logger.debug(f&#39;Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items&#39;)
+
+        currenttime = time.time()
+        read_grps = 0
+        todo = []
+        for grp in self._triggers_cyclic:
+ 
+            # Is the trigger already due?
+            if self._triggers_cyclic[grp][&#39;next&#39;] &lt;= currenttime:
+                todo.append(grp)
+ 
+        for grp in todo:
+            # as this loop can take considerable time, repeatedly check if shng wants to stop
+            if not self.alive:
+                self.logger.info(&#39;Stop command issued, cancelling cyclic trigger&#39;)
+                return
+
+            # also leave early on disconnect
+            if not self._connection.connected():
+                self.logger.info(&#39;Disconnect detected, cancelling cyclic trigger&#39;)
+                return
+
+            self.logger.debug(f&#39;Triggering cyclic read of group {grp}&#39;)
+            self.read_all_commands(grp)
+            self._triggers_cyclic[grp][&#39;next&#39;] = currenttime + self._triggers_cyclic[grp][&#39;cycle&#39;]
+            read_grps += 1
+ 
+        if read_grps:
+            self.logger.debug(f&#39;Cyclic triggers took {(time.time() - currenttime):.1f} seconds for {read_grps} groups&#39;)
+
+        self._cyclic_update_active = False
 
     def _read_configuration(self):
         &#34;&#34;&#34;
@@ -1286,7 +1444,23 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overwritten to do something else.
         &#34;&#34;&#34;
-        cls = self._command_class
+        cls = None        
+        if isinstance(self._command_class, type):
+            cls = self._command_class
+        elif isinstance(self._command_class, str):
+
+            mod_str = &#39;MD_Command&#39;
+            if not MD_standalone:
+                mod_str = &#39;..&#39; + mod_str
+
+            try:
+                # get module
+                cmd_module = importlib.import_module(mod_str, __name__)
+            except Exception as e:
+                raise ImportError(f&#39;importing module {mod_str} failed. Error was: &#34;{e}&#34;&#39;)
+
+            cls = getattr(cmd_module, self._command_class, None)
+
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
@@ -1299,6 +1473,13 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <ul class="hlist">
 <li><a title="multidevice.dev_example.device.MD_Device" href="dev_example/device.html#multidevice.dev_example.device.MD_Device">MD_Device</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="multidevice.MD_Device.MD_Device.DEVICE_ATTRS"><code class="name">var <span class="ident">DEVICE_ATTRS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="multidevice.MD_Device.MD_Device.get_lookup"><code class="name flex">
@@ -1313,7 +1494,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <pre><code class="python">def get_lookup(self, lookup, mode=&#39;fwd&#39;):
     &#34;&#34;&#34; returns the lookup table for name &lt;lookup&gt;, None on error &#34;&#34;&#34;
     if self._commands:
-        return self._commands.get_lookup(lookup)
+        return self._commands.get_lookup(lookup, mode)
     else:
         return None</code></pre>
 </details>
@@ -1561,6 +1742,8 @@ from the device and writing it to the associated item.</p>
         self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
         self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
         self._commands_initial = kwargs[&#39;initial_commands&#39;]
+        self._triggers_cyclic = kwargs[&#39;cycle_triggers&#39;]
+        self._triggers_initial = kwargs[&#39;initial_triggers&#39;]
         self._data_received_callback = kwargs[&#39;callback&#39;]
         self._runtime_data_set = True
     except KeyError as e:
@@ -1669,6 +1852,7 @@ from the device and writing it to the associated item.</p>
 <li>
 <h4><code><a title="multidevice.MD_Device.MD_Device" href="#multidevice.MD_Device.MD_Device">MD_Device</a></code></h4>
 <ul class="">
+<li><code><a title="multidevice.MD_Device.MD_Device.DEVICE_ATTRS" href="#multidevice.MD_Device.MD_Device.DEVICE_ATTRS">DEVICE_ATTRS</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.get_lookup" href="#multidevice.MD_Device.MD_Device.get_lookup">get_lookup</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.get_structs" href="#multidevice.MD_Device.MD_Device.get_structs">get_structs</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.is_valid_command" href="#multidevice.MD_Device.MD_Device.is_valid_command">is_valid_command</a></code></li>

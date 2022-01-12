@@ -436,7 +436,10 @@ class MD_Device(object):
 
     def _set_default_params(self):
         """ load default params from device.yaml """
-        info_file = '/'.join(__name__.split('.')[:-1]) + '/dev_' + self.device_type + '/device.yaml'
+        if MD_standalone:
+            info_file = 'plugins/multidevice/dev_' + self.device_type + '/device.yaml'
+        else:
+            info_file = '/'.join(__name__.split('.')[:-1]) + '/dev_' + self.device_type + '/device.yaml'
         yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
 
         # if derived class sets defaults before calling us, they must not be

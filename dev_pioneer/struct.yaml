@@ -58,10 +58,10 @@ general:
         md_read_group: ['general']
         remark: 0 = AMP, 1 = THR
 
-            lookup:
-                type: dict
-                md_device: DEVICENAME
-                md_lookup: AMP#lookup
+        lookup:
+            type: list
+            md_device: DEVICENAME
+            md_lookup: AMP#list
 
     multizone:
         type: str
@@ -153,7 +153,7 @@ zone1:
             md_command: zone1.control.mute
             md_read: true
             md_write: true
-            md_read_group: ['zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+            md_read_group: ['zone1', 'zone1.control', 'zone1.onpower']
 
         volume:
             type: num
@@ -434,6 +434,14 @@ zone1:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+
+zone1:
+    read:
+        on_power:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: zone1.onpower
 
 zone2:
 
@@ -855,7 +863,7 @@ ALL:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['ALL', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['ALL', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -1237,6 +1245,15 @@ ALL:
                 md_write: true
                 md_read_group: ['ALL', 'hdzone', 'hdzone.control']
 
+ALL:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 SC-LX87:
 
     read:
@@ -1288,10 +1305,10 @@ SC-LX87:
             md_read_group: ['SC-LX87', 'general']
             remark: 0 = AMP, 1 = THR
 
-                lookup:
-                    type: dict
-                    md_device: DEVICENAME
-                    md_lookup: AMP#lookup
+            lookup:
+                type: list
+                md_device: DEVICENAME
+                md_lookup: AMP#list
 
         multizone:
             type: str
@@ -1383,7 +1400,7 @@ SC-LX87:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-LX87', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['SC-LX87', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -1953,6 +1970,15 @@ SC-LX87:
                 md_write: true
                 md_read_group: ['SC-LX87', 'hdzone', 'hdzone.control']
 
+SC-LX87:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 SC-LX77:
 
     read:
@@ -2004,10 +2030,10 @@ SC-LX77:
             md_read_group: ['SC-LX77', 'general']
             remark: 0 = AMP, 1 = THR
 
-                lookup:
-                    type: dict
-                    md_device: DEVICENAME
-                    md_lookup: AMP#lookup
+            lookup:
+                type: list
+                md_device: DEVICENAME
+                md_lookup: AMP#list
 
         multizone:
             type: str
@@ -2099,7 +2125,7 @@ SC-LX77:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-LX77', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['SC-LX77', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -2669,6 +2695,15 @@ SC-LX77:
                 md_write: true
                 md_read_group: ['SC-LX77', 'hdzone', 'hdzone.control']
 
+SC-LX77:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 SC-LX57:
 
     read:
@@ -2720,10 +2755,10 @@ SC-LX57:
             md_read_group: ['SC-LX57', 'general']
             remark: 0 = AMP, 1 = THR
 
-                lookup:
-                    type: dict
-                    md_device: DEVICENAME
-                    md_lookup: AMP#lookup
+            lookup:
+                type: list
+                md_device: DEVICENAME
+                md_lookup: AMP#list
 
         multizone:
             type: str
@@ -2815,7 +2850,7 @@ SC-LX57:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-LX57', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['SC-LX57', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -3385,6 +3420,15 @@ SC-LX57:
                 md_write: true
                 md_read_group: ['SC-LX57', 'hdzone', 'hdzone.control']
 
+SC-LX57:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 SC-2023:
 
     read:
@@ -3517,7 +3561,7 @@ SC-2023:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-2023', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['SC-2023', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -4087,6 +4131,15 @@ SC-2023:
                 md_write: true
                 md_read_group: ['SC-2023', 'hdzone', 'hdzone.control']
 
+SC-2023:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 SC-1223:
 
     read:
@@ -4219,7 +4272,7 @@ SC-1223:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-1223', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['SC-1223', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -4673,6 +4726,15 @@ SC-1223:
                 md_write: true
                 md_read_group: ['SC-1223', 'hdzone', 'hdzone.control']
 
+SC-1223:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 VSX-1123:
 
     read:
@@ -4805,7 +4867,7 @@ VSX-1123:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['VSX-1123', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['VSX-1123', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -5187,6 +5249,15 @@ VSX-1123:
                 md_write: true
                 md_read_group: ['VSX-1123', 'hdzone', 'hdzone.control']
 
+VSX-1123:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
+
 VSX-923:
 
     read:
@@ -5319,7 +5390,7 @@ VSX-923:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['VSX-923', 'zone1', 'zone1.control', 'z', 'o', 'n', 'e', '1', '.', 'o', 'n', 'p', 'o', 'w', 'e', 'r']
+                md_read_group: ['VSX-923', 'zone1', 'zone1.control', 'zone1.onpower']
 
             volume:
                 type: num
@@ -5700,4 +5771,13 @@ VSX-923:
                 md_read: true
                 md_write: true
                 md_read_group: ['VSX-923', 'hdzone', 'hdzone.control']
+
+VSX-923:
+    zone1:
+        read:
+            on_power:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: zone1.onpower
 

@@ -113,10 +113,71 @@ Funktionen
 Bitte die Dokumentation lesen, die aus den Metadaten der plugin.yaml erzeugt wurde.
 
 
-Beispiele
----------
+Standalone-Modus
+----------------
 
-Hier können ausführlichere Beispiele und Anwendungsfälle beschrieben werden.
+Das Plugin kann auch im Standalone-Modus verwendet werden. Dazu wird es aus dem
+SmartHomeNG-Ordner mit einem Gerätetypen <device> als erstem Argument aufgerufen.
+
+Im Standardmodus wird die Standalone-Funktion des jeweiligen Gerätes aufgerufen,
+sofern diese implementiert ist. Da Geräte modular erweitert werden können, ist
+es nicht möglich, eine Übersicht über unterstützte Geräte und deren Funktionen
+zu geben.
+
+Ggf. notwendige Konfigurationsparameter (z.B. ``host`` oder ``serialport``)
+müssen in Form von param=Wert oder in Form eines Python-dicts (in Hochkommata)
+als zweitem (und ggf. folgendem) Parameter übergeben werden.
+Falls derselbe Parameter mehrfach angegeben wird, wird der Wert des letzten
+Auftretens verwendet.
+
+.. code:: bash
+
+    python3 plugins/multidevice/__init__.py <device> host=www.smarthomeng.de port=80
+
+oder
+
+.. code:: bash
+
+    python3 plugins/multidevice/__init__.py <device> '{"host": "www.smarthomeng.de", "port": 80}'
+
+
+Wenn das Plugin mit ``-v`` als Parameter aufgerufen wird, werden zusätzliche
+Debug-Informationen angezeigt.
+
+.. code:: bash
+
+    python3 plugins/multidevice/__init__.py <device> -v
+
+
+Struct-Erzeugung
+~~~~~~~~~~~~~~~~
+
+Wenn das Plugin mit dem Parameter -s nach dem Gerätetyp aufgerufen wird, gibt es
+ein Struktur-Template (struct.yaml) aus, das für die Itemkonfiguration
+verwendet werden kann und beim Start von SmartHomeNG eingelesen wird:
+
+.. code:: bash
+
+    python3 plugins/multidevice/__init__.py <device> -s
+
+Wenn es mit dem Parameter -S aufgerufen wird, wird die Struktur nicht auf
+ausgegeben, sondern automatisch im Ordner des jeweiligen Gerätes als
+``struct.yaml`` gespeichert. 
+
+.. code:: bash
+
+    python3 plugins/multidevice/__init__.py <device> -S
+
+.. warning::
+    Vorhandene Dateien werden dabei ohne Rückfrage überschrieben!
+
+Die Einrückweite für die Strukturausgabe beträgt standardmäßig 4 Spalten. Die
+Angabe einer Zahl als Parameter (zusätzlich zu -s oder -S) legt eine abweichende
+Einrückweite fest:
+
+.. code:: bash
+
+    python3 plugins/multidevice/__init__.py <device> -s -2
 
 
 Web Interface

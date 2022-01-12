@@ -438,8 +438,8 @@ class MD_Command_JSON(MD_Command):
     from it.
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
-    &#39;params&#39; attribute of the command, while the parameter values are
-    taken from the &#39;param-values&#39; attribute. &#39;VAL&#39; is replaced with the
+    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;VAL&#39; is replaced with the
     actual item value.
 
     params and param_value need to be None or lists of the same length.
@@ -477,10 +477,10 @@ class MD_Command_JSON(MD_Command):
         :rtype: dict
         &#34;&#34;&#34;
         params = {}
-        if not hasattr(self, &#39;params&#39;):
+        if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, &#39;param_values&#39;):
+        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
             raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
 
         if len(self.params) != len(self.param_values):
@@ -511,8 +511,8 @@ class MD_Command_Viessmann(MD_Command):
     With this class, you can send commands to Viessmann heating systems
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
-    &#39;params&#39; attribute of the command, while the parameter values are
-    taken from the &#39;param-values&#39; attribute. &#39;VAL&#39; is replaced with the
+    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;VAL&#39; is replaced with the
     actual item value.
 
     params and param_value need to be None or lists of the same length.
@@ -555,10 +555,10 @@ class MD_Command_Viessmann(MD_Command):
         :rtype: dict
         &#34;&#34;&#34;
         params = {}
-        if not hasattr(self, &#39;params&#39;):
+        if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, &#39;param_values&#39;):
+        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
             raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
 
         if len(self.params) != len(self.param_values):
@@ -889,8 +889,8 @@ dev_example/commands.py file.</p>
 <p>With this class, you can send JSON-RPC commands to the device and read
 from it.</p>
 <p>The command is sent as 'method', the params-dict is populated from the
-'params' attribute of the command, while the parameter values are
-taken from the 'param-values' attribute. 'VAL' is replaced with the
+CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+taken from the CMD_ATTR_PARAM_VALUES attribute. 'VAL' is replaced with the
 actual item value.</p>
 <p>params and param_value need to be None or lists of the same length.</p></div>
 <details class="source">
@@ -904,8 +904,8 @@ actual item value.</p>
     from it.
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
-    &#39;params&#39; attribute of the command, while the parameter values are
-    taken from the &#39;param-values&#39; attribute. &#39;VAL&#39; is replaced with the
+    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;VAL&#39; is replaced with the
     actual item value.
 
     params and param_value need to be None or lists of the same length.
@@ -943,10 +943,10 @@ actual item value.</p>
         :rtype: dict
         &#34;&#34;&#34;
         params = {}
-        if not hasattr(self, &#39;params&#39;):
+        if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, &#39;param_values&#39;):
+        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
             raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
 
         if len(self.params) != len(self.param_values):
@@ -1484,8 +1484,8 @@ element from a json response:</p>
 <div class="desc"><p>Command for Viessmann binary command format</p>
 <p>With this class, you can send commands to Viessmann heating systems</p>
 <p>The command is sent as 'method', the params-dict is populated from the
-'params' attribute of the command, while the parameter values are
-taken from the 'param-values' attribute. 'VAL' is replaced with the
+CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+taken from the CMD_ATTR_PARAM_VALUES attribute. 'VAL' is replaced with the
 actual item value.</p>
 <p>params and param_value need to be None or lists of the same length.</p></div>
 <details class="source">
@@ -1498,8 +1498,8 @@ actual item value.</p>
     With this class, you can send commands to Viessmann heating systems
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
-    &#39;params&#39; attribute of the command, while the parameter values are
-    taken from the &#39;param-values&#39; attribute. &#39;VAL&#39; is replaced with the
+    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;VAL&#39; is replaced with the
     actual item value.
 
     params and param_value need to be None or lists of the same length.
@@ -1542,10 +1542,10 @@ actual item value.</p>
         :rtype: dict
         &#34;&#34;&#34;
         params = {}
-        if not hasattr(self, &#39;params&#39;):
+        if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, &#39;param_values&#39;):
+        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
             raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
 
         if len(self.params) != len(self.param_values):

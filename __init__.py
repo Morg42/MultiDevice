@@ -70,12 +70,12 @@ with validity of data sent or received.
 
 .. note::
     Using the ``MD_Command_Str`` or especially the ``MD_Command_ParseStr`` classes,
-    the need for specialized datatype classes _can_ be sidestepped.
+    the need for specialized datatype classes **can** be sidestepped.
 
     Be aware that while creating complex commands indeed can be fun, string
     parsing will not be able to detect or cope with some data type conversions.
     
-    You have been warned ;)
+    You have been warned 😉
 
 
 (New) devices each reside in their respective subfolder of the plugin folder,
@@ -122,14 +122,32 @@ item values.
 This class will usually not need to be adjusted, but runs as the plugin itself.
 
 
-In addition, the plugin has a - limited - capability to run as a standalone
-program, for example to initiate a device discovery or diagnostic functions.
-To this end, it must be run from the plugin folder by issuing
+Standalone mode
+~~~~~~~~~~~~~~~
 
-``python3 __init__.py <devicename> [<params as dict>]``
+In addition, the plugin has a - limited - capability to run as a standalone
+program. The main goal is running device-supplied functions, for example to
+initiate a device discovery or diagnostic functions. To this end, it must be
+run from the SmartHomeNG folder by issuing
+
+``python3 plugins/multidevice/__init__.py <devicename> [<params>] [-v]``
 
 Be advised that any functionality to provide in this mode must absolutely
 by implemented by you :)
+
+
+struct.yaml generation
+~~~~~~~~~~~~~~~~~~~~~~
+
+The second goal of standalone usage is creating ``struct.yaml`` template files
+from device command configuration. To this end, run the plugin with the ``-s``
+or the ``-S`` argument:
+
+``python3 plugins/multidevice/__init__.py <devicename> -s``
+
+The ``-s`` argument prints the struct file contents to screen, ``-S`` causes the
+plugin to write the ``struct.yaml`` directly to the devices' folder. Beware that
+existing files will be overwritten.
 
 
 MD_Device
@@ -168,11 +186,10 @@ Methods possibly needed to overwrite for inherited classes:
 
 * ``_set_custom_vars()``
 * ``_post_init()``
-* ``run_standalone()``
 * ``_transform_send_data(data_dict)``
 * ``_send(data_dict)``
 * ``_set_device_params()``
-* ``_get_connection()``
+* ``run_standalone()``
 
 
 MD_Connection
@@ -1222,6 +1239,39 @@ read_group_triggers = {}
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     """ read commands.py and export struct.yaml """
 
+    global read_group_triggers
+
+    def add_read_group_trigger(grp, itempath, srcpath):
+        """ add entry for custom read group triggers
+
+        To keep things manageable, we only support relative addressing in the
+        most simple form:
+
+        ...path.to.item
+
+        Every leading dot means "up one level", so without a leading dot, the
+        item will be created "inside" the item with the 'read_groups' directive.
+        """
+        global read_group_triggers
+
+        lvl_up = 0
+        while itempath[:1] == '.':
+            lvl_up += 1
+            itempath = itempath[1:]
+
+        if lvl_up:
+            src_path_elems = srcpath.split('.')[:-lvl_up]
+        else:
+            src_path_elems = srcpath.split('.')
+        dst_path_elems = src_path_elems + itempath.split('.')
+
+        item = {dst_path_elems[-1]: {'type': 'bool', 'enforce_updates': 'true', ITEM_ATTR_DEVICE: 'DEVICENAME', ITEM_ATTR_READ_GRP: grp}}
+        for elem in reversed(dst_path_elems[:-1]):
+            item = {elem: item}
+
+        read_group_triggers.update(item)
+
+
     def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models, func_first=True):
         """ traverses a nested dict
 
@@ -1322,8 +1372,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                                 rg_list = [rg_list]
                             for entry in rg_list:
                                 grp = entry.get('name')
-                                grps += grp
-                                read_group_triggers[grp] = entry.get('trigger')
+                                grps.append(grp)
+                                add_read_group_trigger(grp, entry.get('trigger'), path)
                 p_text(f'{ITEM_ATTR_GROUP}: {grps}')
                 if inode and inode.get(CMD_IATTR_INITIAL):
                     p_text(f'{ITEM_ATTR_READ_INIT}: true')
@@ -1372,6 +1422,24 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                     pass
                 print()
 
+    def print_trigger(node, node_name, parent, path, indent, gpath, gpathlist):
+        """ print trigger item """
+
+        def p_text(text, add=0):
+            """ print indented text """
+            print(f'{INDENT * (indent + add)}{text}')
+
+        # item / level definition
+        p_text(f'{node_name}:')
+
+        # item -> print item attributes
+        if ITEM_ATTR_DEVICE in node:
+
+            for key in [key for key in node if not isinstance(node[key], dict)]:
+                p_text(f'{key}: {node[key]}', 1)
+
+            print()
+
     def removeItemsUndefCmd(node, node_name, parent, path, indent, gpath, gpathlist):
         if CMD_ATTR_ITEM_TYPE in node and path not in cmdlist:
             del parent[node_name]
@@ -1412,6 +1480,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             for model in top_level_entries:
 
+                read_group_triggers = {}
+
                 m_commands = {}
                 m_commands.update(commands.get(INDEX_GENERIC, {}))
                 m_commands.update(commands.get(model))
@@ -1422,6 +1492,9 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 # output obj
                 walk(obj[model], model, commands, print_item, '', 0, model, [model], True)
 
+                # output custom read group triggers
+                for key in read_group_triggers:
+                    walk(read_group_triggers, model, read_group_triggers, print_trigger, '', 0, '', [], False)
         else:
 
             # create flat commands for comparison
@@ -1430,8 +1503,15 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             # output sections
             for section in top_level_entries:
+
+                read_group_triggers = {}
+
                 obj = {section: commands[section]}
-                walk(obj[section], section, commands, print_item, '', 0, section, [section], cmds_has_models)
+                walk(obj[section], section, commands, print_item, '', 0, section, [section], False)
+
+                # output custom read group triggers
+                for key in read_group_triggers:
+                    walk(read_group_triggers[key], key, read_group_triggers, print_trigger, '', 0, '', [], False)
 
             # get model definitions
             # if not present, fake it to include all sections
@@ -1440,6 +1520,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 models = {'ALL': list(commands.keys())}
 
             for model in models:
+
+                read_group_triggers = {}
 
                 # create list of valid commands
                 cmdlist = models[model]
@@ -1458,6 +1540,10 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
                 # output obj
                 walk(obj[model], model, commands, print_item, '', 0, model, [model], True)
+
+                # output custom read group triggers
+                for key in read_group_triggers:
+                    walk(read_group_triggers, model, None, print_trigger, '', 0, '', [], False)
 
     except OSError as e:
         err = f'Error: file {file} could not be opened. Original error: {e}'
@@ -1513,10 +1599,10 @@ if __name__ == '__main__':
 
     ./__init__.py <device> -S
 
-    An additional number can change the indent width from default 4 (both with
-    -s and -S):
+    An additional argument with a number can change the indent width from
+    default 4 (both with -s and -S):
 
-    ./__init__.py <device> -s2
+    ./__init__.py <device> -s -2
 
     """
     logger = logging.getLogger(__name__)
@@ -1533,6 +1619,8 @@ if __name__ == '__main__':
 
     device = ""
     struct_mode = False
+    write_output = False
+    indent = 4
 
     if len(sys.argv) > 1:
         device = sys.argv[1]
@@ -1544,21 +1632,20 @@ if __name__ == '__main__':
         for arg in range(2, len(sys.argv)):
 
             arg_str = sys.argv[arg]
+
             if arg_str == '-v':
                 print('Debug logging enabled')
                 logger.setLevel(logging.DEBUG)
 
             elif arg_str[:2].lower() == '-s':
-                # don't print('struct.yaml creation mode enabled')
-                # only output the struct.yaml
-                indent = 4
-                try:
-                    indent = int(arg_str[2:])
-                except Exception:
-                    pass
+                struct_mode = True
+                write_output = arg_str[1] == 'S'
 
-                create_struct_yaml(device, indent, arg_str[1] == 'S')
-                exit(0)
+            elif arg_str[1:].isnumeric():
+                try:
+                    indent = int(arg_str[1:])
+                except ValueError:
+                    pass
 
             else:
                 try:
@@ -1566,7 +1653,7 @@ if __name__ == '__main__':
                     params.update(literal_eval(arg_str))
                 except Exception:
                     # if not: try to parse as 'name=value'
-                    match = re.match('([^= \n]+)=([^= ˜n])', arg_str)
+                    match = re.match('([^= \n]+)=([^= \n]+)', arg_str)
                     if match:
                         name, value = match.groups(0)
                         params[name] = value
@@ -1574,6 +1661,12 @@ if __name__ == '__main__':
     else:
         print(usage)
         exit()
+
+    if struct_mode:
+
+        # as we output a formatted syntax, we can not print any information now
+        create_struct_yaml(device, indent, write_output)
+        exit(0)
 
     print("This is MultiDevice plugin running in standalone mode")
     print("=====================================================")

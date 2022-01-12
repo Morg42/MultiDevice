@@ -120,7 +120,7 @@ class MD_Commands(object):
             return True
 
         # if the corresponding attribute is not defined, assume False (fail safe)
-        return getattr(self._commands[command], &#39;read&#39; if read else &#39;write&#39;, False)
+        return getattr(self._commands[command], CMD_ATTR_READ if read else CMD_ATTR_WRITE, False)
 
     def get_send_data(self, command, data=None, **kwargs):
         if command in self._commands:
@@ -146,16 +146,16 @@ class MD_Commands(object):
             data = str(data.decode(&#39;utf-8&#39;))
 
         for command in self._commands:
-            tokens = getattr(self._commands[command], &#39;reply_token&#39;, None)
+            tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
             if tokens:
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    if token == &#39;REGEX&#39; and getattr(self._commands[command], &#39;reply_pattern&#39;, None):
+                    if token == &#39;REGEX&#39; and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
 
                         # token is &#34;REGEX&#34; - parse read_cmd as regex
                         try:
-                            regex = re.compile(getattr(self._commands[command], &#39;reply_pattern&#39;))
+                            regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
                             if regex.match(data) is not None:
                                 self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} as regex against data {data}, found command {command}&#39;)
                                 return command
@@ -171,6 +171,8 @@ class MD_Commands(object):
         &#34;&#34;&#34; returns the contents of the lookup table named &lt;lookup&gt;, None on error &#34;&#34;&#34;
         if lookup in self._lookups and type in (&#39;fwd&#39;, &#39;rev&#39;, &#39;rci&#39;):
             return self._lookups[lookup][type]
+        elif lookup in self._lookups and type == &#39;list&#39;:
+            return list(self._lookups[lookup][&#39;rev&#39;].keys())
         else:
             return None
 
@@ -250,12 +252,7 @@ class MD_Commands(object):
         if cust_mod:
             _enum_dt_cls(cust_mod)
 
-    def _read_commands(self, device_id):
-        &#34;&#34;&#34;
-        This is the loader portion for the commands.py file.
-
-        Errors preventing the device from working raise `Exception`
-        &#34;&#34;&#34;
+    def _flatten_cmds(self, cmds):
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                 walk(node[child], child, parent=node, func=func)
@@ -265,8 +262,8 @@ class MD_Commands(object):
         def moveItems(node, node_name, parent):
             # make sure we can move &#34;upwards&#34;
             if parent:
-                # if node[&#39;opcode&#39;] is not present, node is not a command
-                if &#39;item_type&#39; not in node:
+                # if node[CMD_ATTR_OPCODE] is not present, node is not a command
+                if CMD_ATTR_ITEM_TYPE not in node:
                     for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                         # node has dict elements node[child]
                         parent[node_name + COMMAND_SEP + child] = node[child]
@@ -275,6 +272,32 @@ class MD_Commands(object):
         def removeEmptyItems(node, node_name, parent):
             if len(node) == 0:
                 del parent[node_name]
+
+        # flatten cmds
+        walk(cmds, &#39;&#39;, None, moveItems)
+        # remove empty dicts (old &#39;level names&#39;)
+        walk(cmds, &#39;&#39;, None, removeEmptyItems)
+
+    def _get_cmdlist(self, cmds, cmdlist):
+        # now get command list, if not already provided
+        if cmdlist is None:
+            cmdlist = cmds.keys()
+
+        # find all commands starting with any entry in cmdlist to capture categories
+        # e.g. cmdlist = [&#39;generic&#39;] -&gt; get all commands starting with generic + COMMAND_SEP
+        new_cmdlist = []
+        for cmd in cmds:
+            if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
+                new_cmdlist.append(cmd)
+
+        return new_cmdlist
+
+    def _read_commands(self, device_id):
+        &#34;&#34;&#34;
+        This is the loader portion for the commands.py file.
+
+        Errors preventing the device from working raise `Exception`
+        &#34;&#34;&#34;
 
         # did we get a device type?
         if not self._device_type:
@@ -293,6 +316,10 @@ class MD_Commands(object):
         except Exception as e:
             raise CommandsError(f&#39;importing commands from external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed. Error was: &#34;{e}&#34;&#39;)
             return False
+
+        # param is read by yaml parser which converts None to &#34;None&#34;... 
+        if self._model == &#39;None&#39;:
+            self._model = None
 
         if self._model == INDEX_GENERIC:
             self.logger.warning(&#39;configured model is identical to generic identifier, loading all commands.&#39;)
@@ -326,24 +353,10 @@ class MD_Commands(object):
                 if self._model:
                     self.logger.debug(f&#39;found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}&#39;)
 
-            # flatten cmds
-            walk(cmds, &#39;&#39;, None, moveItems)
-            # remove empty dicts (old &#39;level names&#39;)
-            walk(cmds, &#39;&#39;, None, removeEmptyItems)
-
-            # now get command list, if not already provided
-            if cmdlist is None:
-                cmdlist = cmds.keys()
-
-            # find all commands starting with any entry in cmdlist to capture categories
-            # e.g. cmdlist = [&#39;generic&#39;] -&gt; get all commands starting with generic + COMMAND_SEP
-            new_cmdlist = []
-            for cmd in cmds:
-                if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
-                    new_cmdlist.append(cmd)
+            self._flatten_cmds(cmds)
 
             # actually import commands
-            self._parse_commands(device_id, cmds, new_cmdlist)
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
         else:
             if not MD_standalone:
                 self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
@@ -372,6 +385,10 @@ class MD_Commands(object):
         self._commands = {}
 
         for cmd in cmds:
+            # we found a &#34;section&#34; entry for which initial or cyclic read is specified. Just skip it...
+            if cmd[-len(CMD_ATTR_ITEM_ATTRS)-1:] == &#39;.&#39; + CMD_ATTR_ITEM_ATTRS:
+                continue
+
             kw = {}
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
@@ -383,14 +400,14 @@ class MD_Commands(object):
                     kw[&#39;settings&#39;][&#39;valid_list_ci&#39;] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[&#39;settings&#39;][&#39;valid_list_ci&#39;]]
 
             dt_class = None
-            dev_datatype = kw.get(&#39;dev_datatype&#39;, &#39;&#39;)
+            dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, &#39;&#39;)
             if dev_datatype:
                 class_name = &#39;&#39; if dev_datatype[:2] == &#39;DT_&#39; else &#39;DT_&#39; + dev_datatype
                 dt_class = self._dt.get(class_name)
 
-            if kw.get(&#39;read&#39;, False) and kw.get(&#39;opcode&#39;, &#39;&#39;) == &#39;&#39; and kw.get(&#39;read_cmd&#39;, &#39;&#39;) == &#39;&#39;:
+            if kw.get(CMD_ATTR_READ, False) and kw.get(CMD_ATTR_OPCODE, &#39;&#39;) == &#39;&#39; and kw.get(CMD_ATTR_READ_CMD, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for reading values. Check commands.py configuration...&#39;)
-            if kw.get(&#39;write&#39;, False) and kw.get(&#39;opcode&#39;, &#39;&#39;) == &#39;&#39; and kw.get(&#39;write_cmd&#39;, &#39;&#39;) == &#39;&#39;:
+            if kw.get(CMD_ATTR_WRITE, False) and kw.get(CMD_ATTR_OPCODE, &#39;&#39;) == &#39;&#39; and kw.get(CMD_ATTR_WRITE_CMD, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for writing values. Check commands.py configuration...&#39;)
             if not dt_class:
                 self.logger.error(f&#39;importing command {cmd} found invalid datatype &#34;{dev_datatype}&#34;, replacing with DT_raw. Check function of device&#39;)
@@ -506,7 +523,7 @@ MD_Command-object</p>
             return True
 
         # if the corresponding attribute is not defined, assume False (fail safe)
-        return getattr(self._commands[command], &#39;read&#39; if read else &#39;write&#39;, False)
+        return getattr(self._commands[command], CMD_ATTR_READ if read else CMD_ATTR_WRITE, False)
 
     def get_send_data(self, command, data=None, **kwargs):
         if command in self._commands:
@@ -532,16 +549,16 @@ MD_Command-object</p>
             data = str(data.decode(&#39;utf-8&#39;))
 
         for command in self._commands:
-            tokens = getattr(self._commands[command], &#39;reply_token&#39;, None)
+            tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
             if tokens:
                 if not isinstance(tokens, list):
                     tokens = [tokens]
                 for token in tokens:
-                    if token == &#39;REGEX&#39; and getattr(self._commands[command], &#39;reply_pattern&#39;, None):
+                    if token == &#39;REGEX&#39; and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
 
                         # token is &#34;REGEX&#34; - parse read_cmd as regex
                         try:
-                            regex = re.compile(getattr(self._commands[command], &#39;reply_pattern&#39;))
+                            regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
                             if regex.match(data) is not None:
                                 self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} as regex against data {data}, found command {command}&#39;)
                                 return command
@@ -557,6 +574,8 @@ MD_Command-object</p>
         &#34;&#34;&#34; returns the contents of the lookup table named &lt;lookup&gt;, None on error &#34;&#34;&#34;
         if lookup in self._lookups and type in (&#39;fwd&#39;, &#39;rev&#39;, &#39;rci&#39;):
             return self._lookups[lookup][type]
+        elif lookup in self._lookups and type == &#39;list&#39;:
+            return list(self._lookups[lookup][&#39;rev&#39;].keys())
         else:
             return None
 
@@ -636,12 +655,7 @@ MD_Command-object</p>
         if cust_mod:
             _enum_dt_cls(cust_mod)
 
-    def _read_commands(self, device_id):
-        &#34;&#34;&#34;
-        This is the loader portion for the commands.py file.
-
-        Errors preventing the device from working raise `Exception`
-        &#34;&#34;&#34;
+    def _flatten_cmds(self, cmds):
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                 walk(node[child], child, parent=node, func=func)
@@ -651,8 +665,8 @@ MD_Command-object</p>
         def moveItems(node, node_name, parent):
             # make sure we can move &#34;upwards&#34;
             if parent:
-                # if node[&#39;opcode&#39;] is not present, node is not a command
-                if &#39;item_type&#39; not in node:
+                # if node[CMD_ATTR_OPCODE] is not present, node is not a command
+                if CMD_ATTR_ITEM_TYPE not in node:
                     for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                         # node has dict elements node[child]
                         parent[node_name + COMMAND_SEP + child] = node[child]
@@ -661,6 +675,32 @@ MD_Command-object</p>
         def removeEmptyItems(node, node_name, parent):
             if len(node) == 0:
                 del parent[node_name]
+
+        # flatten cmds
+        walk(cmds, &#39;&#39;, None, moveItems)
+        # remove empty dicts (old &#39;level names&#39;)
+        walk(cmds, &#39;&#39;, None, removeEmptyItems)
+
+    def _get_cmdlist(self, cmds, cmdlist):
+        # now get command list, if not already provided
+        if cmdlist is None:
+            cmdlist = cmds.keys()
+
+        # find all commands starting with any entry in cmdlist to capture categories
+        # e.g. cmdlist = [&#39;generic&#39;] -&gt; get all commands starting with generic + COMMAND_SEP
+        new_cmdlist = []
+        for cmd in cmds:
+            if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
+                new_cmdlist.append(cmd)
+
+        return new_cmdlist
+
+    def _read_commands(self, device_id):
+        &#34;&#34;&#34;
+        This is the loader portion for the commands.py file.
+
+        Errors preventing the device from working raise `Exception`
+        &#34;&#34;&#34;
 
         # did we get a device type?
         if not self._device_type:
@@ -679,6 +719,10 @@ MD_Command-object</p>
         except Exception as e:
             raise CommandsError(f&#39;importing commands from external module {&#34;dev_&#34; + self._device_type + &#34;/commands.py&#34;} failed. Error was: &#34;{e}&#34;&#39;)
             return False
+
+        # param is read by yaml parser which converts None to &#34;None&#34;... 
+        if self._model == &#39;None&#39;:
+            self._model = None
 
         if self._model == INDEX_GENERIC:
             self.logger.warning(&#39;configured model is identical to generic identifier, loading all commands.&#39;)
@@ -712,24 +756,10 @@ MD_Command-object</p>
                 if self._model:
                     self.logger.debug(f&#39;found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}&#39;)
 
-            # flatten cmds
-            walk(cmds, &#39;&#39;, None, moveItems)
-            # remove empty dicts (old &#39;level names&#39;)
-            walk(cmds, &#39;&#39;, None, removeEmptyItems)
-
-            # now get command list, if not already provided
-            if cmdlist is None:
-                cmdlist = cmds.keys()
-
-            # find all commands starting with any entry in cmdlist to capture categories
-            # e.g. cmdlist = [&#39;generic&#39;] -&gt; get all commands starting with generic + COMMAND_SEP
-            new_cmdlist = []
-            for cmd in cmds:
-                if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
-                    new_cmdlist.append(cmd)
+            self._flatten_cmds(cmds)
 
             # actually import commands
-            self._parse_commands(device_id, cmds, new_cmdlist)
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
         else:
             if not MD_standalone:
                 self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
@@ -758,6 +788,10 @@ MD_Command-object</p>
         self._commands = {}
 
         for cmd in cmds:
+            # we found a &#34;section&#34; entry for which initial or cyclic read is specified. Just skip it...
+            if cmd[-len(CMD_ATTR_ITEM_ATTRS)-1:] == &#39;.&#39; + CMD_ATTR_ITEM_ATTRS:
+                continue
+
             kw = {}
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
@@ -769,14 +803,14 @@ MD_Command-object</p>
                     kw[&#39;settings&#39;][&#39;valid_list_ci&#39;] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[&#39;settings&#39;][&#39;valid_list_ci&#39;]]
 
             dt_class = None
-            dev_datatype = kw.get(&#39;dev_datatype&#39;, &#39;&#39;)
+            dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, &#39;&#39;)
             if dev_datatype:
                 class_name = &#39;&#39; if dev_datatype[:2] == &#39;DT_&#39; else &#39;DT_&#39; + dev_datatype
                 dt_class = self._dt.get(class_name)
 
-            if kw.get(&#39;read&#39;, False) and kw.get(&#39;opcode&#39;, &#39;&#39;) == &#39;&#39; and kw.get(&#39;read_cmd&#39;, &#39;&#39;) == &#39;&#39;:
+            if kw.get(CMD_ATTR_READ, False) and kw.get(CMD_ATTR_OPCODE, &#39;&#39;) == &#39;&#39; and kw.get(CMD_ATTR_READ_CMD, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for reading values. Check commands.py configuration...&#39;)
-            if kw.get(&#39;write&#39;, False) and kw.get(&#39;opcode&#39;, &#39;&#39;) == &#39;&#39; and kw.get(&#39;write_cmd&#39;, &#39;&#39;) == &#39;&#39;:
+            if kw.get(CMD_ATTR_WRITE, False) and kw.get(CMD_ATTR_OPCODE, &#39;&#39;) == &#39;&#39; and kw.get(CMD_ATTR_WRITE_CMD, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for writing values. Check commands.py configuration...&#39;)
             if not dt_class:
                 self.logger.error(f&#39;importing command {cmd} found invalid datatype &#34;{dev_datatype}&#34;, replacing with DT_raw. Check function of device&#39;)
@@ -836,16 +870,16 @@ MD_Command-object</p>
         data = str(data.decode(&#39;utf-8&#39;))
 
     for command in self._commands:
-        tokens = getattr(self._commands[command], &#39;reply_token&#39;, None)
+        tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
         if tokens:
             if not isinstance(tokens, list):
                 tokens = [tokens]
             for token in tokens:
-                if token == &#39;REGEX&#39; and getattr(self._commands[command], &#39;reply_pattern&#39;, None):
+                if token == &#39;REGEX&#39; and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
 
                     # token is &#34;REGEX&#34; - parse read_cmd as regex
                     try:
-                        regex = re.compile(getattr(self._commands[command], &#39;reply_pattern&#39;))
+                        regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
                         if regex.match(data) is not None:
                             self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], &#34;reply_pattern&#34;)} as regex against data {data}, found command {command}&#39;)
                             return command
@@ -871,6 +905,8 @@ MD_Command-object</p>
     &#34;&#34;&#34; returns the contents of the lookup table named &lt;lookup&gt;, None on error &#34;&#34;&#34;
     if lookup in self._lookups and type in (&#39;fwd&#39;, &#39;rev&#39;, &#39;rci&#39;):
         return self._lookups[lookup][type]
+    elif lookup in self._lookups and type == &#39;list&#39;:
+        return list(self._lookups[lookup][&#39;rev&#39;].keys())
     else:
         return None</code></pre>
 </details>
@@ -931,7 +967,7 @@ MD_Command-object</p>
         return True
 
     # if the corresponding attribute is not defined, assume False (fail safe)
-    return getattr(self._commands[command], &#39;read&#39; if read else &#39;write&#39;, False)</code></pre>
+    return getattr(self._commands[command], CMD_ATTR_READ if read else CMD_ATTR_WRITE, False)</code></pre>
 </details>
 </dd>
 </dl>

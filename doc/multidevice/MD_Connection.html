@@ -627,7 +627,7 @@ class MD_Connection_Serial(MD_Connection):
         term_bytes = None
         if isinstance(limit_response, int):
             maxlen = limit_response
-        elif isinstance(limit_response, (bytes, bytearray)):
+        elif isinstance(limit_response, (bytes, bytearray, str)):
             term_bytes = bytes(limit_response)
 
         # take care of &#34;overflow&#34; from last read
@@ -659,7 +659,7 @@ class MD_Connection_Serial(MD_Connection):
                     if maxlen and len(totalreadbytes) &gt;= maxlen:
                         return totalreadbytes
 
-                    if term_bytes in totalreadbytes:
+                    if term_bytes and term_bytes in totalreadbytes:
                         if self.__use_read_buffer:
                             pos = totalreadbytes.find(term_bytes)
                             self._read_buffer += totalreadbytes[pos + len(term_bytes):]
@@ -667,7 +667,7 @@ class MD_Connection_Serial(MD_Connection):
                         else:
                             return totalreadbytes
             else:
-                self.logger.warning(f&#39;read_bytes couldn\&#39;t get lock on serial. Ths is unintended...&#39;)
+                self.logger.warning(&#39;read_bytes couldn\&#39;t get lock on serial. Ths is unintended...&#39;)
 
         # timeout reached, did we read anything?
         if not totalreadbytes and not self.__running:
@@ -1635,7 +1635,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
         term_bytes = None
         if isinstance(limit_response, int):
             maxlen = limit_response
-        elif isinstance(limit_response, (bytes, bytearray)):
+        elif isinstance(limit_response, (bytes, bytearray, str)):
             term_bytes = bytes(limit_response)
 
         # take care of &#34;overflow&#34; from last read
@@ -1667,7 +1667,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
                     if maxlen and len(totalreadbytes) &gt;= maxlen:
                         return totalreadbytes
 
-                    if term_bytes in totalreadbytes:
+                    if term_bytes and term_bytes in totalreadbytes:
                         if self.__use_read_buffer:
                             pos = totalreadbytes.find(term_bytes)
                             self._read_buffer += totalreadbytes[pos + len(term_bytes):]
@@ -1675,7 +1675,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
                         else:
                             return totalreadbytes
             else:
-                self.logger.warning(f&#39;read_bytes couldn\&#39;t get lock on serial. Ths is unintended...&#39;)
+                self.logger.warning(&#39;read_bytes couldn\&#39;t get lock on serial. Ths is unintended...&#39;)
 
         # timeout reached, did we read anything?
         if not totalreadbytes and not self.__running:

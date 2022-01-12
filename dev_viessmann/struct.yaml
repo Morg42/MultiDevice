@@ -3055,10 +3055,10 @@ V200WO1C:
             md_read_group: ['V200WO1C', 'Allgemein']
             md_read_initial: true
 
-                lookup:
-                    type: list
-                    md_device: DEVICENAME
-                    md_lookup: operatingmodes#list
+            lookup:
+                type: list
+                md_device: DEVICENAME
+                md_lookup: operatingmodes#list
 
         Manuell:
             type: num

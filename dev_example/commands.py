@@ -84,8 +84,15 @@ commands = {
             # create enforce_updates: true entry
             'enforce': False,
 
-            # don't autocreate item read groups
-            'no_read_groups': False,
+            # control autocreation of item read groups. None or key not present
+            # means create all levels (default)
+            # 0 means don't create read groups (not even from 'read_groups' dict!)
+            # x (int > 0) means include the x lowest levels of read groups
+            # e.g. if current item gets read groups 
+            #      ['l1', 'l1.l2', 'l1.l2.l3', 'l1.l2.l3.l4'], setting
+            #      read_group_levels': 2 will yield
+            #      md_read_groups: ['l1.l2.l3', 'l1.l2.l3.l4']
+            'read_group_levels': None,
 
             # create subitem 'lookup' containing lookup table
             # if lookup_item is True or 'list', the lookup will be type 'list'

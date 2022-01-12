@@ -48,20 +48,9 @@ class MD_Device(MD_Device):
           another place, in ``commands.py`` and/or the item configuration.
     """
 
-    def _set_default_params(self):
-        self._params = {'command_class': MD_Command_JSON, 
-                        PLUGIN_ATTR_PROTOCOL: PROTO_JSONRPC,
-                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,
-                        PLUGIN_ATTR_NET_HOST: '', 
-                        PLUGIN_ATTR_NET_PORT: 9090, 
-                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
-                        PLUGIN_ATTR_CONN_RETRIES: 5, 
-                        PLUGIN_ATTR_CONN_CYCLE: 3, 
-                        PLUGIN_ATTR_CONN_TIMEOUT: 3, 
-                        PLUGIN_ATTR_MSG_REPEAT: 3,
-                        PLUGIN_ATTR_MSG_TIMEOUT: 5,
-                        PLUGIN_ATTR_CB_ON_CONNECT: self.on_connect,
-                        PLUGIN_ATTR_CB_ON_DISCONNECT: self.on_disconnect}
+    def _set_custom_vars(self):
+        """ Set custom class properties. Overwrite as needed... """
+        self._use_callbacks = True
 
     def _post_init(self):
         if not self.disabled:
@@ -74,7 +63,7 @@ class MD_Device(MD_Device):
             # player info or returning the player_id. As these commands are not
             # sent (directly) to the device, they should not be processed via
             # the MD_Commands class and not listed in commands.py
-            self._special_commands = {'read': ['player'], 'write': ['update']}
+            self._special_commands = {'read': ['info.player'], 'write': ['status.update']}
 
     def on_connect(self, by=None):
         super().on_connect(by)
@@ -127,8 +116,8 @@ class MD_Device(MD_Device):
                     query_playerinfo = self._activeplayers = [result_data[0].get('playerid')]
                     self._playerid = self._activeplayers[0]
                     self.logger.debug(f'received GetActivePlayers, set playerid to {self._playerid}')
-                    self._data_received_callback(self.device_id, 'player', self._playerid)
-                    self._data_received_callback(self.device_id, 'media', result_data[0].get('type').capitalize())
+                    self._data_received_callback(self.device_id, 'info.player', self._playerid)
+                    self._data_received_callback(self.device_id, 'info.media', result_data[0].get('type').capitalize())
                 elif len(result_data) > 1:
                     # multiple active players. Have not yet seen this happen
                     self._activeplayers = []
@@ -140,16 +129,16 @@ class MD_Device(MD_Device):
                 else:
                     # no active players
                     self._activeplayers = []
-                    self._data_received_callback(self.device_id, 'state', 'No active player')
-                    self._data_received_callback(self.device_id, 'player', 0)
-                    self._data_received_callback(self.device_id, 'title', '')
-                    self._data_received_callback(self.device_id, 'media', '')
-                    self._data_received_callback(self.device_id, 'stop', True)
-                    self._data_received_callback(self.device_id, 'playpause', False)
-                    self._data_received_callback(self.device_id, 'streams', None)
-                    self._data_received_callback(self.device_id, 'subtitles', None)
-                    self._data_received_callback(self.device_id, 'audio', '')
-                    self._data_received_callback(self.device_id, 'subtitle', '')
+                    self._data_received_callback(self.device_id, 'info.state', 'No active player')
+                    self._data_received_callback(self.device_id, 'info.player', 0)
+                    self._data_received_callback(self.device_id, 'info.title', '')
+                    self._data_received_callback(self.device_id, 'info.media', '')
+                    self._data_received_callback(self.device_id, 'control.stop', True)
+                    self._data_received_callback(self.device_id, 'control.playpause', False)
+                    self._data_received_callback(self.device_id, 'info.streams', None)
+                    self._data_received_callback(self.device_id, 'info.subtitles', None)
+                    self._data_received_callback(self.device_id, 'control.audio', '')
+                    self._data_received_callback(self.device_id, 'control.subtitle', '')
                     self._playerid = 0
                     self.logger.debug('received GetActivePlayers, reset playerid to 0')
 
@@ -159,8 +148,8 @@ class MD_Device(MD_Device):
                 muted = result_data.get('muted')
                 volume = result_data.get('volume')
                 self.logger.debug(f'received GetProperties: change mute to {muted} and volume to {volume}')
-                self._data_received_callback(self.device_id, 'mute', muted)
-                self._data_received_callback(self.device_id, 'volume', volume)
+                self._data_received_callback(self.device_id, 'control.mute', muted)
+                self._data_received_callback(self.device_id, 'control.volume', volume)
 
             # got favourites
             elif command == 'Favourites.GetFavourites':
@@ -170,7 +159,7 @@ class MD_Device(MD_Device):
                 else:
                     item_dict = {item['title']: item for item in result_data.get('favourites')}
                     self.logger.debug(f'favourites found: {item_dict}')
-                    self._data_received_callback(self.device_id, 'get_favourites', item_dict)
+                    self._data_received_callback(self.device_id, 'status.get_favourites', item_dict)
 
             # got item info
             elif command == 'Player.GetItem':
@@ -179,38 +168,38 @@ class MD_Device(MD_Device):
                 player_type = result_data['item'].get('type')
                 if not title:
                     title = result_data['item'].get('label')
-                self._data_received_callback(self.device_id, 'media', player_type.capitalize())
+                self._data_received_callback(self.device_id, 'info.media', player_type.capitalize())
                 if player_type == 'audio' and 'artist' in result_data['item']:
                     artist = 'unknown' if len(result_data['item'].get('artist')) == 0 else result_data['item'].get('artist')[0]
                     title = artist + ' - ' + title
                 if title:
-                    self._data_received_callback(self.device_id, 'title', title)
+                    self._data_received_callback(self.device_id, 'info.title', title)
                 self.logger.debug(f'received GetItem: update player info to title={title}, type={player_type}')
 
             # got player status
             elif command == 'Player.GetProperties':
                 processed = True
                 self.logger.debug('Received Player.GetProperties, update media data')
-                self._data_received_callback(self.device_id, 'speed', result_data.get('speed'))
-                self._data_received_callback(self.device_id, 'seek', result_data.get('percentage'))
-                self._data_received_callback(self.device_id, 'streams', result_data.get('audiostreams'))
-                self._data_received_callback(self.device_id, 'audio', result_data.get('currentaudiostream'))
-                self._data_received_callback(self.device_id, 'subtitles', result_data.get('subtitles'))
+                self._data_received_callback(self.device_id, 'control.speed', result_data.get('speed'))
+                self._data_received_callback(self.device_id, 'control.seek', result_data.get('percentage'))
+                self._data_received_callback(self.device_id, 'info.streams', result_data.get('audiostreams'))
+                self._data_received_callback(self.device_id, 'control.audio', result_data.get('currentaudiostream'))
+                self._data_received_callback(self.device_id, 'info.subtitles', result_data.get('subtitles'))
                 if result_data.get('subtitleenabled'):
                     subtitle = result_data.get('currentsubtitle')
                 else:
                     subtitle = 'Off'
-                self._data_received_callback(self.device_id, 'subtitle', subtitle)
+                self._data_received_callback(self.device_id, 'control.subtitle', subtitle)
 
                 # speed != 0 -> play; speed == 0 -> pause
                 if result_data.get('speed') == 0:
-                    self._data_received_callback(self.device_id, 'state', 'Paused')
-                    self._data_received_callback(self.device_id, 'stop', False)
-                    self._data_received_callback(self.device_id, 'playpause', False)
+                    self._data_received_callback(self.device_id, 'info.state', 'Paused')
+                    self._data_received_callback(self.device_id, 'control.stop', False)
+                    self._data_received_callback(self.device_id, 'control.playpause', False)
                 else:
-                    self._data_received_callback(self.device_id, 'state', 'Playing')
-                    self._data_received_callback(self.device_id, 'stop', False)
-                    self._data_received_callback(self.device_id, 'playpause', True)
+                    self._data_received_callback(self.device_id, 'info.state', 'Playing')
+                    self._data_received_callback(self.device_id, 'control.stop', False)
+                    self._data_received_callback(self.device_id, 'control.playpause', True)
 
         # not replies, but event notifications.
         elif 'method' in data:
@@ -219,60 +208,60 @@ class MD_Device(MD_Device):
             if data['method'] == 'Player.OnResume':
                 processed = True
                 self.logger.debug('received: resumed player')
-                self._data_received_callback(self.device_id, 'state', 'Playing')
-                self._data_received_callback(self.device_id, 'stop', False)
-                self._data_received_callback(self.device_id, 'playpause', True)
-                query_playerinfo.append(data['params']['data']['player']['playerid'])
+                self._data_received_callback(self.device_id, 'info.state', 'Playing')
+                self._data_received_callback(self.device_id, 'control.stop', False)
+                self._data_received_callback(self.device_id, 'control.playpause', True)
+                query_playerinfo.append(data['params']['data']['info.player']['playerid'])
 
             elif data['method'] == 'Player.OnPause':
                 processed = True
                 self.logger.debug('received: paused player')
-                self._data_received_callback(self.device_id, 'state', 'Paused')
-                self._data_received_callback(self.device_id, 'stop', False)
-                self._data_received_callback(self.device_id, 'playpause', False)
-                query_playerinfo.append(data['params']['data']['player']['playerid'])
+                self._data_received_callback(self.device_id, 'info.state', 'Paused')
+                self._data_received_callback(self.device_id, 'control.stop', False)
+                self._data_received_callback(self.device_id, 'control.playpause', False)
+                query_playerinfo.append(data['params']['data']['info.player']['playerid'])
 
             elif data['method'] == 'Player.OnStop':
                 processed = True
                 self.logger.debug('received: stopped player, set playerid to 0')
-                self._data_received_callback(self.device_id, 'state', 'No active player')
-                self._data_received_callback(self.device_id, 'media', '')
-                self._data_received_callback(self.device_id, 'title', '')
-                self._data_received_callback(self.device_id, 'player', 0)
-                self._data_received_callback(self.device_id, 'stop', True)
-                self._data_received_callback(self.device_id, 'playpause', False)
-                self._data_received_callback(self.device_id, 'streams', None)
-                self._data_received_callback(self.device_id, 'subtitles', None)
-                self._data_received_callback(self.device_id, 'audio', '')
-                self._data_received_callback(self.device_id, 'subtitle', '')
+                self._data_received_callback(self.device_id, 'info.state', 'No active player')
+                self._data_received_callback(self.device_id, 'info.media', '')
+                self._data_received_callback(self.device_id, 'info.title', '')
+                self._data_received_callback(self.device_id, 'info.player', 0)
+                self._data_received_callback(self.device_id, 'control.stop', True)
+                self._data_received_callback(self.device_id, 'control.playpause', False)
+                self._data_received_callback(self.device_id, 'info.streams', None)
+                self._data_received_callback(self.device_id, 'info.subtitles', None)
+                self._data_received_callback(self.device_id, 'control.audio', '')
+                self._data_received_callback(self.device_id, 'control.subtitle', '')
                 self._activeplayers = []
                 self._playerid = 0
 
             elif data['method'] == 'GUI.OnScreensaverActivated':
                 processed = True
                 self.logger.debug('received: activated screensaver')
-                self._data_received_callback(self.device_id, 'state', 'Screensaver')
+                self._data_received_callback(self.device_id, 'info.state', 'Screensaver')
 
             elif data['method'][:9] == 'Player.On':
                 processed = True
                 self.logger.debug('received: player notification')
                 try:
-                    p_id = data['params']['data']['player']['playerid']
+                    p_id = data['params']['data']['info.player']['playerid']
                     query_playerinfo.append(p_id)
                 except KeyError:
                     pass
 
                 try:
-                    self._data_received_callback(self.device_id, 'media', data['params']['data']['item']['channeltype'])
-                    self._data_received_callback(self.device_id, 'title', data['params']['data']['item']['title'])
+                    self._data_received_callback(self.device_id, 'info.media', data['params']['data']['item']['channeltype'])
+                    self._data_received_callback(self.device_id, 'info.title', data['params']['data']['item']['title'])
                 except KeyError:
                     pass
 
             elif data['method'] == 'Application.OnVolumeChanged':
                 processed = True
                 self.logger.debug('received: volume changed, got new values mute: {} and volume: {}'.format(data['params']['data']['muted'], data['params']['data']['volume']))
-                self._data_received_callback(self.device_id, 'mute', data['params']['data']['muted'])
-                self._data_received_callback(self.device_id, 'volume', data['params']['data']['volume'])
+                self._data_received_callback(self.device_id, 'control.mute', data['params']['data']['muted'])
+                self._data_received_callback(self.device_id, 'control.volume', data['params']['data']['volume'])
 
         # if active playerid(s) was changed, update status for active player(s)
         if query_playerinfo:
@@ -383,8 +372,8 @@ class MD_Device(MD_Device):
         This method requests several status infos
         """
         if self.alive:
-            self.send_command('get_actplayer', None)
-            self.send_command('get_status_au', None)
+            self.send_command('status.get_actplayer', None)
+            self.send_command('status.get_status_au', None)
             if self._playerid:
-                self.send_command('get_status_play', None)
-                self.send_command('get_item', None)
+                self.send_command('status.get_status_play', None)
+                self.send_command('status.get_item', None)

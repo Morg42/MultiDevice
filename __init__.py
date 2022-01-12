@@ -585,6 +585,8 @@ class MultiDevice(SmartPlugin):
         self._commands_read_grp = {}    # contains all commands per device with read group command - <device_id>: {<group>: {<command>: <item_object>}}}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_id>: ['command', 'command', ...]
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {<command>: {'cycle': <cycle>, 'next': <next>}}
+        self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - <device_id>: ['grp', 'grp', ...]
+        self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {<grp>: {'cycle': <cycle>, 'next': <next>}}
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()
@@ -683,7 +685,9 @@ class MultiDevice(SmartPlugin):
                     self._commands_read[device_id] = {}
                     self._commands_read_grp[device_id] = {}
                     self._commands_initial[device_id] = []
+                    self._triggers_initial[device_id] = []
                     self._commands_cyclic[device_id] = {}
+                    self._triggers_cyclic[device_id] = {}
                     dev_logger = None
 
                     # check for and load struct definitions
@@ -807,7 +811,7 @@ class MultiDevice(SmartPlugin):
                     if self.has_iattr(item.conf, ITEM_ATTR_CYCLE):
                         cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                         # if cycle is already set for command, use the lower value of the two
-                        self._commands_cyclic[device_id][command] = { 'cycle': min(cycle, self._commands_cyclic[device_id].get(command, cycle)), 'next': 0 }
+                        self._commands_cyclic[device_id][command] = { 'cycle': min(cycle, self._commands_cyclic[device_id].get(command, cycle)), 'next': 0}
                         self.logger.debug(f'Item {item} saved for cyclic reading command {command} on device {device_id}')
 
                 # command marked for writing
@@ -817,9 +821,23 @@ class MultiDevice(SmartPlugin):
                         self.logger.debug(f'Item {item} saved for writing command {command} on device {device_id}')
                         return self.update_item
 
-            # is read_grp item?
+            # is read_grp trigger item?
             if self.has_iattr(item.conf, ITEM_ATTR_READ_GRP):
                 grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
+
+                # trigger read on startup?
+                if self.has_iattr(item.conf, ITEM_ATTR_READ_INIT) and self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
+                    if grp not in self._triggers_initial[device_id]:
+                        self._triggers_initial[device_id].append(grp)
+                        self.logger.debug(f'Item {item} saved for startup triggering of read group {grp} on device {device_id}')
+
+                # read cyclically?
+                cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
+                if cycle:
+                    # if cycle is already set for command, use the lower value of the two
+                    self._triggers_cyclic[device_id][grp] = { 'cycle': min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), 'next': 0}
+                    self.logger.debug(f'Item {item} saved for cyclic triggering of read group {grp} on device {device_id}')
+
                 if grp == '0':
                     self._items_read_all[item.id()] = device_id
                     self.logger.debug(f'Item {item} saved for read_all on device {device_id}')
@@ -982,7 +1000,9 @@ class MultiDevice(SmartPlugin):
             'read_commands': self._commands_read[device_id].keys(),
             'read_commands_grp': self._commands_read_grp[device_id],
             'cycle_commands': self._commands_cyclic[device_id],
+            'cycle_triggers': self._triggers_cyclic[device_id],
             'initial_commands': self._commands_initial[device_id],
+            'initial_triggers': self._triggers_initial[device_id],            
             'callback': self.on_data_received
         }
 
@@ -1194,7 +1214,7 @@ class WebInterface(SmartPluginWebIf):
         return {}
 
 
-def create_struct_yaml(device, indentwidth):
+def create_struct_yaml(device, indentwidth=4, write_output=False):
     """ read commands.py and export struct.yaml """
 
     def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models):
@@ -1344,27 +1364,66 @@ def create_struct_yaml(device, indentwidth):
     commands = cmd_module.commands
     top_level_entries = list(commands.keys())
 
-    print('%YAML 1.1')
-    print('---')
-    print(MODELINE)
+    old_stdout = sys.stdout
+    err = None
+    outfile = None
 
-    has_models = False
+    try:
+        if write_output:
+            file = 'plugins/multidevice/dev_' + device + '/struct.yaml'
+            sys.stdout = open(file, 'w')
 
-    if 'ALL' in top_level_entries:
-        has_models = True
+        print('%YAML 1.1')
+        print('---')
+        print(MODELINE)
 
-    for entry in top_level_entries:
-        read_group_triggers = {}
+        # this means the commands dict has 'ALL' and model names at the top level
+        # otherwise, these be commands or sections
+        has_models = 'ALL' in top_level_entries
 
-        # get dict as ref
-        c = {entry: commands[entry]}
+        if has_models:
+            # read models
+            models = top_level_entries
 
-        # add in 'ALL' commands if present
-        # each key is only visited once, so we can risk changing the `commands` dict
-        c[entry].update(commands.get('ALL', {}))
+            for m in models:
+                # create obj for model m, include m['ALL']
 
-        # traverse from root node
-        walk(c[entry], entry, commands, print_item, '', 0, entry, [entry], has_models)
+                # process obj
+                pass
+        else:
+            # create obj for model <device> consisting of all tle
+
+            # process obj
+
+            for entry in tle:
+                # create obj for entry
+
+                # process obj
+                pass
+
+        for entry in top_level_entries:
+            read_group_triggers = {}
+
+            # get dict as ref
+            c = {entry: commands[entry]}
+
+            # add in 'ALL' commands if present
+            # each key is only visited once, so we can risk changing the `commands` dict
+            c[entry].update(commands.get('ALL', {}))
+
+            # traverse from root node
+            walk(c[entry], entry, commands, print_item, '', 0, entry, [entry], has_models)
+    except OSError as e:
+        err = f'Error: file {file} could not be opened. Original error: {e}'
+    except Exception as e:
+        err = f'Unknown error occured while processing. Original error: {e}'
+    finally:
+        sys.stdout = old_stdout
+
+    if err:
+        print(err)
+    elif write_output:
+        print(f'Created file {file}')
 
     # this makes no sense, as nesting structs is only possible on the top level
     # means - all structs are pulled into the same item, eliminating the structure
@@ -1396,25 +1455,32 @@ if __name__ == '__main__':
     Be aware that later parameters, be they dict or pair type, overwrite earlier
     parameters of the same name.
 
-    ./__init__.py MD_Device host=www.smarthomeng.de port=80
+    ./__init__.py <device> host=www.smarthomeng.de port=80
 
     or
 
-    ./__init__.py MD_Device '{"host": "www.smarthomeng.de", "port": 80}'
+    ./__init__.py <device> '{"host": "www.smarthomeng.de", "port": 80}'
 
     If you call it with -v as a parameter after the device id, you get additional
     debug information:
 
-    ./__init__.py MD_Device -v
+    ./__init__.py <device> -v
 
     If you call it with -s as a parameter after the device id, the plugin will
-    create a struct.yaml file from the devices' commands.py:
+    print a struct.yaml file from the devices' commands.py:
 
-    ./__init__.py MD_Device -s
+    ./__init__.py <device> -s
 
-    An additional number can change the indent width from default 4:
+    If you call it with -S as a parameter, the plugin will write the created
+    struct yaml to plugins/multidevice/dev_<device>/struct.yaml.
+    BEWARE: an existing file will be overwritten.
 
-    ./__init__.py MD_Device -s2
+    ./__init__.py <device> -S
+
+    An additional number can change the indent width from default 4 (both with
+    -s and -S):
+
+    ./__init__.py <device> -s2
 
     """
     logger = logging.getLogger(__name__)
@@ -1446,7 +1512,7 @@ if __name__ == '__main__':
                 print('Debug logging enabled')
                 logger.setLevel(logging.DEBUG)
 
-            elif arg_str[:2] == '-s':
+            elif arg_str[:2].lower() == '-s':
                 # don't print('struct.yaml creation mode enabled')
                 # only output the struct.yaml
                 indent = 4
@@ -1455,7 +1521,7 @@ if __name__ == '__main__':
                 except Exception:
                     pass
 
-                create_struct_yaml(device, indent)
+                create_struct_yaml(device, indent, arg_str[1] == 'S')
                 exit(0)
 
             else:

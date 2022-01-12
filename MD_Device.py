@@ -100,12 +100,15 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
+        self._use_callbacks = False
 
         self._data_received_callback = None
         self._commands_read = {}
         self._commands_read_grp = {}
         self._commands_initial = []
         self._commands_cyclic = {}
+        self._triggers_initial = []
+        self._triggers_cyclic = {}
 
         # read device.yaml and set default attributes for device / connection
         try:
@@ -328,6 +331,8 @@ class MD_Device(object):
             self._commands_read_grp = kwargs['read_commands_grp']
             self._commands_cyclic = kwargs['cycle_commands']
             self._commands_initial = kwargs['initial_commands']
+            self._triggers_cyclic = kwargs['cycle_triggers']
+            self._triggers_initial = kwargs['initial_triggers']
             self._data_received_callback = kwargs['callback']
             self._runtime_data_set = True
         except KeyError as e:
@@ -371,6 +376,9 @@ class MD_Device(object):
 
     def _set_custom_vars(self):
         """ Set custom class properties. Overwrite as needed... """
+
+        # if you want to enable callbacks, overwrite this method and set
+        # self._use_callbacks = True
         pass
 
     def _post_init(self):
@@ -553,6 +561,11 @@ class MD_Device(object):
         p = yaml.get('parameters', {})
         self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
 
+        if self._use_callbacks:
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
+
     #
     #
     # utility methods
@@ -576,6 +589,12 @@ class MD_Device(object):
             cycle = self._commands_cyclic[cmd]['cycle']
             if shortestcycle == -1 or cycle < shortestcycle:
                 shortestcycle = cycle
+        for grp in self._triggers_cyclic:
+            cycle = self._triggers_cyclic[grp]['cycle']
+            if shortestcycle == -1 or cycle < shortestcycle:
+                shortestcycle = cycle
+
+        print(f'I 1234 123456 shortestcycle is {shortestcycle}')
 
         # Start the worker thread
         if shortestcycle != -1:
@@ -591,17 +610,24 @@ class MD_Device(object):
 
     def _read_initial_values(self):
         """
-        Read all values configured to be read at startup / after reconnect
+        Read all values configured to be read/triggered at startup / after reconnect
         """
-        if self._commands_initial and self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
-            self.logger.info('Starting initial read commands')
-            for cmd in self._commands_initial:
-                self.logger.debug(f'Sending initial command {cmd}')
-                self.send_command(cmd)
-            self._initial_values_read = True
-            self.logger.info('Initial read commands sent')
-        elif self._initial_values_read:
+        if self._initial_values_read:
             self.logger.debug('_read_initial_values() called, but inital values were already read. Ignoring')
+        else:
+            if self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
+                self.logger.info('Starting initial read commands')
+                for cmd in self._commands_initial:
+                    self.logger.debug(f'Sending initial command {cmd}')
+                    self.send_command(cmd)
+                self._initial_values_read = True
+                self.logger.info('Initial read commands sent')
+            if self._triggers_initial != []:  # also read after reconnect and not self._initial_values_read:
+                self.logger.info('Starting initial read group triggers')
+                for grp in self._triggers_initial:
+                    self.logger.debug(f'Triggering initial read group {grp}')
+                    self.read_all_commands(grp)
+                self.logger.info('Initial read group triggers sent')
 
     def _read_cyclic_values(self):
         """
@@ -641,9 +667,38 @@ class MD_Device(object):
             self._commands_cyclic[cmd]['next'] = currenttime + self._commands_cyclic[cmd]['cycle']
             read_cmds += 1
  
-        self._cyclic_update_active = False
         if read_cmds:
             self.logger.debug(f'Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items')
+
+        currenttime = time.time()
+        read_grps = 0
+        todo = []
+        for grp in self._triggers_cyclic:
+ 
+            # Is the trigger already due?
+            if self._triggers_cyclic[grp]['next'] <= currenttime:
+                todo.append(grp)
+ 
+        for grp in todo:
+            # as this loop can take considerable time, repeatedly check if shng wants to stop
+            if not self.alive:
+                self.logger.info('Stop command issued, cancelling cyclic trigger')
+                return
+
+            # also leave early on disconnect
+            if not self._connection.connected():
+                self.logger.info('Disconnect detected, cancelling cyclic trigger')
+                return
+
+            self.logger.debug(f'Triggering cyclic read of group {grp}')
+            self.read_all_commands(grp)
+            self._triggers_cyclic[grp]['next'] = currenttime + self._triggers_cyclic[grp]['cycle']
+            read_grps += 1
+ 
+        if read_grps:
+            self.logger.debug(f'Cyclic triggers took {(time.time() - currenttime):.1f} seconds for {read_grps} groups')
+
+        self._cyclic_update_active = False
 
     def _read_configuration(self):
         """
@@ -662,7 +717,6 @@ class MD_Device(object):
 
             try:
                 # get module
-                print(mod_str)
                 cmd_module = importlib.import_module(mod_str, __name__)
             except Exception as e:
                 raise ImportError(f'importing module {mod_str} failed. Error was: "{e}"')

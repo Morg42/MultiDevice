@@ -224,12 +224,7 @@ class MD_Commands(object):
         if cust_mod:
             _enum_dt_cls(cust_mod)
 
-    def _read_commands(self, device_id):
-        """
-        This is the loader portion for the commands.py file.
-
-        Errors preventing the device from working raise `Exception`
-        """
+    def _get_cmdlist(self, cmds, cmdlist):
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], dict)):
                 walk(node[child], child, parent=node, func=func)
@@ -249,6 +244,31 @@ class MD_Commands(object):
         def removeEmptyItems(node, node_name, parent):
             if len(node) == 0:
                 del parent[node_name]
+
+        # flatten cmds
+        walk(cmds, '', None, moveItems)
+        # remove empty dicts (old 'level names')
+        walk(cmds, '', None, removeEmptyItems)
+
+        # now get command list, if not already provided
+        if cmdlist is None:
+            cmdlist = cmds.keys()
+
+        # find all commands starting with any entry in cmdlist to capture categories
+        # e.g. cmdlist = ['generic'] -> get all commands starting with generic + COMMAND_SEP
+        new_cmdlist = []
+        for cmd in cmds:
+            if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
+                new_cmdlist.append(cmd)
+
+        return new_cmdlist
+
+    def _read_commands(self, device_id):
+        """
+        This is the loader portion for the commands.py file.
+
+        Errors preventing the device from working raise `Exception`
+        """
 
         # did we get a device type?
         if not self._device_type:
@@ -304,24 +324,8 @@ class MD_Commands(object):
                 if self._model:
                     self.logger.debug(f'found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}')
 
-            # flatten cmds
-            walk(cmds, '', None, moveItems)
-            # remove empty dicts (old 'level names')
-            walk(cmds, '', None, removeEmptyItems)
-
-            # now get command list, if not already provided
-            if cmdlist is None:
-                cmdlist = cmds.keys()
-
-            # find all commands starting with any entry in cmdlist to capture categories
-            # e.g. cmdlist = ['generic'] -> get all commands starting with generic + COMMAND_SEP
-            new_cmdlist = []
-            for cmd in cmds:
-                if any(cmdspec + COMMAND_SEP == cmd[:len(cmdspec) + len(COMMAND_SEP)] or cmdspec == cmd for cmdspec in cmdlist):
-                    new_cmdlist.append(cmd)
-
-            # actually import commands
-            self._parse_commands(device_id, cmds, new_cmdlist)
+        # actually import commands
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
         else:
             if not MD_standalone:
                 self.logger.warning('no command definitions found. This device probably will not work...')

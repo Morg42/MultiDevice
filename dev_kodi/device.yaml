@@ -46,3 +46,21 @@ parameters:
         type: int
         default: 3
         description: 'Anzahl der Versuche, eine unbeantwortete Nachricht erneut zu senden'
+
+    # nicht ändern
+    command_class:
+        type: str
+        default: MD_Command_Json
+        description: 'Name der Klasse für Commands'
+
+    # nicht ändern
+    protocol:
+        type: str
+        default: MD_Protocol_Jsonrpc
+        description: 'Name der Klasse für Connection protocol'
+
+    # nicht ändern
+    conn_type:
+        type: str
+        default: MD_Connection_Net_Tcp_Client
+        description: 'Name der Klasse für Connection'

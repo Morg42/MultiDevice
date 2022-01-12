@@ -88,10 +88,9 @@ commands = {
             'no_read_groups': False,
 
             # create subitem 'lookup' containing lookup table
+            # if lookup_item is True or 'list', the lookup will be type 'list'
+            # otherwise specify 'lookup_item': 'fwd' / 'rev' / 'rci'
             'lookup_item': False,
-
-            # type of lookup ('fwd', 'rev', 'rci', 'list')
-            'lookup_type': 'rev',
 
             # attributes to add to the item definition verbatim
             # e.g. 'enforce_updates': 'true', 'md_initial_read': 'true'

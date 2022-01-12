@@ -311,23 +311,3 @@ lookups = {
         }
     }
 }
-
-""" structs: (optional) structs applicability for models
-
-If the device supports models and provides structs, it may be that not
-all struct apply to the specific device; e.g. a low-end AV receiver may
-not have a second or third audio zone.
-
-With this struct, you can define which structs apply to all devices and
-which only to some devices. The syntax is identical to the ``models`` dict.
-
-Even though the structs will be named multidevice.<device_id>.<struct_name>
-in the item config, you must use the names from the ``structs.yaml`` file only.
-"""
-
-structs = {
-    'ALL': ['general', 'control'],
-    'model1': ['zone1'],
-    'model2': ['zone1', 'zone2'],
-    'model3': ['zone1', 'zone2', 'zone3', 'zonetwilight']
-}

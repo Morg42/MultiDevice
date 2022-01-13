@@ -109,6 +109,10 @@ commands = {
                 'attr2': 'value2'
             },
 
+            # item attribute templates to include in item definition
+            # templates are defined in ``item_templates`` dict in this file
+            'item_template': ['template1', 'template2'],
+
             # additional read group configuration
             'read_groups': [
                 {
@@ -309,5 +313,34 @@ lookups = {
             3.0: 'three',
             3.14: 'pi'
         }
+    }
+}
+
+""" lookup: (optional) definition of lookup tables (see commands table)
+
+Each table is a plain dict containing device values as keys and corresponding
+SmartHomeNG item values as values. Lookup tables are used both for forward
+(device -> shng) and reverse (shng -> device) lookups. By default, reverse
+lookups are case insensitive to allow for typos.
+
+The lookups dict can have two forms:
+
+a) without the ability to contain model specific data
+b) with the ability to contain model specific data
+
+Case a) is the easier one: each key is a lookup table name and each value is
+a plain dict with ``<device value>: <shng item value>`` dict entries.
+
+Example:
+"""
+
+item_templates = {
+    'template1': {
+        'foo': 'bar',
+        'foof': 'barf'
+    },
+    'template2': {
+        'foop': 'barp',
+        'floop': 'blarp'
     }
 }

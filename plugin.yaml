@@ -27,13 +27,7 @@ parameters:
             de: 'Liste von Geräten mit Angaben zur Konfiguration:
                  devices:
                      - <Geräte-Typ>         # Geräte-ID = Geräte-Typ
-                     - <Geräte-Typ>:        # Geräte-ID = Geräte-Typ
-                         - <Attribut1>: <Wert1>
-                         -...
                      - <Geräte-ID>: <Geräte-Typ>
-                     - <Geräte-ID>:         # Geräte-Typ = Geräte-ID
-                         - <Attribut1>: <Wert1>
-                         - ...
                      - <Geräte-ID>:
                          - device_type: <Geräte-Typ>
                          - <Attribut1>: <Wert1>
@@ -42,13 +36,7 @@ parameters:
             en: 'List of devices and possibly their configuration:
                  devices:
                      - <device type>         # device id = device type
-                     - <device type>:        # device id = device type
-                         - <attribute1>: <value1>
-                         -...
                      - <device id>: <device type>
-                     - <device id>:         # device type = device id
-                         - <attribute1>: <value1>
-                         - ...
                      - <device id>:
                          - device_type: <device type>
                          - <attribute1>: <value1>

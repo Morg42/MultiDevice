@@ -316,20 +316,17 @@ lookups = {
     }
 }
 
-""" lookup: (optional) definition of lookup tables (see commands table)
+""" item templates: (optional) definition of templates for struct generation
 
-Each table is a plain dict containing device values as keys and corresponding
-SmartHomeNG item values as values. Lookup tables are used both for forward
-(device -> shng) and reverse (shng -> device) lookups. By default, reverse
-lookups are case insensitive to allow for typos.
+With this dict, you can define templates - sets of item attributes or even
+item structures - to be referenced by a command and inserted into the struct
+generator output where appropriate.
 
-The lookups dict can have two forms:
+While the example below only visualizes the syntax of the templates dict, a
+possible implementaion might include on_change, autotimer, eval constructs as
+well as ancillary subitems.
 
-a) without the ability to contain model specific data
-b) with the ability to contain model specific data
-
-Case a) is the easier one: each key is a lookup table name and each value is
-a plain dict with ``<device value>: <shng item value>`` dict entries.
+Feel free to completely ignore this.
 
 Example:
 """

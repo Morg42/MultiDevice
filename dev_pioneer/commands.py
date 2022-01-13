@@ -3,7 +3,7 @@
 
 # commands for dev pioneer
 models = {
-    'ALL':      ['general.pqls', 'general.dimmer', 'general.sleep', 'general.multizone', 'tuner', 'zone1', 'zone2.control', 'hdzone'],
+    'ALL':      ['general.pqls', 'general.dimmer', 'general.sleep', 'general.display', 'general.error', 'general.multizone', 'tuner', 'zone1', 'zone2.control', 'hdzone'],
     'SC-LX87':  ['general.amp', 'zone2.settings.sound.channel_level', 'zone2.settings.sound.tone_control', 'zone3'],
     'SC-LX77':  ['general.amp', 'zone2.settings.sound.channel_level', 'zone2.settings.sound.tone_control', 'zone3'],
     'SC-LX57':  ['general.amp', 'zone2.settings.sound.channel_level', 'zone2.settings.sound.tone_control', 'zone3'],
@@ -13,23 +13,9 @@ models = {
     'VSX-923':  []
 }
 
-'''
-'item_attrs': {
-  'no_read_group': False,
-  'attributes': {
-    'attr1': 'val1'
-    'attr2': 'val2'
-  },
-  'read_groups': { [
-    {'name': 'name1', 'trigger': 'item1'},
-    {'name': 'name2', 'trigger': 'item2'}
-  ]},
-  'lookup_item': 'item3'
-}
-'''
 commands = {
     'general': {
-        'error': {'opcode': 'MD_VALUE', 'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'E0', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR'},
+        'error': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'E0', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR'},
         'display': {'read': True, 'read_cmd': '?FL', 'item_type': 'str', 'dev_datatype': 'PioDisplay', 'reply_token': 'REGEX', 'reply_pattern': 'FL(.{28}).*'},
         'pqls': {'read': True, 'write': True, 'read_cmd': '?PQ', 'write_cmd': ':{VAL:01}PQ:', 'item_type': 'str', 'dev_datatype': 'bool', 'reply_token': 'REGEX', 'reply_pattern': r'PQ(\d)'},
         'dimmer': {'read': True, 'write': True, 'write_cmd': '{VAL}SAA', 'cmd_settings': {'force_min': 0, 'force_max': 3}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SAA(\d)', 'item_attrs': {'attributes': {'remark': '0 = very bright, 1 = bright, 2 = dark, 3 = off'}}},
@@ -38,17 +24,17 @@ commands = {
         'multizone': {'read': True, 'write': True, 'write_cmd': 'ZZ', 'item_type': 'str', 'dev_datatype': 'str'}
     },
     'tuner': {
-        'tunerpreset': {'opcode': 'MD_VALUE', 'read': True, 'write': True, 'read_cmd': '?PR', 'item_type': 'num', 'write_cmd': ':{VAL}PR:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'PR([A-Ga-g]\d{2})'},
+        'tunerpreset': {'read': True, 'write': True, 'read_cmd': '?PR', 'item_type': 'num', 'write_cmd': ':{VAL}PR:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'PR([A-Ga-g]\d{2})'},
         'tunerpresetup': {'write': True, 'item_type': 'bool', 'write_cmd': 'TPI', 'dev_datatype': 'raw'},
         'tunerpresetdown': {'write': True, 'item_type': 'bool', 'write_cmd': 'TPD', 'dev_datatype': 'raw'},
-        'title': {'opcode': 'MD_VALUE', 'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH01020']},
-        'genre': {'opcode': 'MD_VALUE', 'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH05024']},
-        'station': {'opcode': 'MD_VALUE', 'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH04022']}
+        'title': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH01020']},
+        'genre': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH05024']},
+        'station': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH04022']}
     },
     'zone1': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?P', 'write_cmd': 'PMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'PWR(\d{1})', 'item_attrs': {'attributes': {'on_update': ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']}}},
-            'mute': {'read': True, 'write': True, 'read_cmd': '?M', 'write_cmd': 'MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'MUT(\d{1})', 'item_attrs': {'read_groups': [{'name': 'zone1.onpower', 'trigger': '..read.on_power'}]}},
+            'power': {'read': True, 'write': True, 'read_cmd': '?P', 'write_cmd': 'PMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'PWR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
+            'mute': {'read': True, 'write': True, 'read_cmd': '?M', 'write_cmd': 'MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'MUT(\d{1})'},
             'volume': {'read': True, 'write': True, 'read_cmd': '?V', 'write_cmd': ':{VAL:03}VL:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'VOL(\d{3})', 'cmd_settings': {'force_min': 0, 'valid_max': 185}},
             'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'VU', 'dev_datatype': 'raw'},
             'volumedown': {'write_cmd': 'VD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
@@ -71,7 +57,7 @@ commands = {
                     'subwoofer': {'read': True, 'write': True, 'read_cmd': '?SW_CLV', 'item_type': 'num', 'cmd_settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSW_(\d{2})'}
                 },
                 'tone_control': {
-                    'tone': {'read': True, 'write': True, 'read_cmd': '?TO', 'item_type': 'bool', 'write_cmd': ':{VAL:01}TO:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TO(\d)'},
+                    'tone': {'read': True, 'write': True, 'read_cmd': '?TO', 'item_type': 'bool', 'write_cmd': ':{VAL:01}TO:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TO(\d)', 'item_attrs': {'attributes': {'on_change': 'sh...read.timer(1, True) if value else None'}}},
                     'treble': {'read': True, 'write': True, 'read_cmd': '?TR', 'item_type': 'num', 'write_cmd': 'MD_VALUETR', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TR(\d{2})', 'lookup': 'TONE'},
                     'trebleup': {'write': True, 'item_type': 'bool', 'write_cmd': 'TI', 'dev_datatype': 'raw'},
                     'trebledown': {'write': True, 'item_type': 'bool', 'write_cmd': 'TD', 'dev_datatype': 'raw'},
@@ -83,18 +69,18 @@ commands = {
                     'hdmiout': {'read': True, 'write': True, 'read_cmd': '?HO', 'write_cmd': 'MD_VALUEHO', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'HO(\d)', 'lookup': 'HDMIOUT'},
                     'hdmiaudio': {'read': True, 'write': True, 'read_cmd': '?HA', 'write_cmd': 'MD_VALUEHA', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'HA(\d)', 'lookup': 'HDMIAUDIO'},
                     'dialog': {'read': True, 'write': True, 'read_cmd': '?ATH', 'write_cmd': 'MD_VALUEATH', 'cmd_settings': {'force_min': 0, 'force_max': 5}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ATH(\d)'},
-                    'dialogup': {'opcode': 'MD_VALUE', 'read': True, 'write': True, 'item_type': 'bool', 'write_cmd': '9ATH', 'dev_datatype': 'str'},
-                    'dialogdown': {'opcode': 'MD_VALUE', 'read': True, 'write': True, 'item_type': 'bool', 'write_cmd': '8ATH', 'dev_datatype': 'str'},
-                    'listeningmode': {'opcode': 'MD_VALUE', 'read': True, 'write': True, 'read_cmd': '?S', 'write_cmd': 'MD_VALUESR', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SR(\d{4})', 'lookup': 'LISTENINGMODE'},
-                    'playingmode': {'opcode': 'MD_VALUE', 'read': True, 'write': False, 'read_cmd': '?L', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'LM([a-b0-9]{4})', 'lookup': 'PLAYINGMODE'},
-                    'speakers': {'opcode': 'MD_VALUE', 'read': True, 'write': True, 'cmd_settings': {'valid_list': [0, 1, 2, 3, 9]}, 'write_cmd': ':{VAL:01}SPK:', 'read_cmd': '?SPK', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SPK(\d)'}
+                    'dialogup': {'write': True, 'item_type': 'bool', 'write_cmd': '9ATH', 'dev_datatype': 'str'},
+                    'dialogdown': {'write': True, 'item_type': 'bool', 'write_cmd': '8ATH', 'dev_datatype': 'str'},
+                    'listeningmode': {'read': True, 'write': True, 'read_cmd': '?S', 'write_cmd': 'MD_VALUESR', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SR(\d{4})', 'lookup': 'LISTENINGMODE'},
+                    'playingmode': {'read': True, 'write': False, 'read_cmd': '?L', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'LM([a-b0-9]{4})', 'lookup': 'PLAYINGMODE'},
+                    'speakers': {'read': True, 'write': True, 'read_cmd': '?SPK', 'item_type': 'num', 'dev_datatype': 'str', 'cmd_settings': {'valid_list': [0, 1, 2, 3, 9]}, 'write_cmd': ':{VAL:01}SPK:', 'reply_token': 'REGEX', 'reply_pattern': r'SPK(\d)'}
                 }
             }
         }
     },
     'zone2': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?AP', 'write_cmd': 'APMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'APR(\d{1})'},
+            'power': {'read': True, 'write': True, 'read_cmd': '?AP', 'write_cmd': 'APMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'APR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
             'mute': {'read': True, 'write': True, 'read_cmd': '?Z2M', 'item_type': 'bool', 'write_cmd': 'Z2MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'Z2MUT(\d{1})'},
             'volume': {'read': True, 'write': True, 'read_cmd': '?ZV', 'write_cmd': ':{VAL:02}ZV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81},},
             'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'ZU', 'dev_datatype': 'raw'},
@@ -110,7 +96,7 @@ commands = {
                     'front_right': {'read': True, 'write': True, 'read_cmd': '?ZGER___', 'item_type': 'num', 'cmd_settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUEZGE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZGER__(\d{2})'}
                 },
                 'tone_control': {
-                    'tone': {'read': True, 'write': True, 'read_cmd': '?ZGA', 'item_type': 'bool', 'write_cmd': ':{VAL:01}ZGA:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGA(\d)'},
+                    'tone': {'read': True, 'write': True, 'read_cmd': '?ZGA', 'item_type': 'bool', 'write_cmd': ':{VAL:01}ZGA:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGA(\d)', 'item_attrs': {'attributes': {'on_change': 'sh...read.timer(1, True) if value else None'}}},
                     'treble': {'read': True, 'write': True, 'read_cmd': '?ZGC', 'item_type': 'num', 'write_cmd': 'MD_VALUEZGC', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGC(\d{2})', 'lookup': 'TONE'},
                     'bass': {'read': True, 'write': True, 'read_cmd': '?ZGB', 'item_type': 'num', 'write_cmd': 'MD_VALUEZGB', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGB(\d{2})', 'lookup': 'TONE'}
                 }
@@ -119,7 +105,7 @@ commands = {
     },
     'zone3': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?BP', 'write_cmd': 'BPMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'BPR(\d{1})'},
+            'power': {'read': True, 'write': True, 'read_cmd': '?BP', 'write_cmd': 'BPMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'BPR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
             'mute': {'read': True, 'write': True, 'read_cmd': '?Z3M', 'item_type': 'bool', 'write_cmd': 'Z3MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'Z3MUT(\d{1})'},
             'volume': {'read': True, 'write': True, 'read_cmd': '?YV', 'write_cmd': ':{VAL:02}YV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'YV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81},},
             'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'YU', 'dev_datatype': 'raw'},

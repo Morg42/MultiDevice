@@ -145,7 +145,8 @@ zone1:
             md_read: true
             md_write: true
             md_read_group: ['zone1', 'zone1.control']
-            on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+            md_read_initial: true
+            on_change: sh....read.timer(1, True) if value else None
 
         mute:
             type: bool
@@ -153,7 +154,7 @@ zone1:
             md_command: zone1.control.mute
             md_read: true
             md_write: true
-            md_read_group: ['zone1', 'zone1.control', 'zone1.onpower']
+            md_read_group: ['zone1', 'zone1.control']
 
         volume:
             type: num
@@ -318,6 +319,7 @@ zone1:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                    on_change: sh...read.timer(1, True) if value else None
 
                 treble:
                     type: num
@@ -399,7 +401,6 @@ zone1:
                     type: bool
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.general.dialogup
-                    md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -407,12 +408,11 @@ zone1:
                     type: bool
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.general.dialogdown
-                    md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                 listeningmode:
-                    type: num
+                    type: str
                     md_device: DEVICENAME
                     md_command: zone1.settings.sound.general.listeningmode
                     md_read: true
@@ -434,14 +434,17 @@ zone1:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                    on_change:
+                        - .speakera = True if value in [1, 3] else False
+                        - .speakerb = True if value in [2, 3] else False
 
-zone1:
-    read:
-        on_power:
-            type: bool
-            enforce_updates: true
-            md_device: DEVICENAME
-            md_read_group_trigger: zone1.onpower
+                    speakera:
+                        type: bool
+                        on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                    speakerb:
+                        type: bool
+                        on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
 
 zone2:
 
@@ -466,6 +469,8 @@ zone2:
             md_read: true
             md_write: true
             md_read_group: ['zone2', 'zone2.control']
+            md_read_initial: true
+            on_change: sh....read.timer(1, True) if value else None
 
         mute:
             type: bool
@@ -574,6 +579,7 @@ zone2:
                     md_read: true
                     md_write: true
                     md_read_group: ['zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
+                    on_change: sh...read.timer(1, True) if value else None
 
                 treble:
                     type: num
@@ -614,6 +620,8 @@ zone3:
             md_read: true
             md_write: true
             md_read_group: ['zone3', 'zone3.control']
+            md_read_initial: true
+            on_change: sh....read.timer(1, True) if value else None
 
         mute:
             type: bool
@@ -747,6 +755,20 @@ ALL:
             md_device: DEVICENAME
             md_read_group_trigger: general
 
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['ALL', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['ALL', 'general']
+
         pqls:
             type: str
             md_device: DEVICENAME
@@ -855,7 +877,8 @@ ALL:
                 md_read: true
                 md_write: true
                 md_read_group: ['ALL', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -863,7 +886,7 @@ ALL:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['ALL', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['ALL', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -1028,6 +1051,7 @@ ALL:
                         md_read: true
                         md_write: true
                         md_read_group: ['ALL', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -1109,7 +1133,6 @@ ALL:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['ALL', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -1117,12 +1140,11 @@ ALL:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['ALL', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -1144,6 +1166,17 @@ ALL:
                         md_read: true
                         md_write: true
                         md_read_group: ['ALL', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
+
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
 
     zone2:
 
@@ -1168,6 +1201,8 @@ ALL:
                 md_read: true
                 md_write: true
                 md_read_group: ['ALL', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -1245,15 +1280,6 @@ ALL:
                 md_write: true
                 md_read_group: ['ALL', 'hdzone', 'hdzone.control']
 
-ALL:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 SC-LX87:
 
     read:
@@ -1269,6 +1295,20 @@ SC-LX87:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['SC-LX87', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['SC-LX87', 'general']
 
         pqls:
             type: str
@@ -1392,7 +1432,8 @@ SC-LX87:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX87', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -1400,7 +1441,7 @@ SC-LX87:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-LX87', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['SC-LX87', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -1565,6 +1606,7 @@ SC-LX87:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX87', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -1646,7 +1688,6 @@ SC-LX87:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-LX87', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -1654,12 +1695,11 @@ SC-LX87:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-LX87', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -1681,6 +1721,17 @@ SC-LX87:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX87', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
+
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
 
     zone2:
 
@@ -1705,6 +1756,8 @@ SC-LX87:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX87', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -1813,6 +1866,7 @@ SC-LX87:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX87', 'zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -1853,6 +1907,8 @@ SC-LX87:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX87', 'zone3', 'zone3.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -1970,15 +2026,6 @@ SC-LX87:
                 md_write: true
                 md_read_group: ['SC-LX87', 'hdzone', 'hdzone.control']
 
-SC-LX87:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 SC-LX77:
 
     read:
@@ -1994,6 +2041,20 @@ SC-LX77:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['SC-LX77', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['SC-LX77', 'general']
 
         pqls:
             type: str
@@ -2117,7 +2178,8 @@ SC-LX77:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX77', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -2125,7 +2187,7 @@ SC-LX77:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-LX77', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['SC-LX77', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -2290,6 +2352,7 @@ SC-LX77:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX77', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -2371,7 +2434,6 @@ SC-LX77:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-LX77', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -2379,12 +2441,11 @@ SC-LX77:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-LX77', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -2406,7 +2467,17 @@ SC-LX77:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX77', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
 
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
     zone2:
 
         read:
@@ -2430,6 +2501,8 @@ SC-LX77:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX77', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -2538,6 +2611,7 @@ SC-LX77:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX77', 'zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -2578,6 +2652,8 @@ SC-LX77:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX77', 'zone3', 'zone3.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -2695,15 +2771,6 @@ SC-LX77:
                 md_write: true
                 md_read_group: ['SC-LX77', 'hdzone', 'hdzone.control']
 
-SC-LX77:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 SC-LX57:
 
     read:
@@ -2719,6 +2786,20 @@ SC-LX57:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['SC-LX57', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['SC-LX57', 'general']
 
         pqls:
             type: str
@@ -2842,7 +2923,8 @@ SC-LX57:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX57', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -2850,7 +2932,7 @@ SC-LX57:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-LX57', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['SC-LX57', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -3015,6 +3097,7 @@ SC-LX57:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX57', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -3096,7 +3179,6 @@ SC-LX57:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-LX57', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -3104,12 +3186,11 @@ SC-LX57:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-LX57', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -3131,7 +3212,17 @@ SC-LX57:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX57', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
 
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
     zone2:
 
         read:
@@ -3155,6 +3246,8 @@ SC-LX57:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX57', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -3263,6 +3356,7 @@ SC-LX57:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-LX57', 'zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -3303,6 +3397,8 @@ SC-LX57:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-LX57', 'zone3', 'zone3.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -3420,15 +3516,6 @@ SC-LX57:
                 md_write: true
                 md_read_group: ['SC-LX57', 'hdzone', 'hdzone.control']
 
-SC-LX57:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 SC-2023:
 
     read:
@@ -3444,6 +3531,20 @@ SC-2023:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['SC-2023', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['SC-2023', 'general']
 
         pqls:
             type: str
@@ -3553,7 +3654,8 @@ SC-2023:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-2023', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -3561,7 +3663,7 @@ SC-2023:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-2023', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['SC-2023', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -3726,6 +3828,7 @@ SC-2023:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-2023', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -3807,7 +3910,6 @@ SC-2023:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-2023', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -3815,12 +3917,11 @@ SC-2023:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-2023', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -3842,7 +3943,17 @@ SC-2023:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-2023', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
 
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
     zone2:
 
         read:
@@ -3866,6 +3977,8 @@ SC-2023:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-2023', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -3974,6 +4087,7 @@ SC-2023:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-2023', 'zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -4014,6 +4128,8 @@ SC-2023:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-2023', 'zone3', 'zone3.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -4131,15 +4247,6 @@ SC-2023:
                 md_write: true
                 md_read_group: ['SC-2023', 'hdzone', 'hdzone.control']
 
-SC-2023:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 SC-1223:
 
     read:
@@ -4155,6 +4262,20 @@ SC-1223:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['SC-1223', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['SC-1223', 'general']
 
         pqls:
             type: str
@@ -4264,7 +4385,8 @@ SC-1223:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-1223', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -4272,7 +4394,7 @@ SC-1223:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['SC-1223', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['SC-1223', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -4437,6 +4559,7 @@ SC-1223:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-1223', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -4518,7 +4641,6 @@ SC-1223:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-1223', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -4526,12 +4648,11 @@ SC-1223:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['SC-1223', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -4553,7 +4674,17 @@ SC-1223:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-1223', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
 
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
     zone2:
 
         read:
@@ -4577,6 +4708,8 @@ SC-1223:
                 md_read: true
                 md_write: true
                 md_read_group: ['SC-1223', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -4685,6 +4818,7 @@ SC-1223:
                         md_read: true
                         md_write: true
                         md_read_group: ['SC-1223', 'zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -4726,15 +4860,6 @@ SC-1223:
                 md_write: true
                 md_read_group: ['SC-1223', 'hdzone', 'hdzone.control']
 
-SC-1223:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 VSX-1123:
 
     read:
@@ -4750,6 +4875,20 @@ VSX-1123:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['VSX-1123', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['VSX-1123', 'general']
 
         pqls:
             type: str
@@ -4859,7 +4998,8 @@ VSX-1123:
                 md_read: true
                 md_write: true
                 md_read_group: ['VSX-1123', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -4867,7 +5007,7 @@ VSX-1123:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['VSX-1123', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['VSX-1123', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -5032,6 +5172,7 @@ VSX-1123:
                         md_read: true
                         md_write: true
                         md_read_group: ['VSX-1123', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -5113,7 +5254,6 @@ VSX-1123:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['VSX-1123', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -5121,12 +5261,11 @@ VSX-1123:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['VSX-1123', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -5148,7 +5287,17 @@ VSX-1123:
                         md_read: true
                         md_write: true
                         md_read_group: ['VSX-1123', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
 
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
     zone2:
 
         read:
@@ -5172,6 +5321,8 @@ VSX-1123:
                 md_read: true
                 md_write: true
                 md_read_group: ['VSX-1123', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -5249,15 +5400,6 @@ VSX-1123:
                 md_write: true
                 md_read_group: ['VSX-1123', 'hdzone', 'hdzone.control']
 
-VSX-1123:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-
 VSX-923:
 
     read:
@@ -5273,6 +5415,20 @@ VSX-923:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: general
+
+        error:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.error
+            md_read: true
+            md_read_group: ['VSX-923', 'general']
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: general.display
+            md_read: true
+            md_read_group: ['VSX-923', 'general']
 
         pqls:
             type: str
@@ -5382,7 +5538,8 @@ VSX-923:
                 md_read: true
                 md_write: true
                 md_read_group: ['VSX-923', 'zone1', 'zone1.control']
-                on_update: ['sh...read.on_power.timer(1, True) if value else None', 'sh....settings.sound.read.timer(1, True) if value else None']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -5390,7 +5547,7 @@ VSX-923:
                 md_command: zone1.control.mute
                 md_read: true
                 md_write: true
-                md_read_group: ['VSX-923', 'zone1', 'zone1.control', 'zone1.onpower']
+                md_read_group: ['VSX-923', 'zone1', 'zone1.control']
 
             volume:
                 type: num
@@ -5555,6 +5712,7 @@ VSX-923:
                         md_read: true
                         md_write: true
                         md_read_group: ['VSX-923', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                        on_change: sh...read.timer(1, True) if value else None
 
                     treble:
                         type: num
@@ -5636,7 +5794,6 @@ VSX-923:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogup
-                        md_read: true
                         md_write: true
                         md_read_group: ['VSX-923', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
@@ -5644,12 +5801,11 @@ VSX-923:
                         type: bool
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.dialogdown
-                        md_read: true
                         md_write: true
                         md_read_group: ['VSX-923', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     listeningmode:
-                        type: num
+                        type: str
                         md_device: DEVICENAME
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: true
@@ -5671,7 +5827,17 @@ VSX-923:
                         md_read: true
                         md_write: true
                         md_read_group: ['VSX-923', 'zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
+                        on_change:
+                            - .speakera = True if value in [1, 3] else False
+                            - .speakerb = True if value in [2, 3] else False
 
+                        speakera:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1
+
+                        speakerb:
+                            type: bool
+                            on_change: ..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2
     zone2:
 
         read:
@@ -5695,6 +5861,8 @@ VSX-923:
                 md_read: true
                 md_write: true
                 md_read_group: ['VSX-923', 'zone2', 'zone2.control']
+                md_read_initial: true
+                on_change: sh....read.timer(1, True) if value else None
 
             mute:
                 type: bool
@@ -5771,13 +5939,3 @@ VSX-923:
                 md_read: true
                 md_write: true
                 md_read_group: ['VSX-923', 'hdzone', 'hdzone.control']
-
-VSX-923:
-    zone1:
-        read:
-            on_power:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: zone1.onpower
-

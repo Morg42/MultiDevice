@@ -210,7 +210,7 @@ the <code><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice
 used for testing.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Supplying the <code>protocol</code> attribute as a kind of "empty default" is
+<p>Supplying the <code>protocol</code> attribute as a kind of 'empty default' is
 prone to break devices relying on protocol support.</p>
 </div>
 <p>The methods are the same as for the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> class.</p>
@@ -316,7 +316,7 @@ dev_<type>) and its id, which is the internal SmartHomeNG handle and the name
 used in item configuration. If only one device of the same type is used, type
 and id can be the same. The <code>devices:</code>-attribute in <code>plugin.yaml</code> contains
 a dict of all configured devices where the id is the key and the configuration
-for the specific device is provided as "dict in value" format, if needed.
+for the specific device is provided as 'dict in value' format, if needed.
 The configuration can include the attribute <code>device_type</code> to specify the type
 of the device (if different from the id) and - optionally - the attribute
 <code>model</code>, if a device offers multiple model configurations.</p>
@@ -700,7 +700,7 @@ used for testing.
 
 .. warning::
 
-    Supplying the ``protocol`` attribute as a kind of &#34;empty default&#34; is
+    Supplying the ``protocol`` attribute as a kind of &#39;empty default&#39; is
     prone to break devices relying on protocol support.
 
 
@@ -846,7 +846,7 @@ dev_&lt;type&gt;) and its id, which is the internal SmartHomeNG handle and the n
 used in item configuration. If only one device of the same type is used, type
 and id can be the same. The ``devices:``-attribute in ``plugin.yaml`` contains
 a dict of all configured devices where the id is the key and the configuration
-for the specific device is provided as &#34;dict in value&#34; format, if needed.
+for the specific device is provided as &#39;dict in value&#39; format, if needed.
 The configuration can include the attribute ``device_type`` to specify the type
 of the device (if different from the id) and - optionally - the attribute
 ``model``, if a device offers multiple model configurations.
@@ -941,7 +941,8 @@ information in items immediately, or if multiple data points are trans- mitted
 at one, which requires splitting or other means of data management.
 &#34;&#34;&#34;
 
-from collections import OrderedDict
+from collections import OrderedDict, abc
+
 import importlib
 import builtins
 import logging
@@ -952,9 +953,8 @@ import cherrypy
 import json
 from copy import deepcopy
 from ast import literal_eval
-from pprint import pprint as pp
 
-__pdoc__ = {&#34;multidevice.tools&#34;: False}
+__pdoc__ = {&#39;multidevice.tools&#39;: False}
 
 if __name__ == &#39;__main__&#39;:
     # just needed for standalone mode
@@ -1030,7 +1030,7 @@ class MultiDevice(SmartPlugin):
             # get the parameters for the plugin (as defined in metadata plugin.yaml):
             devices = self.get_parameter_value(&#39;devices&#39;)
         else:
-            # set devices to &#34;only device, kwargs set as config&#34;
+            # set devices to &#39;only device, kwargs set as config&#39;
             devices = {standalone_device: kwargs}
 
         # iterate over all items in plugin configuration &#39;devices&#39; list
@@ -1105,8 +1105,6 @@ class MultiDevice(SmartPlugin):
                     device_class = getattr(device_module, &#39;MD_Device&#39;)
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
-                # except AttributeError as e:
-                #    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} failed. Skipping device {device_id}. Error was: {e}&#39;)
                 except ImportError as e:
                     self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} for device {device_id} failed, disabling device. Error was: {e}&#39;)
                     device_instance = None
@@ -1139,7 +1137,7 @@ class MultiDevice(SmartPlugin):
                             if not struct_list:
                                 struct_list = list(raw_struct.keys())
                             self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
-                            # replace all mentions of &#34;DEVICE&#34; with the plugin/device&#39;s name
+                            # replace all mentions of &#39;DEVICE&#39; with the plugin/device&#39;s name
                             mod_struct = self._process_struct(raw_struct, device_id)
                             for struct_name in struct_list:
                                 if struct_name in mod_struct:
@@ -1189,13 +1187,13 @@ class MultiDevice(SmartPlugin):
         :param item:    The item to process.
         :return:        Recall function for item updates
         &#34;&#34;&#34;
-        if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
+        # item is marked for plugin handling.
+        device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
-            # item is marked for plugin handling.
-            device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+        if device_id:
 
             # is device_id known?
-            if device_id and device_id not in self._devices:
+            if device_id not in self._devices:
                 self.logger.warning(f&#39;Item {item} requests device {device_id}, which is not configured, ignoring item&#39;)
                 return
 
@@ -1337,7 +1335,7 @@ class MultiDevice(SmartPlugin):
                     command = self._items_write[item.id()][&#39;command&#39;]
                     dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                     if not device.send_command(command, item()):
-                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
+                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34;&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
                         item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_id)
                         return None
 
@@ -1378,7 +1376,7 @@ class MultiDevice(SmartPlugin):
             if device_id in self._commands_read and command in self._commands_read[device_id]:
                 item = self._commands_read[device_id][command]
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
-                item(value, self.get_shortname() + &#34;.&#34; + device_id)
+                item(value, self.get_shortname() + &#39;.&#39; + device_id)
             else:
                 dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
@@ -1642,7 +1640,7 @@ class WebInterface(SmartPluginWebIf):
             # try:
             #     return json.dumps(data)
             # except Exception as e:
-            #     self.logger.error(&#34;get_data_html exception: {}&#34;.format(e))
+            #     self.logger.error(&#39;get_data_html exception: {}&#39;.format(e))
         return {}
 
 
@@ -1652,58 +1650,47 @@ class WebInterface(SmartPluginWebIf):
 #
 #############################################################################################################################################################################################################################################
 
-read_group_triggers = {}
+item_tree = {}
 
 
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
+    global item_tree
 
-    global read_group_triggers
 
-    def add_read_group_trigger(grp, itempath, srcpath):
-        &#34;&#34;&#34; add entry for custom read group triggers
+    def update(d, u):
+        for k, v in u.items():
+            if isinstance(v, abc.Mapping):
+                d[k] = update(d.get(k, {}), v)
+            else:
+                d[k] = v
+        return d
 
-        To keep things manageable, we only support relative addressing in the
-        most simple form:
+    def add_item_to_tree(item_path, item_dict):
+        &#34;&#34;&#34; add entry for custom read group triggers &#34;&#34;&#34;
+        global item_tree
 
-        ...path.to.item
-
-        Every leading dot means &#34;up one level&#34;, so without a leading dot, the
-        item will be created &#34;inside&#34; the item with the &#39;read_groups&#39; directive.
-        &#34;&#34;&#34;
-        global read_group_triggers
-
-        lvl_up = 0
-        while itempath[:1] == &#39;.&#39;:
-            lvl_up += 1
-            itempath = itempath[1:]
-
-        if lvl_up:
-            src_path_elems = srcpath.split(&#39;.&#39;)[:-lvl_up]
-        else:
-            src_path_elems = srcpath.split(&#39;.&#39;)
-        dst_path_elems = src_path_elems + itempath.split(&#39;.&#39;)
-
-        item = {dst_path_elems[-1]: {&#39;type&#39;: &#39;bool&#39;, &#39;enforce_updates&#39;: &#39;true&#39;, ITEM_ATTR_DEVICE: &#39;DEVICENAME&#39;, ITEM_ATTR_READ_GRP: grp}}
+        dst_path_elems = item_path.split(&#39;.&#39;)
+        item = {dst_path_elems[-1]: item_dict}
         for elem in reversed(dst_path_elems[:-1]):
             item = {elem: item}
 
-        read_group_triggers.update(item)
+        update(item_tree, item)
 
-
-    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models, func_first=True):
+    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models, func_first=True, cut_levels=0):
         &#34;&#34;&#34; traverses a nested dict
 
         :param node: starting node
-        :param node_name: name of the starting node on parent level (&#34;key&#34;)
+        :param node_name: name of the starting node on parent level (&#39;key&#39;)
         :param parent: parent node
         :param func: function to call for each node
         :param path: path of the current node (pparent.parent.node)
         :param indent: indent level (indent is INDENT ** indent)
-        :param gpath: path of &#34;current&#34; (next above) read group
+        :param gpath: path of &#39;current&#39; (next above) read group
         :param gpathlist: list of all current (above) read groups
         :param has_models: True is command dict has models (&#39;ALL&#39;) -&gt; then include top level = model name in read groups and in command paths
-        :param func_first: True if &#34;first work, then walk&#34;, False if &#34;first walk, then work&#34;
+        :param func_first: True if &#39;first work, then walk&#39;, False if &#39;first walk, then work&#39;
+        :param cut_levels: cut &lt;n&gt; levels from front of path
         :type node: dict
         :type node_name: str
         :type parent: dict
@@ -1718,131 +1705,171 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
         if func and func_first:
             # first call func -&gt; print current node before descending
-            func(node, node_name, parent, path, indent, gpath, gpathlist)
+            func(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
         # iterate over all children who are dicts
         for child in list(k for k in node.keys() if isinstance(node[k], dict)):
 
             # (path if path else (&#39;&#39; if has_models else node_name)) + (&#39;.&#39; if path or not has_models else &#39;&#39;) + child
             if path:
-                new_path = path + &#39;.&#39;
+                new_path = path + COMMAND_SEP
             elif not has_models:
-                new_path = node_name + &#39;.&#39;
+                new_path = node_name + COMMAND_SEP
             else:
                 new_path = &#39;&#39;
             new_path += child
 
             # and recursively walk them
-            walk(node[child], child, node, func, new_path, indent + 1, path, gpathlist + ([path] if path else []), has_models, func_first)
+            walk(node[child], child, node, func, new_path, indent + 1, path, gpathlist + ([path] if path else []), has_models, func_first, cut_levels)
 
         if func and not func_first:
             # last call func -&gt; process current node after descending
             func(node, node_name, parent, path, indent, gpath, gpathlist)
 
-    def print_item(node, node_name, parent, path, indent, gpath, gpathlist):
-        &#34;&#34;&#34; print item or read item for current node/command
+    def find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels):
+        &#34;&#34;&#34; find custom read trigger definitions, create trigger item
+
+        for params see walk() above, they are the same there
+
+        To keep things manageable, we only support relative addressing in the
+        most simple form:
+
+        ...path.to.item
+
+        Every leading dot means &#39;up one level&#39;, so without a leading dot, the
+        item will be created &#39;inside&#39; the item with the &#39;read_groups&#39; directive.
+        &#34;&#34;&#34;
+        if CMD_ATTR_ITEM_ATTRS in node:
+            # set sub-node for readability
+            rg_list = node[CMD_ATTR_ITEM_ATTRS].get(CMD_IATTR_READ_GROUPS)
+            if rg_list:
+                if not isinstance(rg_list, list):
+                    rg_list = [rg_list]
+                for entry in rg_list:
+                    itempath = entry.get(&#39;trigger&#39;)
+
+                    # resolve relative item position
+                    lvl_up = 0
+                    while itempath[:1] == &#39;.&#39;:
+                        lvl_up += 1
+                        itempath = itempath[1:]
+
+                    if lvl_up:
+                        src_path_elems = path.split(COMMAND_SEP)[:-lvl_up]
+                    else:
+                        src_path_elems = path.split(COMMAND_SEP)
+                    item_path = &#39;.&#39;.join([&#39;.&#39;.join(src_path_elems), itempath])
+
+                    add_item_to_tree(item_path, {&#39;type&#39;: &#39;bool&#39;, &#39;enforce_updates&#39;: &#39;true&#39;, ITEM_ATTR_DEVICE: &#39;DEVICENAME&#39;, ITEM_ATTR_READ_GRP: entry.get(&#39;name&#39;)})
+
+    def create_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
+        &#34;&#34;&#34; create item or read item for current node/command
 
         for params see walk() above, they are the same there
         &#34;&#34;&#34;
-        global read_group_triggers
+        if not node_name:
+            return
 
-        def p_text(text, add=0):
-            &#34;&#34;&#34; print indented text &#34;&#34;&#34;
-            print(f&#39;{INDENT * (indent + 1 + add)}{text}&#39;)
-
-        def p_attr(key, val, add=0):
-            &#34;&#34;&#34; print indented &#39;key: node[val]&#39; &#34;&#34;&#34;
-            if val in node:
-                if isinstance(node[val], bool):
-                    p_text(f&#39;{key}: {str(node[val]).lower()}&#39;, add)
-                else:
-                    p_text(f&#39;{key}: {node[val]}&#39;, add)
+        # item name = item path is in path
+        # item contents goes in item
+        item = {}
 
         # skip known command sub-dict nodes, but include command nodes
         if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) or CMD_ATTR_ITEM_TYPE in node:
 
-            # item / level definition
-            print(INDENT * indent + node_name + &#39;:&#39;)
-
             # item -&gt; print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
+                item[&#39;type&#39;] = node.get(CMD_ATTR_ITEM_TYPE)
+                item[ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
+                cmd = path if path else node_name
+                if cut_levels:
+                    cmd = COMMAND_SEP.join(cmd.split(COMMAND_SEP)[cut_levels:])
+                item[ITEM_ATTR_COMMAND] = cmd
+                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ)
+                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE)
+
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)
-                p_attr(&#39;type&#39;, CMD_ATTR_ITEM_TYPE)
-                if inode and inode.get(CMD_IATTR_ENFORCE):
-                    p_text(&#39;enforce_updates: true&#39;)
-                p_text(f&#39;{ITEM_ATTR_DEVICE}: DEVICENAME&#39;)
-                p_text(f&#39;{ITEM_ATTR_COMMAND}: {path if path else node_name}&#39;)
-                p_attr(ITEM_ATTR_READ, CMD_ATTR_READ)
-                p_attr(ITEM_ATTR_WRITE, CMD_ATTR_WRITE)
+
+                rg_level = None
+                rg_list = None
+                if inode:
+                    rg_level = inode.get(CMD_IATTR_RG_LEVELS, None)
+                    rg_list = inode.get(CMD_IATTR_READ_GROUPS)
 
                 # rg_level = None: print all read groups (default)
                 # rg_level = 0: don&#39;t print read groups
                 # rg_level &gt; 0: print last &lt;x&gt; levels of read groups plus custom read groups
+
+                # only set read_groups if item &#39;can&#39; trigger read.
+                # no logging because standalone mode and syntax output active
                 grps = gpathlist
+                if rg_level != 0 and (node.get(CMD_ATTR_OPCODE) or node.get(CMD_ATTR_READ_CMD)):
+                    if rg_level is not None:
+                        grps = grps[-rg_level:]
+                    if rg_list:
+                        if not isinstance(rg_list, list):
+                            rg_list = [rg_list]
+                        for entry in rg_list:
+                            grps.append(entry.get(&#39;name&#39;))
+
+                    item[ITEM_ATTR_GROUP] = grps
+
                 if inode:
-                    rg_level = inode.get(CMD_IATTR_NO_READ_GRP)
-                    if rg_level != 0:
-                        if rg_level is not None:
-                            grps = grps[-rg_level:]
-                        rg_list = inode.get(CMD_IATTR_READ_GROUPS)
-                        if rg_list:
-                            if not isinstance(rg_list, list):
-                                rg_list = [rg_list]
-                            for entry in rg_list:
-                                grp = entry.get(&#39;name&#39;)
-                                grps.append(grp)
-                                add_read_group_trigger(grp, entry.get(&#39;trigger&#39;), path)
-                p_text(f&#39;{ITEM_ATTR_GROUP}: {grps}&#39;)
-                if inode and inode.get(CMD_IATTR_INITIAL):
-                    p_text(f&#39;{ITEM_ATTR_READ_INIT}: true&#39;)
-                if inode and inode.get(CMD_IATTR_CYCLE):
-                    p_text(f&#39;{ITEM_ATTR_CYCLE}: {inode.get(CMD_IATTR_CYCLE)}&#39;)
+                    if inode.get(CMD_IATTR_ENFORCE):
+                        item[&#39;enforce_updates&#39;] = True
+                    if inode.get(CMD_IATTR_INITIAL):
+                        item[ITEM_ATTR_READ_INIT] = True
+                    cycle = inode.get(CMD_IATTR_CYCLE)
+                    if cycle:
+                        item[ITEM_ATTR_CYCLE] = cycle
 
-                # custom item attributes: copy 1:1
-                # catch TypeError if &#39;attributes&#39; is not defined
-                if inode and inode.get(CMD_IATTR_ATTRIBUTES):
-                    for key in inode[CMD_IATTR_ATTRIBUTES]:
-                        if isinstance(inode[CMD_IATTR_ATTRIBUTES][key], bool):
-                            p_text(f&#39;{key}: {str(inode[CMD_IATTR_ATTRIBUTES][key]).lower()}&#39;)
-                        else:
-                            p_text(f&#39;{key}: {inode[CMD_IATTR_ATTRIBUTES][key]}&#39;)
+                    # custom item attributes: add 1:1
+                    attrs = inode.get(CMD_IATTR_ATTRIBUTES)
+                    if attrs:
+                        update(item, attrs)
 
-                print()
+                    # custom item templates: add 1:!
+                    templates = inode.get(CMD_IATTR_TEMPLATE)
+                    if templates:
+                        if not isinstance(templates, list):
+                            templates = [templates]
+                        for tmpl in templates:
+                            if tmpl in item_templates:
+                                update(item, item_templates[tmpl])
 
-                # if item has &#39;md_lookup&#39; and item_attrs[&#39;lookup_item&#39;] is set,
-                # create additional item with lookup values
-                if inode and inode.get(CMD_IATTR_LOOKUP_ITEM) and node.get(CMD_ATTR_LOOKUP):
-                    p_text(&#39;lookup:&#39;)
-                    ltyp = inode.get(CMD_IATTR_LOOKUP_ITEM)
-                    if ltyp is True:
-                        ltyp = &#39;list&#39;
-                    p_text(f&#39;type: {&#34;list&#34; if ltyp == &#34;list&#34; else &#34;dict&#34;}&#39;, 1)
-                    p_text(f&#39;{ITEM_ATTR_DEVICE}: DEVICENAME&#39;, 1)
-                    p_text(f&#39;{ITEM_ATTR_LOOKUP}: {node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;, 1)
-                    print()
+                    # if item has &#39;md_lookup&#39; and item_attrs[&#39;lookup_item&#39;] is set,
+                    # create additional item with lookup values
+                    lu_item = inode.get(CMD_IATTR_LOOKUP_ITEM)
+                    if lu_item and node.get(CMD_ATTR_LOOKUP):
+                        ltyp = inode.get(CMD_IATTR_LOOKUP_ITEM)
+                        if ltyp is True:
+                            ltyp = &#39;list&#39;
+                        item[&#39;lookup&#39;] = {&#39;type&#39;: &#39;list&#39; if ltyp == &#39;list&#39; else &#39;dict&#39;}
+                        item[&#39;lookup&#39;][ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
+                        item[&#39;lookup&#39;][ITEM_ATTR_LOOKUP] = f&#39;{node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;
 
-            # &#34;level node&#34; -&gt; print read item
+            # &#39;level node&#39; -&gt; print read item
             elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
-                print()
-                p_text(&#39;read:&#39;)
-                p_text(&#39;type: bool&#39;, 1)
-                p_text(&#39;enforce_updates: true&#39;, 1)
-                p_text(&#39;md_device: DEVICENAME&#39;, 1)
-                p_text(f&#39;md_read_group_trigger: {path if path else node_name}&#39;, 1)
+                
+                item[&#39;read&#39;] = {&#39;type&#39;: &#39;bool&#39;}
+                item[&#39;read&#39;][&#39;enforce_updates&#39;] = True
+                item[&#39;read&#39;][ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
+                item[&#39;read&#39;][ITEM_ATTR_READ_GRP] = path if path else node_name
                 try:
                     # set sub-node for readability
                     inode = node.get(CMD_ATTR_ITEM_ATTRS)
                     if inode.get(CMD_IATTR_INITIAL):
-                        p_text(f&#39;{ITEM_ATTR_READ_INIT}: true&#39;, 1)
+                        item[&#39;read&#39;][ITEM_ATTR_READ_INIT] = True
                     if inode.get(CMD_IATTR_CYCLE):
-                        p_text(f&#39;{ITEM_ATTR_CYCLE}: {inode.get(CMD_IATTR_CYCLE)}&#39;, 1)
+                        item[&#39;read&#39;][ITEM_ATTR_CYCLE] = inode.get(CMD_IATTR_CYCLE)
                 except AttributeError:
                     pass
-                print()
 
-    def print_trigger(node, node_name, parent, path, indent, gpath, gpathlist):
-        &#34;&#34;&#34; print trigger item &#34;&#34;&#34;
+            add_item_to_tree(path, item)
+
+    def print_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
+        &#34;&#34;&#34; print item &#34;&#34;&#34;
 
         def p_text(text, add=0):
             &#34;&#34;&#34; print indented text &#34;&#34;&#34;
@@ -1851,19 +1878,17 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         # item / level definition
         p_text(f&#39;{node_name}:&#39;)
 
-        # item -&gt; print item attributes
-        if ITEM_ATTR_DEVICE in node:
+        # print all non-dict children (dicts are visited later)
+        for key in [key for key in node if not isinstance(node[key], dict)]:
+            p_text(f&#39;{key}: {node[key]}&#39;, 1)
 
-            for key in [key for key in node if not isinstance(node[key], dict)]:
-                p_text(f&#39;{key}: {node[key]}&#39;, 1)
+        print()
 
-            print()
-
-    def removeItemsUndefCmd(node, node_name, parent, path, indent, gpath, gpathlist):
+    def removeItemsUndefCmd(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         if CMD_ATTR_ITEM_TYPE in node and path not in cmdlist:
             del parent[node_name]
 
-    def removeEmptyItems(node, node_name, parent, path, indent, gpath, gpathlist):
+    def removeEmptyItems(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         if len(node) == 0:
             del parent[node_name]
 
@@ -1879,6 +1904,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
     commands = cmd_module.commands
     top_level_entries = list(commands.keys())
 
+    item_templates = getattr(cmd_module, &#39;item_templates&#39;, {})
     old_stdout = sys.stdout
     err = None
 
@@ -1899,38 +1925,46 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             for model in top_level_entries:
 
-                read_group_triggers = {}
-
+                # create model-specific commands dict
                 m_commands = {}
                 m_commands.update(commands.get(INDEX_GENERIC, {}))
                 m_commands.update(commands.get(model))
 
-                # create obj for entry
-                obj = {model: {key: m_commands[key] for key in m_commands.keys()}}
+                # create work obj for entry
+                obj = {model: m_commands}
 
-                # output obj
-                walk(obj[model], model, commands, print_item, &#39;&#39;, 0, model, [model], True)
+                item_tree = {}
 
-                # output custom read group triggers
-                for key in read_group_triggers:
-                    walk(read_group_triggers, model, read_group_triggers, print_trigger, &#39;&#39;, 0, &#39;&#39;, [], False)
+                # find read group triggers
+                walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
+
+                # create item tree
+                walk(obj[model], &#39;&#39;, None, create_item, &#39;&#39;, 0, model, [model], True)
+
+                # print item tree
+                walk(item_tree, model, item_tree, print_item, &#39;&#39;, 0, &#39;&#39;, [], False)
+
         else:
 
-            # create flat commands for comparison
+            # create flat commands, &#39;valid command&#39; comparison needs full cmd path
             flat_commands = deepcopy(commands)
             MD_Commands._flatten_cmds(None, flat_commands)
 
-            # output sections
+            # output sections separately and unchanged
             for section in top_level_entries:
 
-                read_group_triggers = {}
+                item_tree = {}
 
                 obj = {section: commands[section]}
-                walk(obj[section], section, commands, print_item, &#39;&#39;, 0, section, [section], False)
 
-                # output custom read group triggers
-                for key in read_group_triggers:
-                    walk(read_group_triggers[key], key, read_group_triggers, print_trigger, &#39;&#39;, 0, &#39;&#39;, [], False)
+                # find read group triggers
+                walk(obj[section], section, obj, find_read_group_triggers, &#39;&#39;, 0, section, [section], True)
+
+                # create item tree
+                walk(obj[section], section, None, create_item, section, 0, &#39;&#39;, [], True)
+
+                # print item tree
+                walk(item_tree[section], section, item_tree, print_item, &#39;&#39;, 0, &#39;&#39;, [], False)
 
             # get model definitions
             # if not present, fake it to include all sections
@@ -1940,7 +1974,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             for model in models:
 
-                read_group_triggers = {}
+                item_tree = {}
 
                 # create list of valid commands
                 cmdlist = models[model]
@@ -1948,7 +1982,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                     cmdlist += models.get(INDEX_GENERIC, [])
                 cmdlist = MD_Commands._get_cmdlist(None, flat_commands, cmdlist)
 
-                # create obj for model m, include m[&#39;ALL&#39;]
+                # create new obj for model m, include m[&#39;ALL&#39;]
+                # as we modify obj, we need to copy this
                 obj = {model: deepcopy(commands)}
 
                 # remove all items with model-invalid &#39;md_command&#39; attribute obj
@@ -1957,12 +1992,14 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 # remove all empty items from obj
                 walk(obj[model], model, obj, removeEmptyItems, &#39;&#39;, 0, model, [model], True, False)
 
-                # output obj
-                walk(obj[model], model, commands, print_item, &#39;&#39;, 0, model, [model], True)
+                # find read group triggers
+                walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
-                # output custom read group triggers
-                for key in read_group_triggers:
-                    walk(read_group_triggers, model, None, print_trigger, &#39;&#39;, 0, &#39;&#39;, [], False)
+                # create item tree
+                walk(obj[model], model, obj, create_item, model, 0, &#39;&#39;, [], False, cut_levels=1)
+
+                # print item tree
+                walk(item_tree[model], model, item_tree, print_item, &#39;&#39;, 0, &#39;&#39;, [], False)
 
     except OSError as e:
         err = f&#39;Error: file {file} could not be opened. Original error: {e}&#39;
@@ -2000,7 +2037,7 @@ if __name__ == &#39;__main__&#39;:
 
     or
 
-    ./__init__.py &lt;device&gt; &#39;{&#34;host&#34;: &#34;www.smarthomeng.de&#34;, &#34;port&#34;: 80}&#39;
+    ./__init__.py &lt;device&gt; &#39;{&#39;host&#39;: &#39;www.smarthomeng.de&#39;, &#39;port&#39;: 80}&#39;
 
     If you call it with -v as a parameter after the device id, you get additional
     debug information:
@@ -2036,7 +2073,7 @@ if __name__ == &#39;__main__&#39;:
     # add the handlers to the logger
     logger.addHandler(ch)
 
-    device = &#34;&#34;
+    device = &#39;&#39;
     struct_mode = False
     write_output = False
     indent = 4
@@ -2087,8 +2124,8 @@ if __name__ == &#39;__main__&#39;:
         create_struct_yaml(device, indent, write_output)
         exit(0)
 
-    print(&#34;This is MultiDevice plugin running in standalone mode&#34;)
-    print(&#34;=====================================================&#34;)
+    print(&#39;This is MultiDevice plugin running in standalone mode&#39;)
+    print(&#39;=====================================================&#39;)
 
     md = MultiDevice(None, standalone_device=device, logger=logger, **params)
 
@@ -2161,53 +2198,42 @@ if __name__ == &#39;__main__&#39;:
 </summary>
 <pre><code class="python">def create_struct_yaml(device, indentwidth=4, write_output=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
+    global item_tree
 
-    global read_group_triggers
 
-    def add_read_group_trigger(grp, itempath, srcpath):
-        &#34;&#34;&#34; add entry for custom read group triggers
+    def update(d, u):
+        for k, v in u.items():
+            if isinstance(v, abc.Mapping):
+                d[k] = update(d.get(k, {}), v)
+            else:
+                d[k] = v
+        return d
 
-        To keep things manageable, we only support relative addressing in the
-        most simple form:
+    def add_item_to_tree(item_path, item_dict):
+        &#34;&#34;&#34; add entry for custom read group triggers &#34;&#34;&#34;
+        global item_tree
 
-        ...path.to.item
-
-        Every leading dot means &#34;up one level&#34;, so without a leading dot, the
-        item will be created &#34;inside&#34; the item with the &#39;read_groups&#39; directive.
-        &#34;&#34;&#34;
-        global read_group_triggers
-
-        lvl_up = 0
-        while itempath[:1] == &#39;.&#39;:
-            lvl_up += 1
-            itempath = itempath[1:]
-
-        if lvl_up:
-            src_path_elems = srcpath.split(&#39;.&#39;)[:-lvl_up]
-        else:
-            src_path_elems = srcpath.split(&#39;.&#39;)
-        dst_path_elems = src_path_elems + itempath.split(&#39;.&#39;)
-
-        item = {dst_path_elems[-1]: {&#39;type&#39;: &#39;bool&#39;, &#39;enforce_updates&#39;: &#39;true&#39;, ITEM_ATTR_DEVICE: &#39;DEVICENAME&#39;, ITEM_ATTR_READ_GRP: grp}}
+        dst_path_elems = item_path.split(&#39;.&#39;)
+        item = {dst_path_elems[-1]: item_dict}
         for elem in reversed(dst_path_elems[:-1]):
             item = {elem: item}
 
-        read_group_triggers.update(item)
+        update(item_tree, item)
 
-
-    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models, func_first=True):
+    def walk(node, node_name, parent, func, path, indent, gpath, gpathlist, has_models, func_first=True, cut_levels=0):
         &#34;&#34;&#34; traverses a nested dict
 
         :param node: starting node
-        :param node_name: name of the starting node on parent level (&#34;key&#34;)
+        :param node_name: name of the starting node on parent level (&#39;key&#39;)
         :param parent: parent node
         :param func: function to call for each node
         :param path: path of the current node (pparent.parent.node)
         :param indent: indent level (indent is INDENT ** indent)
-        :param gpath: path of &#34;current&#34; (next above) read group
+        :param gpath: path of &#39;current&#39; (next above) read group
         :param gpathlist: list of all current (above) read groups
         :param has_models: True is command dict has models (&#39;ALL&#39;) -&gt; then include top level = model name in read groups and in command paths
-        :param func_first: True if &#34;first work, then walk&#34;, False if &#34;first walk, then work&#34;
+        :param func_first: True if &#39;first work, then walk&#39;, False if &#39;first walk, then work&#39;
+        :param cut_levels: cut &lt;n&gt; levels from front of path
         :type node: dict
         :type node_name: str
         :type parent: dict
@@ -2222,131 +2248,171 @@ if __name__ == &#39;__main__&#39;:
 
         if func and func_first:
             # first call func -&gt; print current node before descending
-            func(node, node_name, parent, path, indent, gpath, gpathlist)
+            func(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
         # iterate over all children who are dicts
         for child in list(k for k in node.keys() if isinstance(node[k], dict)):
 
             # (path if path else (&#39;&#39; if has_models else node_name)) + (&#39;.&#39; if path or not has_models else &#39;&#39;) + child
             if path:
-                new_path = path + &#39;.&#39;
+                new_path = path + COMMAND_SEP
             elif not has_models:
-                new_path = node_name + &#39;.&#39;
+                new_path = node_name + COMMAND_SEP
             else:
                 new_path = &#39;&#39;
             new_path += child
 
             # and recursively walk them
-            walk(node[child], child, node, func, new_path, indent + 1, path, gpathlist + ([path] if path else []), has_models, func_first)
+            walk(node[child], child, node, func, new_path, indent + 1, path, gpathlist + ([path] if path else []), has_models, func_first, cut_levels)
 
         if func and not func_first:
             # last call func -&gt; process current node after descending
             func(node, node_name, parent, path, indent, gpath, gpathlist)
 
-    def print_item(node, node_name, parent, path, indent, gpath, gpathlist):
-        &#34;&#34;&#34; print item or read item for current node/command
+    def find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels):
+        &#34;&#34;&#34; find custom read trigger definitions, create trigger item
+
+        for params see walk() above, they are the same there
+
+        To keep things manageable, we only support relative addressing in the
+        most simple form:
+
+        ...path.to.item
+
+        Every leading dot means &#39;up one level&#39;, so without a leading dot, the
+        item will be created &#39;inside&#39; the item with the &#39;read_groups&#39; directive.
+        &#34;&#34;&#34;
+        if CMD_ATTR_ITEM_ATTRS in node:
+            # set sub-node for readability
+            rg_list = node[CMD_ATTR_ITEM_ATTRS].get(CMD_IATTR_READ_GROUPS)
+            if rg_list:
+                if not isinstance(rg_list, list):
+                    rg_list = [rg_list]
+                for entry in rg_list:
+                    itempath = entry.get(&#39;trigger&#39;)
+
+                    # resolve relative item position
+                    lvl_up = 0
+                    while itempath[:1] == &#39;.&#39;:
+                        lvl_up += 1
+                        itempath = itempath[1:]
+
+                    if lvl_up:
+                        src_path_elems = path.split(COMMAND_SEP)[:-lvl_up]
+                    else:
+                        src_path_elems = path.split(COMMAND_SEP)
+                    item_path = &#39;.&#39;.join([&#39;.&#39;.join(src_path_elems), itempath])
+
+                    add_item_to_tree(item_path, {&#39;type&#39;: &#39;bool&#39;, &#39;enforce_updates&#39;: &#39;true&#39;, ITEM_ATTR_DEVICE: &#39;DEVICENAME&#39;, ITEM_ATTR_READ_GRP: entry.get(&#39;name&#39;)})
+
+    def create_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
+        &#34;&#34;&#34; create item or read item for current node/command
 
         for params see walk() above, they are the same there
         &#34;&#34;&#34;
-        global read_group_triggers
+        if not node_name:
+            return
 
-        def p_text(text, add=0):
-            &#34;&#34;&#34; print indented text &#34;&#34;&#34;
-            print(f&#39;{INDENT * (indent + 1 + add)}{text}&#39;)
-
-        def p_attr(key, val, add=0):
-            &#34;&#34;&#34; print indented &#39;key: node[val]&#39; &#34;&#34;&#34;
-            if val in node:
-                if isinstance(node[val], bool):
-                    p_text(f&#39;{key}: {str(node[val]).lower()}&#39;, add)
-                else:
-                    p_text(f&#39;{key}: {node[val]}&#39;, add)
+        # item name = item path is in path
+        # item contents goes in item
+        item = {}
 
         # skip known command sub-dict nodes, but include command nodes
         if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) or CMD_ATTR_ITEM_TYPE in node:
 
-            # item / level definition
-            print(INDENT * indent + node_name + &#39;:&#39;)
-
             # item -&gt; print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
+                item[&#39;type&#39;] = node.get(CMD_ATTR_ITEM_TYPE)
+                item[ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
+                cmd = path if path else node_name
+                if cut_levels:
+                    cmd = COMMAND_SEP.join(cmd.split(COMMAND_SEP)[cut_levels:])
+                item[ITEM_ATTR_COMMAND] = cmd
+                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ)
+                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE)
+
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)
-                p_attr(&#39;type&#39;, CMD_ATTR_ITEM_TYPE)
-                if inode and inode.get(CMD_IATTR_ENFORCE):
-                    p_text(&#39;enforce_updates: true&#39;)
-                p_text(f&#39;{ITEM_ATTR_DEVICE}: DEVICENAME&#39;)
-                p_text(f&#39;{ITEM_ATTR_COMMAND}: {path if path else node_name}&#39;)
-                p_attr(ITEM_ATTR_READ, CMD_ATTR_READ)
-                p_attr(ITEM_ATTR_WRITE, CMD_ATTR_WRITE)
+
+                rg_level = None
+                rg_list = None
+                if inode:
+                    rg_level = inode.get(CMD_IATTR_RG_LEVELS, None)
+                    rg_list = inode.get(CMD_IATTR_READ_GROUPS)
 
                 # rg_level = None: print all read groups (default)
                 # rg_level = 0: don&#39;t print read groups
                 # rg_level &gt; 0: print last &lt;x&gt; levels of read groups plus custom read groups
+
+                # only set read_groups if item &#39;can&#39; trigger read.
+                # no logging because standalone mode and syntax output active
                 grps = gpathlist
+                if rg_level != 0 and (node.get(CMD_ATTR_OPCODE) or node.get(CMD_ATTR_READ_CMD)):
+                    if rg_level is not None:
+                        grps = grps[-rg_level:]
+                    if rg_list:
+                        if not isinstance(rg_list, list):
+                            rg_list = [rg_list]
+                        for entry in rg_list:
+                            grps.append(entry.get(&#39;name&#39;))
+
+                    item[ITEM_ATTR_GROUP] = grps
+
                 if inode:
-                    rg_level = inode.get(CMD_IATTR_NO_READ_GRP)
-                    if rg_level != 0:
-                        if rg_level is not None:
-                            grps = grps[-rg_level:]
-                        rg_list = inode.get(CMD_IATTR_READ_GROUPS)
-                        if rg_list:
-                            if not isinstance(rg_list, list):
-                                rg_list = [rg_list]
-                            for entry in rg_list:
-                                grp = entry.get(&#39;name&#39;)
-                                grps.append(grp)
-                                add_read_group_trigger(grp, entry.get(&#39;trigger&#39;), path)
-                p_text(f&#39;{ITEM_ATTR_GROUP}: {grps}&#39;)
-                if inode and inode.get(CMD_IATTR_INITIAL):
-                    p_text(f&#39;{ITEM_ATTR_READ_INIT}: true&#39;)
-                if inode and inode.get(CMD_IATTR_CYCLE):
-                    p_text(f&#39;{ITEM_ATTR_CYCLE}: {inode.get(CMD_IATTR_CYCLE)}&#39;)
+                    if inode.get(CMD_IATTR_ENFORCE):
+                        item[&#39;enforce_updates&#39;] = True
+                    if inode.get(CMD_IATTR_INITIAL):
+                        item[ITEM_ATTR_READ_INIT] = True
+                    cycle = inode.get(CMD_IATTR_CYCLE)
+                    if cycle:
+                        item[ITEM_ATTR_CYCLE] = cycle
 
-                # custom item attributes: copy 1:1
-                # catch TypeError if &#39;attributes&#39; is not defined
-                if inode and inode.get(CMD_IATTR_ATTRIBUTES):
-                    for key in inode[CMD_IATTR_ATTRIBUTES]:
-                        if isinstance(inode[CMD_IATTR_ATTRIBUTES][key], bool):
-                            p_text(f&#39;{key}: {str(inode[CMD_IATTR_ATTRIBUTES][key]).lower()}&#39;)
-                        else:
-                            p_text(f&#39;{key}: {inode[CMD_IATTR_ATTRIBUTES][key]}&#39;)
+                    # custom item attributes: add 1:1
+                    attrs = inode.get(CMD_IATTR_ATTRIBUTES)
+                    if attrs:
+                        update(item, attrs)
 
-                print()
+                    # custom item templates: add 1:!
+                    templates = inode.get(CMD_IATTR_TEMPLATE)
+                    if templates:
+                        if not isinstance(templates, list):
+                            templates = [templates]
+                        for tmpl in templates:
+                            if tmpl in item_templates:
+                                update(item, item_templates[tmpl])
 
-                # if item has &#39;md_lookup&#39; and item_attrs[&#39;lookup_item&#39;] is set,
-                # create additional item with lookup values
-                if inode and inode.get(CMD_IATTR_LOOKUP_ITEM) and node.get(CMD_ATTR_LOOKUP):
-                    p_text(&#39;lookup:&#39;)
-                    ltyp = inode.get(CMD_IATTR_LOOKUP_ITEM)
-                    if ltyp is True:
-                        ltyp = &#39;list&#39;
-                    p_text(f&#39;type: {&#34;list&#34; if ltyp == &#34;list&#34; else &#34;dict&#34;}&#39;, 1)
-                    p_text(f&#39;{ITEM_ATTR_DEVICE}: DEVICENAME&#39;, 1)
-                    p_text(f&#39;{ITEM_ATTR_LOOKUP}: {node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;, 1)
-                    print()
+                    # if item has &#39;md_lookup&#39; and item_attrs[&#39;lookup_item&#39;] is set,
+                    # create additional item with lookup values
+                    lu_item = inode.get(CMD_IATTR_LOOKUP_ITEM)
+                    if lu_item and node.get(CMD_ATTR_LOOKUP):
+                        ltyp = inode.get(CMD_IATTR_LOOKUP_ITEM)
+                        if ltyp is True:
+                            ltyp = &#39;list&#39;
+                        item[&#39;lookup&#39;] = {&#39;type&#39;: &#39;list&#39; if ltyp == &#39;list&#39; else &#39;dict&#39;}
+                        item[&#39;lookup&#39;][ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
+                        item[&#39;lookup&#39;][ITEM_ATTR_LOOKUP] = f&#39;{node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;
 
-            # &#34;level node&#34; -&gt; print read item
+            # &#39;level node&#39; -&gt; print read item
             elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
-                print()
-                p_text(&#39;read:&#39;)
-                p_text(&#39;type: bool&#39;, 1)
-                p_text(&#39;enforce_updates: true&#39;, 1)
-                p_text(&#39;md_device: DEVICENAME&#39;, 1)
-                p_text(f&#39;md_read_group_trigger: {path if path else node_name}&#39;, 1)
+                
+                item[&#39;read&#39;] = {&#39;type&#39;: &#39;bool&#39;}
+                item[&#39;read&#39;][&#39;enforce_updates&#39;] = True
+                item[&#39;read&#39;][ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
+                item[&#39;read&#39;][ITEM_ATTR_READ_GRP] = path if path else node_name
                 try:
                     # set sub-node for readability
                     inode = node.get(CMD_ATTR_ITEM_ATTRS)
                     if inode.get(CMD_IATTR_INITIAL):
-                        p_text(f&#39;{ITEM_ATTR_READ_INIT}: true&#39;, 1)
+                        item[&#39;read&#39;][ITEM_ATTR_READ_INIT] = True
                     if inode.get(CMD_IATTR_CYCLE):
-                        p_text(f&#39;{ITEM_ATTR_CYCLE}: {inode.get(CMD_IATTR_CYCLE)}&#39;, 1)
+                        item[&#39;read&#39;][ITEM_ATTR_CYCLE] = inode.get(CMD_IATTR_CYCLE)
                 except AttributeError:
                     pass
-                print()
 
-    def print_trigger(node, node_name, parent, path, indent, gpath, gpathlist):
-        &#34;&#34;&#34; print trigger item &#34;&#34;&#34;
+            add_item_to_tree(path, item)
+
+    def print_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
+        &#34;&#34;&#34; print item &#34;&#34;&#34;
 
         def p_text(text, add=0):
             &#34;&#34;&#34; print indented text &#34;&#34;&#34;
@@ -2355,19 +2421,17 @@ if __name__ == &#39;__main__&#39;:
         # item / level definition
         p_text(f&#39;{node_name}:&#39;)
 
-        # item -&gt; print item attributes
-        if ITEM_ATTR_DEVICE in node:
+        # print all non-dict children (dicts are visited later)
+        for key in [key for key in node if not isinstance(node[key], dict)]:
+            p_text(f&#39;{key}: {node[key]}&#39;, 1)
 
-            for key in [key for key in node if not isinstance(node[key], dict)]:
-                p_text(f&#39;{key}: {node[key]}&#39;, 1)
+        print()
 
-            print()
-
-    def removeItemsUndefCmd(node, node_name, parent, path, indent, gpath, gpathlist):
+    def removeItemsUndefCmd(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         if CMD_ATTR_ITEM_TYPE in node and path not in cmdlist:
             del parent[node_name]
 
-    def removeEmptyItems(node, node_name, parent, path, indent, gpath, gpathlist):
+    def removeEmptyItems(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         if len(node) == 0:
             del parent[node_name]
 
@@ -2383,6 +2447,7 @@ if __name__ == &#39;__main__&#39;:
     commands = cmd_module.commands
     top_level_entries = list(commands.keys())
 
+    item_templates = getattr(cmd_module, &#39;item_templates&#39;, {})
     old_stdout = sys.stdout
     err = None
 
@@ -2403,38 +2468,46 @@ if __name__ == &#39;__main__&#39;:
 
             for model in top_level_entries:
 
-                read_group_triggers = {}
-
+                # create model-specific commands dict
                 m_commands = {}
                 m_commands.update(commands.get(INDEX_GENERIC, {}))
                 m_commands.update(commands.get(model))
 
-                # create obj for entry
-                obj = {model: {key: m_commands[key] for key in m_commands.keys()}}
+                # create work obj for entry
+                obj = {model: m_commands}
 
-                # output obj
-                walk(obj[model], model, commands, print_item, &#39;&#39;, 0, model, [model], True)
+                item_tree = {}
 
-                # output custom read group triggers
-                for key in read_group_triggers:
-                    walk(read_group_triggers, model, read_group_triggers, print_trigger, &#39;&#39;, 0, &#39;&#39;, [], False)
+                # find read group triggers
+                walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
+
+                # create item tree
+                walk(obj[model], &#39;&#39;, None, create_item, &#39;&#39;, 0, model, [model], True)
+
+                # print item tree
+                walk(item_tree, model, item_tree, print_item, &#39;&#39;, 0, &#39;&#39;, [], False)
+
         else:
 
-            # create flat commands for comparison
+            # create flat commands, &#39;valid command&#39; comparison needs full cmd path
             flat_commands = deepcopy(commands)
             MD_Commands._flatten_cmds(None, flat_commands)
 
-            # output sections
+            # output sections separately and unchanged
             for section in top_level_entries:
 
-                read_group_triggers = {}
+                item_tree = {}
 
                 obj = {section: commands[section]}
-                walk(obj[section], section, commands, print_item, &#39;&#39;, 0, section, [section], False)
 
-                # output custom read group triggers
-                for key in read_group_triggers:
-                    walk(read_group_triggers[key], key, read_group_triggers, print_trigger, &#39;&#39;, 0, &#39;&#39;, [], False)
+                # find read group triggers
+                walk(obj[section], section, obj, find_read_group_triggers, &#39;&#39;, 0, section, [section], True)
+
+                # create item tree
+                walk(obj[section], section, None, create_item, section, 0, &#39;&#39;, [], True)
+
+                # print item tree
+                walk(item_tree[section], section, item_tree, print_item, &#39;&#39;, 0, &#39;&#39;, [], False)
 
             # get model definitions
             # if not present, fake it to include all sections
@@ -2444,7 +2517,7 @@ if __name__ == &#39;__main__&#39;:
 
             for model in models:
 
-                read_group_triggers = {}
+                item_tree = {}
 
                 # create list of valid commands
                 cmdlist = models[model]
@@ -2452,7 +2525,8 @@ if __name__ == &#39;__main__&#39;:
                     cmdlist += models.get(INDEX_GENERIC, [])
                 cmdlist = MD_Commands._get_cmdlist(None, flat_commands, cmdlist)
 
-                # create obj for model m, include m[&#39;ALL&#39;]
+                # create new obj for model m, include m[&#39;ALL&#39;]
+                # as we modify obj, we need to copy this
                 obj = {model: deepcopy(commands)}
 
                 # remove all items with model-invalid &#39;md_command&#39; attribute obj
@@ -2461,12 +2535,14 @@ if __name__ == &#39;__main__&#39;:
                 # remove all empty items from obj
                 walk(obj[model], model, obj, removeEmptyItems, &#39;&#39;, 0, model, [model], True, False)
 
-                # output obj
-                walk(obj[model], model, commands, print_item, &#39;&#39;, 0, model, [model], True)
+                # find read group triggers
+                walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
-                # output custom read group triggers
-                for key in read_group_triggers:
-                    walk(read_group_triggers, model, None, print_trigger, &#39;&#39;, 0, &#39;&#39;, [], False)
+                # create item tree
+                walk(obj[model], model, obj, create_item, model, 0, &#39;&#39;, [], False, cut_levels=1)
+
+                # print item tree
+                walk(item_tree[model], model, item_tree, print_item, &#39;&#39;, 0, &#39;&#39;, [], False)
 
     except OSError as e:
         err = f&#39;Error: file {file} could not be opened. Original error: {e}&#39;
@@ -2546,7 +2622,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             # get the parameters for the plugin (as defined in metadata plugin.yaml):
             devices = self.get_parameter_value(&#39;devices&#39;)
         else:
-            # set devices to &#34;only device, kwargs set as config&#34;
+            # set devices to &#39;only device, kwargs set as config&#39;
             devices = {standalone_device: kwargs}
 
         # iterate over all items in plugin configuration &#39;devices&#39; list
@@ -2621,8 +2697,6 @@ modules and initializing them by instantiating the proper class.</p></div>
                     device_class = getattr(device_module, &#39;MD_Device&#39;)
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
-                # except AttributeError as e:
-                #    self.logger.error(f&#39;Importing class MD_Device from external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} failed. Skipping device {device_id}. Error was: {e}&#39;)
                 except ImportError as e:
                     self.logger.warning(f&#39;Importing external module {&#34;dev_&#34; + device_type + &#34;/device.py&#34;} for device {device_id} failed, disabling device. Error was: {e}&#39;)
                     device_instance = None
@@ -2655,7 +2729,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                             if not struct_list:
                                 struct_list = list(raw_struct.keys())
                             self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
-                            # replace all mentions of &#34;DEVICE&#34; with the plugin/device&#39;s name
+                            # replace all mentions of &#39;DEVICE&#39; with the plugin/device&#39;s name
                             mod_struct = self._process_struct(raw_struct, device_id)
                             for struct_name in struct_list:
                                 if struct_name in mod_struct:
@@ -2705,13 +2779,13 @@ modules and initializing them by instantiating the proper class.</p></div>
         :param item:    The item to process.
         :return:        Recall function for item updates
         &#34;&#34;&#34;
-        if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
+        # item is marked for plugin handling.
+        device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
-            # item is marked for plugin handling.
-            device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+        if device_id:
 
             # is device_id known?
-            if device_id and device_id not in self._devices:
+            if device_id not in self._devices:
                 self.logger.warning(f&#39;Item {item} requests device {device_id}, which is not configured, ignoring item&#39;)
                 return
 
@@ -2853,7 +2927,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     command = self._items_write[item.id()][&#39;command&#39;]
                     dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                     if not device.send_command(command, item()):
-                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
+                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34;&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
                         item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_id)
                         return None
 
@@ -2894,7 +2968,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             if device_id in self._commands_read and command in self._commands_read[device_id]:
                 item = self._commands_read[device_id][command]
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
-                item(value, self.get_shortname() + &#34;.&#34; + device_id)
+                item(value, self.get_shortname() + &#39;.&#39; + device_id)
             else:
                 dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
@@ -3091,7 +3165,7 @@ and update value</p>
         if device_id in self._commands_read and command in self._commands_read[device_id]:
             item = self._commands_read[device_id][command]
             dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
-            item(value, self.get_shortname() + &#34;.&#34; + device_id)
+            item(value, self.get_shortname() + &#39;.&#39; + device_id)
         else:
             dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)</code></pre>
 </details>
@@ -3121,13 +3195,13 @@ Recall function for item updates</p></div>
     :param item:    The item to process.
     :return:        Recall function for item updates
     &#34;&#34;&#34;
-    if self.has_iattr(item.conf, ITEM_ATTR_DEVICE):
+    # item is marked for plugin handling.
+    device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
-        # item is marked for plugin handling.
-        device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
+    if device_id:
 
         # is device_id known?
-        if device_id and device_id not in self._devices:
+        if device_id not in self._devices:
             self.logger.warning(f&#39;Item {item} requests device {device_id}, which is not configured, ignoring item&#39;)
             return
 
@@ -3331,7 +3405,7 @@ SmartHomeNG. It should write the changed value out to the device
                 command = self._items_write[item.id()][&#39;command&#39;]
                 dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                 if not device.send_command(command, item()):
-                    dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command “{command}“ failed, resetting item value&#39;)
+                    dev_log.debug(f&#39;Writing value &#34;{item()}&#34;&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
                     item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_id)
                     return None
 
@@ -3480,7 +3554,7 @@ SmartHomeNG. It should write the changed value out to the device
             # try:
             #     return json.dumps(data)
             # except Exception as e:
-            #     self.logger.error(&#34;get_data_html exception: {}&#34;.format(e))
+            #     self.logger.error(&#39;get_data_html exception: {}&#39;.format(e))
         return {}</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -3524,7 +3598,7 @@ def get_data_html(self, dataSet=None):
         # try:
         #     return json.dumps(data)
         # except Exception as e:
-        #     self.logger.error(&#34;get_data_html exception: {}&#34;.format(e))
+        #     self.logger.error(&#39;get_data_html exception: {}&#39;.format(e))
     return {}</code></pre>
 </details>
 </dd>

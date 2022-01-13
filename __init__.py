@@ -1375,7 +1375,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 rg_level = None
                 rg_list = None
                 if inode:
-                    rg_level = inode.get(CMD_IATTR_NO_READ_GRP, None)
+                    rg_level = inode.get(CMD_IATTR_RG_LEVELS, None)
                     rg_list = inode.get(CMD_IATTR_READ_GROUPS)
 
                 # rg_level = None: print all read groups (default)

@@ -54,6 +54,7 @@
 
 from lib.utils import Utils
 from ast import literal_eval
+import os
 
 
 #############################################################################################################################################################################################################################################
@@ -107,77 +108,78 @@ PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT
                 PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT)
 
 # connection types for PLUGIN_ATTR_CONNECTION
-CONN_NET_TCP_REQ        = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
-CONN_NET_TCP_CLI        = &#39;net_tcp_client&#39;   # persistent TCP client connection with async callback for responses
-CONN_NET_TCP_JSONRPC    = &#39;net_tcp_jsonrpc&#39;  # JSON RPC via persistent TCP client connection with async callback for responses
-CONN_NET_UDP_SRV        = &#39;net_udp_server&#39;   # UDP server connection with async data callback
-CONN_SER_DIR            = &#39;serial&#39;           # serial connection with query-reply logic
-CONN_SER_ASYNC          = &#39;serial_async&#39;     # serial connection with only async data callback
+CONN_NET_TCP_REQ            = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
+CONN_NET_TCP_CLI            = &#39;net_tcp_client&#39;   # persistent TCP client connection with async callback for responses
+CONN_NET_TCP_JSONRPC        = &#39;net_tcp_jsonrpc&#39;  # JSON RPC via persistent TCP client connection with async callback for responses
+CONN_NET_UDP_SRV            = &#39;net_udp_server&#39;   # UDP server connection with async data callback
+CONN_SER_DIR                = &#39;serial&#39;           # serial connection with query-reply logic
+CONN_SER_ASYNC              = &#39;serial_async&#39;     # serial connection with only async data callback
 
 CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
 
 # protocol types for PLUGIN_ATTR_PROTOCOL
-PROTO_NULL              = &#39;&#39;                 # use base protocol class without added functionality (why??)
-PROTO_JSONRPC           = &#39;jsonrpc&#39;          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
-PROTO_VIESSMANN         = &#39;viessmann&#39;        # Viessmann P300 / KW
+PROTO_NULL                  = &#39;&#39;                 # use base protocol class without added functionality (why??)
+PROTO_JSONRPC               = &#39;jsonrpc&#39;          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
+PROTO_VIESSMANN             = &#39;viessmann&#39;        # Viessmann P300 / KW
 
 PROTOCOL_TYPES = (PROTO_NULL, PROTO_JSONRPC, PROTO_VIESSMANN)
 
 # item attributes (as defines in plugin.yaml)
-ITEM_ATTR_DEVICE        = &#39;md_device&#39;
-ITEM_ATTR_COMMAND       = &#39;md_command&#39;
-ITEM_ATTR_READ          = &#39;md_read&#39;
-ITEM_ATTR_CYCLE         = &#39;md_read_cycle&#39;
-ITEM_ATTR_READ_INIT     = &#39;md_read_initial&#39;
-ITEM_ATTR_GROUP         = &#39;md_read_group&#39;
-ITEM_ATTR_WRITE         = &#39;md_write&#39;
-ITEM_ATTR_READ_GRP      = &#39;md_read_group_trigger&#39;
-ITEM_ATTR_LOOKUP        = &#39;md_lookup&#39;
+ITEM_ATTR_DEVICE            = &#39;md_device&#39;
+ITEM_ATTR_COMMAND           = &#39;md_command&#39;
+ITEM_ATTR_READ              = &#39;md_read&#39;
+ITEM_ATTR_CYCLE             = &#39;md_read_cycle&#39;
+ITEM_ATTR_READ_INIT         = &#39;md_read_initial&#39;
+ITEM_ATTR_GROUP             = &#39;md_read_group&#39;
+ITEM_ATTR_WRITE             = &#39;md_write&#39;
+ITEM_ATTR_READ_GRP          = &#39;md_read_group_trigger&#39;
+ITEM_ATTR_LOOKUP            = &#39;md_lookup&#39;
 
 ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP)
 
 # command definition
-COMMAND_READ            = True
-COMMAND_WRITE           = False
-COMMAND_SEP             = &#39;.&#39;
+COMMAND_READ                = True
+COMMAND_WRITE               = False
+COMMAND_SEP                 = &#39;.&#39;
 
 # command definition attributes
-CMD_ATTR_OPCODE         = &#39;opcode&#39;
-CMD_ATTR_READ           = &#39;read&#39;
-CMD_ATTR_WRITE          = &#39;write&#39;
-CMD_ATTR_ITEM_TYPE      = &#39;item_type&#39;
-CMD_ATTR_DEV_TYPE       = &#39;dev_datatype&#39;
-CMD_ATTR_READ_CMD       = &#39;read_cmd&#39;
-CMD_ATTR_WRITE_CMD      = &#39;write_cmd&#39;
-CMD_ATTR_REPLY_TOKEN    = &#39;reply_token&#39;
-CMD_ATTR_REPLY_PATTERN  = &#39;reply_pattern&#39;
-CMD_ATTR_CMD_SETTINGS   = &#39;cmd_settings&#39;
-CMD_ATTR_LOOKUP         = &#39;lookup&#39;
-CMD_ATTR_PARAMS         = &#39;params&#39;
-CMD_ATTR_PARAM_VALUES   = &#39;param_values&#39;
-CMD_ATTR_ITEM_ATTRS     = &#39;item_attrs&#39;
-
-CMD_IATTR_NO_READ_GRP   = &#39;no_read_group&#39;
-CMD_IATTR_LOOKUP_ITEM   = &#39;lookup_item&#39;
-CMD_IATTR_ATTRIBUTES    = &#39;attributes&#39;
-CMD_IATTR_READ_GROUPS   = &#39;read_groups&#39;
-CMD_IATTR_ENFORCE       = &#39;enforce&#39;
-CMD_IATTR_INITIAL       = &#39;initial&#39;
-CMD_IATTR_CYCLE         = &#39;cycle&#39;
+CMD_ATTR_OPCODE             = &#39;opcode&#39;
+CMD_ATTR_READ               = &#39;read&#39;
+CMD_ATTR_WRITE              = &#39;write&#39;
+CMD_ATTR_ITEM_TYPE          = &#39;item_type&#39;
+CMD_ATTR_DEV_TYPE           = &#39;dev_datatype&#39;
+CMD_ATTR_READ_CMD           = &#39;read_cmd&#39;
+CMD_ATTR_WRITE_CMD          = &#39;write_cmd&#39;
+CMD_ATTR_REPLY_TOKEN        = &#39;reply_token&#39;
+CMD_ATTR_REPLY_PATTERN      = &#39;reply_pattern&#39;
+CMD_ATTR_CMD_SETTINGS       = &#39;cmd_settings&#39;
+CMD_ATTR_LOOKUP             = &#39;lookup&#39;
+CMD_ATTR_PARAMS             = &#39;params&#39;
+CMD_ATTR_PARAM_VALUES       = &#39;param_values&#39;
+CMD_ATTR_ITEM_ATTRS         = &#39;item_attrs&#39;
+    
+CMD_IATTR_RG_LEVELS         = &#39;read_group_levels&#39;
+CMD_IATTR_LOOKUP_ITEM       = &#39;lookup_item&#39;
+CMD_IATTR_ATTRIBUTES        = &#39;attributes&#39;
+CMD_IATTR_READ_GROUPS       = &#39;read_groups&#39;
+CMD_IATTR_ENFORCE           = &#39;enforce&#39;
+CMD_IATTR_INITIAL           = &#39;initial&#39;
+CMD_IATTR_CYCLE             = &#39;cycle&#39;
+CMD_IATTR_TEMPLATE          = &#39;item_template&#39;
 
 # commands definition parameters
-COMMAND_PARAMS          = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE, CMD_ATTR_READ_CMD,
-                           CMD_ATTR_WRITE_CMD, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_CMD_SETTINGS,
-                           CMD_ATTR_LOOKUP, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS)
+COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE, CMD_ATTR_READ_CMD,
+                  CMD_ATTR_WRITE_CMD, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_CMD_SETTINGS,
+                  CMD_ATTR_LOOKUP, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS)
 
-COMMAND_ITEM_ATTRS      = (CMD_IATTR_NO_READ_GRP, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES,
-                           CMD_IATTR_READ_GROUPS, CMD_IATTR_CYCLE, CMD_IATTR_INITIAL, CMD_IATTR_ENFORCE)
+COMMAND_ITEM_ATTRS = (CMD_IATTR_RG_LEVELS, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES, CMD_IATTR_TEMPLATE,
+                      CMD_IATTR_READ_GROUPS, CMD_IATTR_CYCLE, CMD_IATTR_INITIAL, CMD_IATTR_ENFORCE)
 
 # keys for min / max values for data bounds
-MINMAXKEYS              = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_min&#39;, &#39;force_max&#39;)
+MINMAXKEYS                  = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_min&#39;, &#39;force_max&#39;)
 
 # name of non-model specific key for commands, models and lookups
-INDEX_GENERIC          = &#39;ALL&#39;
+INDEX_GENERIC               = &#39;ALL&#39;
 
 
 #############################################################################################################################################################################################################################################
@@ -223,7 +225,12 @@ def sanitize_param(val):
                 val = new
         except Exception:
             pass
-    return val</code></pre>
+    return val
+
+
+def os_path(path):
+    &#34;&#34;&#34; return path with os specific path separator &#34;&#34;&#34;
+    return os.path.join(path.split(&#39;/&#39;))</code></pre>
 </details>
 </section>
 <section>
@@ -233,6 +240,20 @@ def sanitize_param(val):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="multidevice.MD_Globals.os_path"><code class="name flex">
+<span>def <span class="ident">os_path</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>return path with os specific path separator</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def os_path(path):
+    &#34;&#34;&#34; return path with os specific path separator &#34;&#34;&#34;
+    return os.path.join(path.split(&#39;/&#39;))</code></pre>
+</details>
+</dd>
 <dt id="multidevice.MD_Globals.sanitize_param"><code class="name flex">
 <span>def <span class="ident">sanitize_param</span></span>(<span>val)</span>
 </code></dt>
@@ -319,6 +340,7 @@ def sanitize_param(val):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="multidevice.MD_Globals.os_path" href="#multidevice.MD_Globals.os_path">os_path</a></code></li>
 <li><code><a title="multidevice.MD_Globals.sanitize_param" href="#multidevice.MD_Globals.sanitize_param">sanitize_param</a></code></li>
 </ul>
 </li>

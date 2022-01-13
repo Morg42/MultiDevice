@@ -26,6 +26,7 @@
 
 from lib.utils import Utils
 from ast import literal_eval
+import os
 
 
 #############################################################################################################################################################################################################################################
@@ -129,7 +130,7 @@ CMD_ATTR_PARAMS             = 'params'
 CMD_ATTR_PARAM_VALUES       = 'param_values'
 CMD_ATTR_ITEM_ATTRS         = 'item_attrs'
     
-CMD_IATTR_NO_READ_GRP       = 'no_read_group'
+CMD_IATTR_RG_LEVELS         = 'read_group_levels'
 CMD_IATTR_LOOKUP_ITEM       = 'lookup_item'
 CMD_IATTR_ATTRIBUTES        = 'attributes'
 CMD_IATTR_READ_GROUPS       = 'read_groups'
@@ -143,7 +144,7 @@ COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_
                   CMD_ATTR_WRITE_CMD, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_CMD_SETTINGS,
                   CMD_ATTR_LOOKUP, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS)
 
-COMMAND_ITEM_ATTRS = (CMD_IATTR_NO_READ_GRP, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES, CMD_IATTR_TEMPLATE,
+COMMAND_ITEM_ATTRS = (CMD_IATTR_RG_LEVELS, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES, CMD_IATTR_TEMPLATE,
                       CMD_IATTR_READ_GROUPS, CMD_IATTR_CYCLE, CMD_IATTR_INITIAL, CMD_IATTR_ENFORCE)
 
 # keys for min / max values for data bounds
@@ -197,3 +198,9 @@ def sanitize_param(val):
         except Exception:
             pass
     return val
+
+
+def os_path(path):
+    """ return path with os specific path separator """
+    return os.path.join(path.split('/'))
+

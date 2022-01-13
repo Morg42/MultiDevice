@@ -86,7 +86,7 @@ commands = {
         # optional, start sequence/beginning of reply to indicate reply belongs to this command
         # this can be a string or a list of strings
         # only in MD_Command_ParseStr, this can be &#39;REGEX&#39; to enable the next parameter...
-        &#39;reply_token&#39;: [&#39;&#39;],
+        &#39;reply_token&#39;: [],
 
         # optional, regex with one capturing group to automatically extract reply values from the reply
         # implemented only in MD_Command_ParseStr as of now
@@ -147,6 +147,10 @@ commands = {
                 &#39;attr1&#39;: &#39;value1&#39;,  
                 &#39;attr2&#39;: &#39;value2&#39;
             },
+
+            # item attribute templates to include in item definition
+            # templates are defined in ``item_templates`` dict in this file
+            &#39;item_template&#39;: [&#39;template1&#39;, &#39;template2&#39;],
 
             # additional read group configuration
             &#39;read_groups&#39;: [
@@ -349,6 +353,32 @@ lookups = {
             3.14: &#39;pi&#39;
         }
     }
+}
+
+&#34;&#34;&#34; item templates: (optional) definition of templates for struct generation
+
+With this dict, you can define templates - sets of item attributes or even
+item structures - to be referenced by a command and inserted into the struct
+generator output where appropriate.
+
+While the example below only visualizes the syntax of the templates dict, a
+possible implementaion might include on_change, autotimer, eval constructs as
+well as ancillary subitems.
+
+Feel free to completely ignore this.
+
+Example:
+&#34;&#34;&#34;
+
+item_templates = {
+    &#39;template1&#39;: {
+        &#39;foo&#39;: &#39;bar&#39;,
+        &#39;foof&#39;: &#39;barf&#39;
+    },
+    &#39;template2&#39;: {
+        &#39;foop&#39;: &#39;barp&#39;,
+        &#39;floop&#39;: &#39;blarp&#39;
+    }
 }</code></pre>
 </details>
 </section>
@@ -379,18 +409,14 @@ fictional&hellip;</p></div>
 </dd>
 <dt id="multidevice.dev_example.commands.lookups"><code class="name">var <span class="ident">lookups</span></code></dt>
 <dd>
-<div class="desc"><p>lookup: (optional) model-specific lookup tables
-Case b) is basically the same, but with an additional first level inserted.
-The first level MUST contain a key named 'ALL' (duh), which specifies
-"generic" lookup tables valid for all models. The value to this key is a dict
-like the one in case a).
-The first level CAN (and should, why would you do it otherwise?) have
-additional entries named for the supported models. Its value again is a dict
-like the one in case a). These entries are ADDED to the generic entries,
-while tables existent in both are taken from the model-specific dict.</p>
-<p>In the following example, all models will use <code>table1</code> and <code>table2</code>;
-both model1 and model2 will have the additional <code>table3</code>, while only
-model1 has a modified <code>table1</code>.</p>
+<div class="desc"><p>item templates: (optional) definition of templates for struct generation</p>
+<p>With this dict, you can define templates - sets of item attributes or even
+item structures - to be referenced by a command and inserted into the struct
+generator output where appropriate.</p>
+<p>While the example below only visualizes the syntax of the templates dict, a
+possible implementaion might include on_change, autotimer, eval constructs as
+well as ancillary subitems.</p>
+<p>Feel free to completely ignore this.</p>
 <p>Example:</p></div>
 </dd>
 <dt id="multidevice.dev_example.commands.models"><code class="name">var <span class="ident">models</span></code></dt>

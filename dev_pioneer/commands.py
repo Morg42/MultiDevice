@@ -15,8 +15,8 @@ models = {
 
 commands = {
     'general': {
-        'error': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'E0', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR'},
-        'display': {'read': True, 'read_cmd': '?FL', 'item_type': 'str', 'dev_datatype': 'PioDisplay', 'reply_token': 'REGEX', 'reply_pattern': 'FL(.{28}).*'},
+        'error': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'E0', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR'},
+        'display': {'read': True, 'write': False, 'read_cmd': '?FL', 'item_type': 'str', 'dev_datatype': 'PioDisplay', 'reply_token': 'REGEX', 'reply_pattern': 'FL(.{28}).*'},
         'pqls': {'read': True, 'write': True, 'read_cmd': '?PQ', 'write_cmd': ':{VAL:01}PQ:', 'item_type': 'str', 'dev_datatype': 'bool', 'reply_token': 'REGEX', 'reply_pattern': r'PQ(\d)'},
         'dimmer': {'read': True, 'write': True, 'write_cmd': '{VAL}SAA', 'cmd_settings': {'force_min': 0, 'force_max': 3}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SAA(\d)', 'item_attrs': {'attributes': {'remark': '0 = very bright, 1 = bright, 2 = dark, 3 = off'}}},
         'sleep': {'read': True, 'write': True, 'read_cmd': '?SAB', 'write_cmd': 'MD_VALUESAB', 'item_type': 'num', 'dev_datatype': 'PioSleep', 'reply_token': 'REGEX', 'reply_pattern': r'SAB(\d{3})', 'item_attrs': {'attributes': {'remark': '0 = off, 30 = 30 minutes, 60 = 60 minutes, 90 = 90 minutes'}}},
@@ -25,22 +25,22 @@ commands = {
     },
     'tuner': {
         'tunerpreset': {'read': True, 'write': True, 'read_cmd': '?PR', 'item_type': 'num', 'write_cmd': ':{VAL}PR:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'PR([A-Ga-g]\d{2})'},
-        'tunerpresetup': {'write': True, 'item_type': 'bool', 'write_cmd': 'TPI', 'dev_datatype': 'raw'},
-        'tunerpresetdown': {'write': True, 'item_type': 'bool', 'write_cmd': 'TPD', 'dev_datatype': 'raw'},
-        'title': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH01020']},
-        'genre': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH05024']},
-        'station': {'read': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH04022']}
+        'tunerpresetup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'TPI', 'dev_datatype': 'raw'},
+        'tunerpresetdown': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'TPD', 'dev_datatype': 'raw'},
+        'title': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH01020']},
+        'genre': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH05024']},
+        'station': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': ['GEH04022']}
     },
     'zone1': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?P', 'write_cmd': 'PMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'PWR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
+            'power': {'read': True, 'write': True, 'read_cmd': '?P', 'write_cmd': 'PMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'PWR(\d{1})', 'item_attrs': {'item_template': 'power'}},
             'mute': {'read': True, 'write': True, 'read_cmd': '?M', 'write_cmd': 'MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'MUT(\d{1})'},
             'volume': {'read': True, 'write': True, 'read_cmd': '?V', 'write_cmd': ':{VAL:03}VL:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'VOL(\d{3})', 'cmd_settings': {'force_min': 0, 'valid_max': 185}},
-            'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'VU', 'dev_datatype': 'raw'},
-            'volumedown': {'write_cmd': 'VD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
-            'input': {'read': True, 'write': True, 'read_cmd': '?F', 'write_cmd': 'MD_VALUEFN', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'FN(\d+)', 'lookup': 'INPUT'},
-            'inputup': {'write_cmd': 'FU', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
-            'inputdown': {'write_cmd': 'FD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'}
+            'volumeup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'VU', 'dev_datatype': 'raw'},
+            'volumedown': {'read': False, 'write': True, 'write_cmd': 'VD', 'item_type': 'bool', 'dev_datatype': 'raw'},
+            'input': {'read': True, 'write': True, 'read_cmd': '?F', 'write_cmd': 'MD_VALUEFN', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'FN(\d+)', 'lookup': 'INPUT', 'item_attrs': {'lookup_item': True}},
+            'inputup': {'read': False, 'write': True, 'write_cmd': 'FU', 'item_type': 'bool', 'dev_datatype': 'raw'},
+            'inputdown': {'read': False, 'write': True, 'write_cmd': 'FD', 'item_type': 'bool', 'dev_datatype': 'raw'}
         },
         'settings': {
             'sound': {
@@ -57,37 +57,37 @@ commands = {
                     'subwoofer': {'read': True, 'write': True, 'read_cmd': '?SW_CLV', 'item_type': 'num', 'cmd_settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'SW_MD_VALUECLV', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'CLVSW_(\d{2})'}
                 },
                 'tone_control': {
-                    'tone': {'read': True, 'write': True, 'read_cmd': '?TO', 'item_type': 'bool', 'write_cmd': ':{VAL:01}TO:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TO(\d)', 'item_attrs': {'attributes': {'on_change': 'sh...read.timer(1, True) if value else None'}}},
+                    'tone': {'read': True, 'write': True, 'read_cmd': '?TO', 'item_type': 'bool', 'write_cmd': ':{VAL:01}TO:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TO(\d)', 'item_attrs': {'item_template': 'tone'}},
                     'treble': {'read': True, 'write': True, 'read_cmd': '?TR', 'item_type': 'num', 'write_cmd': 'MD_VALUETR', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'TR(\d{2})', 'lookup': 'TONE'},
-                    'trebleup': {'write': True, 'item_type': 'bool', 'write_cmd': 'TI', 'dev_datatype': 'raw'},
-                    'trebledown': {'write': True, 'item_type': 'bool', 'write_cmd': 'TD', 'dev_datatype': 'raw'},
+                    'trebleup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'TI', 'dev_datatype': 'raw'},
+                    'trebledown': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'TD', 'dev_datatype': 'raw'},
                     'bass': {'read': True, 'write': True, 'read_cmd': '?BA', 'item_type': 'num', 'write_cmd': 'MD_VALUEBA', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'BA(\d{2})', 'lookup': 'TONE'},
-                    'bassup': {'write': True, 'item_type': 'bool', 'write_cmd': 'BI', 'dev_datatype': 'raw'},
-                    'bassdown': {'write': True, 'item_type': 'bool', 'write_cmd': 'BD', 'dev_datatype': 'raw'}
+                    'bassup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'BI', 'dev_datatype': 'raw'},
+                    'bassdown': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'BD', 'dev_datatype': 'raw'}
                 },
                 'general': {
-                    'hdmiout': {'read': True, 'write': True, 'read_cmd': '?HO', 'write_cmd': 'MD_VALUEHO', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'HO(\d)', 'lookup': 'HDMIOUT'},
-                    'hdmiaudio': {'read': True, 'write': True, 'read_cmd': '?HA', 'write_cmd': 'MD_VALUEHA', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'HA(\d)', 'lookup': 'HDMIAUDIO'},
+                    'hdmiout': {'read': True, 'write': True, 'read_cmd': '?HO', 'write_cmd': 'MD_VALUEHO', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'HO(\d)', 'lookup': 'HDMIOUT', 'item_attrs': {'lookup_item': True}},
+                    'hdmiaudio': {'read': True, 'write': True, 'read_cmd': '?HA', 'write_cmd': 'MD_VALUEHA', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'HA(\d)', 'lookup': 'HDMIAUDIO', 'item_attrs': {'lookup_item': True}},
                     'dialog': {'read': True, 'write': True, 'read_cmd': '?ATH', 'write_cmd': 'MD_VALUEATH', 'cmd_settings': {'force_min': 0, 'force_max': 5}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ATH(\d)'},
-                    'dialogup': {'write': True, 'item_type': 'bool', 'write_cmd': '9ATH', 'dev_datatype': 'str'},
-                    'dialogdown': {'write': True, 'item_type': 'bool', 'write_cmd': '8ATH', 'dev_datatype': 'str'},
-                    'listeningmode': {'read': True, 'write': True, 'read_cmd': '?S', 'write_cmd': 'MD_VALUESR', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SR(\d{4})', 'lookup': 'LISTENINGMODE'},
-                    'playingmode': {'read': True, 'write': False, 'read_cmd': '?L', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'LM([a-b0-9]{4})', 'lookup': 'PLAYINGMODE'},
-                    'speakers': {'read': True, 'write': True, 'read_cmd': '?SPK', 'item_type': 'num', 'dev_datatype': 'str', 'cmd_settings': {'valid_list': [0, 1, 2, 3, 9]}, 'write_cmd': ':{VAL:01}SPK:', 'reply_token': 'REGEX', 'reply_pattern': r'SPK(\d)'}
+                    'dialogup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': '9ATH', 'dev_datatype': 'str'},
+                    'dialogdown': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': '8ATH', 'dev_datatype': 'str'},
+                    'listeningmode': {'read': True, 'write': True, 'read_cmd': '?S', 'write_cmd': 'MD_VALUESR', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'SR(\d{4})', 'lookup': 'LISTENINGMODE', 'item_attrs': {'lookup_item': True}},
+                    'playingmode': {'read': True, 'write': False, 'read_cmd': '?L', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'LM([a-b0-9]{4})', 'lookup': 'PLAYINGMODE', 'item_attrs': {'lookup_item': True}},
+                    'speakers': {'read': True, 'write': True, 'read_cmd': '?SPK', 'item_type': 'num', 'dev_datatype': 'str', 'cmd_settings': {'valid_list': [0, 1, 2, 3, 9]}, 'write_cmd': ':{VAL:01}SPK:', 'reply_token': 'REGEX', 'reply_pattern': r'SPK(\d)', 'item_attrs': {'item_template': 'speakers'}}
                 }
             }
         }
     },
     'zone2': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?AP', 'write_cmd': 'APMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'APR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
+            'power': {'read': True, 'write': True, 'read_cmd': '?AP', 'write_cmd': 'APMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'APR(\d{1})', 'item_attrs': {'item_template': 'power'}},
             'mute': {'read': True, 'write': True, 'read_cmd': '?Z2M', 'item_type': 'bool', 'write_cmd': 'Z2MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'Z2MUT(\d{1})'},
-            'volume': {'read': True, 'write': True, 'read_cmd': '?ZV', 'write_cmd': ':{VAL:02}ZV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81}},
-            'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'ZU', 'dev_datatype': 'raw'},
-            'volumedown': {'write_cmd': 'ZD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
-            'input': {'read': True, 'write': True, 'read_cmd': '?ZS', 'write_cmd': 'MD_VALUEZS', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'Z2F(\d+)', 'lookup': 'INPUT'},
-            'inputup': {'write': True, 'item_type': 'bool', 'write_cmd': 'ZSFU', 'dev_datatype': 'raw'},
-            'inputdown': {'write_cmd': 'ZSFD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'}
+            'volume': {'read': True, 'write': True, 'read_cmd': '?ZV', 'write_cmd': ':{VAL:02}ZV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81},},
+            'volumeup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'ZU', 'dev_datatype': 'raw'},
+            'volumedown': {'read': False, 'write': True, 'write_cmd': 'ZD', 'item_type': 'bool', 'dev_datatype': 'raw'},
+            'input': {'read': True, 'write': True, 'read_cmd': '?ZS', 'write_cmd': 'MD_VALUEZS', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'Z2F(\d+)', 'lookup': 'INPUT2', 'item_attrs': {'lookup_item': True}},
+            'inputup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'ZSFU', 'dev_datatype': 'raw'},
+            'inputdown': {'read': False, 'write': True, 'write_cmd': 'ZSFD', 'item_type': 'bool', 'dev_datatype': 'raw'}
         },
         'settings': {
             'sound': {
@@ -96,7 +96,7 @@ commands = {
                     'front_right': {'read': True, 'write': True, 'read_cmd': '?ZGER___', 'item_type': 'num', 'cmd_settings': {'force_min': -12.0, 'valid_max': 12.0}, 'write_cmd': 'R__MD_VALUEZGE', 'dev_datatype': 'PioChannelVol', 'reply_token': 'REGEX', 'reply_pattern': r'ZGER__(\d{2})'}
                 },
                 'tone_control': {
-                    'tone': {'read': True, 'write': True, 'read_cmd': '?ZGA', 'item_type': 'bool', 'write_cmd': ':{VAL:01}ZGA:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGA(\d)', 'item_attrs': {'attributes': {'on_change': 'sh...read.timer(1, True) if value else None'}}},
+                    'tone': {'read': True, 'write': True, 'read_cmd': '?ZGA', 'item_type': 'bool', 'write_cmd': ':{VAL:01}ZGA:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGA(\d)', 'item_attrs': {'item_template': 'tone'}},
                     'treble': {'read': True, 'write': True, 'read_cmd': '?ZGC', 'item_type': 'num', 'write_cmd': 'MD_VALUEZGC', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGC(\d{2})', 'lookup': 'TONE'},
                     'bass': {'read': True, 'write': True, 'read_cmd': '?ZGB', 'item_type': 'num', 'write_cmd': 'MD_VALUEZGB', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZGB(\d{2})', 'lookup': 'TONE'}
                 }
@@ -105,14 +105,14 @@ commands = {
     },
     'zone3': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?BP', 'write_cmd': 'BPMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'BPR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
+            'power': {'read': True, 'write': True, 'read_cmd': '?BP', 'write_cmd': 'BPMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'BPR(\d{1})', 'item_attrs': {'item_template': 'power'}},
             'mute': {'read': True, 'write': True, 'read_cmd': '?Z3M', 'item_type': 'bool', 'write_cmd': 'Z3MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'Z3MUT(\d{1})'},
             'volume': {'read': True, 'write': True, 'read_cmd': '?YV', 'write_cmd': ':{VAL:02}YV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'YV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81},},
-            'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'YU', 'dev_datatype': 'raw'},
-            'volumedown': {'write_cmd': 'YD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
-            'input': {'read': True, 'write': True, 'read_cmd': '?ZT', 'write_cmd': 'MD_VALUEZT', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'Z3F(\d+)', 'lookup': 'INPUT'},
-            'inputup': {'write': True, 'item_type': 'bool', 'write_cmd': 'ZTFU', 'dev_datatype': 'raw'},
-            'inputdown': {'write_cmd': 'ZTFD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'}
+            'volumeup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'YU', 'dev_datatype': 'raw'},
+            'volumedown': {'read': False, 'write': True, 'write_cmd': 'YD', 'item_type': 'bool', 'dev_datatype': 'raw'},
+            'input': {'read': True, 'write': True, 'read_cmd': '?ZT', 'write_cmd': 'MD_VALUEZT', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'Z3F(\d+)', 'lookup': 'INPUT3', 'item_attrs': {'lookup_item': True}},
+            'inputup': {'read': False, 'write': True, 'item_type': 'bool', 'write_cmd': 'ZTFU', 'dev_datatype': 'raw'},
+            'inputdown': {'read': False, 'write': True, 'write_cmd': 'ZTFD', 'item_type': 'bool', 'dev_datatype': 'raw'}
         },
         'settings': {
             'sound': {
@@ -125,7 +125,8 @@ commands = {
     },
     'hdzone': {
         'control': {
-            'power': {'read': True, 'write': True, 'read_cmd': '?ZEP', 'write_cmd': 'ZEMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'ZEP(\d{1})'}
+            'power': {'read': True, 'write': True, 'read_cmd': '?ZEP', 'write_cmd': 'ZEMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'ZEP(\d{1})'},
+            'input': {'read': True, 'write': True, 'read_cmd': '?ZEA', 'write_cmd': 'MD_VALUEZEA', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZEA(\d+)', 'lookup': 'INPUTHD', 'item_attrs': {'lookup_item': True}}
         }
     }
 }
@@ -674,5 +675,32 @@ lookups = {
         'INPUT': {
             '40': 'SiriusXM'
         }
+    }
+}
+
+item_templates = {
+    'speakers': {
+        'on_change': ['.speakera = True if value in [1, 3] else False', '.speakerb = True if value in [2, 3] else False'],
+        'speakera': {
+            'type': 'bool',
+            'on_change': '..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1'
+            },
+        'speakerb': {
+            'type': 'bool',
+            'on_change': '..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2'
+            }
+    },
+    'power': {
+        'md_read_initial': True,
+        'on_change': 'sh....read.timer(sh..readdelay(), True) if value else None',
+        'readdelay': {
+            'type': 'num',
+            'initial_value': 1,
+            'remark': 'After turning on a zone, the most likely needs some time to react to read commands. If not, set this value to 0'
+        }
+    },
+    'tone': {
+        'initial': True,
+
     }
 }

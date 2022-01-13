@@ -700,7 +700,7 @@ item_templates = {
         }
     },
     'tone': {
-        'initial': True,
-
+        'md_read_initial': True,
+        'on_change': 'sh...read(True) if value else None'
     }
 }

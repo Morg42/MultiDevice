@@ -15,7 +15,6 @@ general:
         md_command: general.error
         md_read: True
         md_write: False
-        md_lookup: ERROR
 
     display:
         type: str
@@ -56,7 +55,6 @@ general:
         md_command: general.amp
         md_read: True
         md_write: True
-        md_lookup: AMP
         md_read_group: ['general']
         remark: 0 = AMP, 1 = THR
 
@@ -190,7 +188,6 @@ zone1:
             md_command: zone1.control.input
             md_read: True
             md_write: True
-            md_lookup: INPUT
             md_read_group: ['zone1', 'zone1.control']
 
             lookup:
@@ -331,7 +328,6 @@ zone1:
                     md_read: True
                     md_write: True
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
-                    initial: True
 
                 treble:
                     type: num
@@ -339,7 +335,6 @@ zone1:
                     md_command: zone1.settings.sound.tone_control.treble
                     md_read: True
                     md_write: True
-                    md_lookup: TONE
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
 
                 trebleup:
@@ -362,7 +357,6 @@ zone1:
                     md_command: zone1.settings.sound.tone_control.bass
                     md_read: True
                     md_write: True
-                    md_lookup: TONE
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
 
                 bassup:
@@ -393,7 +387,6 @@ zone1:
                     md_command: zone1.settings.sound.general.hdmiout
                     md_read: True
                     md_write: True
-                    md_lookup: HDMIOUT
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     lookup:
@@ -407,7 +400,6 @@ zone1:
                     md_command: zone1.settings.sound.general.hdmiaudio
                     md_read: True
                     md_write: True
-                    md_lookup: HDMIAUDIO
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     lookup:
@@ -443,7 +435,6 @@ zone1:
                     md_command: zone1.settings.sound.general.listeningmode
                     md_read: True
                     md_write: True
-                    md_lookup: LISTENINGMODE
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     lookup:
@@ -457,7 +448,6 @@ zone1:
                     md_command: zone1.settings.sound.general.playingmode
                     md_read: True
                     md_write: False
-                    md_lookup: PLAYINGMODE
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.general']
 
                     lookup:
@@ -549,7 +539,6 @@ zone2:
             md_command: zone2.control.input
             md_read: True
             md_write: True
-            md_lookup: INPUT2
             md_read_group: ['zone2', 'zone2.control']
 
             lookup:
@@ -626,7 +615,8 @@ zone2:
                     md_read: True
                     md_write: True
                     md_read_group: ['zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
-                    initial: True
+                    md_read_initial: True
+                    on_change: sh...read(True) if value else None
 
                 treble:
                     type: num
@@ -634,7 +624,6 @@ zone2:
                     md_command: zone2.settings.sound.tone_control.treble
                     md_read: True
                     md_write: True
-                    md_lookup: TONE
                     md_read_group: ['zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
 
                 bass:
@@ -643,7 +632,6 @@ zone2:
                     md_command: zone2.settings.sound.tone_control.bass
                     md_read: True
                     md_write: True
-                    md_lookup: TONE
                     md_read_group: ['zone2', 'zone2.settings', 'zone2.settings.sound', 'zone2.settings.sound.tone_control']
 
 zone3:
@@ -713,7 +701,6 @@ zone3:
             md_command: zone3.control.input
             md_read: True
             md_write: True
-            md_lookup: INPUT3
             md_read_group: ['zone3', 'zone3.control']
 
             lookup:
@@ -805,7 +792,6 @@ hdzone:
             md_command: hdzone.control.input
             md_read: True
             md_write: True
-            md_lookup: INPUTHD
             md_read_group: ['hdzone', 'hdzone.control']
 
             lookup:
@@ -835,7 +821,6 @@ ALL:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -995,7 +980,6 @@ ALL:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.control']
 
                 lookup:
@@ -1136,7 +1120,6 @@ ALL:
                         md_read: True
                         md_write: True
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -1144,7 +1127,6 @@ ALL:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -1167,7 +1149,6 @@ ALL:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -1198,7 +1179,6 @@ ALL:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.general']
 
                         lookup:
@@ -1212,7 +1192,6 @@ ALL:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.general']
 
                         lookup:
@@ -1248,7 +1227,6 @@ ALL:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.general']
 
                         lookup:
@@ -1262,7 +1240,6 @@ ALL:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.general']
 
                         lookup:
@@ -1354,7 +1331,6 @@ ALL:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['ALL', 'ALL.zone2', 'ALL.zone2.control']
 
                 lookup:
@@ -1406,7 +1382,6 @@ ALL:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['ALL', 'ALL.hdzone', 'ALL.hdzone.control']
 
                 lookup:
@@ -1436,7 +1411,6 @@ SC-LX87:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -1477,7 +1451,6 @@ SC-LX87:
             md_command: general.amp
             md_read: True
             md_write: True
-            md_lookup: AMP
             md_read_group: ['SC-LX87', 'SC-LX87.general']
             remark: 0 = AMP, 1 = THR
 
@@ -1611,7 +1584,6 @@ SC-LX87:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.control']
 
                 lookup:
@@ -1752,7 +1724,6 @@ SC-LX87:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -1760,7 +1731,6 @@ SC-LX87:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -1783,7 +1753,6 @@ SC-LX87:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -1814,7 +1783,6 @@ SC-LX87:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.general']
 
                         lookup:
@@ -1828,7 +1796,6 @@ SC-LX87:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.general']
 
                         lookup:
@@ -1864,7 +1831,6 @@ SC-LX87:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.general']
 
                         lookup:
@@ -1878,7 +1844,6 @@ SC-LX87:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.general']
 
                         lookup:
@@ -1970,7 +1935,6 @@ SC-LX87:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['SC-LX87', 'SC-LX87.zone2', 'SC-LX87.zone2.control']
 
                 lookup:
@@ -2047,7 +2011,8 @@ SC-LX87:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX87', 'SC-LX87.zone2', 'SC-LX87.zone2.settings', 'SC-LX87.zone2.settings.sound', 'SC-LX87.zone2.settings.sound.tone_control']
-                        initial: True
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -2055,7 +2020,6 @@ SC-LX87:
                         md_command: zone2.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX87', 'SC-LX87.zone2', 'SC-LX87.zone2.settings', 'SC-LX87.zone2.settings.sound', 'SC-LX87.zone2.settings.sound.tone_control']
 
                     bass:
@@ -2064,7 +2028,6 @@ SC-LX87:
                         md_command: zone2.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX87', 'SC-LX87.zone2', 'SC-LX87.zone2.settings', 'SC-LX87.zone2.settings.sound', 'SC-LX87.zone2.settings.sound.tone_control']
 
     zone3:
@@ -2134,7 +2097,6 @@ SC-LX87:
                 md_command: zone3.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT3
                 md_read_group: ['SC-LX87', 'SC-LX87.zone3', 'SC-LX87.zone3.control']
 
                 lookup:
@@ -2226,7 +2188,6 @@ SC-LX87:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['SC-LX87', 'SC-LX87.hdzone', 'SC-LX87.hdzone.control']
 
                 lookup:
@@ -2256,7 +2217,6 @@ SC-LX77:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -2297,7 +2257,6 @@ SC-LX77:
             md_command: general.amp
             md_read: True
             md_write: True
-            md_lookup: AMP
             md_read_group: ['SC-LX77', 'SC-LX77.general']
             remark: 0 = AMP, 1 = THR
 
@@ -2431,7 +2390,6 @@ SC-LX77:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.control']
 
                 lookup:
@@ -2572,7 +2530,6 @@ SC-LX77:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -2580,7 +2537,6 @@ SC-LX77:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -2603,7 +2559,6 @@ SC-LX77:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -2634,7 +2589,6 @@ SC-LX77:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.general']
 
                         lookup:
@@ -2648,7 +2602,6 @@ SC-LX77:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.general']
 
                         lookup:
@@ -2684,7 +2637,6 @@ SC-LX77:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.general']
 
                         lookup:
@@ -2698,7 +2650,6 @@ SC-LX77:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.general']
 
                         lookup:
@@ -2790,7 +2741,6 @@ SC-LX77:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['SC-LX77', 'SC-LX77.zone2', 'SC-LX77.zone2.control']
 
                 lookup:
@@ -2867,7 +2817,8 @@ SC-LX77:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX77', 'SC-LX77.zone2', 'SC-LX77.zone2.settings', 'SC-LX77.zone2.settings.sound', 'SC-LX77.zone2.settings.sound.tone_control']
-                        initial: True
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -2875,7 +2826,6 @@ SC-LX77:
                         md_command: zone2.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX77', 'SC-LX77.zone2', 'SC-LX77.zone2.settings', 'SC-LX77.zone2.settings.sound', 'SC-LX77.zone2.settings.sound.tone_control']
 
                     bass:
@@ -2884,7 +2834,6 @@ SC-LX77:
                         md_command: zone2.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX77', 'SC-LX77.zone2', 'SC-LX77.zone2.settings', 'SC-LX77.zone2.settings.sound', 'SC-LX77.zone2.settings.sound.tone_control']
 
     zone3:
@@ -2954,7 +2903,6 @@ SC-LX77:
                 md_command: zone3.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT3
                 md_read_group: ['SC-LX77', 'SC-LX77.zone3', 'SC-LX77.zone3.control']
 
                 lookup:
@@ -3046,7 +2994,6 @@ SC-LX77:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['SC-LX77', 'SC-LX77.hdzone', 'SC-LX77.hdzone.control']
 
                 lookup:
@@ -3076,7 +3023,6 @@ SC-LX57:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -3117,7 +3063,6 @@ SC-LX57:
             md_command: general.amp
             md_read: True
             md_write: True
-            md_lookup: AMP
             md_read_group: ['SC-LX57', 'SC-LX57.general']
             remark: 0 = AMP, 1 = THR
 
@@ -3251,7 +3196,6 @@ SC-LX57:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.control']
 
                 lookup:
@@ -3392,7 +3336,6 @@ SC-LX57:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -3400,7 +3343,6 @@ SC-LX57:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -3423,7 +3365,6 @@ SC-LX57:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -3454,7 +3395,6 @@ SC-LX57:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.general']
 
                         lookup:
@@ -3468,7 +3408,6 @@ SC-LX57:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.general']
 
                         lookup:
@@ -3504,7 +3443,6 @@ SC-LX57:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.general']
 
                         lookup:
@@ -3518,7 +3456,6 @@ SC-LX57:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.general']
 
                         lookup:
@@ -3610,7 +3547,6 @@ SC-LX57:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['SC-LX57', 'SC-LX57.zone2', 'SC-LX57.zone2.control']
 
                 lookup:
@@ -3687,7 +3623,8 @@ SC-LX57:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX57', 'SC-LX57.zone2', 'SC-LX57.zone2.settings', 'SC-LX57.zone2.settings.sound', 'SC-LX57.zone2.settings.sound.tone_control']
-                        initial: True
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -3695,7 +3632,6 @@ SC-LX57:
                         md_command: zone2.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX57', 'SC-LX57.zone2', 'SC-LX57.zone2.settings', 'SC-LX57.zone2.settings.sound', 'SC-LX57.zone2.settings.sound.tone_control']
 
                     bass:
@@ -3704,7 +3640,6 @@ SC-LX57:
                         md_command: zone2.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-LX57', 'SC-LX57.zone2', 'SC-LX57.zone2.settings', 'SC-LX57.zone2.settings.sound', 'SC-LX57.zone2.settings.sound.tone_control']
 
     zone3:
@@ -3774,7 +3709,6 @@ SC-LX57:
                 md_command: zone3.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT3
                 md_read_group: ['SC-LX57', 'SC-LX57.zone3', 'SC-LX57.zone3.control']
 
                 lookup:
@@ -3866,7 +3800,6 @@ SC-LX57:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['SC-LX57', 'SC-LX57.hdzone', 'SC-LX57.hdzone.control']
 
                 lookup:
@@ -3896,7 +3829,6 @@ SC-2023:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -4056,7 +3988,6 @@ SC-2023:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.control']
 
                 lookup:
@@ -4197,7 +4128,6 @@ SC-2023:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -4205,7 +4135,6 @@ SC-2023:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -4228,7 +4157,6 @@ SC-2023:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -4259,7 +4187,6 @@ SC-2023:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.general']
 
                         lookup:
@@ -4273,7 +4200,6 @@ SC-2023:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.general']
 
                         lookup:
@@ -4309,7 +4235,6 @@ SC-2023:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.general']
 
                         lookup:
@@ -4323,7 +4248,6 @@ SC-2023:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.general']
 
                         lookup:
@@ -4415,7 +4339,6 @@ SC-2023:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['SC-2023', 'SC-2023.zone2', 'SC-2023.zone2.control']
 
                 lookup:
@@ -4492,7 +4415,8 @@ SC-2023:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-2023', 'SC-2023.zone2', 'SC-2023.zone2.settings', 'SC-2023.zone2.settings.sound', 'SC-2023.zone2.settings.sound.tone_control']
-                        initial: True
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -4500,7 +4424,6 @@ SC-2023:
                         md_command: zone2.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-2023', 'SC-2023.zone2', 'SC-2023.zone2.settings', 'SC-2023.zone2.settings.sound', 'SC-2023.zone2.settings.sound.tone_control']
 
                     bass:
@@ -4509,7 +4432,6 @@ SC-2023:
                         md_command: zone2.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-2023', 'SC-2023.zone2', 'SC-2023.zone2.settings', 'SC-2023.zone2.settings.sound', 'SC-2023.zone2.settings.sound.tone_control']
 
     zone3:
@@ -4579,7 +4501,6 @@ SC-2023:
                 md_command: zone3.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT3
                 md_read_group: ['SC-2023', 'SC-2023.zone3', 'SC-2023.zone3.control']
 
                 lookup:
@@ -4671,7 +4592,6 @@ SC-2023:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['SC-2023', 'SC-2023.hdzone', 'SC-2023.hdzone.control']
 
                 lookup:
@@ -4701,7 +4621,6 @@ SC-1223:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -4861,7 +4780,6 @@ SC-1223:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.control']
 
                 lookup:
@@ -5002,7 +4920,6 @@ SC-1223:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -5010,7 +4927,6 @@ SC-1223:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -5033,7 +4949,6 @@ SC-1223:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -5064,7 +4979,6 @@ SC-1223:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.general']
 
                         lookup:
@@ -5078,7 +4992,6 @@ SC-1223:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.general']
 
                         lookup:
@@ -5114,7 +5027,6 @@ SC-1223:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.general']
 
                         lookup:
@@ -5128,7 +5040,6 @@ SC-1223:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.general']
 
                         lookup:
@@ -5220,7 +5131,6 @@ SC-1223:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['SC-1223', 'SC-1223.zone2', 'SC-1223.zone2.control']
 
                 lookup:
@@ -5297,7 +5207,8 @@ SC-1223:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-1223', 'SC-1223.zone2', 'SC-1223.zone2.settings', 'SC-1223.zone2.settings.sound', 'SC-1223.zone2.settings.sound.tone_control']
-                        initial: True
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -5305,7 +5216,6 @@ SC-1223:
                         md_command: zone2.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-1223', 'SC-1223.zone2', 'SC-1223.zone2.settings', 'SC-1223.zone2.settings.sound', 'SC-1223.zone2.settings.sound.tone_control']
 
                     bass:
@@ -5314,7 +5224,6 @@ SC-1223:
                         md_command: zone2.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['SC-1223', 'SC-1223.zone2', 'SC-1223.zone2.settings', 'SC-1223.zone2.settings.sound', 'SC-1223.zone2.settings.sound.tone_control']
 
     hdzone:
@@ -5347,7 +5256,6 @@ SC-1223:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['SC-1223', 'SC-1223.hdzone', 'SC-1223.hdzone.control']
 
                 lookup:
@@ -5377,7 +5285,6 @@ VSX-1123:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -5537,7 +5444,6 @@ VSX-1123:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.control']
 
                 lookup:
@@ -5678,7 +5584,6 @@ VSX-1123:
                         md_read: True
                         md_write: True
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -5686,7 +5591,6 @@ VSX-1123:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -5709,7 +5613,6 @@ VSX-1123:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -5740,7 +5643,6 @@ VSX-1123:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.general']
 
                         lookup:
@@ -5754,7 +5656,6 @@ VSX-1123:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.general']
 
                         lookup:
@@ -5790,7 +5691,6 @@ VSX-1123:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.general']
 
                         lookup:
@@ -5804,7 +5704,6 @@ VSX-1123:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.general']
 
                         lookup:
@@ -5896,7 +5795,6 @@ VSX-1123:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['VSX-1123', 'VSX-1123.zone2', 'VSX-1123.zone2.control']
 
                 lookup:
@@ -5948,7 +5846,6 @@ VSX-1123:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['VSX-1123', 'VSX-1123.hdzone', 'VSX-1123.hdzone.control']
 
                 lookup:
@@ -5978,7 +5875,6 @@ VSX-923:
             md_command: general.error
             md_read: True
             md_write: False
-            md_lookup: ERROR
 
         display:
             type: str
@@ -6138,7 +6034,6 @@ VSX-923:
                 md_command: zone1.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT
                 md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.control']
 
                 lookup:
@@ -6279,7 +6174,6 @@ VSX-923:
                         md_read: True
                         md_write: True
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.tone_control']
-                        initial: True
 
                     treble:
                         type: num
@@ -6287,7 +6181,6 @@ VSX-923:
                         md_command: zone1.settings.sound.tone_control.treble
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.tone_control']
 
                     trebleup:
@@ -6310,7 +6203,6 @@ VSX-923:
                         md_command: zone1.settings.sound.tone_control.bass
                         md_read: True
                         md_write: True
-                        md_lookup: TONE
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.tone_control']
 
                     bassup:
@@ -6341,7 +6233,6 @@ VSX-923:
                         md_command: zone1.settings.sound.general.hdmiout
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIOUT
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.general']
 
                         lookup:
@@ -6355,7 +6246,6 @@ VSX-923:
                         md_command: zone1.settings.sound.general.hdmiaudio
                         md_read: True
                         md_write: True
-                        md_lookup: HDMIAUDIO
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.general']
 
                         lookup:
@@ -6391,7 +6281,6 @@ VSX-923:
                         md_command: zone1.settings.sound.general.listeningmode
                         md_read: True
                         md_write: True
-                        md_lookup: LISTENINGMODE
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.general']
 
                         lookup:
@@ -6405,7 +6294,6 @@ VSX-923:
                         md_command: zone1.settings.sound.general.playingmode
                         md_read: True
                         md_write: False
-                        md_lookup: PLAYINGMODE
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.general']
 
                         lookup:
@@ -6497,7 +6385,6 @@ VSX-923:
                 md_command: zone2.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUT2
                 md_read_group: ['VSX-923', 'VSX-923.zone2', 'VSX-923.zone2.control']
 
                 lookup:
@@ -6549,7 +6436,6 @@ VSX-923:
                 md_command: hdzone.control.input
                 md_read: True
                 md_write: True
-                md_lookup: INPUTHD
                 md_read_group: ['VSX-923', 'VSX-923.hdzone', 'VSX-923.hdzone.control']
 
                 lookup:

@@ -1293,9 +1293,9 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             # (path if path else ('' if has_models else node_name)) + ('.' if path or not has_models else '') + child
             if path:
-                new_path = path + '.'
+                new_path = path + COMMAND_SEP
             elif not has_models:
-                new_path = node_name + '.'
+                new_path = node_name + COMMAND_SEP
             else:
                 new_path = ''
             new_path += child
@@ -1336,9 +1336,9 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                         itempath = itempath[1:]
 
                     if lvl_up:
-                        src_path_elems = path.split('.')[:-lvl_up]
+                        src_path_elems = path.split(COMMAND_SEP)[:-lvl_up]
                     else:
-                        src_path_elems = path.split('.')
+                        src_path_elems = path.split(COMMAND_SEP)
                     item_path = '.'.join(['.'.join(src_path_elems), itempath])
 
                     add_item_to_tree(item_path, {'type': 'bool', 'enforce_updates': 'true', ITEM_ATTR_DEVICE: 'DEVICENAME', ITEM_ATTR_READ_GRP: entry.get('name')})
@@ -1364,13 +1364,10 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 item[ITEM_ATTR_DEVICE] = 'DEVICENAME'
                 cmd = path if path else node_name
                 if cut_levels:
-                    cmd = '.'.join(cmd.split('.')[cut_levels:])
+                    cmd = COMMAND_SEP.join(cmd.split(COMMAND_SEP)[cut_levels:])
                 item[ITEM_ATTR_COMMAND] = cmd
                 item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ)
                 item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE)
-                lu = node.get(CMD_ATTR_LOOKUP)
-                if lu:
-                    item[ITEM_ATTR_LOOKUP] = lu
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)

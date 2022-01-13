@@ -335,6 +335,7 @@ class MD_Commands(object):
 
         if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)
+            self._parse_patterns(device_id)
         else:
             self.logger.debug('no lookups found')
 
@@ -358,10 +359,22 @@ class MD_Commands(object):
 
         for cmd in cmds:
             # we found a "section" entry for which initial or cyclic read is specified. Just skip it...
-            if cmd[-len(CMD_ATTR_ITEM_ATTRS)-1:] == '.' + CMD_ATTR_ITEM_ATTRS:
+            # the commands dict might look like this:
+            #
+            # 'zone2': {
+            #     'control': { 'item_attrs': {...}, 
+            #         'power': {'read': True,             
+            #
+            # 'control' is only a section, and the only valid 'content' apart from sections or commands is 'item_attrs' to provide
+            # for read triggers or other extensions. If 'item_attrs' is defined, it is syntactically identical to the following
+            # commands, so the identifier 'item_attrs' is read as command name.
+            if cmd[-len(CMD_ATTR_ITEM_ATTRS)-len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
                 continue
 
-            kw = {}
+            # preset default values
+            kw = {CMD_ATTR_READ: True, CMD_ATTR_WRITE: False, CMD_ATTR_OPCODE: '', CMD_ATTR_ITEM_TYPE: 'bool', CMD_ATTR_DEV_TYPE: 'raw'}
+
+            # update with command attributes
             for arg in COMMAND_PARAMS:
                 if arg in commands[cmd]:
                     kw[arg] = commands[cmd][arg]
@@ -422,3 +435,19 @@ class MD_Commands(object):
                     self.logger.warning(f'key {table} in lookups not in dict format, ignoring')
         except Exception as e:
             self.logger.error(f'importing lookup tables not possible, check syntax. Error was: {e}')
+
+    def _parse_patterns(self, device_id):
+        """ check reply_patterns for lookup info and replace
+
+        If the reply_token is 'REGEX' and the reply_pattern contains '(MD_LOOKUP)'
+        and lookup is set to a valid lookup table, the '(MD_LOOKUP)' identifier is
+        replaced with a regex which triggers on any of the possible lookup values.
+        """
+        for cmd in self._commands:
+
+            obj = self._commands[cmd]
+            if obj.lookup and 'REGEX' in obj.reply_token and '(MD_LOOKUP)' in obj.reply_pattern:
+
+                lu = self._lookups[obj.lookup]['fwd']
+                pattern = '(' + '|'.join(re.escape(key) for key in lu.keys()) + ')'
+                obj.reply_pattern = obj.reply_pattern.replace('(MD_LOOKUP)', pattern)

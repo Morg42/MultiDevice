@@ -82,7 +82,7 @@ commands = {
         'control': {
             'power': {'read': True, 'write': True, 'read_cmd': '?AP', 'write_cmd': 'APMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'APR(\d{1})', 'item_attrs': {'initial': True, 'attributes': {'on_change': 'sh....read.timer(1, True) if value else None'}}},
             'mute': {'read': True, 'write': True, 'read_cmd': '?Z2M', 'item_type': 'bool', 'write_cmd': 'Z2MMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': r'Z2MUT(\d{1})'},
-            'volume': {'read': True, 'write': True, 'read_cmd': '?ZV', 'write_cmd': ':{VAL:02}ZV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81},},
+            'volume': {'read': True, 'write': True, 'read_cmd': '?ZV', 'write_cmd': ':{VAL:02}ZV:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'ZV(\d{2})', 'cmd_settings': {'force_min': 0, 'valid_max': 81}},
             'volumeup': {'write': True, 'item_type': 'bool', 'write_cmd': 'ZU', 'dev_datatype': 'raw'},
             'volumedown': {'write_cmd': 'ZD', 'write': True, 'item_type': 'bool', 'dev_datatype': 'raw'},
             'input': {'read': True, 'write': True, 'read_cmd': '?ZS', 'write_cmd': 'MD_VALUEZS', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'Z2F(\d+)', 'lookup': 'INPUT'},

@@ -47,7 +47,7 @@ commands = {
         # optional, start sequence/beginning of reply to indicate reply belongs to this command
         # this can be a string or a list of strings
         # only in MD_Command_ParseStr, this can be 'REGEX' to enable the next parameter...
-        'reply_token': [''],
+        'reply_token': [],
 
         # optional, regex with one capturing group to automatically extract reply values from the reply
         # implemented only in MD_Command_ParseStr as of now

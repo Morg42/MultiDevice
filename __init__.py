@@ -825,7 +825,7 @@ class MultiDevice(SmartPlugin):
                     cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                     if cycle:
                         # if cycle is already set for command, use the lower value of the two
-                        self._commands_cyclic[device_id][command] = { 'cycle': min(cycle, self._commands_cyclic[device_id].get(command, cycle)), 'next': 0}
+                        self._commands_cyclic[device_id][command] = {'cycle': min(cycle, self._commands_cyclic[device_id].get(command, cycle)), 'next': 0}
                         self.logger.debug(f'Item {item} saved for cyclic reading command {command} on device {device_id}')
 
                 # command marked for writing
@@ -849,7 +849,7 @@ class MultiDevice(SmartPlugin):
                 cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                 if cycle:
                     # if cycle is already set for command, use the lower value of the two
-                    self._triggers_cyclic[device_id][grp] = { 'cycle': min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), 'next': 0}
+                    self._triggers_cyclic[device_id][grp] = {'cycle': min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), 'next': 0}
                     self.logger.debug(f'Item {item} saved for cyclic triggering of read group {grp} on device {device_id}')
 
                 if grp == '0':

@@ -226,9 +226,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
         # did we power down kodi? then clear queues
         if self._shutdown_active:
-            old_queue = self._send_queue
             self._send_queue = queue.Queue()
-            del old_queue
             self._stale_lock.acquire()
             self._message_archive = {}
             self._stale_lock.release()
@@ -1085,9 +1083,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
 
         # did we power down kodi? then clear queues
         if self._shutdown_active:
-            old_queue = self._send_queue
             self._send_queue = queue.Queue()
-            del old_queue
             self._stale_lock.acquire()
             self._message_archive = {}
             self._stale_lock.release()

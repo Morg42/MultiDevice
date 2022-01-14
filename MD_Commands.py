@@ -24,7 +24,6 @@
 #
 #########################################################################
 
-from pprint import pprint as pp
 import logging
 import re
 from pydoc import locate
@@ -466,6 +465,3 @@ class MD_Commands(object):
                     vl = obj.settings['valid_list_ci']
                     pattern = '(' + '|'.join(re.escype(key) for key in vl) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST_CI)', pattern)
-
-
-

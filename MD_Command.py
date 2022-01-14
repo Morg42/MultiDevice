@@ -80,7 +80,7 @@ class MD_Command(object):
             self.device_id = device_id
 
         if not command:
-            self.logger.warning(f'building command without a name, aborting')
+            self.logger.warning('building command without a name, aborting')
             return
         else:
             self.name = command

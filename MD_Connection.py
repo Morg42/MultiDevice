@@ -348,12 +348,6 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f'{self.__class__.__name__} closing connection')
         self._tcp.close()
 
-    # def on_data_received(self, by, data):
-    #     # TODO: sollte das bleiben? ggf. besser im command/DT erledigen?
-    #     # if isinstance(data, str):
-    #     #     data = data.strip()
-    #     super().on_data_received(by, data)
-
     def _send(self, data_dict):
         self._tcp.send(data_dict['payload'])
 

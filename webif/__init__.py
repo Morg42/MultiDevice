@@ -27,8 +27,6 @@
 
 import json
 
-from pprint import pprint
-
 from lib.item import Items
 from lib.model.smartplugin import SmartPluginWebIf
 from ..MD_Globals import *
@@ -152,8 +150,6 @@ class WebInterface(SmartPluginWebIf):
                     node = {elem: node}
 
                 update(item_tree, node)
-
-        pprint(item_tree)
 
         return tmpl.render(p=self.plugin,
                            items=sorted(self.items.return_items(), key=lambda k: str.lower(k['_path'])),

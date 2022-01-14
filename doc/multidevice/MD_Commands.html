@@ -470,15 +470,30 @@ class MD_Commands(object):
         If the reply_token is &#39;REGEX&#39; and the reply_pattern contains &#39;(MD_LOOKUP)&#39;
         and lookup is set to a valid lookup table, the &#39;(MD_LOOKUP)&#39; identifier is
         replaced with a regex which triggers on any of the possible lookup values.
+
+        The same applies for &#39;(MD_VALID_LIST)&#39; and &#39;(MD_VALID_LIST_CI)&#39;
         &#34;&#34;&#34;
         for cmd in self._commands:
 
             obj = self._commands[cmd]
-            if obj.lookup and &#39;REGEX&#39; in obj.reply_token and &#39;(MD_LOOKUP)&#39; in obj.reply_pattern:
+            if &#39;REGEX&#39; in obj.reply_token:
+                if obj.lookup and &#39;(MD_LOOKUP)&#39; in obj.reply_pattern:
 
-                lu = self._lookups[obj.lookup][&#39;fwd&#39;]
-                pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in lu.keys()) + &#39;)&#39;
-                obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_LOOKUP)&#39;, pattern)</code></pre>
+                    lu = self._lookups[obj.lookup][&#39;fwd&#39;]
+                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in lu.keys()) + &#39;)&#39;
+                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_LOOKUP)&#39;, pattern)
+
+                if obj.settings and &#39;valid_list&#39; in obj.settings and &#39;(MD_VALID_LIST)&#39; in obj.reply_pattern:
+
+                    vl = obj.settings[&#39;valid_list&#39;]
+                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escype(key) for key in vl) + &#39;)&#39;
+                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST)&#39;, pattern)
+
+                if obj.settings and &#39;valid_list_ci&#39; in obj.settings and &#39;(MD_VALID_LIST_CI)&#39; in obj.reply_pattern:
+
+                    vl = obj.settings[&#39;valid_list_ci&#39;]
+                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escype(key) for key in vl) + &#39;)&#39;
+                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST_CI)&#39;, pattern)</code></pre>
 </details>
 </section>
 <section>
@@ -902,15 +917,30 @@ MD_Command-object</p>
         If the reply_token is &#39;REGEX&#39; and the reply_pattern contains &#39;(MD_LOOKUP)&#39;
         and lookup is set to a valid lookup table, the &#39;(MD_LOOKUP)&#39; identifier is
         replaced with a regex which triggers on any of the possible lookup values.
+
+        The same applies for &#39;(MD_VALID_LIST)&#39; and &#39;(MD_VALID_LIST_CI)&#39;
         &#34;&#34;&#34;
         for cmd in self._commands:
 
             obj = self._commands[cmd]
-            if obj.lookup and &#39;REGEX&#39; in obj.reply_token and &#39;(MD_LOOKUP)&#39; in obj.reply_pattern:
+            if &#39;REGEX&#39; in obj.reply_token:
+                if obj.lookup and &#39;(MD_LOOKUP)&#39; in obj.reply_pattern:
 
-                lu = self._lookups[obj.lookup][&#39;fwd&#39;]
-                pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in lu.keys()) + &#39;)&#39;
-                obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_LOOKUP)&#39;, pattern)</code></pre>
+                    lu = self._lookups[obj.lookup][&#39;fwd&#39;]
+                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in lu.keys()) + &#39;)&#39;
+                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_LOOKUP)&#39;, pattern)
+
+                if obj.settings and &#39;valid_list&#39; in obj.settings and &#39;(MD_VALID_LIST)&#39; in obj.reply_pattern:
+
+                    vl = obj.settings[&#39;valid_list&#39;]
+                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escype(key) for key in vl) + &#39;)&#39;
+                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST)&#39;, pattern)
+
+                if obj.settings and &#39;valid_list_ci&#39; in obj.settings and &#39;(MD_VALID_LIST_CI)&#39; in obj.reply_pattern:
+
+                    vl = obj.settings[&#39;valid_list_ci&#39;]
+                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escype(key) for key in vl) + &#39;)&#39;
+                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST_CI)&#39;, pattern)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>

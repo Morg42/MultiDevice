@@ -331,6 +331,11 @@ class MD_Command_ParseStr(MD_Command_Str):
     reply_pattern regex will be used to identify a reply as belonging to this
     command if a match is found.
 
+    If the reply_token is 'REGEX' and the reply_pattern contains '(MD_LOOKUP)'
+    and lookup is set to a valid lookup table, the '(MD_LOOKUP)' identifier is
+    replaced with a regex which triggers on any of the possible lookup values.
+    The same applies for '(MD_VALID_LIST)' and '(MD_VALID_LIST_CI)'
+
     Both results can be achieved with customized DT_foo classes, but this
     might be an easier and cleaner solution. Please make sure to understand
     MRE by JF properly :)

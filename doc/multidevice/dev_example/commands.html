@@ -90,6 +90,7 @@ commands = {
 
         # optional, regex with one capturing group to automatically extract reply values from the reply
         # implemented only in MD_Command_ParseStr as of now
+        # 
         &#39;reply_pattern&#39;: &#39;&#39;,
 
         # optional, this dict defines limits for value validity for sending data to the device.
@@ -98,6 +99,7 @@ commands = {
         # - &#39;force_min&#39;: minimum value, set to this value if below (precedence over min)
         # - &#39;force_max&#39;: maximum value, set to this value is above (precedence over max)
         # - &#39;valid_list&#39;: list of allowed values, error if not in list
+        # - &#39;valid_list_ci&#39;: ditto, but case insensitive
         &#39;cmd_settings&#39;: {&#39;valid_min&#39;: 0, &#39;valid_max&#39;: 255, &#39;force_min&#39;: 0, &#39;force_max&#39;: 255, &#39;valid_list&#39;: [1, 2, 3, 4, 5]},
 
         # optional, specifies lookup table to use (see below)

@@ -442,12 +442,30 @@ class MD_Commands(object):
         If the reply_token is 'REGEX' and the reply_pattern contains '(MD_LOOKUP)'
         and lookup is set to a valid lookup table, the '(MD_LOOKUP)' identifier is
         replaced with a regex which triggers on any of the possible lookup values.
+
+        The same applies for '(MD_VALID_LIST)' and '(MD_VALID_LIST_CI)'
         """
         for cmd in self._commands:
 
             obj = self._commands[cmd]
-            if obj.lookup and 'REGEX' in obj.reply_token and '(MD_LOOKUP)' in obj.reply_pattern:
+            if 'REGEX' in obj.reply_token:
+                if obj.lookup and '(MD_LOOKUP)' in obj.reply_pattern:
 
-                lu = self._lookups[obj.lookup]['fwd']
-                pattern = '(' + '|'.join(re.escape(key) for key in lu.keys()) + ')'
-                obj.reply_pattern = obj.reply_pattern.replace('(MD_LOOKUP)', pattern)
+                    lu = self._lookups[obj.lookup]['fwd']
+                    pattern = '(' + '|'.join(re.escape(key) for key in lu.keys()) + ')'
+                    obj.reply_pattern = obj.reply_pattern.replace('(MD_LOOKUP)', pattern)
+
+                if obj.settings and 'valid_list' in obj.settings and '(MD_VALID_LIST)' in obj.reply_pattern:
+
+                    vl = obj.settings['valid_list']
+                    pattern = '(' + '|'.join(re.escype(key) for key in vl) + ')'
+                    obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST)', pattern)
+
+                if obj.settings and 'valid_list_ci' in obj.settings and '(MD_VALID_LIST_CI)' in obj.reply_pattern:
+
+                    vl = obj.settings['valid_list_ci']
+                    pattern = '(' + '|'.join(re.escype(key) for key in vl) + ')'
+                    obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST_CI)', pattern)
+
+
+

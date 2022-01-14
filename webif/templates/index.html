@@ -16,10 +16,7 @@
 		try
 			{
 				$('#maintable').DataTable( {} ); // put options into {} if needed
-				$('#itemtable').DataTable( {
-					"paging": false,
-					"fixedHeader": true,
-				} ); 
+				$('#itemtable').DataTable( {} ); 
 			}
 		catch (e)
 			{
@@ -27,12 +24,12 @@
 			}
 
 	    $("#button_pressed").submit(function(e) {
-	 
+
 			e.preventDefault();
 
 			// just do it
 	        $.post('submit', {button: $("#button").val(), param: $("#param").val()}, function(data) {
- 
+
 	            // and set the title with the result
  				update_buttons(data);
 		    });
@@ -49,7 +46,7 @@
 	    		elem.fadeTo(400, 1);
     		}
     }
-    
+
     function update_buttons(data) {
     	for (var dev in data.running) {
     		if (data.running[dev]) {
@@ -68,7 +65,7 @@
     	if (data.notify) {
     		var elem = $("#" + data.notify);
     		show_hide(elem, false);
-    		setTimeout(function() { show_hide(elem, true) }, 1500); 
+    		setTimeout(function() { show_hide(elem, true) }, 1500);
     	}
     }
 
@@ -131,7 +128,7 @@
 		    		<td colspan="3"><strong>{{ dev }}</strong></td>
 		    		<td>
 						<button id="{{dev}}-run" {% if running[dev] %}style="display: none" {% else %}style="display: block"{% endif %} class="btn btn-shng btn-sm" type="button" onclick="$('#button').val('run#{{ dev }}');$('#button_pressed').submit();">{{ _('Start') }}</button>
-						<button id="{{dev}}-stop" class="btn btn-shng btn-sm" {% if not running[dev] %}style="display: none" {% else %}style="display: block"{% endif %}type="button" onclick="$('#button').val('stop#{{ dev }}');$('#button_pressed').submit();">{{ _('Stop') }}</button>		    			
+						<button id="{{dev}}-stop" class="btn btn-shng btn-sm" {% if not running[dev] %}style="display: none" {% else %}style="display: block"{% endif %}type="button" onclick="$('#button').val('stop#{{ dev }}');$('#button_pressed').submit();">{{ _('Stop') }}</button>
 		    		</td>
 		    	</tr>
 		    	<tr>
@@ -151,7 +148,7 @@
 		    		<td>&nbsp;</td>
 		    				{%- endif %}
     				<td>{{ arg }}</td>
-    				<td> 
+    				<td>
     					<input class="{{dev}}-set" type="{% if devices[dev]['params'][arg] is sameas true or devices[dev]['params'][arg] is sameas false %}checkbox{% elif devices[dev]['params'][arg] is number %}number{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is sameas true or devices[dev]['params'][arg] is sameas false %}{{ _('Bool') }}{% elif devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% else %}{{ _('String') }}{% endif %}) <span id="{{ dev }}-{{ arg }}-notify" style="visibility: hidden; opacity: 0; background-color: green;">{{ _('übernommen') }}</span>
     				</td>
     				<td><button class="btn btn-shng btn-sm {{dev}}-set" type="button" onclick="var fval=$('#{{ dev }}-{{ arg }}').val();$('#param').val(fval);$('#button').val('{{ dev }}.{{ arg }}');$('#button_pressed').submit();" {% if running[dev] %} disabled{% endif %}>{{ _('Setzen') }}</button></td>

@@ -9,22 +9,37 @@
 	Additional script tag for plugin specific javascript code go into this block
 -->
 {% block pluginscripts %}
-/*
- * The combined file was created by the DataTables downloader builder:
- *   https://datatables.net/download
- *
- * To rebuild or modify this file with the latest versions of the included
- * software please visit:
- *   https://datatables.net/download/#dt/dt-1.10.21/fh-3.1.7/r-2.2.5
- *
- * Included libraries:
- *   DataTables 1.10.21, FixedHeader 3.1.7, Responsive 2.2.5
- */
-<link rel="stylesheet" type="text/css" href="static/datatables_min.css">
-<script type="text/javascript" charset="utf8" src="static/datatables_min.js"></script>
-<script type="text/javascript" charset="utf8" src="static/renderjson.js"></script>
 
-<script type="text/javascript">
+<script>
+    $(document).ready( function () {
+		$(window).trigger('datatables_defaults');
+		try
+			{
+				$('#maintable').DataTable( {} ); // put options into {} if needed
+				$('#itemtable').DataTable( {
+					"paging": false,
+					"fixedHeader": true,
+				} ); 
+			}
+		catch (e)
+			{
+				console.log("Datatable JS not loaded, showing standard table without reorder option " + e)
+			}
+
+	    $("#button_pressed").submit(function(e) {
+	 
+			e.preventDefault();
+
+			// just do it
+	        $.post('submit', {button: $("#button").val(), param: $("#param").val()}, function(data) {
+ 
+	            // and set the title with the result
+ 				update_buttons(data);
+		    });
+    	    return false ;
+	    });
+
+	});
 
     function show_hide(elem, hide) {
     		if (hide) {
@@ -57,49 +72,6 @@
     	}
     }
 
-	$(document).ready( function () {
-	    $('#itemtable').DataTable( {
-	        "paging": false,
-	        fixedHeader: true
-	        } );
-
-
-	    $("#button_pressed").submit(function(e) {
-	 
-			e.preventDefault();
-
-			// just do it
-	        $.post('submit', {button: $("#button").val(), param: $("#param").val()}, function(data) {
- 
-	            // and set the title with the result
- 				update_buttons(data);
-
-				/* old stuff, keep just in case...
-
-	            var cmd = data.last.cmd;
-	            var val = data.last.val;
-
-	            if (cmd != '') {
-	            	$("#last_read_cmd").html(data.last.cmd + ": ")
-	            	$("#last_read_val").html(data.last.val)
-	            } else {
-	            	$("#last_read_cmd").html("---")
-	            	$("#last_read_val").html("")
-
-	            }
-
-				for (var key in data) {
-					if (key != 'last') {
-						$("#addr"+key).html(data[key].val)
-					}
-				}
-				*/
-
-		    });
-    	    return false ;
-	    });
-
-	});
 </script>
 {% endblock pluginscripts %}
 
@@ -142,7 +114,7 @@
 <!--
 	Define the number of tabs for the body of the web interface (1 - 3)
 -->
-{% set tabcount = 3 %}
+{% set tabcount = 2 %}
 
 {% set tab1title = "<strong>" ~ _('Geräte') ~ "</strong>" %}
 {% block bodytab1 %}
@@ -155,7 +127,7 @@
 		    <table class="table table-hover">
 			{% for dev in devices %}
 		    	<tr>
-		    		<td><strong>{{ _('Gerät') }}:</strong></td>
+		    		<td><strong>{{ _('Geräte-ID') }}:</strong></td>
 		    		<td colspan="3"><strong>{{ dev }}</strong></td>
 		    		<td>
 						<button id="{{dev}}-run" {% if running[dev] %}style="display: none" {% else %}style="display: block"{% endif %} class="btn btn-shng btn-sm" type="button" onclick="$('#button').val('run#{{ dev }}');$('#button_pressed').submit();">{{ _('Start') }}</button>
@@ -164,8 +136,8 @@
 		    	</tr>
 		    	<tr>
 		    		<td>&nbsp;</td>
-		    		<td>{{ _('Geräte-ID') }}:</td>
-		    		<td colspan="2">{{ devices[dev]['id'] }}</td>
+		    		<td>{{ _('Geräte-Typ') }}:</td>
+		    		<td colspan="2">{{ devices[dev]['device_type'] }}</td>
 		    		<td>&nbsp;</td>
 		    	</tr>
 		    	<tr>
@@ -262,10 +234,6 @@
 {% block bodytab3 %}
 <div class="table-responsive" style="margin-left: 2px; margin-right: 2px;" class="row">
 	<div id="tree" class="col-sm-12">
-		<script>
-			var tree={{tree}};
-			document.getElementById("tree").appendChild(renderjson(tree));
-		</script>
 	</div>
 </div>
 {% endblock bodytab3 %}

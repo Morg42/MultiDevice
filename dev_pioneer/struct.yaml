@@ -328,6 +328,8 @@ zone1:
                     md_read: True
                     md_write: True
                     md_read_group: ['zone1', 'zone1.settings', 'zone1.settings.sound', 'zone1.settings.sound.tone_control']
+                    md_read_initial: True
+                    on_change: sh...read(True) if value else None
 
                 treble:
                     type: num
@@ -1120,6 +1122,8 @@ ALL:
                         md_read: True
                         md_write: True
                         md_read_group: ['ALL', 'ALL.zone1', 'ALL.zone1.settings', 'ALL.zone1.settings.sound', 'ALL.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -1724,6 +1728,8 @@ SC-LX87:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX87', 'SC-LX87.zone1', 'SC-LX87.zone1.settings', 'SC-LX87.zone1.settings.sound', 'SC-LX87.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -2530,6 +2536,8 @@ SC-LX77:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX77', 'SC-LX77.zone1', 'SC-LX77.zone1.settings', 'SC-LX77.zone1.settings.sound', 'SC-LX77.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -3336,6 +3344,8 @@ SC-LX57:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-LX57', 'SC-LX57.zone1', 'SC-LX57.zone1.settings', 'SC-LX57.zone1.settings.sound', 'SC-LX57.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -4128,6 +4138,8 @@ SC-2023:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-2023', 'SC-2023.zone1', 'SC-2023.zone1.settings', 'SC-2023.zone1.settings.sound', 'SC-2023.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -4920,6 +4932,8 @@ SC-1223:
                         md_read: True
                         md_write: True
                         md_read_group: ['SC-1223', 'SC-1223.zone1', 'SC-1223.zone1.settings', 'SC-1223.zone1.settings.sound', 'SC-1223.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -5584,6 +5598,8 @@ VSX-1123:
                         md_read: True
                         md_write: True
                         md_read_group: ['VSX-1123', 'VSX-1123.zone1', 'VSX-1123.zone1.settings', 'VSX-1123.zone1.settings.sound', 'VSX-1123.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num
@@ -6174,6 +6190,8 @@ VSX-923:
                         md_read: True
                         md_write: True
                         md_read_group: ['VSX-923', 'VSX-923.zone1', 'VSX-923.zone1.settings', 'VSX-923.zone1.settings.sound', 'VSX-923.zone1.settings.sound.tone_control']
+                        md_read_initial: True
+                        on_change: sh...read(True) if value else None
 
                     treble:
                         type: num

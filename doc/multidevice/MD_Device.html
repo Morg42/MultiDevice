@@ -468,7 +468,7 @@ class MD_Device(object):
             info_file = &#39;plugins/multidevice/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
         else:
             info_file = &#39;/&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + &#39;/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
-        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
+        self._device_config = yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
 
         # if derived class sets defaults before calling us, they must not be
         # overwritten
@@ -1181,7 +1181,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             info_file = &#39;plugins/multidevice/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
         else:
             info_file = &#39;/&#39;.join(__name__.split(&#39;.&#39;)[:-1]) + &#39;/dev_&#39; + self.device_type + &#39;/device.yaml&#39;
-        yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
+        self._device_config = yaml = yaml_load(info_file, ordered=False, ignore_notfound=True)
 
         # if derived class sets defaults before calling us, they must not be
         # overwritten

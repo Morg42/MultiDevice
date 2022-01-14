@@ -22,6 +22,7 @@
  */
 <link rel="stylesheet" type="text/css" href="static/datatables_min.css">
 <script type="text/javascript" charset="utf8" src="static/datatables_min.js"></script>
+<script type="text/javascript" charset="utf8" src="static/renderjson.js"></script>
 
 <script type="text/javascript">
 
@@ -141,7 +142,7 @@
 <!--
 	Define the number of tabs for the body of the web interface (1 - 3)
 -->
-{% set tabcount = 2 %}
+{% set tabcount = 3 %}
 
 {% set tab1title = "<strong>" ~ _('Geräte') ~ "</strong>" %}
 {% block bodytab1 %}
@@ -179,7 +180,7 @@
 		    				{%- endif %}
     				<td>{{ arg }}</td>
     				<td> 
-    					<input class="{{dev}}-set" type="{% if devices[dev]['params'][arg] is number %}number{% elif devices[dev]['params'][arg] is sameas true or devices[dev]['params'][arg] is sameas false %}checkbox{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% elif devices[dev]['params'][arg] is sameas true or devices[dev]['params'][arg] is sameas false %}{{ _('Bool') }}{% else %}{{ _('String') }}{% endif %}) <span id="{{ dev }}-{{ arg }}-notify" style="visibility: hidden; opacity: 0; background-color: green;">{{ _('übernommen') }}</span>
+    					<input class="{{dev}}-set" type="{% if devices[dev]['params'][arg] is sameas true or devices[dev]['params'][arg] is sameas false %}checkbox{% elif devices[dev]['params'][arg] is number %}number{% else %}text{% endif %}" id="{{ dev }}-{{ arg }}" name="{{ dev }}-{{ arg }}" title="{{ arg }}" value="{{ devices[dev]['params'][arg] }}" /> ({{ _('Typ') }}: {% if devices[dev]['params'][arg] is sameas true or devices[dev]['params'][arg] is sameas false %}{{ _('Bool') }}{% elif devices[dev]['params'][arg] is number %}{{ _('Zahl') }}{% else %}{{ _('String') }}{% endif %}) <span id="{{ dev }}-{{ arg }}-notify" style="visibility: hidden; opacity: 0; background-color: green;">{{ _('übernommen') }}</span>
     				</td>
     				<td><button class="btn btn-shng btn-sm {{dev}}-set" type="button" onclick="var fval=$('#{{ dev }}-{{ arg }}').val();$('#param').val(fval);$('#button').val('{{ dev }}.{{ arg }}');$('#button_pressed').submit();" {% if running[dev] %} disabled{% endif %}>{{ _('Setzen') }}</button></td>
     			</tr>
@@ -257,7 +258,16 @@
 
 	It has to be defined before (and outside) the block bodytab3
 -->
+{% set tab3title = "<strong> Items (Baum) </strong> (" ~ plgitems|length ~ ")" %}
 {% block bodytab3 %}
+<div class="table-responsive" style="margin-left: 2px; margin-right: 2px;" class="row">
+	<div id="tree" class="col-sm-12">
+		<script>
+			var tree={{tree}};
+			document.getElementById("tree").appendChild(renderjson(tree));
+		</script>
+	</div>
+</div>
 {% endblock bodytab3 %}
 
 

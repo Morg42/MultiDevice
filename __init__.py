@@ -522,7 +522,7 @@ information in items immediately, or if multiple data points are trans- mitted
 at one, which requires splitting or other means of data management.
 """
 
-from collections import OrderedDict, abc
+from collections import OrderedDict
 
 import importlib
 import builtins
@@ -530,12 +530,10 @@ import logging
 import re
 import os
 import sys
-import cherrypy
-import json
 from copy import deepcopy
 from ast import literal_eval
 
-__pdoc__ = {'multidevice.tools': False}
+__pdoc__ = {'multidevice.tools': False, 'multidevice.webif': False}
 
 if __name__ == '__main__':
     # just needed for standalone mode
@@ -556,11 +554,11 @@ if __name__ == '__main__':
 else:
     builtins.MD_standalone = False
 
-    from lib.item import Items
-    from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+    from lib.model.smartplugin import SmartPlugin
     import lib.shyaml as shyaml
 
     from .MD_Globals import *
+    from .webif import WebInterface
 
 
 #############################################################################################################################################################################################################################################
@@ -603,6 +601,8 @@ class MultiDevice(SmartPlugin):
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {<command>: {'cycle': <cycle>, 'next': <next>}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - <device_id>: ['grp', 'grp', ...]
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {<grp>: {'cycle': <cycle>, 'next': <next>}}
+
+        self._webif = None
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()
@@ -1105,129 +1105,9 @@ class MultiDevice(SmartPlugin):
 
 #############################################################################################################################################################################################################################################
 #
-# class WebInterface
-#
-#############################################################################################################################################################################################################################################
-
-class WebInterface(SmartPluginWebIf):
-
-    def __init__(self, webif_dir, plugin):
-        """
-        Initialization of instance of class WebInterface
-
-        :param webif_dir: directory where the webinterface of the plugin resides
-        :param plugin: instance of the plugin
-        :type webif_dir: str
-        :type plugin: object
-        """
-        self.logger = plugin.logger
-        self.webif_dir = webif_dir
-        self.plugin = plugin
-        self.items = Items.get_instance()
-
-        self.tplenv = self.init_template_environment()
-
-    @cherrypy.expose
-    def index(self, reload=None):
-        """
-        Build index.html for cherrypy
-
-        Render the template and return the html file to be delivered to the browser
-
-        :return: contents of the template after beeing rendered
-        """
-        tmpl = self.tplenv.get_template('index.html')
-        # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
-
-        plgitems = []
-        for item in self.items.return_items():
-            if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
-                plgitems.append(item)
-
-        return tmpl.render(p=self.plugin,
-                           items=sorted(self.items.return_items(), key=lambda k: str.lower(k['_path'])),
-                           item_count=0,
-                           plgitems=plgitems,
-                           running={dev: self.plugin._devices[dev]['device'].alive for dev in self.plugin._devices},
-                           devices=self.plugin._devices)
-
-    @cherrypy.expose
-    def submit(self, button=None, param=None):
-        """
-        Submit handler for Ajax
-        """
-        if button is not None:
-
-            notify = None
-
-            if '#' in button:
-
-                # run/stop command
-                cmd, __, dev = button.partition('#')
-                device = self.plugin._get_device(dev)
-                if device:
-                    if cmd == 'run':
-                        self.logger.info(f'Webinterface starting device {dev}')
-                        device.start()
-                    elif cmd == 'stop':
-                        self.logger.info(f'Webinterface stopping device {dev}')
-                        device.stop()
-            elif '.' in button:
-
-                # set device arg - but only when stopped
-                dev, __, arg = button.partition('.')
-                if param is not None:
-                    param = sanitize_param(param)
-                    try:
-                        self.logger.info(f'Webinterface setting param {arg} of device {dev} to {param}')
-                        self.plugin._devices[dev]['params'][arg] = param
-                        self.plugin._update_device_params(dev)
-                        notify = dev + '-' + arg + '-notify'
-                    except Exception as e:
-                        self.logger.info(f'Webinterface failed to set param {arg} of device {dev} to {param} with error {e}')
-
-            # # possibly prepare data for returning
-            # read_cmd = self.plugin._commandname_by_commandcode(button)
-            # if read_cmd is not None:
-            #     self._last_read[button] = {'addr': button, 'cmd': read_cmd, 'val': read_val}
-            #     self._last_read['last'] = self._last_read[button]
-
-            data = {'running': {dev: self.plugin._devices[dev]['device'].alive for dev in self.plugin._devices}, 'notify': notify}
-
-        # # possibly return data to WebIf
-        cherrypy.response.headers['Content-Type'] = 'application/json'
-        return json.dumps(data).encode('utf-8')
-
-    @cherrypy.expose
-    def get_data_html(self, dataSet=None):
-        """
-        Return data to update the webpage
-
-        For the standard update mechanism of the web interface, the dataSet to return the data for is None
-
-        :param dataSet: Dataset for which the data should be returned (standard: None)
-        :return: dict with the data needed to update the web page.
-        """
-        if dataSet is None:
-            # get the new data
-            # data = {}
-            pass
-
-            # data['item'] = {}
-            # for i in self.plugin.items:
-            #     data['item'][i]['value'] = self.plugin.getitemvalue(i)
-            #
-            # return it as json the the web page
-            # try:
-            #     return json.dumps(data)
-            # except Exception as e:
-            #     self.logger.error('get_data_html exception: {}'.format(e))
-        return {}
-
-
-#############################################################################################################################################################################################################################################
 #
 # Standalone functions
+#
 #
 #############################################################################################################################################################################################################################################
 
@@ -1237,15 +1117,6 @@ item_tree = {}
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     """ read commands.py and export struct.yaml """
     global item_tree
-
-
-    def update(d, u):
-        for k, v in u.items():
-            if isinstance(v, abc.Mapping):
-                d[k] = update(d.get(k, {}), v)
-            else:
-                d[k] = v
-        return d
 
     def add_item_to_tree(item_path, item_dict):
         """ add entry for custom read group triggers """

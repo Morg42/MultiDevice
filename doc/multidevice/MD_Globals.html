@@ -54,6 +54,7 @@
 
 from lib.utils import Utils
 from ast import literal_eval
+from collections import abc
 import os
 
 
@@ -228,9 +229,13 @@ def sanitize_param(val):
     return val
 
 
-def os_path(path):
-    &#34;&#34;&#34; return path with os specific path separator &#34;&#34;&#34;
-    return os.path.join(path.split(&#39;/&#39;))</code></pre>
+def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d</code></pre>
 </details>
 </section>
 <section>
@@ -240,20 +245,6 @@ def os_path(path):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="multidevice.MD_Globals.os_path"><code class="name flex">
-<span>def <span class="ident">os_path</span></span>(<span>path)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>return path with os specific path separator</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def os_path(path):
-    &#34;&#34;&#34; return path with os specific path separator &#34;&#34;&#34;
-    return os.path.join(path.split(&#39;/&#39;))</code></pre>
-</details>
-</dd>
 <dt id="multidevice.MD_Globals.sanitize_param"><code class="name flex">
 <span>def <span class="ident">sanitize_param</span></span>(<span>val)</span>
 </code></dt>
@@ -300,6 +291,24 @@ def os_path(path):
     return val</code></pre>
 </details>
 </dd>
+<dt id="multidevice.MD_Globals.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>d, u)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -340,8 +349,8 @@ def os_path(path):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="multidevice.MD_Globals.os_path" href="#multidevice.MD_Globals.os_path">os_path</a></code></li>
 <li><code><a title="multidevice.MD_Globals.sanitize_param" href="#multidevice.MD_Globals.sanitize_param">sanitize_param</a></code></li>
+<li><code><a title="multidevice.MD_Globals.update" href="#multidevice.MD_Globals.update">update</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

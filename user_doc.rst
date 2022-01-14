@@ -190,7 +190,10 @@ Derzeit noch nicht weitergehend implementiert.
 Entwicklung von eigenen Geräte-Klassen
 ======================================
 
-Die Entwicklerdokumentation existiert derzeit nur auf englisch.
+Die Entwicklerdokumentation existiert derzeit nur auf englisch. Eine
+detailliertere Dokumentation findet sich im Unterordner ``doc`` des
+Plugin-Verzeichnisses.
+
 
 .. automodule:: plugins.multidevice
 

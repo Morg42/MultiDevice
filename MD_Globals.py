@@ -26,6 +26,7 @@
 
 from lib.utils import Utils
 from ast import literal_eval
+from collections import abc
 import os
 
 
@@ -200,7 +201,10 @@ def sanitize_param(val):
     return val
 
 
-def os_path(path):
-    """ return path with os specific path separator """
-    return os.path.join(path.split('/'))
-
+def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d

@@ -941,7 +941,7 @@ information in items immediately, or if multiple data points are trans- mitted
 at one, which requires splitting or other means of data management.
 &#34;&#34;&#34;
 
-from collections import OrderedDict, abc
+from collections import OrderedDict
 
 import importlib
 import builtins
@@ -949,12 +949,10 @@ import logging
 import re
 import os
 import sys
-import cherrypy
-import json
 from copy import deepcopy
 from ast import literal_eval
 
-__pdoc__ = {&#39;multidevice.tools&#39;: False}
+__pdoc__ = {&#39;multidevice.tools&#39;: False, &#39;multidevice.webif&#39;: False}
 
 if __name__ == &#39;__main__&#39;:
     # just needed for standalone mode
@@ -975,11 +973,11 @@ if __name__ == &#39;__main__&#39;:
 else:
     builtins.MD_standalone = False
 
-    from lib.item import Items
-    from lib.model.smartplugin import SmartPlugin, SmartPluginWebIf
+    from lib.model.smartplugin import SmartPlugin
     import lib.shyaml as shyaml
 
     from .MD_Globals import *
+    from .webif import WebInterface
 
 
 #############################################################################################################################################################################################################################################
@@ -1022,6 +1020,8 @@ class MultiDevice(SmartPlugin):
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {&lt;command&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - &lt;device_id&gt;: [&#39;grp&#39;, &#39;grp&#39;, ...]
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {&lt;grp&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
+
+        self._webif = None
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()
@@ -1524,129 +1524,9 @@ class MultiDevice(SmartPlugin):
 
 #############################################################################################################################################################################################################################################
 #
-# class WebInterface
-#
-#############################################################################################################################################################################################################################################
-
-class WebInterface(SmartPluginWebIf):
-
-    def __init__(self, webif_dir, plugin):
-        &#34;&#34;&#34;
-        Initialization of instance of class WebInterface
-
-        :param webif_dir: directory where the webinterface of the plugin resides
-        :param plugin: instance of the plugin
-        :type webif_dir: str
-        :type plugin: object
-        &#34;&#34;&#34;
-        self.logger = plugin.logger
-        self.webif_dir = webif_dir
-        self.plugin = plugin
-        self.items = Items.get_instance()
-
-        self.tplenv = self.init_template_environment()
-
-    @cherrypy.expose
-    def index(self, reload=None):
-        &#34;&#34;&#34;
-        Build index.html for cherrypy
-
-        Render the template and return the html file to be delivered to the browser
-
-        :return: contents of the template after beeing rendered
-        &#34;&#34;&#34;
-        tmpl = self.tplenv.get_template(&#39;index.html&#39;)
-        # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
-
-        plgitems = []
-        for item in self.items.return_items():
-            if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
-                plgitems.append(item)
-
-        return tmpl.render(p=self.plugin,
-                           items=sorted(self.items.return_items(), key=lambda k: str.lower(k[&#39;_path&#39;])),
-                           item_count=0,
-                           plgitems=plgitems,
-                           running={dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices},
-                           devices=self.plugin._devices)
-
-    @cherrypy.expose
-    def submit(self, button=None, param=None):
-        &#34;&#34;&#34;
-        Submit handler for Ajax
-        &#34;&#34;&#34;
-        if button is not None:
-
-            notify = None
-
-            if &#39;#&#39; in button:
-
-                # run/stop command
-                cmd, __, dev = button.partition(&#39;#&#39;)
-                device = self.plugin._get_device(dev)
-                if device:
-                    if cmd == &#39;run&#39;:
-                        self.logger.info(f&#39;Webinterface starting device {dev}&#39;)
-                        device.start()
-                    elif cmd == &#39;stop&#39;:
-                        self.logger.info(f&#39;Webinterface stopping device {dev}&#39;)
-                        device.stop()
-            elif &#39;.&#39; in button:
-
-                # set device arg - but only when stopped
-                dev, __, arg = button.partition(&#39;.&#39;)
-                if param is not None:
-                    param = sanitize_param(param)
-                    try:
-                        self.logger.info(f&#39;Webinterface setting param {arg} of device {dev} to {param}&#39;)
-                        self.plugin._devices[dev][&#39;params&#39;][arg] = param
-                        self.plugin._update_device_params(dev)
-                        notify = dev + &#39;-&#39; + arg + &#39;-notify&#39;
-                    except Exception as e:
-                        self.logger.info(f&#39;Webinterface failed to set param {arg} of device {dev} to {param} with error {e}&#39;)
-
-            # # possibly prepare data for returning
-            # read_cmd = self.plugin._commandname_by_commandcode(button)
-            # if read_cmd is not None:
-            #     self._last_read[button] = {&#39;addr&#39;: button, &#39;cmd&#39;: read_cmd, &#39;val&#39;: read_val}
-            #     self._last_read[&#39;last&#39;] = self._last_read[button]
-
-            data = {&#39;running&#39;: {dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices}, &#39;notify&#39;: notify}
-
-        # # possibly return data to WebIf
-        cherrypy.response.headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
-        return json.dumps(data).encode(&#39;utf-8&#39;)
-
-    @cherrypy.expose
-    def get_data_html(self, dataSet=None):
-        &#34;&#34;&#34;
-        Return data to update the webpage
-
-        For the standard update mechanism of the web interface, the dataSet to return the data for is None
-
-        :param dataSet: Dataset for which the data should be returned (standard: None)
-        :return: dict with the data needed to update the web page.
-        &#34;&#34;&#34;
-        if dataSet is None:
-            # get the new data
-            # data = {}
-            pass
-
-            # data[&#39;item&#39;] = {}
-            # for i in self.plugin.items:
-            #     data[&#39;item&#39;][i][&#39;value&#39;] = self.plugin.getitemvalue(i)
-            #
-            # return it as json the the web page
-            # try:
-            #     return json.dumps(data)
-            # except Exception as e:
-            #     self.logger.error(&#39;get_data_html exception: {}&#39;.format(e))
-        return {}
-
-
-#############################################################################################################################################################################################################################################
 #
 # Standalone functions
+#
 #
 #############################################################################################################################################################################################################################################
 
@@ -1656,15 +1536,6 @@ item_tree = {}
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
     global item_tree
-
-
-    def update(d, u):
-        for k, v in u.items():
-            if isinstance(v, abc.Mapping):
-                d[k] = update(d.get(k, {}), v)
-            else:
-                d[k] = v
-        return d
 
     def add_item_to_tree(item_path, item_dict):
         &#34;&#34;&#34; add entry for custom read group triggers &#34;&#34;&#34;
@@ -2183,6 +2054,20 @@ if __name__ == &#39;__main__&#39;:
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="multidevice.webif"><code class="name">var <span class="ident">webif</span></code></dt>
+<dd>
+<div class="desc"><p>dummy</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class _BLACKLISTED_DUMMY:
+    pass</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
@@ -2199,15 +2084,6 @@ if __name__ == &#39;__main__&#39;:
 <pre><code class="python">def create_struct_yaml(device, indentwidth=4, write_output=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
     global item_tree
-
-
-    def update(d, u):
-        for k, v in u.items():
-            if isinstance(v, abc.Mapping):
-                d[k] = update(d.get(k, {}), v)
-            else:
-                d[k] = v
-        return d
 
     def add_item_to_tree(item_path, item_dict):
         &#34;&#34;&#34; add entry for custom read group triggers &#34;&#34;&#34;
@@ -2614,6 +2490,8 @@ modules and initializing them by instantiating the proper class.</p></div>
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {&lt;command&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - &lt;device_id&gt;: [&#39;grp&#39;, &#39;grp&#39;, ...]
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {&lt;grp&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
+
+        self._webif = None
 
         # Call init code of parent class (SmartPlugin)
         super().__init__()
@@ -3428,275 +3306,6 @@ SmartHomeNG. It should write the changed value out to the device
 </dd>
 </dl>
 </dd>
-<dt id="multidevice.WebInterface"><code class="flex name class">
-<span>class <span class="ident">WebInterface</span></span>
-<span>(</span><span>webif_dir, plugin)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Initialization of instance of class WebInterface</p>
-<p>:param webif_dir: directory where the webinterface of the plugin resides
-:param plugin: instance of the plugin
-:type webif_dir: str
-:type plugin: object</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class WebInterface(SmartPluginWebIf):
-
-    def __init__(self, webif_dir, plugin):
-        &#34;&#34;&#34;
-        Initialization of instance of class WebInterface
-
-        :param webif_dir: directory where the webinterface of the plugin resides
-        :param plugin: instance of the plugin
-        :type webif_dir: str
-        :type plugin: object
-        &#34;&#34;&#34;
-        self.logger = plugin.logger
-        self.webif_dir = webif_dir
-        self.plugin = plugin
-        self.items = Items.get_instance()
-
-        self.tplenv = self.init_template_environment()
-
-    @cherrypy.expose
-    def index(self, reload=None):
-        &#34;&#34;&#34;
-        Build index.html for cherrypy
-
-        Render the template and return the html file to be delivered to the browser
-
-        :return: contents of the template after beeing rendered
-        &#34;&#34;&#34;
-        tmpl = self.tplenv.get_template(&#39;index.html&#39;)
-        # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
-
-        plgitems = []
-        for item in self.items.return_items():
-            if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
-                plgitems.append(item)
-
-        return tmpl.render(p=self.plugin,
-                           items=sorted(self.items.return_items(), key=lambda k: str.lower(k[&#39;_path&#39;])),
-                           item_count=0,
-                           plgitems=plgitems,
-                           running={dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices},
-                           devices=self.plugin._devices)
-
-    @cherrypy.expose
-    def submit(self, button=None, param=None):
-        &#34;&#34;&#34;
-        Submit handler for Ajax
-        &#34;&#34;&#34;
-        if button is not None:
-
-            notify = None
-
-            if &#39;#&#39; in button:
-
-                # run/stop command
-                cmd, __, dev = button.partition(&#39;#&#39;)
-                device = self.plugin._get_device(dev)
-                if device:
-                    if cmd == &#39;run&#39;:
-                        self.logger.info(f&#39;Webinterface starting device {dev}&#39;)
-                        device.start()
-                    elif cmd == &#39;stop&#39;:
-                        self.logger.info(f&#39;Webinterface stopping device {dev}&#39;)
-                        device.stop()
-            elif &#39;.&#39; in button:
-
-                # set device arg - but only when stopped
-                dev, __, arg = button.partition(&#39;.&#39;)
-                if param is not None:
-                    param = sanitize_param(param)
-                    try:
-                        self.logger.info(f&#39;Webinterface setting param {arg} of device {dev} to {param}&#39;)
-                        self.plugin._devices[dev][&#39;params&#39;][arg] = param
-                        self.plugin._update_device_params(dev)
-                        notify = dev + &#39;-&#39; + arg + &#39;-notify&#39;
-                    except Exception as e:
-                        self.logger.info(f&#39;Webinterface failed to set param {arg} of device {dev} to {param} with error {e}&#39;)
-
-            # # possibly prepare data for returning
-            # read_cmd = self.plugin._commandname_by_commandcode(button)
-            # if read_cmd is not None:
-            #     self._last_read[button] = {&#39;addr&#39;: button, &#39;cmd&#39;: read_cmd, &#39;val&#39;: read_val}
-            #     self._last_read[&#39;last&#39;] = self._last_read[button]
-
-            data = {&#39;running&#39;: {dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices}, &#39;notify&#39;: notify}
-
-        # # possibly return data to WebIf
-        cherrypy.response.headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
-        return json.dumps(data).encode(&#39;utf-8&#39;)
-
-    @cherrypy.expose
-    def get_data_html(self, dataSet=None):
-        &#34;&#34;&#34;
-        Return data to update the webpage
-
-        For the standard update mechanism of the web interface, the dataSet to return the data for is None
-
-        :param dataSet: Dataset for which the data should be returned (standard: None)
-        :return: dict with the data needed to update the web page.
-        &#34;&#34;&#34;
-        if dataSet is None:
-            # get the new data
-            # data = {}
-            pass
-
-            # data[&#39;item&#39;] = {}
-            # for i in self.plugin.items:
-            #     data[&#39;item&#39;][i][&#39;value&#39;] = self.plugin.getitemvalue(i)
-            #
-            # return it as json the the web page
-            # try:
-            #     return json.dumps(data)
-            # except Exception as e:
-            #     self.logger.error(&#39;get_data_html exception: {}&#39;.format(e))
-        return {}</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>lib.model.smartplugin.SmartPluginWebIf</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="multidevice.WebInterface.get_data_html"><code class="name flex">
-<span>def <span class="ident">get_data_html</span></span>(<span>self, dataSet=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Return data to update the webpage</p>
-<p>For the standard update mechanism of the web interface, the dataSet to return the data for is None</p>
-<p>:param dataSet: Dataset for which the data should be returned (standard: None)
-:return: dict with the data needed to update the web page.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@cherrypy.expose
-def get_data_html(self, dataSet=None):
-    &#34;&#34;&#34;
-    Return data to update the webpage
-
-    For the standard update mechanism of the web interface, the dataSet to return the data for is None
-
-    :param dataSet: Dataset for which the data should be returned (standard: None)
-    :return: dict with the data needed to update the web page.
-    &#34;&#34;&#34;
-    if dataSet is None:
-        # get the new data
-        # data = {}
-        pass
-
-        # data[&#39;item&#39;] = {}
-        # for i in self.plugin.items:
-        #     data[&#39;item&#39;][i][&#39;value&#39;] = self.plugin.getitemvalue(i)
-        #
-        # return it as json the the web page
-        # try:
-        #     return json.dumps(data)
-        # except Exception as e:
-        #     self.logger.error(&#39;get_data_html exception: {}&#39;.format(e))
-    return {}</code></pre>
-</details>
-</dd>
-<dt id="multidevice.WebInterface.index"><code class="name flex">
-<span>def <span class="ident">index</span></span>(<span>self, reload=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Build index.html for cherrypy</p>
-<p>Render the template and return the html file to be delivered to the browser</p>
-<p>:return: contents of the template after beeing rendered</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@cherrypy.expose
-def index(self, reload=None):
-    &#34;&#34;&#34;
-    Build index.html for cherrypy
-
-    Render the template and return the html file to be delivered to the browser
-
-    :return: contents of the template after beeing rendered
-    &#34;&#34;&#34;
-    tmpl = self.tplenv.get_template(&#39;index.html&#39;)
-    # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
-
-    plgitems = []
-    for item in self.items.return_items():
-        if any(elem in item.property.attributes for elem in [ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_ALL]):
-            plgitems.append(item)
-
-    return tmpl.render(p=self.plugin,
-                       items=sorted(self.items.return_items(), key=lambda k: str.lower(k[&#39;_path&#39;])),
-                       item_count=0,
-                       plgitems=plgitems,
-                       running={dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices},
-                       devices=self.plugin._devices)</code></pre>
-</details>
-</dd>
-<dt id="multidevice.WebInterface.submit"><code class="name flex">
-<span>def <span class="ident">submit</span></span>(<span>self, button=None, param=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Submit handler for Ajax</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@cherrypy.expose
-def submit(self, button=None, param=None):
-    &#34;&#34;&#34;
-    Submit handler for Ajax
-    &#34;&#34;&#34;
-    if button is not None:
-
-        notify = None
-
-        if &#39;#&#39; in button:
-
-            # run/stop command
-            cmd, __, dev = button.partition(&#39;#&#39;)
-            device = self.plugin._get_device(dev)
-            if device:
-                if cmd == &#39;run&#39;:
-                    self.logger.info(f&#39;Webinterface starting device {dev}&#39;)
-                    device.start()
-                elif cmd == &#39;stop&#39;:
-                    self.logger.info(f&#39;Webinterface stopping device {dev}&#39;)
-                    device.stop()
-        elif &#39;.&#39; in button:
-
-            # set device arg - but only when stopped
-            dev, __, arg = button.partition(&#39;.&#39;)
-            if param is not None:
-                param = sanitize_param(param)
-                try:
-                    self.logger.info(f&#39;Webinterface setting param {arg} of device {dev} to {param}&#39;)
-                    self.plugin._devices[dev][&#39;params&#39;][arg] = param
-                    self.plugin._update_device_params(dev)
-                    notify = dev + &#39;-&#39; + arg + &#39;-notify&#39;
-                except Exception as e:
-                    self.logger.info(f&#39;Webinterface failed to set param {arg} of device {dev} to {param} with error {e}&#39;)
-
-        # # possibly prepare data for returning
-        # read_cmd = self.plugin._commandname_by_commandcode(button)
-        # if read_cmd is not None:
-        #     self._last_read[button] = {&#39;addr&#39;: button, &#39;cmd&#39;: read_cmd, &#39;val&#39;: read_val}
-        #     self._last_read[&#39;last&#39;] = self._last_read[button]
-
-        data = {&#39;running&#39;: {dev: self.plugin._devices[dev][&#39;device&#39;].alive for dev in self.plugin._devices}, &#39;notify&#39;: notify}
-
-    # # possibly return data to WebIf
-    cherrypy.response.headers[&#39;Content-Type&#39;] = &#39;application/json&#39;
-    return json.dumps(data).encode(&#39;utf-8&#39;)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 </dl>
 </section>
 </article>
@@ -3733,6 +3342,11 @@ def submit(self, button=None, param=None):
 <li><code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="multidevice.webif" href="#multidevice.webif">webif</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="multidevice.create_struct_yaml" href="#multidevice.create_struct_yaml">create_struct_yaml</a></code></li>
@@ -3749,14 +3363,6 @@ def submit(self, button=None, param=None):
 <li><code><a title="multidevice.MultiDevice.run" href="#multidevice.MultiDevice.run">run</a></code></li>
 <li><code><a title="multidevice.MultiDevice.stop" href="#multidevice.MultiDevice.stop">stop</a></code></li>
 <li><code><a title="multidevice.MultiDevice.update_item" href="#multidevice.MultiDevice.update_item">update_item</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="multidevice.WebInterface" href="#multidevice.WebInterface">WebInterface</a></code></h4>
-<ul class="">
-<li><code><a title="multidevice.WebInterface.get_data_html" href="#multidevice.WebInterface.get_data_html">get_data_html</a></code></li>
-<li><code><a title="multidevice.WebInterface.index" href="#multidevice.WebInterface.index">index</a></code></li>
-<li><code><a title="multidevice.WebInterface.submit" href="#multidevice.WebInterface.submit">submit</a></code></li>
 </ul>
 </li>
 </ul>

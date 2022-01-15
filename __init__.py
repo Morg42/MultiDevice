@@ -958,6 +958,8 @@ class MultiDevice(SmartPlugin):
                 item = self._commands_read[device_id][command]
                 dev_log.debug(f'Command {command} updated item {item.id()} with value {value}')
                 item(value, self.get_shortname() + '.' + device_id)
+            elif not self._get_device.is_valid_command(command, COMMAND_READ):
+                dev_log.debug(f'Command {command} yielded value {value}, but not configured for reading, discarding data')
             else:
                 dev_log.warning(f'Command {command} yielded value {value}, not assigned to any item, discarding data')
 

@@ -442,7 +442,7 @@ class MD_Commands(object):
         and lookup is set to a valid lookup table, the '(MD_LOOKUP)' identifier is
         replaced with a regex which triggers on any of the possible lookup values.
 
-        The same applies for '(MD_VALID_LIST)' and '(MD_VALID_LIST_CI)'
+        The same applies for '(MD_VALID_LIST)', but not for '(MD_VALID_LIST_CI)'
         """
         for cmd in self._commands:
 
@@ -459,9 +459,3 @@ class MD_Commands(object):
                     vl = obj.cmd_settings['valid_list']
                     pattern = '(' + '|'.join(re.escape(key) for key in vl) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST)', pattern)
-
-                if obj.cmd_settings and 'valid_list_ci' in obj.cmd_settings and '(MD_VALID_LIST_CI)' in obj.reply_pattern:
-
-                    vl = obj.cmd_settings['valid_list_ci']
-                    pattern = '(' + '|'.join(re.escape(key) for key in vl) + ')'
-                    obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST_CI)', pattern)

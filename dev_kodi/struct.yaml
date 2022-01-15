@@ -42,7 +42,7 @@ info:
         md_read_group: ['info']
 
     streams:
-        type: dict
+        type: list
         md_device: DEVICENAME
         md_command: info.streams
         md_read: true
@@ -151,97 +151,85 @@ control:
         type: bool
         md_device: DEVICENAME
         md_command: control.playpause
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     seek:
         type: num
         md_device: DEVICENAME
         md_command: control.seek
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     audio:
-        type: str
+        type: foo
         md_device: DEVICENAME
         md_command: control.audio
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     speed:
         type: num
         md_device: DEVICENAME
         md_command: control.speed
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     subtitle:
-        type: str
+        type: foo
         md_device: DEVICENAME
         md_command: control.subtitle
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     stop:
         type: bool
         md_device: DEVICENAME
         md_command: control.stop
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     goto:
         type: str
         md_device: DEVICENAME
         md_command: control.goto
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     power:
         type: bool
         md_device: DEVICENAME
         md_command: control.power
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     quit:
         type: bool
         md_device: DEVICENAME
         md_command: control.quit
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     mute:
         type: bool
         md_device: DEVICENAME
         md_command: control.mute
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     volume:
         type: num
         md_device: DEVICENAME
         md_command: control.volume
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
     action:
         type: str
         md_device: DEVICENAME
         md_command: control.action
-        md_read: true
+        md_read: false
         md_write: true
-        md_read_group: ['control']
 
 ALL:
 
@@ -292,7 +280,7 @@ ALL:
             md_read_group: ['ALL', 'ALL.info']
 
         streams:
-            type: dict
+            type: list
             md_device: DEVICENAME
             md_command: info.streams
             md_read: true
@@ -401,95 +389,83 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: control.playpause
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         seek:
             type: num
             md_device: DEVICENAME
             md_command: control.seek
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         audio:
-            type: str
+            type: foo
             md_device: DEVICENAME
             md_command: control.audio
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         speed:
             type: num
             md_device: DEVICENAME
             md_command: control.speed
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         subtitle:
-            type: str
+            type: foo
             md_device: DEVICENAME
             md_command: control.subtitle
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         stop:
             type: bool
             md_device: DEVICENAME
             md_command: control.stop
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         goto:
             type: str
             md_device: DEVICENAME
             md_command: control.goto
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         power:
             type: bool
             md_device: DEVICENAME
             md_command: control.power
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         quit:
             type: bool
             md_device: DEVICENAME
             md_command: control.quit
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         mute:
             type: bool
             md_device: DEVICENAME
             md_command: control.mute
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         volume:
             type: num
             md_device: DEVICENAME
             md_command: control.volume
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 
         action:
             type: str
             md_device: DEVICENAME
             md_command: control.action
-            md_read: true
+            md_read: false
             md_write: true
-            md_read_group: ['ALL', 'ALL.control']
 

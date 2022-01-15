@@ -50,7 +50,7 @@ parameters:
     # nicht ändern
     command_class:
         type: str
-        default: MD_Command_Json
+        default: MD_Command_JSON
         description: 'Name der Klasse für Commands'
 
     # nicht ändern

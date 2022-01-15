@@ -314,7 +314,7 @@ class MD_Device(MD_Device):
                 return False
 
         if command in self._special_commands['read' if value is None else 'write']:
-            if command == 'update':
+            if command == 'status.update':
                 if value:
                     self._update_status()
                 return True

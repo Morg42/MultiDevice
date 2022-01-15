@@ -64,7 +64,7 @@ class MD_Command(object):
     item_type = None
     reply_token = []
     reply_pattern = ''
-    settings = None
+    cmd_settings = None
     lookup = None
     _DT = None
 

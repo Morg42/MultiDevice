@@ -454,14 +454,14 @@ class MD_Commands(object):
                     pattern = '(' + '|'.join(re.escape(key) for key in lu.keys()) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_LOOKUP)', pattern)
 
-                if obj.settings and 'valid_list' in obj.settings and '(MD_VALID_LIST)' in obj.reply_pattern:
+                if obj.cmd_settings and 'valid_list' in obj.cmd_settings and '(MD_VALID_LIST)' in obj.reply_pattern:
 
-                    vl = obj.settings['valid_list']
+                    vl = obj.cmd_settings['valid_list']
                     pattern = '(' + '|'.join(re.escape(key) for key in vl) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST)', pattern)
 
-                if obj.settings and 'valid_list_ci' in obj.settings and '(MD_VALID_LIST_CI)' in obj.reply_pattern:
+                if obj.cmd_settings and 'valid_list_ci' in obj.cmd_settings and '(MD_VALID_LIST_CI)' in obj.reply_pattern:
 
-                    vl = obj.settings['valid_list_ci']
+                    vl = obj.cmd_settings['valid_list_ci']
                     pattern = '(' + '|'.join(re.escape(key) for key in vl) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST_CI)', pattern)

@@ -121,6 +121,10 @@ commands = {
                     # name of read group
                     'name': '<read group 1>',
                     # item path of trigger item to create
+                    # item location is "in" current item (as sub-item)
+                    # item path is relative, each leading dot means "up 1 level"
+                    # so '.sibling' and 'child' are possible as well as
+                    # '...some.other.path'
                     'trigger': 'path.to.item'
                 },
                 {

@@ -683,11 +683,11 @@ item_templates = {
         'on_change': ['.speakera = True if value in [1, 3] else False', '.speakerb = True if value in [2, 3] else False'],
         'speakera': {
             'type': 'bool',
-            'on_change': '..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 1 if value is False else sh...speakers() + 1'
+            'on_change': '...speakers = None if sh..self.changed_by().startswith("On_Change") else sh....speakers() - 1 if value is False else sh....speakers() + 1'
             },
         'speakerb': {
             'type': 'bool',
-            'on_change': '..speakers = None if sh..self.changed_by().startswith("On_Change") else sh...speakers() - 2 if value is False else sh...speakers() + 2'
+            'on_change': '...speakers = None if sh..self.changed_by().startswith("On_Change") else sh....speakers() - 2 if value is False else sh....speakers() + 2'
             }
     },
     'power': {

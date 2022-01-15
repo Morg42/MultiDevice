@@ -112,7 +112,7 @@ item_attributes:
             de: 'Legt das angegebene Kommando für das Item fest'
             en: 'Assigns the given command to the item'
     md_read:
-        type: str
+        type: bool
         description:
             de: 'Liest/erhält Werte vom Gerät'
             en: 'Reads/receives data from the device'
@@ -132,7 +132,7 @@ item_attributes:
             de: 'Legt fest, dass der Wert beim Start vom Gerät gelesen wird'
             en: 'Sets item value to be read from the device on startup'
     md_write:
-        type: str
+        type: bool
         description:
             de: 'Änderung des Items werden an das Gerät gesendet'
             en: 'Changes to this item will be sent to the device'

@@ -379,9 +379,9 @@ class MD_Commands(object):
                     kw[arg] = commands[cmd][arg]
 
             # if valid_list_ci is present in settings, convert all str elements to lowercase only once
-            if 'settings' in kw:
-                if 'valid_list_ci' in kw['settings']:
-                    kw['settings']['valid_list_ci'] = [entry.lower() if isinstance(entry, str) else entry for entry in kw['settings']['valid_list_ci']]
+            if CMD_ATTR_CMD_SETTINGS in kw:
+                if 'valid_list_ci' in kw[CMD_ATTR_CMD_SETTINGS]:
+                    kw[CMD_ATTR_CMD_SETTINGS]['valid_list_ci'] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[CMD_ATTR_CMD_SETTINGS]['valid_list_ci']]
 
             dt_class = None
             dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, '')

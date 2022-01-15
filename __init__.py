@@ -787,8 +787,10 @@ class MultiDevice(SmartPlugin):
                     self.logger.warning(f'Item {item} requests undefined command {command} for device {device_id}, ignoring item')
                     return
 
+                var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                    print(f'{command}: {var} is type {type(var)}')
                     if device.is_valid_command(command, COMMAND_READ):
                         if command in self._commands_read[device_id]:
                             self.logger.warning(f'Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item')
@@ -1330,7 +1332,10 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
         # print all non-dict children (dicts are visited later)
         for key in [key for key in node if not isinstance(node[key], dict)]:
-            p_text(f'{key}: {node[key]}', 1)
+            if isinstance(node[key], bool):
+                p_text(f'{key}: {str(node[key]).lower()}', 1)
+            else:                
+                p_text(f'{key}: {node[key]}', 1)
 
         print()
 

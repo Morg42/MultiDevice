@@ -3,12 +3,6 @@
 # vim: expandtab:ts=4:sw=4
 ALL:
 
-    read:
-        type: bool
-        enforce_updates: true
-        md_device: DEVICENAME
-        md_read_group_trigger: ALL
-
     Anlagentyp:
         type: num
         md_device: DEVICENAME
@@ -19,12 +13,6 @@ ALL:
         md_read_initial: true
 
 V200KO1B:
-
-    read:
-        type: bool
-        enforce_updates: true
-        md_device: DEVICENAME
-        md_read_group_trigger: V200KO1B
 
     Anlagentyp:
         type: num
@@ -1509,12 +1497,6 @@ V200KO1B:
 
 V200HO1C:
 
-    read:
-        type: bool
-        enforce_updates: true
-        md_device: DEVICENAME
-        md_read_group_trigger: V200HO1C
-
     Anlagentyp:
         type: num
         md_device: DEVICENAME
@@ -1981,12 +1963,6 @@ V200HO1C:
             md_read_group: ['V200HO1C', 'Warmwasser']
 
 V200KW2:
-
-    read:
-        type: bool
-        enforce_updates: true
-        md_device: DEVICENAME
-        md_read_group_trigger: V200KW2
 
     Anlagentyp:
         type: num
@@ -3006,12 +2982,6 @@ V200KW2:
                 md_read_group: ['V200KW2', 'Timer', 'Timer.M2']
 
 V200WO1C:
-
-    read:
-        type: bool
-        enforce_updates: true
-        md_device: DEVICENAME
-        md_read_group_trigger: V200WO1C
 
     Anlagentyp:
         type: num

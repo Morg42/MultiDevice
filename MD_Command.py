@@ -142,8 +142,8 @@ class MD_Command(object):
 
     def _check_min_max(self, data, key, min=True, force=False):
         """ helper routine to check for min/max compliance and int/float type """
-        if key in self.settings:
-            bound = self.settings[key]
+        if key in self.cmd_settings:
+            bound = self.cmd_settings[key]
             if not isinstance(data, type(bound)):
                 if type(data) is float and type(bound) is int:
                     data = int(data)
@@ -154,7 +154,7 @@ class MD_Command(object):
             if (min and data >= bound) or (not min and data <= bound):
                 return data
             if force:
-                self.logger.debug(f'Value {data} changed to {bound} due to settings {self.settings}')
+                self.logger.debug(f'Value {data} changed to {bound} due to cmd_settings {self.cmd_settings}')
                 return bound
             raise ValueError(f'value {data} not adhering to {"min" if min else "max"} value {bound}')
         return data
@@ -176,18 +176,18 @@ class MD_Command(object):
         """
         if data is not None:
             try:
-                if self.settings and not self.lookup:
-                    if self.settings.get('valid_list_ci', None):
+                if self.cmd_settings and not self.lookup:
+                    if self.cmd_settings.get('valid_list_ci', None):
                         val = data
                         if isinstance(data, str):
                             val = data.lower()
-                        if val not in self.settings['valid_list_ci']:
-                            raise ValueError(f'value {val} not in case insensitive list {self.settings["valid_list_ci"]}')
-                    elif self.settings.get('valid_list', None):
-                        if data not in self.settings['valid_list']:
-                            raise ValueError(f'value {data} not in list {self.settings["valid_list"]}')
+                        if val not in self.cmd_settings['valid_list_ci']:
+                            raise ValueError(f'value {val} not in case insensitive list {self.cmd_settings["valid_list_ci"]}')
+                    elif self.cmd_settings.get('valid_list', None):
+                        if data not in self.cmd_settings['valid_list']:
+                            raise ValueError(f'value {data} not in list {self.cmd_settings["valid_list"]}')
                     # min/max not in addition to valid_list
-                    elif any(key in self.settings.keys() for key in MINMAXKEYS):
+                    elif any(key in self.cmd_settings.keys() for key in MINMAXKEYS):
                         for key in MINMAXKEYS:
                             data = self._check_min_max(data, key, key[-3:] == 'min', key[:5] == 'force')
 

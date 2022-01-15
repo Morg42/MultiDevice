@@ -257,7 +257,7 @@ ALL:
             type: bool
             enforce_updates: true
             md_device: DEVICENAME
-            md_read_group_trigger: info
+            md_read_group_trigger: ALL.info
 
         player:
             type: num
@@ -265,7 +265,7 @@ ALL:
             md_command: info.player
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
         state:
             type: str
@@ -273,7 +273,7 @@ ALL:
             md_command: info.state
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
         media:
             type: str
@@ -281,7 +281,7 @@ ALL:
             md_command: info.media
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
         title:
             type: str
@@ -289,7 +289,7 @@ ALL:
             md_command: info.title
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
         streams:
             type: dict
@@ -297,7 +297,7 @@ ALL:
             md_command: info.streams
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
         subtitles:
             type: dict
@@ -305,7 +305,7 @@ ALL:
             md_command: info.subtitles
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
         macro:
             type: bool
@@ -313,7 +313,7 @@ ALL:
             md_command: info.macro
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'info']
+            md_read_group: ['ALL', 'ALL.info']
 
     status:
 
@@ -321,7 +321,7 @@ ALL:
             type: bool
             enforce_updates: true
             md_device: DEVICENAME
-            md_read_group_trigger: status
+            md_read_group_trigger: ALL.status
             md_read_initial: true
             md_read_cycle: 300
 
@@ -331,7 +331,7 @@ ALL:
             md_command: status.update
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         ping:
             type: bool
@@ -339,7 +339,7 @@ ALL:
             md_command: status.ping
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         get_status_au:
             type: bool
@@ -347,7 +347,7 @@ ALL:
             md_command: status.get_status_au
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         get_players:
             type: bool
@@ -355,7 +355,7 @@ ALL:
             md_command: status.get_players
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         get_actplayer:
             type: bool
@@ -363,7 +363,7 @@ ALL:
             md_command: status.get_actplayer
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         get_status_play:
             type: bool
@@ -371,7 +371,7 @@ ALL:
             md_command: status.get_status_play
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         get_item:
             type: bool
@@ -379,7 +379,7 @@ ALL:
             md_command: status.get_item
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
         get_favourites:
             type: bool
@@ -387,7 +387,7 @@ ALL:
             md_command: status.get_favourites
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'status']
+            md_read_group: ['ALL', 'ALL.status']
 
     control:
 
@@ -395,7 +395,7 @@ ALL:
             type: bool
             enforce_updates: true
             md_device: DEVICENAME
-            md_read_group_trigger: control
+            md_read_group_trigger: ALL.control
 
         playpause:
             type: bool
@@ -403,7 +403,7 @@ ALL:
             md_command: control.playpause
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         seek:
             type: num
@@ -411,7 +411,7 @@ ALL:
             md_command: control.seek
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         audio:
             type: str
@@ -419,7 +419,7 @@ ALL:
             md_command: control.audio
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         speed:
             type: num
@@ -427,7 +427,7 @@ ALL:
             md_command: control.speed
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         subtitle:
             type: str
@@ -435,7 +435,7 @@ ALL:
             md_command: control.subtitle
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         stop:
             type: bool
@@ -443,7 +443,7 @@ ALL:
             md_command: control.stop
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         goto:
             type: str
@@ -451,7 +451,7 @@ ALL:
             md_command: control.goto
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         power:
             type: bool
@@ -459,7 +459,7 @@ ALL:
             md_command: control.power
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         quit:
             type: bool
@@ -467,7 +467,7 @@ ALL:
             md_command: control.quit
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         mute:
             type: bool
@@ -475,7 +475,7 @@ ALL:
             md_command: control.mute
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         volume:
             type: num
@@ -483,7 +483,7 @@ ALL:
             md_command: control.volume
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 
         action:
             type: str
@@ -491,5 +491,5 @@ ALL:
             md_command: control.action
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'control']
+            md_read_group: ['ALL', 'ALL.control']
 

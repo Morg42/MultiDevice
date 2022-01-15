@@ -366,7 +366,7 @@ zone1:
         md_read_group: ['zone1']
 
     dynamicrange:
-        type: str
+        type: num
         md_device: DEVICENAME
         md_command: zone1.dynamicrange
         md_read: true
@@ -404,7 +404,7 @@ zone1:
         md_write: true
 
     dialogenhance:
-        type: str
+        type: num
         md_device: DEVICENAME
         md_command: zone1.dialogenhance
         md_read: true
@@ -1244,7 +1244,7 @@ ALL:
             md_read_group: ['ALL', 'ALL.zone1']
 
         dynamicrange:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dynamicrange
             md_read: true
@@ -1902,7 +1902,7 @@ AVR-X6300H:
             md_read_group: ['AVR-X6300H', 'AVR-X6300H.zone1']
 
         dynamicrange:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dynamicrange
             md_read: true
@@ -1910,7 +1910,7 @@ AVR-X6300H:
             md_read_group: ['AVR-X6300H', 'AVR-X6300H.zone1']
 
         dialogenhance:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dialogenhance
             md_read: true
@@ -2782,7 +2782,7 @@ AVR-X4300H:
             md_read_group: ['AVR-X4300H', 'AVR-X4300H.zone1']
 
         dynamicrange:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dynamicrange
             md_read: true
@@ -3684,7 +3684,7 @@ AVR-X3300W:
             md_read_group: ['AVR-X3300W', 'AVR-X3300W.zone1']
 
         dynamicrange:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dynamicrange
             md_read: true
@@ -4456,7 +4456,7 @@ AVR-X2300W:
             md_read_group: ['AVR-X2300W', 'AVR-X2300W.zone1']
 
         dynamicrange:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dynamicrange
             md_read: true
@@ -5136,7 +5136,7 @@ AVR-X1300W:
             md_read_group: ['AVR-X1300W', 'AVR-X1300W.zone1']
 
         dynamicrange:
-            type: str
+            type: num
             md_device: DEVICENAME
             md_command: zone1.dynamicrange
             md_read: true

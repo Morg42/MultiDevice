@@ -66,8 +66,6 @@ class WebInterface(SmartPluginWebIf):
 
         :return: contents of the template after beeing rendered
         """
-        item_tree = {}
-
         tmpl = self.tplenv.get_template('index.html')
         # add values to be passed to the Jinja2 template eg: tmpl.render(p=self.plugin, interface=interface, ...)
 
@@ -76,14 +74,6 @@ class WebInterface(SmartPluginWebIf):
             if any(elem in item.property.attributes for elem in ITEM_ATTRS):
                 plgitems.append(item)
 
-                # print(type(item))
-                # path_elems = item.id().split('.')
-                # node = {path_elems[-1]: {a: getattr(item.property, a) for a in ['name', 'type', 'value', 'enforce_updates', 'eval', 'eval_trigger', 'on_change', 'on_update'] + item.property.attributes if hasattr(item.property, a) and (getattr(item.property, a) or getattr(item.property, a) is False)}}
-                # for elem in reversed(path_elems[:-1]):
-                #     node = {elem: node}
-                # 
-                # update(item_tree, node)
-
         return tmpl.render(p=self.plugin,
                            items=sorted(self.items.return_items(), key=lambda k: str.lower(k['_path'])),
                            item_count=0,
@@ -91,7 +81,6 @@ class WebInterface(SmartPluginWebIf):
                            running={dev: self.plugin._devices[dev]['device'].alive for dev in self.plugin._devices},
                            devices=self.plugin._devices,
                            lookups={dev: self.plugin._devices[dev]['device']._commands._lookups for dev in self.plugin._devices})
-                           # tree=json.dumps(item_tree))
 
     @cherrypy.expose
     def submit(self, button=None, param=None):

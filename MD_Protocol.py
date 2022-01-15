@@ -520,7 +520,6 @@ class MD_Protocol_Viessmann(MD_Protocol):
             self.logger.debug(f'read_bytes: read {readbyte}')
 
             for i in range(10):
-                # print(f'{readbyte} -> ack: {readbyte == ACK}, ni: {readbyte == NOTINIT}, err: {readbyte == ERR}')
                 if syncsent and readbyte == ACK:
                     self.logger.debug('device acknowledged initialization')
                     self._is_initialized = True

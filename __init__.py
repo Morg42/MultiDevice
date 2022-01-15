@@ -740,8 +740,6 @@ class MultiDevice(SmartPlugin):
         """
         self.logger.debug('Run method called')
 
-        # self.__print_global_arrays()
-
         # hand over relevant assigned commands and runtime-generated data
         self._apply_on_all_devices('set_runtime_data', self._generate_runtime_data)
 

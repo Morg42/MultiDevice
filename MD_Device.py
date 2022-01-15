@@ -591,8 +591,6 @@ class MD_Device(object):
             if shortestcycle == -1 or cycle < shortestcycle:
                 shortestcycle = cycle
 
-        print(f'I 1234 123456 shortestcycle is {shortestcycle}')
-
         # Start the worker thread
         if shortestcycle != -1:
 

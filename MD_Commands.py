@@ -187,7 +187,7 @@ class MD_Commands(object):
         if data in lu:
             return lu[data]
 
-        raise ValueError(f'Lookup of value {data} in table {table} failed, entry not found.')            
+        raise ValueError(f'Lookup of value {data} in table {table} failed, entry not found.')
 
     def _get_cmd_lookup(self, command):
         """ returns lookup name for command or None """
@@ -288,7 +288,7 @@ class MD_Commands(object):
             raise CommandsError(f'importing commands from external module {"dev_" + self._device_type + "/commands.py"} failed. Error was: "{e}"')
             return False
 
-        # param is read by yaml parser which converts None to "None"... 
+        # param is read by yaml parser which converts None to "None"...
         if self._model == 'None':
             self._model = None
 
@@ -301,7 +301,7 @@ class MD_Commands(object):
                 if isinstance(cmd_module.models, dict):
                     if self._model in cmd_module.models:
                         self.logger.info(f'model {self._model} identified')
-                    else: 
+                    else:
                         raise CommandsError(f'configured model {self._model} not found in commands.py models {cmd_module.models.keys()}')
                 else:
                     raise CommandsError(f'model configuration for device type {self._device_type} invalid, "models" is not a dict')
@@ -361,8 +361,8 @@ class MD_Commands(object):
             # the commands dict might look like this:
             #
             # 'zone2': {
-            #     'control': { 'item_attrs': {...}, 
-            #         'power': {'read': True,             
+            #     'control': { 'item_attrs': {...},
+            #         'power': {'read': True,
             #
             # 'control' is only a section, and the only valid 'content' apart from sections or commands is 'item_attrs' to provide
             # for read triggers or other extensions. If 'item_attrs' is defined, it is syntactically identical to the following
@@ -457,11 +457,11 @@ class MD_Commands(object):
                 if obj.settings and 'valid_list' in obj.settings and '(MD_VALID_LIST)' in obj.reply_pattern:
 
                     vl = obj.settings['valid_list']
-                    pattern = '(' + '|'.join(re.escype(key) for key in vl) + ')'
+                    pattern = '(' + '|'.join(re.escape(key) for key in vl) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST)', pattern)
 
                 if obj.settings and 'valid_list_ci' in obj.settings and '(MD_VALID_LIST_CI)' in obj.reply_pattern:
 
                     vl = obj.settings['valid_list_ci']
-                    pattern = '(' + '|'.join(re.escype(key) for key in vl) + ')'
+                    pattern = '(' + '|'.join(re.escape(key) for key in vl) + ')'
                     obj.reply_pattern = obj.reply_pattern.replace('(MD_VALID_LIST_CI)', pattern)

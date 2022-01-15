@@ -5,13 +5,13 @@
 
 commands = {
     'info': {
-        'player':           {'read': True, 'write': False, 'opcode': 'player',                      'reply_token': 'player',                      'item_type': 'num',  'dev_datatype': 'raw', 'params': None},
-        'state':            {'read': True, 'write': False, 'opcode': 'media',                       'reply_token': 'media',                       'item_type': 'str',  'dev_datatype': 'raw', 'params': None},
-        'media':            {'read': True, 'write': False, 'opcode': 'media',                       'reply_token': 'media',                       'item_type': 'str',  'dev_datatype': 'raw', 'params': None},
-        'title':            {'read': True, 'write': False, 'opcode': 'title',                       'reply_token': 'title',                       'item_type': 'str',  'dev_datatype': 'raw', 'params': None},
-        'streams':          {'read': True, 'write': False, 'opcode': 'streams',                     'reply_token': 'streams',                     'item_type': 'list', 'dev_datatype': 'raw', 'params': None},
-        'subtitles':        {'read': True, 'write': False, 'opcode': 'subtitles',                   'reply_token': 'subtitles',                   'item_type': 'dict', 'dev_datatype': 'raw', 'params': None},
-        'macro':            {'read': True, 'write': True,  'opcode': 'macro',                       'reply_token': 'macro',                       'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},
+        'player':           {'read': True, 'write': False, 'opcode': 'player',                      'reply_token': 'player',                      'item_type': 'num',  'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'state':            {'read': True, 'write': False, 'opcode': 'media',                       'reply_token': 'media',                       'item_type': 'str',  'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'media':            {'read': True, 'write': False, 'opcode': 'media',                       'reply_token': 'media',                       'item_type': 'str',  'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'title':            {'read': True, 'write': False, 'opcode': 'title',                       'reply_token': 'title',                       'item_type': 'str',  'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'streams':          {'read': True, 'write': False, 'opcode': 'streams',                     'reply_token': 'streams',                     'item_type': 'list', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'subtitles':        {'read': True, 'write': False, 'opcode': 'subtitles',                   'reply_token': 'subtitles',                   'item_type': 'dict', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'macro':            {'read': True, 'write': True,  'opcode': 'macro',                       'reply_token': 'macro',                       'item_type': 'bool', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
     },
     'status': {'item_attrs': {'initial': True, 'cycle': 300},
         'update':           {'read': True, 'write': True,  'opcode': 'update',                      'reply_token': 'update',                      'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},

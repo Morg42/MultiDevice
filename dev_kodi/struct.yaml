@@ -15,7 +15,6 @@ info:
         md_command: info.player
         md_read: true
         md_write: false
-        md_read_group: ['info']
 
     state:
         type: str
@@ -23,7 +22,6 @@ info:
         md_command: info.state
         md_read: true
         md_write: false
-        md_read_group: ['info']
 
     media:
         type: str
@@ -31,7 +29,6 @@ info:
         md_command: info.media
         md_read: true
         md_write: false
-        md_read_group: ['info']
 
     title:
         type: str
@@ -39,7 +36,6 @@ info:
         md_command: info.title
         md_read: true
         md_write: false
-        md_read_group: ['info']
 
     streams:
         type: list
@@ -47,7 +43,6 @@ info:
         md_command: info.streams
         md_read: true
         md_write: false
-        md_read_group: ['info']
 
     subtitles:
         type: dict
@@ -55,7 +50,6 @@ info:
         md_command: info.subtitles
         md_read: true
         md_write: false
-        md_read_group: ['info']
 
     macro:
         type: bool
@@ -63,7 +57,6 @@ info:
         md_command: info.macro
         md_read: true
         md_write: true
-        md_read_group: ['info']
 
 status:
 
@@ -253,7 +246,6 @@ ALL:
             md_command: info.player
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'ALL.info']
 
         state:
             type: str
@@ -261,7 +253,6 @@ ALL:
             md_command: info.state
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'ALL.info']
 
         media:
             type: str
@@ -269,7 +260,6 @@ ALL:
             md_command: info.media
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'ALL.info']
 
         title:
             type: str
@@ -277,7 +267,6 @@ ALL:
             md_command: info.title
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'ALL.info']
 
         streams:
             type: list
@@ -285,7 +274,6 @@ ALL:
             md_command: info.streams
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'ALL.info']
 
         subtitles:
             type: dict
@@ -293,7 +281,6 @@ ALL:
             md_command: info.subtitles
             md_read: true
             md_write: false
-            md_read_group: ['ALL', 'ALL.info']
 
         macro:
             type: bool
@@ -301,7 +288,6 @@ ALL:
             md_command: info.macro
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.info']
 
     status:
 

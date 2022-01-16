@@ -152,22 +152,14 @@ zone1:
         md_read_group: ['zone1']
         md_read_initial: true
 
+        update_reverse:
+            type: bool
+            eval: sh...reverse.timer(2, True)
+            eval_trigger: ..
+
         reverse:
             type: dict
-            eval_trigger: ..
             eval: "{v: k for (k, v) in sh...().items()}"
-
-        item_attrs:
-
-            attributes:
-
-                reverse:
-
-                    read:
-                        type: bool
-                        enforce_updates: true
-                        md_device: DEVICENAME
-                        md_read_group_trigger: zone1.custom_inputnames.item_attrs.attributes.reverse
 
     power:
         type: bool

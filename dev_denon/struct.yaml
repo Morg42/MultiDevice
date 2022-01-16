@@ -17,86 +17,6 @@ general:
         md_write: true
         md_read_group: ['general']
 
-    inputname_DVD:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_DVD
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_BD:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_BD
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_TV:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_TV
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_SAT:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_SAT
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_MPLAY:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_MPLAY
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_GAME:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_GAME
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_AUX1:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_AUX1
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_CD:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_CD
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_AUX2:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_AUX2
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
-    inputname_PHONO:
-        type: str
-        md_device: DEVICENAME
-        md_command: general.inputname_PHONO
-        md_read: true
-        md_write: false
-        md_read_group: ['general']
-
     setupmenu:
         type: bool
         md_device: DEVICENAME
@@ -223,6 +143,32 @@ zone1:
         md_device: DEVICENAME
         md_read_group_trigger: zone1
 
+    custom_inputnames:
+        type: dict
+        md_device: DEVICENAME
+        md_command: zone1.custom_inputnames
+        md_read: true
+        md_write: false
+        md_read_group: ['zone1']
+        md_read_initial: true
+
+        reverse:
+            type: dict
+            eval_trigger: ..
+            eval: "{v: k for (k, v) in sh...().items()}"
+
+        item_attrs:
+
+            attributes:
+
+                reverse:
+
+                    read:
+                        type: bool
+                        enforce_updates: true
+                        md_device: DEVICENAME
+                        md_read_group_trigger: zone1.custom_inputnames.item_attrs.attributes.reverse
+
     power:
         type: bool
         md_device: DEVICENAME
@@ -276,6 +222,23 @@ zone1:
         md_read: true
         md_write: true
         md_read_group: ['zone1']
+        on_change: .custom_name = sh...custom_inputnames()[value]
+
+        custom_name:
+            type: str
+            on_change: .. = sh....custom_inputnames.reverse()[value]
+
+        item_attrs:
+
+            attributes:
+
+                custom_name:
+
+                    read:
+                        type: bool
+                        enforce_updates: true
+                        md_device: DEVICENAME
+                        md_read_group_trigger: zone1.input.item_attrs.attributes.custom_name
 
     listeningmode:
         type: str
@@ -967,86 +930,6 @@ ALL:
             md_write: true
             md_read_group: ['ALL', 'ALL.general']
 
-        inputname_DVD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_DVD
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_BD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_BD
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_TV:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_TV
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_SAT:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_SAT
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_MPLAY:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_MPLAY
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_GAME:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_GAME
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_AUX1:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX1
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_CD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_CD
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_AUX2:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX2
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
-        inputname_PHONO:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_PHONO
-            md_read: true
-            md_write: false
-            md_read_group: ['ALL', 'ALL.general']
-
         setupmenu:
             type: bool
             md_device: DEVICENAME
@@ -1202,6 +1085,23 @@ ALL:
             md_read: true
             md_write: true
             md_read_group: ['ALL', 'ALL.zone1']
+            on_change: .custom_name = sh...custom_inputnames()[value]
+
+            custom_name:
+                type: str
+                on_change: .. = sh....custom_inputnames.reverse()[value]
+
+            item_attrs:
+
+                attributes:
+
+                    custom_name:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: ALL.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -1585,86 +1485,6 @@ AVR-X6300H:
             md_write: true
             md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
 
-        inputname_DVD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_DVD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_BD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_BD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_TV:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_TV
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_SAT:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_SAT
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_MPLAY:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_MPLAY
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_GAME:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_GAME
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_AUX1:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX1
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_CD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_CD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_AUX2:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX2
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
-        inputname_PHONO:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_PHONO
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X6300H', 'AVR-X6300H.general']
-
         setupmenu:
             type: bool
             md_device: DEVICENAME
@@ -1820,6 +1640,23 @@ AVR-X6300H:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X6300H', 'AVR-X6300H.zone1']
+            on_change: .custom_name = sh...custom_inputnames()[value]
+
+            custom_name:
+                type: str
+                on_change: .. = sh....custom_inputnames.reverse()[value]
+
+            item_attrs:
+
+                attributes:
+
+                    custom_name:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: AVR-X6300H.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -2465,86 +2302,6 @@ AVR-X4300H:
             md_write: true
             md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
 
-        inputname_DVD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_DVD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_BD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_BD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_TV:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_TV
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_SAT:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_SAT
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_MPLAY:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_MPLAY
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_GAME:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_GAME
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_AUX1:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX1
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_CD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_CD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_AUX2:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX2
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
-        inputname_PHONO:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_PHONO
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X4300H', 'AVR-X4300H.general']
-
         setupmenu:
             type: bool
             md_device: DEVICENAME
@@ -2700,6 +2457,23 @@ AVR-X4300H:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X4300H', 'AVR-X4300H.zone1']
+            on_change: .custom_name = sh...custom_inputnames()[value]
+
+            custom_name:
+                type: str
+                on_change: .. = sh....custom_inputnames.reverse()[value]
+
+            item_attrs:
+
+                attributes:
+
+                    custom_name:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: AVR-X4300H.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -3367,86 +3141,6 @@ AVR-X3300W:
             md_write: true
             md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
 
-        inputname_DVD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_DVD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_BD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_BD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_TV:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_TV
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_SAT:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_SAT
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_MPLAY:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_MPLAY
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_GAME:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_GAME
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_AUX1:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX1
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_CD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_CD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_AUX2:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX2
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
-        inputname_PHONO:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_PHONO
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X3300W', 'AVR-X3300W.general']
-
         setupmenu:
             type: bool
             md_device: DEVICENAME
@@ -3618,6 +3312,23 @@ AVR-X3300W:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X3300W', 'AVR-X3300W.zone1']
+            on_change: .custom_name = sh...custom_inputnames()[value]
+
+            custom_name:
+                type: str
+                on_change: .. = sh....custom_inputnames.reverse()[value]
+
+            item_attrs:
+
+                attributes:
+
+                    custom_name:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: AVR-X3300W.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -4131,86 +3842,6 @@ AVR-X2300W:
             md_write: true
             md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
 
-        inputname_DVD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_DVD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_BD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_BD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_TV:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_TV
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_SAT:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_SAT
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_MPLAY:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_MPLAY
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_GAME:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_GAME
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_AUX1:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX1
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_CD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_CD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_AUX2:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX2
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
-        inputname_PHONO:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_PHONO
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X2300W', 'AVR-X2300W.general']
-
         setupmenu:
             type: bool
             md_device: DEVICENAME
@@ -4382,6 +4013,23 @@ AVR-X2300W:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X2300W', 'AVR-X2300W.zone1']
+            on_change: .custom_name = sh...custom_inputnames()[value]
+
+            custom_name:
+                type: str
+                on_change: .. = sh....custom_inputnames.reverse()[value]
+
+            item_attrs:
+
+                attributes:
+
+                    custom_name:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: AVR-X2300W.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -4843,86 +4491,6 @@ AVR-X1300W:
             md_write: true
             md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
 
-        inputname_DVD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_DVD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_BD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_BD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_TV:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_TV
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_SAT:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_SAT
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_MPLAY:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_MPLAY
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_GAME:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_GAME
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_AUX1:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX1
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_CD:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_CD
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_AUX2:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_AUX2
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
-        inputname_PHONO:
-            type: str
-            md_device: DEVICENAME
-            md_command: general.inputname_PHONO
-            md_read: true
-            md_write: false
-            md_read_group: ['AVR-X1300W', 'AVR-X1300W.general']
-
         setupmenu:
             type: bool
             md_device: DEVICENAME
@@ -5094,6 +4662,23 @@ AVR-X1300W:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X1300W', 'AVR-X1300W.zone1']
+            on_change: .custom_name = sh...custom_inputnames()[value]
+
+            custom_name:
+                type: str
+                on_change: .. = sh....custom_inputnames.reverse()[value]
+
+            item_attrs:
+
+                attributes:
+
+                    custom_name:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: AVR-X1300W.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str

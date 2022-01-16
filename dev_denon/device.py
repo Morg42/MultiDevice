@@ -11,6 +11,8 @@ else:
     from ..MD_Command import MD_Command_ParseStr
 
 
+CUSTOM_INPUT_NAME_COMMAND = 'custom_inputnames'
+
 class MD_Device(MD_Device):
     """ Device class for Denon AV.
 
@@ -39,6 +41,7 @@ class MD_Device(MD_Device):
         self._connection.send(data_dict)
         return None
 
+
     def _transform_send_data(self, data=None):
         if data:
             try:
@@ -47,3 +50,44 @@ class MD_Device(MD_Device):
             except Exception as e:
                 self.logger.error(f'ERROR {e}')
         return data
+
+
+    def _post_init(self):
+        self._custom_inputnames = {}
+
+    def on_data_received(self, by, data, command=None):
+
+        if command is not None:
+            self.logger.debug(f'received data "{data}" for command {command}')
+        else:
+            # command == None means that we got raw data from a callback and don't know yet to
+            # which command this belongs to. So find out...
+            self.logger.debug(f'received data "{data}" without command specification')
+            command = self._commands.get_command_from_reply(data)
+            if not command:
+                self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
+                return
+
+        self._check_for_custominputs(command, data)
+
+        try:
+            if CUSTOM_INPUT_NAME_COMMAND in command:
+                value = self._custom_inputnames
+            else:
+                value = self._commands.get_shng_data(command, data)
+        except Exception as e:
+            self.logger.info(f'received data "{data}" for command {command}, error {e} occurred while converting. Discarding data.')
+        else:
+            self.logger.debug(f'received data "{data}" for command {command} converted to value {value}')
+            if self._data_received_callback:
+                self._data_received_callback(self.device_id, command, value)
+            else:
+                self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
+
+
+    def _check_for_custominputs(self, command, data):
+        if CUSTOM_INPUT_NAME_COMMAND in command and isinstance(data, str):
+            tmp = data.split(' ', 1)
+            src = tmp[0][5:]
+            name = tmp[1]
+            self._custom_inputnames[src] = name

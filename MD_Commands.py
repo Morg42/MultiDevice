@@ -60,7 +60,7 @@ class MD_Commands(object):
         self.logger = logging.getLogger('.'.join(__name__.split('.')[:-1]) + f'.{device_id}')
 
         self.logger.debug(f'commands initializing from {command_obj_class.__name__}')
-        self._commands = None         # { 'cmd_x': MD_Command(params), ... }
+        self._commands = {}         # { 'cmd_x': MD_Command(params), ... }
         self._lookups = {}          # { 'name_x': {'fwd': {'K1': 'V1', ...}, 'rev': {'V1': 'K1', ...}, 'rci': {'v1': 'K1', ...}}}
         self._lookup_tables = []
         self._dev_structs = []
@@ -327,8 +327,6 @@ class MD_Commands(object):
         else:
             if not MD_standalone:
                 self.logger.warning('no command definitions found. This device probably will not work...')
-            else:
-                self._commands = {}
 
         if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)
@@ -353,8 +351,6 @@ class MD_Commands(object):
         For special purposes, this can be overwritten, if you want to use your
         own file format.
         """
-        self._commands = {}
-
         for cmd in cmds:
             # we found a "section" entry for which initial or cyclic read is specified. Just skip it...
             # the commands dict might look like this:

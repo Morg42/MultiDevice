@@ -492,12 +492,12 @@ commands = {
         },
     },
     'V200WO1C': {
-        'Allgemein': {
+        'Allgemein': {'item_attrs': {'cycle': 45},
             'Temperatur': {
                 'Aussen':             {'read': True, 'write': False, 'opcode': '0101', 'reply_token': '0101', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},     # getTempA -- Information - Allgemein: Aussentemperatur (-40..70)
             },
             # Anlagenstatus            
-            'Betriebsart':            {'read': True, 'write': True,  'opcode': 'b000', 'reply_token': 'b000', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'operatingmodes', 'item_attrs': {'attributes': {'md_read_initial': True}, 'lookup_item': True}},     # getBetriebsart -- Bedienung HK1 - Heizkreis 1: Betriebsart (Textstring)
+            'Betriebsart':            {'read': True, 'write': True,  'opcode': 'b000', 'reply_token': 'b000', 'item_type': 'str',  'dev_datatype': 'H', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'operatingmodes', 'item_attrs': {'attributes': {'md_read_initial': True}, 'lookup_item': True}},     # getBetriebsart -- Bedienung HK1 - Heizkreis 1: Betriebsart (Textstring)
             'Manuell':                {'read': True, 'write': True,  'opcode': 'b020', 'reply_token': 'b020', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 2}},     # getManuell / setManuell -- 0 = normal, 1 = manueller Heizbetrieb, 2 = 1x Warmwasser auf Temp2
             # Allgemein
             'Outdoor_Fanspeed':       {'read': True, 'write': False, 'opcode': '1a52', 'reply_token': '1a52', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # getSpdFanOut -- Outdoor Fanspeed

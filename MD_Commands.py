@@ -77,7 +77,6 @@ class MD_Commands(object):
         self._read_dt_classes(device_type)
         if not self._read_commands(device_id):
             return None
-
         if self._commands is not None:
             self.logger.debug(f'{len(self._commands)} commands initialized')
         elif not MD_standalone:
@@ -287,7 +286,6 @@ class MD_Commands(object):
         except Exception as e:
             raise CommandsError(f'importing commands from external module {"dev_" + self._device_type + "/commands.py"} failed. Error was: "{e}"')
             return False
-
         # param is read by yaml parser which converts None to "None"...
         if self._model == 'None':
             self._model = None
@@ -305,7 +303,6 @@ class MD_Commands(object):
                         raise CommandsError(f'configured model {self._model} not found in commands.py models {cmd_module.models.keys()}')
                 else:
                     raise CommandsError(f'model configuration for device type {self._device_type} invalid, "models" is not a dict')
-
         if hasattr(cmd_module, 'commands') and isinstance(cmd_module.commands, dict) and not MD_standalone:
             cmds = cmd_module.commands
             cmdlist = None
@@ -323,7 +320,6 @@ class MD_Commands(object):
                 self.logger.debug(f'found {len(cmd_module.models.get(INDEX_GENERIC, []))} generic commands')
                 if self._model:
                     self.logger.debug(f'found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}')
-
             self._flatten_cmds(cmds)
 
             # actually import commands
@@ -331,10 +327,13 @@ class MD_Commands(object):
         else:
             if not MD_standalone:
                 self.logger.warning('no command definitions found. This device probably will not work...')
+            else:
+                self._commands = {}
 
         if hasattr(cmd_module, 'lookups') and isinstance(cmd_module.lookups, dict):
             self._parse_lookups(device_id, cmd_module.lookups)
-            self._parse_patterns(device_id)
+            if not MD_standalone:
+                self._parse_patterns(device_id)
         else:
             self.logger.debug('no lookups found')
 

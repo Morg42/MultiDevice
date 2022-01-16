@@ -598,7 +598,6 @@ class MD_Protocol_Viessmann(MD_Protocol):
             response_packet = bytearray()
             self.logger.debug(f'trying to receive {responselen} bytes of the response')
             chunk = self._read_bytes(responselen)
-
             if self._viess_proto == 'P300':
                 self.logger.debug(f'received {len(chunk)} bytes chunk of response as hexstring {self._bytes2hexstring(chunk)} and as bytes {chunk}')
                 if len(chunk) != 0:

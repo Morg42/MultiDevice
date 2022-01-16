@@ -97,8 +97,17 @@ class DT_C(DT_V):
         return [{'An': on_time, 'Aus': off_time} for on_time, off_time in zip(timer, timer)]
 
 
-# H = hex (only for manual read)
+# H = hex
 class DT_H(DT_V):
+    def get_send_data(self, data, **kwargs):
+        if isinstance(data, str):
+            try:
+                data = int(data, 16)
+            except ValueError:
+                pass
+
+        return super().get_send_data(data, **kwargs)
+
     def get_shng_data(self, data, type=None, **kwargs):
         return data.hex()
         # return ' '.join([hexstr[i:i + 2] for i in range(0, len(hexstr), 2)])

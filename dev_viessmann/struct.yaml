@@ -2999,6 +2999,7 @@ V200WO1C:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: Allgemein
+            md_read_cycle: 45
 
         Temperatur:
 
@@ -3017,7 +3018,7 @@ V200WO1C:
                 md_read_group: ['V200WO1C', 'Allgemein', 'Allgemein.Temperatur']
 
         Betriebsart:
-            type: num
+            type: str
             md_device: DEVICENAME
             md_command: Allgemein.Betriebsart
             md_read: true

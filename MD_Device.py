@@ -327,13 +327,13 @@ class MD_Device(object):
         data_received_callback takes one argument 'data'
         """
         try:
-            self._commands_read = kwargs['read_commands']
-            self._commands_read_grp = kwargs['read_commands_grp']
-            self._commands_cyclic = kwargs['cycle_commands']
-            self._commands_initial = kwargs['initial_commands']
-            self._triggers_cyclic = kwargs['cycle_triggers']
-            self._triggers_initial = kwargs['initial_triggers']
-            self._data_received_callback = kwargs['callback']
+            self._commands_read = kwargs.get('read_commands', [])
+            self._commands_read_grp = kwargs.get('read_commands_grp', [])
+            self._commands_cyclic = kwargs.get('cycle_commands', [])
+            self._commands_initial = kwargs.get('initial_commands', [])
+            self._triggers_cyclic = kwargs.get('cycle_triggers', [])
+            self._triggers_initial = kwargs.get('initial_triggers', [])
+            self._data_received_callback = kwargs.get('callback', None)
             self._runtime_data_set = True
         except KeyError as e:
             self.logger.error(f'error in runtime data: {e}. Stopping device.')

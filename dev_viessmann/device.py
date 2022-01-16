@@ -24,6 +24,7 @@ class MD_Device(MD_Device):
         """
         try to identify device
         """
+        print(f'dev_viessmann trying to identify device at {self._params.get("serialport", "unknown")}...')
         devs = self.get_lookup('devicetypes')
         if not devs:
             devs = {}
@@ -84,7 +85,6 @@ class MD_Device(MD_Device):
         # as we have no reference whatever concerning the supplied data, we do a few sanity checks...
 
         addr = addr.lower()
-
         if len(addr) != 4:              # addresses are 2 bytes
             self.logger.warning(f'temp address: address not 4 digits long: {addr}')
             return None
@@ -105,7 +105,7 @@ class MD_Device(MD_Device):
         else:
             # create temp commandset
             cmd = 'temp_cmd'
-            cmdconf = {'read': True, 'write': False, 'opcode': addr, 'reply_token': addr, 'item_type': 'str', 'dev_datatype': 'HEX', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', mult, signed, length]}
+            cmdconf = {'read': True, 'write': False, 'opcode': addr, 'reply_token': addr, 'item_type': 'str', 'dev_datatype': 'H', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', mult, signed, length]}
             self.logger.debug(f'Adding temporary command config {cmdconf} for command temp_cmd')
             self._commands._parse_commands(self.device_id, {cmd: cmdconf}, [cmd])
 
@@ -115,8 +115,10 @@ class MD_Device(MD_Device):
             self.logger.error(f'Error on send: {e}')
             res = None
 
-        if cmd == 'temp_cmd':
+        try:
             del self._commands._commands['temp_cmd']
+        except (KeyError, AttributeError):
+            pass
 
         return res
 
@@ -151,7 +153,7 @@ class MD_Device(MD_Device):
         self.alive = True
         self._params['viess_proto'] = protocol
         self._get_connection()
-        self.set_runtime_data(read_commands=[], read_commands_grp=[], cycle_commands=[], initial_commands=[], callback=self._cb_standalone)
+        self.set_runtime_data(callback=self._cb_standalone)
 
         err = None
         res = None

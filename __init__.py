@@ -1229,7 +1229,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         item = {}
 
         # skip known command sub-dict nodes, but include command nodes
-        if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) or CMD_ATTR_ITEM_TYPE in node:
+        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and 'type' not in node):
 
             # item -> print item attributes
             if CMD_ATTR_ITEM_TYPE in node:

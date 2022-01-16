@@ -43,7 +43,7 @@ commands = {
         'tunerpresetdown': {'write': True, 'item_type': 'bool', 'write_cmd': 'TPANDOWN', 'dev_datatype': 'raw'},
     },
     'zone1': {
-        'custom_inputnames': {'read': True, 'write': False, 'read_cmd': 'SSFUN ?', 'item_type': 'dict', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'SSFUN(.*)', 'item_attrs':{'initial': True, 'attributes': {'reverse': {'type': 'dict', 'eval_trigger': '..', 'eval': '"{v: k for (k, v) in sh...().items()}"'}}}},
+        'custom_inputnames': {'read': True, 'write': False, 'read_cmd': 'SSFUN ?', 'item_type': 'dict', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'SSFUN(.*)', 'item_attrs':{'initial': True, 'item_template': 'custom_inputnames'}},
         'power': {'read': True, 'write': True, 'read_cmd': 'ZM?', 'write_cmd': 'ZMMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': 'ZM(ON|OFF)'},
         'mute': {'read': True, 'write': True, 'read_cmd': 'MU?', 'write_cmd': 'MUMD_VALUE', 'item_type': 'bool', 'dev_datatype': 'onoff', 'reply_token': 'REGEX', 'reply_pattern': 'MU(ON|OFF)'},
         'volume': {'read': True, 'write': True, 'read_cmd': 'MV?', 'write_cmd': 'MVMD_VALUE', 'item_type': 'num', 'dev_datatype': 'DenonVol', 'reply_token': 'REGEX', 'reply_pattern': r'MV(\d{2,3})', 'cmd_settings': {'force_min': 0.0, 'valid_max': 98.0} },
@@ -302,6 +302,20 @@ lookups = {
             'IPD': 'IPD',
             'IRP': 'IRP',
             'FVP': 'FVP'
+        }
+    }
+}
+
+item_templates = {
+    'custom_inputnames': {
+        'update_reverse': {
+            'type': 'bool',
+            'eval': 'sh...reverse.timer(2, True)',
+            'eval_trigger': '..'
+        },
+        'reverse': {
+            'type': 'dict',
+            'eval': '"{v: k for (k, v) in sh...().items()}"'
         }
     }
 }

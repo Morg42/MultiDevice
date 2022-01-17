@@ -28,6 +28,7 @@ import logging
 from time import sleep, time
 import requests
 import serial
+import socket
 from threading import Lock, Thread
 from contextlib import contextmanager
 
@@ -358,6 +359,121 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
 class MD_Connection_Net_Udp_Server(MD_Connection):
     # to be implemented
     pass
+
+
+class Ucast(socket.socket):
+    """
+    This class sets up a UDP unicast socket listener on local_port
+    """
+    def __init__(self, local_port):
+        socket.socket.__init__(self, socket.AF_INET,
+                               socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+        self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if hasattr(socket, "SO_REUSEPORT"):
+            self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        self.bind(('0.0.0.0', local_port))
+
+
+class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
+    """ Connection via TCP / HTTP requests and listens for Unicast messages
+
+    This class implements TCP connections in the query-reply matter using
+    the requests library, e.g. for HTTP communication.
+
+    The data_dict['payload']-Data needs to be the full query URL. Additional
+    parameter dicts can be added to be given to requests.request, as
+    - method: get (default) or post
+    - headers, data, cookies, files, params: passed thru to request()
+
+    Response data is returned as text. Errors raise HTTPException
+    """
+    def __init__(self, device_type, device_id, data_received_callback, **kwargs):
+
+        super().__init__(device_type, device_id, data_received_callback, **kwargs)
+
+        self.alive = False
+        self._sock = None
+        self._srv_buffer = 1024
+        self.__receive_thread = None
+        self._connected = True
+        self._params.update({PLUGIN_ATTR_NET_HOST: '',
+                             PLUGIN_ATTR_NET_PORT: 0,
+                             PLUGIN_ATTR_CB_ON_DISCONNECT: None,
+                             PLUGIN_ATTR_CB_ON_CONNECT: self.on_disconnect})
+
+        self._set_connection_params()
+
+    def _open(self):
+        self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} with params {self._params}')
+        self.alive = True
+        self.__receive_thread = Thread(target=self._receive_thread_worker, name='Unicast_Listener')
+        self.__receive_thread.daemon = True
+        self.__receive_thread.start()
+
+        return True
+
+    def _close(self):
+        self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__} with params {self._params}')
+        self.alive = False
+        try:
+            self._sock.close()
+        except Exception:
+            pass
+
+    def _send(self, data_dict):
+        url = data_dict.get('payload', None)
+        if not url:
+            self.logger.error(f'can not send without url parameter from data_dict {data_dict}, aborting')
+            return False
+
+        # default to get if not 'post' specified
+        method = data_dict.get('method', 'get')
+
+        # check for additional data
+        par = {}
+        for arg in ('headers', 'data', 'cookies', 'files', 'params'):
+            par[arg] = data_dict.get(arg, {})
+
+        # send data
+        response = requests.request(method, url,
+                                    params=par['params'],
+                                    headers=par['headers'],
+                                    data=par['data'],
+                                    cookies=par['cookies'],
+                                    files=par['files'])
+
+        if 200 <= response.status_code < 400:
+            return response.text
+        else:
+            try:
+                err = ''
+                response.raise_for_status()
+            except requests.HTTPError as e:
+                err = f' and error "{str(e)}"'
+                self.logger.warning(f'TCP request returned code {response.status_code}{err}')
+                raise e
+        return None
+
+    def _receive_thread_worker(self):
+        self.sock = Ucast(self.srv_port)
+        while self.alive:
+            data, addr = self.sock.recvfrom(self.srv_buffer)
+            try:
+                host, port = addr
+            except Exception as e:
+                self.logger.warning(f'error receiving data - host/port not readable. Error was: {e}')
+                return
+            if host not in list(self._yamaha_dev.keys()):
+                self.logger.debug(f'received notify from unknown host {host}')
+            else:
+                # connected device sends updates every second for
+                # about 10 minutes without further interaction
+                # self.logger.debug(
+                #     "Yamaha unicast received {} bytes from {}: {}".format(
+                #     len(data), host, data))
+                return data.decode('utf-8')
+
+        self.sock.close()
 
 
 class MD_Connection_Serial(MD_Connection):

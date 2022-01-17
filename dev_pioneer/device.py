@@ -3,13 +3,11 @@
 
 
 if MD_standalone:
-    from MD_Globals import *
+    from MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
     from MD_Device import MD_Device
-    from MD_Command import MD_Command_ParseStr
 else:
-    from ..MD_Globals import *
+    from ..MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
     from ..MD_Device import MD_Device
-    from ..MD_Command import MD_Command_ParseStr
 
 
 class MD_Device(MD_Device):
@@ -23,11 +21,11 @@ class MD_Device(MD_Device):
     """
 
     def _set_custom_vars(self):
-        #set our own preferences concerning connections
+        # set our own preferences concerning connections
         if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
-           self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
         elif PLUGIN_ATTR_SERIAL_PORT in self._params and self._params[PLUGIN_ATTR_SERIAL_PORT]:
-           self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
         if PLUGIN_ATTR_CONN_TERMINATOR in self._params:
             b = self._params[PLUGIN_ATTR_CONN_TERMINATOR].encode()
             b = b.decode('unicode-escape').encode()

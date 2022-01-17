@@ -2,15 +2,9 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 if MD_standalone:
-    from MD_Globals import *
     from MD_Device import MD_Device
-    from MD_Command import MD_Command_JSON
-    from MD_Protocol import MD_Protocol_Jsonrpc
 else:
-    from ..MD_Globals import *
     from ..MD_Device import MD_Device
-    from ..MD_Command import MD_Command_JSON
-    from ..MD_Protocol import MD_Protocol_Jsonrpc
 
 
 class MD_Device(MD_Device):

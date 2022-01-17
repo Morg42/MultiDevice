@@ -122,6 +122,8 @@ changed by device configuration.</p>
 <li><code>set_runtime_data(**kwargs)</code></li>
 <li><code>update_device_params(**kwargs)</code></li>
 <li><code>get_lookup(lookup)</code></li>
+<li><code>has_recursive_custom_attribute(index=1)</code></li>
+<li><code>set_custom_item(item, command, index, value)</code></li>
 </ul>
 <p>Public callback methods:</p>
 <ul>
@@ -166,8 +168,8 @@ classes.</p>
 <p>Public callback methods:</p>
 <ul>
 <li><code>on_data_received(by, data, command=None)</code></li>
-<li><code>on_connected(by=None)</code></li>
-<li><code>on_disconnected(by=None)</code></li>
+<li><code>on_connect(by=None)</code></li>
+<li><code>on_disconnect(by=None)</code></li>
 </ul>
 <p>Methods necessary to overwrite for derived classes:</p>
 <ul>
@@ -233,15 +235,8 @@ class will handle failure cases. Beware of NoneType-return values, though.</p>
 <li><code>get_send_data(command, data=None, **kwargs)</code></li>
 <li><code>get_shng_data(command, data, **kwargs)</code></li>
 <li><code>get_command_from_reply(data)</code></li>
-<li><code>get_lookup(lookup)</code></li>
+<li><code>get_lookup(lookup, type='fwd')</code></li>
 </ul>
-<p>Methods possible to overwrite, if a custom format for <code>commands.py</code> is necessary:</p>
-<ul>
-<li><code>_read_commands(device_id)</code></li>
-<li><code>_parse_commands(device_id, commands, cmds=[])</code></li>
-<li><code>_parse_lookups(device_id, lookups)</code></li>
-</ul>
-<p>Beware of (unintended) consequences towards other device classes&hellip;</p>
 <p>Options and syntax of commands configuration are detailed in the <code>commands.py</code>
 file in the <code><a title="multidevice.dev_example" href="dev_example/index.html">multidevice.dev_example</a></code> folder:</p>
 <div class="admonition literalinclude">
@@ -273,7 +268,7 @@ command configuration.</p>
 for string-based communication with device</li>
 <li><code>MD_Command_ParseStr</code>
 ditto with attribute parsing and regexes</li>
-<li><code>MD_Command_Jsonrpc</code>
+<li><code>MD_Command_JSON</code>
 for JSON-RPC 2.0 commands with multiple arguments</li>
 <li><code>MD_Command_Viessmann</code>
 for the binary Viessmann heating protocols</li>
@@ -340,6 +335,13 @@ provide for proper loading (it loads in place of the connection class). If for
 some reason the protocol layer should be selected and loaded manually, it can
 be forced by providing the <code>protocol: &lt;protocolname&gt;</code> attribute. As with the
 model, this attribute should normally not be present in the configuration.</p>
+<p>Three custom item attributes exist, aptly named <code>md_custom1</code> through
+<code>md_custom3</code>. These can be used by the device for arbitrary functions.
+Unlike other item attributes, these can be configured to be used recursively,
+meaning that it only needs to be set for one item and is used for all sub-items.
+To effect this behaviour, the device configuration takes the parameter
+<code>recursive_custom: &lt;foo&gt;</code>, where <foo> can be a number from 1 to 3 or a list
+of any combination of the three.</p>
 <p>A list of all currently supported attributes is found in the <code>MD_Globals.py</code>
 file next to their respective identifiers.</p>
 <p>Example for <code>etc/plugin.yaml</code> configuration:</p>
@@ -592,6 +594,8 @@ Public methods:
 * ``set_runtime_data(**kwargs)``
 * ``update_device_params(**kwargs)``
 * ``get_lookup(lookup)``
+* ``has_recursive_custom_attribute(index=1)``
+* ``set_custom_item(item, command, index, value)``
 
 
 Public callback methods:
@@ -648,8 +652,8 @@ Public methods:
 Public callback methods:
 
 * ``on_data_received(by, data, command=None)``
-* ``on_connected(by=None)``
-* ``on_disconnected(by=None)``
+* ``on_connect(by=None)``
+* ``on_disconnect(by=None)``
 
 
 Methods necessary to overwrite for derived classes:
@@ -734,16 +738,7 @@ Public methods:
 * ``get_send_data(command, data=None, **kwargs)``
 * ``get_shng_data(command, data, **kwargs)``
 * ``get_command_from_reply(data)``
-* ``get_lookup(lookup)``
-
-
-Methods possible to overwrite, if a custom format for ``commands.py`` is necessary:
-
-* ``_read_commands(device_id)``
-* ``_parse_commands(device_id, commands, cmds=[])``
-* ``_parse_lookups(device_id, lookups)``
-
-Beware of (unintended) consequences towards other device classes...
+* ``get_lookup(lookup, type=&#39;fwd&#39;)``
 
 
 Options and syntax of commands configuration are detailed in the `commands.py`
@@ -785,7 +780,7 @@ This class has subclasses defined for the following types of commands:
 
 * ``MD_Command_Str``        for string-based communication with device
 * ``MD_Command_ParseStr``   ditto with attribute parsing and regexes
-* ``MD_Command_Jsonrpc``    for JSON-RPC 2.0 commands with multiple arguments
+* ``MD_Command_JSON``       for JSON-RPC 2.0 commands with multiple arguments
 * ``MD_Command_Viessmann``  for the binary Viessmann heating protocols
 
 The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for
@@ -879,6 +874,15 @@ some reason the protocol layer should be selected and loaded manually, it can
 be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute. As with the
 model, this attribute should normally not be present in the configuration.
 
+
+Three custom item attributes exist, aptly named ``md_custom1`` through
+``md_custom3``. These can be used by the device for arbitrary functions.
+Unlike other item attributes, these can be configured to be used recursively,
+meaning that it only needs to be set for one item and is used for all sub-items.
+To effect this behaviour, the device configuration takes the parameter
+``recursive_custom: &lt;foo&gt;``, where &lt;foo&gt; can be a number from 1 to 3 or a list
+of any combination of the three.
+
 A list of all currently supported attributes is found in the ``MD_Globals.py``
 file next to their respective identifiers.
 
@@ -941,8 +945,6 @@ information in items immediately, or if multiple data points are trans- mitted
 at one, which requires splitting or other means of data management.
 &#34;&#34;&#34;
 
-from collections import OrderedDict
-
 import importlib
 import builtins
 import logging
@@ -951,6 +953,7 @@ import os
 import sys
 from copy import deepcopy
 from ast import literal_eval
+from collections import OrderedDict, abc
 
 __pdoc__ = {&#39;multidevice.tools&#39;: False, &#39;multidevice.webif&#39;: False}
 
@@ -967,7 +970,7 @@ if __name__ == &#39;__main__&#39;:
     BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
     sys.path.insert(0, BASE)
 
-    from MD_Globals import *
+    from MD_Globals import (sanitize_param, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCT)
     from MD_Commands import MD_Commands
 
 else:
@@ -976,7 +979,7 @@ else:
     from lib.model.smartplugin import SmartPlugin
     import lib.shyaml as shyaml
 
-    from .MD_Globals import *
+    from .MD_Globals import (sanitize_param, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCT)
     from .webif import WebInterface
 
 
@@ -1007,6 +1010,8 @@ class MultiDevice(SmartPlugin):
         &#34;&#34;&#34;
         if not sh:
             self.logger = logger
+
+        self._sh = sh
 
         self.logger.info(f&#39;Initializing MultiDevice-Plugin as {__name__}&#39;)
 
@@ -1133,9 +1138,7 @@ class MultiDevice(SmartPlugin):
                         # if valid struct definition is found
                         if raw_struct is not None:
 
-                            struct_list = device_instance.get_structs()
-                            if not struct_list:
-                                struct_list = list(raw_struct.keys())
+                            struct_list = list(raw_struct.keys())
                             self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
                             # replace all mentions of &#39;DEVICE&#39; with the plugin/device&#39;s name
                             mod_struct = self._process_struct(raw_struct, device_id)
@@ -1158,8 +1161,6 @@ class MultiDevice(SmartPlugin):
         Run method for the plugin
         &#34;&#34;&#34;
         self.logger.debug(&#39;Run method called&#39;)
-
-        # self.__print_global_arrays()
 
         # hand over relevant assigned commands and runtime-generated data
         self._apply_on_all_devices(&#39;set_runtime_data&#39;, self._generate_runtime_data)
@@ -1187,6 +1188,21 @@ class MultiDevice(SmartPlugin):
         :param item:    The item to process.
         :return:        Recall function for item updates
         &#34;&#34;&#34;
+
+        def find_custom_attr(item, index=1):
+            &#34;&#34;&#34; find spare item attribute recursively. Returns attribute or None &#34;&#34;&#34;
+            # self.logger.debug(f&#39;looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...&#39;)
+            parent = item.return_parent()
+
+            if type(parent) != type(item):
+                # reached top of item tree
+                return None
+
+            if self.has_iattr(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                return self.get_iattr_value(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+
+            return find_custom_attr(parent, index)
+
         # item is marked for plugin handling.
         device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
@@ -1208,8 +1224,23 @@ class MultiDevice(SmartPlugin):
                     self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_id}, ignoring item&#39;)
                     return
 
+                # handle custom item attributes
+                for index in (1, 2, 3):
+
+                    if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                        val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                        self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
+                    elif device.has_recursive_custom_attribute(index):
+                        val = find_custom_attr(item, index)
+                        if val is not None:
+                            self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
+                    if val is not None:
+                        device.set_custom_item(item, command, index, val)
+
+                var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                    print(f&#39;{command}: {var} is type {type(var)}&#39;)
                     if device.is_valid_command(command, COMMAND_READ):
                         if command in self._commands_read[device_id]:
                             self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item&#39;)
@@ -1377,6 +1408,8 @@ class MultiDevice(SmartPlugin):
                 item = self._commands_read[device_id][command]
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
                 item(value, self.get_shortname() + &#39;.&#39; + device_id)
+            elif not self._get_device(device_id).is_valid_command(command, COMMAND_READ):
+                dev_log.debug(f&#39;Command {command} yielded value {value}, but not configured for reading, discarding data&#39;)
             else:
                 dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
@@ -1533,6 +1566,15 @@ class MultiDevice(SmartPlugin):
 item_tree = {}
 
 
+def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
 def create_struct_yaml(device, indentwidth=4, write_output=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
     global item_tree
@@ -1646,18 +1688,18 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         item = {}
 
         # skip known command sub-dict nodes, but include command nodes
-        if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) or CMD_ATTR_ITEM_TYPE in node:
+        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and &#39;type&#39; not in node):
 
             # item -&gt; print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
-                item[&#39;type&#39;] = node.get(CMD_ATTR_ITEM_TYPE)
+                item[&#39;type&#39;] = node.get(CMD_ATTR_ITEM_TYPE, &#39;foo&#39;)
                 item[ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
                 cmd = path if path else node_name
                 if cut_levels:
                     cmd = COMMAND_SEP.join(cmd.split(COMMAND_SEP)[cut_levels:])
                 item[ITEM_ATTR_COMMAND] = cmd
-                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ)
-                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE)
+                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ, True)
+                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE, False)
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)
@@ -1751,7 +1793,10 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
         # print all non-dict children (dicts are visited later)
         for key in [key for key in node if not isinstance(node[key], dict)]:
-            p_text(f&#39;{key}: {node[key]}&#39;, 1)
+            if isinstance(node[key], bool):
+                p_text(f&#39;{key}: {str(node[key]).lower()}&#39;, 1)
+            else:                
+                p_text(f&#39;{key}: {node[key]}&#39;, 1)
 
         print()
 
@@ -2194,18 +2239,18 @@ if __name__ == &#39;__main__&#39;:
         item = {}
 
         # skip known command sub-dict nodes, but include command nodes
-        if node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) or CMD_ATTR_ITEM_TYPE in node:
+        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and &#39;type&#39; not in node):
 
             # item -&gt; print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
-                item[&#39;type&#39;] = node.get(CMD_ATTR_ITEM_TYPE)
+                item[&#39;type&#39;] = node.get(CMD_ATTR_ITEM_TYPE, &#39;foo&#39;)
                 item[ITEM_ATTR_DEVICE] = &#39;DEVICENAME&#39;
                 cmd = path if path else node_name
                 if cut_levels:
                     cmd = COMMAND_SEP.join(cmd.split(COMMAND_SEP)[cut_levels:])
                 item[ITEM_ATTR_COMMAND] = cmd
-                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ)
-                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE)
+                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ, True)
+                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE, False)
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)
@@ -2299,7 +2344,10 @@ if __name__ == &#39;__main__&#39;:
 
         # print all non-dict children (dicts are visited later)
         for key in [key for key in node if not isinstance(node[key], dict)]:
-            p_text(f&#39;{key}: {node[key]}&#39;, 1)
+            if isinstance(node[key], bool):
+                p_text(f&#39;{key}: {str(node[key]).lower()}&#39;, 1)
+            else:                
+                p_text(f&#39;{key}: {node[key]}&#39;, 1)
 
         print()
 
@@ -2433,6 +2481,24 @@ if __name__ == &#39;__main__&#39;:
         print(f&#39;Created file {file}&#39;)</code></pre>
 </details>
 </dd>
+<dt id="multidevice.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>d, u)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -2477,6 +2543,8 @@ modules and initializing them by instantiating the proper class.</p></div>
         &#34;&#34;&#34;
         if not sh:
             self.logger = logger
+
+        self._sh = sh
 
         self.logger.info(f&#39;Initializing MultiDevice-Plugin as {__name__}&#39;)
 
@@ -2603,9 +2671,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                         # if valid struct definition is found
                         if raw_struct is not None:
 
-                            struct_list = device_instance.get_structs()
-                            if not struct_list:
-                                struct_list = list(raw_struct.keys())
+                            struct_list = list(raw_struct.keys())
                             self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
                             # replace all mentions of &#39;DEVICE&#39; with the plugin/device&#39;s name
                             mod_struct = self._process_struct(raw_struct, device_id)
@@ -2628,8 +2694,6 @@ modules and initializing them by instantiating the proper class.</p></div>
         Run method for the plugin
         &#34;&#34;&#34;
         self.logger.debug(&#39;Run method called&#39;)
-
-        # self.__print_global_arrays()
 
         # hand over relevant assigned commands and runtime-generated data
         self._apply_on_all_devices(&#39;set_runtime_data&#39;, self._generate_runtime_data)
@@ -2657,6 +2721,21 @@ modules and initializing them by instantiating the proper class.</p></div>
         :param item:    The item to process.
         :return:        Recall function for item updates
         &#34;&#34;&#34;
+
+        def find_custom_attr(item, index=1):
+            &#34;&#34;&#34; find spare item attribute recursively. Returns attribute or None &#34;&#34;&#34;
+            # self.logger.debug(f&#39;looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...&#39;)
+            parent = item.return_parent()
+
+            if type(parent) != type(item):
+                # reached top of item tree
+                return None
+
+            if self.has_iattr(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                return self.get_iattr_value(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+
+            return find_custom_attr(parent, index)
+
         # item is marked for plugin handling.
         device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
@@ -2678,8 +2757,23 @@ modules and initializing them by instantiating the proper class.</p></div>
                     self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_id}, ignoring item&#39;)
                     return
 
+                # handle custom item attributes
+                for index in (1, 2, 3):
+
+                    if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                        val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                        self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
+                    elif device.has_recursive_custom_attribute(index):
+                        val = find_custom_attr(item, index)
+                        if val is not None:
+                            self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
+                    if val is not None:
+                        device.set_custom_item(item, command, index, val)
+
+                var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                    print(f&#39;{command}: {var} is type {type(var)}&#39;)
                     if device.is_valid_command(command, COMMAND_READ):
                         if command in self._commands_read[device_id]:
                             self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item&#39;)
@@ -2847,6 +2941,8 @@ modules and initializing them by instantiating the proper class.</p></div>
                 item = self._commands_read[device_id][command]
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
                 item(value, self.get_shortname() + &#39;.&#39; + device_id)
+            elif not self._get_device(device_id).is_valid_command(command, COMMAND_READ):
+                dev_log.debug(f&#39;Command {command} yielded value {value}, but not configured for reading, discarding data&#39;)
             else:
                 dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
@@ -3044,6 +3140,8 @@ and update value</p>
             item = self._commands_read[device_id][command]
             dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
             item(value, self.get_shortname() + &#39;.&#39; + device_id)
+        elif not self._get_device(device_id).is_valid_command(command, COMMAND_READ):
+            dev_log.debug(f&#39;Command {command} yielded value {value}, but not configured for reading, discarding data&#39;)
         else:
             dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)</code></pre>
 </details>
@@ -3073,6 +3171,21 @@ Recall function for item updates</p></div>
     :param item:    The item to process.
     :return:        Recall function for item updates
     &#34;&#34;&#34;
+
+    def find_custom_attr(item, index=1):
+        &#34;&#34;&#34; find spare item attribute recursively. Returns attribute or None &#34;&#34;&#34;
+        # self.logger.debug(f&#39;looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...&#39;)
+        parent = item.return_parent()
+
+        if type(parent) != type(item):
+            # reached top of item tree
+            return None
+
+        if self.has_iattr(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+            return self.get_iattr_value(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+
+        return find_custom_attr(parent, index)
+
     # item is marked for plugin handling.
     device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
@@ -3094,8 +3207,23 @@ Recall function for item updates</p></div>
                 self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_id}, ignoring item&#39;)
                 return
 
+            # handle custom item attributes
+            for index in (1, 2, 3):
+
+                if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                    val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                    self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
+                elif device.has_recursive_custom_attribute(index):
+                    val = find_custom_attr(item, index)
+                    if val is not None:
+                        self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
+                if val is not None:
+                    device.set_custom_item(item, command, index, val)
+
+            var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
             # command marked for reading
             if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
+                print(f&#39;{command}: {var} is type {type(var)}&#39;)
                 if device.is_valid_command(command, COMMAND_READ):
                     if command in self._commands_read[device_id]:
                         self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item&#39;)
@@ -3196,8 +3324,6 @@ Recall function for item updates</p></div>
     Run method for the plugin
     &#34;&#34;&#34;
     self.logger.debug(&#39;Run method called&#39;)
-
-    # self.__print_global_arrays()
 
     # hand over relevant assigned commands and runtime-generated data
     self._apply_on_all_devices(&#39;set_runtime_data&#39;, self._generate_runtime_data)
@@ -3350,6 +3476,7 @@ SmartHomeNG. It should write the changed value out to the device
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="multidevice.create_struct_yaml" href="#multidevice.create_struct_yaml">create_struct_yaml</a></code></li>
+<li><code><a title="multidevice.update" href="#multidevice.update">update</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

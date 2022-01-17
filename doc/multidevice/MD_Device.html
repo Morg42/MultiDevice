@@ -59,13 +59,13 @@ from lib.shyaml import yaml_load
 import importlib
 
 if MD_standalone:
-    from MD_Globals import *
+    from MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from MD_Commands import MD_Commands
     from MD_Command import MD_Command
     from MD_Connection import MD_Connection
     from MD_Protocol import MD_Protocol
 else:
-    from .MD_Globals import *
+    from .MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from .MD_Commands import MD_Commands
     from .MD_Command import MD_Command
     from .MD_Connection import MD_Connection
@@ -355,13 +355,13 @@ class MD_Device(object):
         data_received_callback takes one argument &#39;data&#39;
         &#34;&#34;&#34;
         try:
-            self._commands_read = kwargs[&#39;read_commands&#39;]
-            self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
-            self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
-            self._commands_initial = kwargs[&#39;initial_commands&#39;]
-            self._triggers_cyclic = kwargs[&#39;cycle_triggers&#39;]
-            self._triggers_initial = kwargs[&#39;initial_triggers&#39;]
-            self._data_received_callback = kwargs[&#39;callback&#39;]
+            self._commands_read = kwargs.get(&#39;read_commands&#39;, [])
+            self._commands_read_grp = kwargs.get(&#39;read_commands_grp&#39;, [])
+            self._commands_cyclic = kwargs.get(&#39;cycle_commands&#39;, [])
+            self._commands_initial = kwargs.get(&#39;initial_commands&#39;, [])
+            self._triggers_cyclic = kwargs.get(&#39;cycle_triggers&#39;, [])
+            self._triggers_initial = kwargs.get(&#39;initial_triggers&#39;, [])
+            self._data_received_callback = kwargs.get(&#39;callback&#39;, None)
             self._runtime_data_set = True
         except KeyError as e:
             self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)
@@ -395,6 +395,17 @@ class MD_Device(object):
             return self._commands.get_lookup(lookup, mode)
         else:
             return None
+
+    def has_recursive_custom_attribute(self, index=1):
+        rec = self._params.get(PLUGIN_ATTR_RECURSIVE, [])
+        if isinstance(rec, list):
+            return index in rec
+        else:
+            return rec == index
+
+    def set_custom_item(self, item, command, index, value):
+        &#34;&#34;&#34; this is called by parse_items if md_custom[123] is found. &#34;&#34;&#34;
+        pass
 
     #
     #
@@ -619,8 +630,6 @@ class MD_Device(object):
             if shortestcycle == -1 or cycle &lt; shortestcycle:
                 shortestcycle = cycle
 
-        print(f&#39;I 1234 123456 shortestcycle is {shortestcycle}&#39;)
-
         # Start the worker thread
         if shortestcycle != -1:
 
@@ -751,10 +760,7 @@ class MD_Device(object):
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
-        return True
-
-    def get_structs(self):
-        return getattr(self._commands, &#39;_dev_structs&#39;, [])</code></pre>
+        return True</code></pre>
 </details>
 </section>
 <section>
@@ -1068,13 +1074,13 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         data_received_callback takes one argument &#39;data&#39;
         &#34;&#34;&#34;
         try:
-            self._commands_read = kwargs[&#39;read_commands&#39;]
-            self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
-            self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
-            self._commands_initial = kwargs[&#39;initial_commands&#39;]
-            self._triggers_cyclic = kwargs[&#39;cycle_triggers&#39;]
-            self._triggers_initial = kwargs[&#39;initial_triggers&#39;]
-            self._data_received_callback = kwargs[&#39;callback&#39;]
+            self._commands_read = kwargs.get(&#39;read_commands&#39;, [])
+            self._commands_read_grp = kwargs.get(&#39;read_commands_grp&#39;, [])
+            self._commands_cyclic = kwargs.get(&#39;cycle_commands&#39;, [])
+            self._commands_initial = kwargs.get(&#39;initial_commands&#39;, [])
+            self._triggers_cyclic = kwargs.get(&#39;cycle_triggers&#39;, [])
+            self._triggers_initial = kwargs.get(&#39;initial_triggers&#39;, [])
+            self._data_received_callback = kwargs.get(&#39;callback&#39;, None)
             self._runtime_data_set = True
         except KeyError as e:
             self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)
@@ -1108,6 +1114,17 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             return self._commands.get_lookup(lookup, mode)
         else:
             return None
+
+    def has_recursive_custom_attribute(self, index=1):
+        rec = self._params.get(PLUGIN_ATTR_RECURSIVE, [])
+        if isinstance(rec, list):
+            return index in rec
+        else:
+            return rec == index
+
+    def set_custom_item(self, item, command, index, value):
+        &#34;&#34;&#34; this is called by parse_items if md_custom[123] is found. &#34;&#34;&#34;
+        pass
 
     #
     #
@@ -1332,8 +1349,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             if shortestcycle == -1 or cycle &lt; shortestcycle:
                 shortestcycle = cycle
 
-        print(f&#39;I 1234 123456 shortestcycle is {shortestcycle}&#39;)
-
         # Start the worker thread
         if shortestcycle != -1:
 
@@ -1464,10 +1479,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         if cls is None:
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
-        return True
-
-    def get_structs(self):
-        return getattr(self._commands, &#39;_dev_structs&#39;, [])</code></pre>
+        return True</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -1499,8 +1511,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         return None</code></pre>
 </details>
 </dd>
-<dt id="multidevice.MD_Device.MD_Device.get_structs"><code class="name flex">
-<span>def <span class="ident">get_structs</span></span>(<span>self)</span>
+<dt id="multidevice.MD_Device.MD_Device.has_recursive_custom_attribute"><code class="name flex">
+<span>def <span class="ident">has_recursive_custom_attribute</span></span>(<span>self, index=1)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1508,8 +1520,12 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_structs(self):
-    return getattr(self._commands, &#39;_dev_structs&#39;, [])</code></pre>
+<pre><code class="python">def has_recursive_custom_attribute(self, index=1):
+    rec = self._params.get(PLUGIN_ATTR_RECURSIVE, [])
+    if isinstance(rec, list):
+        return index in rec
+    else:
+        return rec == index</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Device.MD_Device.is_valid_command"><code class="name flex">
@@ -1721,6 +1737,20 @@ from the device and writing it to the associated item.</p>
     return True</code></pre>
 </details>
 </dd>
+<dt id="multidevice.MD_Device.MD_Device.set_custom_item"><code class="name flex">
+<span>def <span class="ident">set_custom_item</span></span>(<span>self, item, command, index, value)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>this is called by parse_items if md_custom[123] is found.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_custom_item(self, item, command, index, value):
+    &#34;&#34;&#34; this is called by parse_items if md_custom[123] is found. &#34;&#34;&#34;
+    pass</code></pre>
+</details>
+</dd>
 <dt id="multidevice.MD_Device.MD_Device.set_runtime_data"><code class="name flex">
 <span>def <span class="ident">set_runtime_data</span></span>(<span>self, **kwargs)</span>
 </code></dt>
@@ -1738,13 +1768,13 @@ from the device and writing it to the associated item.</p>
     data_received_callback takes one argument &#39;data&#39;
     &#34;&#34;&#34;
     try:
-        self._commands_read = kwargs[&#39;read_commands&#39;]
-        self._commands_read_grp = kwargs[&#39;read_commands_grp&#39;]
-        self._commands_cyclic = kwargs[&#39;cycle_commands&#39;]
-        self._commands_initial = kwargs[&#39;initial_commands&#39;]
-        self._triggers_cyclic = kwargs[&#39;cycle_triggers&#39;]
-        self._triggers_initial = kwargs[&#39;initial_triggers&#39;]
-        self._data_received_callback = kwargs[&#39;callback&#39;]
+        self._commands_read = kwargs.get(&#39;read_commands&#39;, [])
+        self._commands_read_grp = kwargs.get(&#39;read_commands_grp&#39;, [])
+        self._commands_cyclic = kwargs.get(&#39;cycle_commands&#39;, [])
+        self._commands_initial = kwargs.get(&#39;initial_commands&#39;, [])
+        self._triggers_cyclic = kwargs.get(&#39;cycle_triggers&#39;, [])
+        self._triggers_initial = kwargs.get(&#39;initial_triggers&#39;, [])
+        self._data_received_callback = kwargs.get(&#39;callback&#39;, None)
         self._runtime_data_set = True
     except KeyError as e:
         self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)</code></pre>
@@ -1854,13 +1884,14 @@ from the device and writing it to the associated item.</p>
 <ul class="">
 <li><code><a title="multidevice.MD_Device.MD_Device.DEVICE_ATTRS" href="#multidevice.MD_Device.MD_Device.DEVICE_ATTRS">DEVICE_ATTRS</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.get_lookup" href="#multidevice.MD_Device.MD_Device.get_lookup">get_lookup</a></code></li>
-<li><code><a title="multidevice.MD_Device.MD_Device.get_structs" href="#multidevice.MD_Device.MD_Device.get_structs">get_structs</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.has_recursive_custom_attribute" href="#multidevice.MD_Device.MD_Device.has_recursive_custom_attribute">has_recursive_custom_attribute</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.is_valid_command" href="#multidevice.MD_Device.MD_Device.is_valid_command">is_valid_command</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_connect" href="#multidevice.MD_Device.MD_Device.on_connect">on_connect</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_data_received" href="#multidevice.MD_Device.MD_Device.on_data_received">on_data_received</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_disconnect" href="#multidevice.MD_Device.MD_Device.on_disconnect">on_disconnect</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.read_all_commands" href="#multidevice.MD_Device.MD_Device.read_all_commands">read_all_commands</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.send_command" href="#multidevice.MD_Device.MD_Device.send_command">send_command</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.set_custom_item" href="#multidevice.MD_Device.MD_Device.set_custom_item">set_custom_item</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.set_runtime_data" href="#multidevice.MD_Device.MD_Device.set_runtime_data">set_runtime_data</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.start" href="#multidevice.MD_Device.MD_Device.start">start</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.stop" href="#multidevice.MD_Device.MD_Device.stop">stop</a></code></li>

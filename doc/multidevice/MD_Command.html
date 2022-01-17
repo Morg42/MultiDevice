@@ -56,10 +56,10 @@ import logging
 import re
 
 if MD_standalone:
-    from MD_Globals import *
+    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
     import datatypes as DT
 else:
-    from .MD_Globals import *
+    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
     from . import datatypes as DT
 
 
@@ -92,7 +92,7 @@ class MD_Command(object):
     item_type = None
     reply_token = []
     reply_pattern = &#39;&#39;
-    settings = None
+    cmd_settings = None
     lookup = None
     _DT = None
 
@@ -126,7 +126,7 @@ class MD_Command(object):
 
         # only log if base class. Derived classes log their own messages
         if self.__class__ is MD_Command:
-            self.logger.debug(f&#39;learned command {command} with device datatype {dt_class}&#39;)
+            self.logger.debug(f&#39;learned command {command} with device datatype {dt_class} in {self.__class__.__name__}&#39;)
 
     def get_send_data(self, data, **kwargs):
 
@@ -170,8 +170,8 @@ class MD_Command(object):
 
     def _check_min_max(self, data, key, min=True, force=False):
         &#34;&#34;&#34; helper routine to check for min/max compliance and int/float type &#34;&#34;&#34;
-        if key in self.settings:
-            bound = self.settings[key]
+        if key in self.cmd_settings:
+            bound = self.cmd_settings[key]
             if not isinstance(data, type(bound)):
                 if type(data) is float and type(bound) is int:
                     data = int(data)
@@ -182,7 +182,7 @@ class MD_Command(object):
             if (min and data &gt;= bound) or (not min and data &lt;= bound):
                 return data
             if force:
-                self.logger.debug(f&#39;Value {data} changed to {bound} due to settings {self.settings}&#39;)
+                self.logger.debug(f&#39;Value {data} changed to {bound} due to cmd_settings {self.cmd_settings}&#39;)
                 return bound
             raise ValueError(f&#39;value {data} not adhering to {&#34;min&#34; if min else &#34;max&#34;} value {bound}&#39;)
         return data
@@ -204,18 +204,18 @@ class MD_Command(object):
         &#34;&#34;&#34;
         if data is not None:
             try:
-                if self.settings and not self.lookup:
-                    if self.settings.get(&#39;valid_list_ci&#39;, None):
+                if self.cmd_settings and not self.lookup:
+                    if self.cmd_settings.get(&#39;valid_list_ci&#39;, None):
                         val = data
                         if isinstance(data, str):
                             val = data.lower()
-                        if val not in self.settings[&#39;valid_list_ci&#39;]:
-                            raise ValueError(f&#39;value {val} not in case insensitive list {self.settings[&#34;valid_list_ci&#34;]}&#39;)
-                    elif self.settings.get(&#39;valid_list&#39;, None):
-                        if data not in self.settings[&#39;valid_list&#39;]:
-                            raise ValueError(f&#39;value {data} not in list {self.settings[&#34;valid_list&#34;]}&#39;)
+                        if val not in self.cmd_settings[&#39;valid_list_ci&#39;]:
+                            raise ValueError(f&#39;value {val} not in case insensitive list {self.cmd_settings[&#34;valid_list_ci&#34;]}&#39;)
+                    elif self.cmd_settings.get(&#39;valid_list&#39;, None):
+                        if data not in self.cmd_settings[&#39;valid_list&#39;]:
+                            raise ValueError(f&#39;value {data} not in list {self.cmd_settings[&#34;valid_list&#34;]}&#39;)
                     # min/max not in addition to valid_list
-                    elif any(key in self.settings.keys() for key in MINMAXKEYS):
+                    elif any(key in self.cmd_settings.keys() for key in MINMAXKEYS):
                         for key in MINMAXKEYS:
                             data = self._check_min_max(data, key, key[-3:] == &#39;min&#39;, key[:5] == &#39;force&#39;)
 
@@ -634,7 +634,7 @@ dev_example/commands.py file.</p>
     item_type = None
     reply_token = []
     reply_pattern = &#39;&#39;
-    settings = None
+    cmd_settings = None
     lookup = None
     _DT = None
 
@@ -668,7 +668,7 @@ dev_example/commands.py file.</p>
 
         # only log if base class. Derived classes log their own messages
         if self.__class__ is MD_Command:
-            self.logger.debug(f&#39;learned command {command} with device datatype {dt_class}&#39;)
+            self.logger.debug(f&#39;learned command {command} with device datatype {dt_class} in {self.__class__.__name__}&#39;)
 
     def get_send_data(self, data, **kwargs):
 
@@ -712,8 +712,8 @@ dev_example/commands.py file.</p>
 
     def _check_min_max(self, data, key, min=True, force=False):
         &#34;&#34;&#34; helper routine to check for min/max compliance and int/float type &#34;&#34;&#34;
-        if key in self.settings:
-            bound = self.settings[key]
+        if key in self.cmd_settings:
+            bound = self.cmd_settings[key]
             if not isinstance(data, type(bound)):
                 if type(data) is float and type(bound) is int:
                     data = int(data)
@@ -724,7 +724,7 @@ dev_example/commands.py file.</p>
             if (min and data &gt;= bound) or (not min and data &lt;= bound):
                 return data
             if force:
-                self.logger.debug(f&#39;Value {data} changed to {bound} due to settings {self.settings}&#39;)
+                self.logger.debug(f&#39;Value {data} changed to {bound} due to cmd_settings {self.cmd_settings}&#39;)
                 return bound
             raise ValueError(f&#39;value {data} not adhering to {&#34;min&#34; if min else &#34;max&#34;} value {bound}&#39;)
         return data
@@ -746,18 +746,18 @@ dev_example/commands.py file.</p>
         &#34;&#34;&#34;
         if data is not None:
             try:
-                if self.settings and not self.lookup:
-                    if self.settings.get(&#39;valid_list_ci&#39;, None):
+                if self.cmd_settings and not self.lookup:
+                    if self.cmd_settings.get(&#39;valid_list_ci&#39;, None):
                         val = data
                         if isinstance(data, str):
                             val = data.lower()
-                        if val not in self.settings[&#39;valid_list_ci&#39;]:
-                            raise ValueError(f&#39;value {val} not in case insensitive list {self.settings[&#34;valid_list_ci&#34;]}&#39;)
-                    elif self.settings.get(&#39;valid_list&#39;, None):
-                        if data not in self.settings[&#39;valid_list&#39;]:
-                            raise ValueError(f&#39;value {data} not in list {self.settings[&#34;valid_list&#34;]}&#39;)
+                        if val not in self.cmd_settings[&#39;valid_list_ci&#39;]:
+                            raise ValueError(f&#39;value {val} not in case insensitive list {self.cmd_settings[&#34;valid_list_ci&#34;]}&#39;)
+                    elif self.cmd_settings.get(&#39;valid_list&#39;, None):
+                        if data not in self.cmd_settings[&#39;valid_list&#39;]:
+                            raise ValueError(f&#39;value {data} not in list {self.cmd_settings[&#34;valid_list&#34;]}&#39;)
                     # min/max not in addition to valid_list
-                    elif any(key in self.settings.keys() for key in MINMAXKEYS):
+                    elif any(key in self.cmd_settings.keys() for key in MINMAXKEYS):
                         for key in MINMAXKEYS:
                             data = self._check_min_max(data, key, key[-3:] == &#39;min&#39;, key[:5] == &#39;force&#39;)
 
@@ -774,6 +774,10 @@ dev_example/commands.py file.</p>
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="multidevice.MD_Command.MD_Command.cmd_settings"><code class="name">var <span class="ident">cmd_settings</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="multidevice.MD_Command.MD_Command.device_id"><code class="name">var <span class="ident">device_id</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -807,10 +811,6 @@ dev_example/commands.py file.</p>
 <div class="desc"></div>
 </dd>
 <dt id="multidevice.MD_Command.MD_Command.reply_token"><code class="name">var <span class="ident">reply_token</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="multidevice.MD_Command.MD_Command.settings"><code class="name">var <span class="ident">settings</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1643,6 +1643,7 @@ actual item value.</p>
 <li>
 <h4><code><a title="multidevice.MD_Command.MD_Command" href="#multidevice.MD_Command.MD_Command">MD_Command</a></code></h4>
 <ul class="two-column">
+<li><code><a title="multidevice.MD_Command.MD_Command.cmd_settings" href="#multidevice.MD_Command.MD_Command.cmd_settings">cmd_settings</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.device_id" href="#multidevice.MD_Command.MD_Command.device_id">device_id</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.get_lookup" href="#multidevice.MD_Command.MD_Command.get_lookup">get_lookup</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.get_send_data" href="#multidevice.MD_Command.MD_Command.get_send_data">get_send_data</a></code></li>
@@ -1655,7 +1656,6 @@ actual item value.</p>
 <li><code><a title="multidevice.MD_Command.MD_Command.read_cmd" href="#multidevice.MD_Command.MD_Command.read_cmd">read_cmd</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.reply_pattern" href="#multidevice.MD_Command.MD_Command.reply_pattern">reply_pattern</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.reply_token" href="#multidevice.MD_Command.MD_Command.reply_token">reply_token</a></code></li>
-<li><code><a title="multidevice.MD_Command.MD_Command.settings" href="#multidevice.MD_Command.MD_Command.settings">settings</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.write" href="#multidevice.MD_Command.MD_Command.write">write</a></code></li>
 <li><code><a title="multidevice.MD_Command.MD_Command.write_cmd" href="#multidevice.MD_Command.MD_Command.write_cmd">write_cmd</a></code></li>
 </ul>

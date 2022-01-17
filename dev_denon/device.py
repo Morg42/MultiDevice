@@ -2,16 +2,15 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 if MD_standalone:
-    from MD_Globals import *
+    from MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
     from MD_Device import MD_Device
-    from MD_Command import MD_Command_ParseStr
 else:
-    from ..MD_Globals import *
+    from ..MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
     from ..MD_Device import MD_Device
-    from ..MD_Command import MD_Command_ParseStr
 
 
 CUSTOM_INPUT_NAME_COMMAND = 'custom_inputnames'
+
 
 class MD_Device(MD_Device):
     """ Device class for Denon AV.
@@ -24,11 +23,11 @@ class MD_Device(MD_Device):
     """
 
     def _set_custom_vars(self):
-        #set our own preferences concerning connections
+        # set our own preferences concerning connections
         if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
-           self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
         elif PLUGIN_ATTR_SERIAL_PORT in self._params and self._params[PLUGIN_ATTR_SERIAL_PORT]:
-           self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
+            self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
         if PLUGIN_ATTR_CONN_TERMINATOR in self._params:
             b = self._params[PLUGIN_ATTR_CONN_TERMINATOR].encode()
             b = b.decode('unicode-escape').encode()
@@ -41,7 +40,6 @@ class MD_Device(MD_Device):
         self._connection.send(data_dict)
         return None
 
-
     def _transform_send_data(self, data=None):
         if data:
             try:
@@ -50,7 +48,6 @@ class MD_Device(MD_Device):
             except Exception as e:
                 self.logger.error(f'ERROR {e}')
         return data
-
 
     def _post_init(self):
         self._custom_inputnames = {}
@@ -83,7 +80,6 @@ class MD_Device(MD_Device):
                 self._data_received_callback(self.device_id, command, value)
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
-
 
     def _check_for_custominputs(self, command, data):
         if CUSTOM_INPUT_NAME_COMMAND in command and isinstance(data, str):

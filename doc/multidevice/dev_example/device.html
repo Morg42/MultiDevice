@@ -30,32 +30,13 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 if MD_standalone:
-    from MD_Globals import *
     from MD_Device import MD_Device
-    from MD_Command import MD_Command_Str
 else:
-    from ..MD_Globals import *
     from ..MD_Device import MD_Device
-    from ..MD_Command import MD_Command_Str
 
 
 class MD_Device(MD_Device):
     &#34;&#34;&#34; Example class for TCP client (async receiving) connection. &#34;&#34;&#34;
-
-    def _set_default_params(self):
-
-        # set parameter defaults
-        # TODO: adapt these to actual requirements!
-        self._params = {&#39;command_class&#39;: MD_Command_Str,            # remember to import the needed class!
-                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,   # check MD_Globals.py for constants
-                        PLUGIN_ATTR_NET_HOST: &#39;&#39;,                   # this creates self._host for network connections
-                        PLUGIN_ATTR_NET_PORT: 0, 
-                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
-                        PLUGIN_ATTR_CONN_RETRIES: 5, 
-                        PLUGIN_ATTR_CONN_CYCLE: 3, 
-                        PLUGIN_ATTR_CONN_TIMEOUT: 3, 
-                        PLUGIN_ATTR_CONN_TERMINATOR: b&#39;\r&#39;,
-                        &#39;disconnected_callback&#39;: None}
 
     def _post_init(self):
         # if you don&#39;t know what to do with this method, just delete it!
@@ -101,21 +82,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <pre><code class="python">class MD_Device(MD_Device):
     &#34;&#34;&#34; Example class for TCP client (async receiving) connection. &#34;&#34;&#34;
 
-    def _set_default_params(self):
-
-        # set parameter defaults
-        # TODO: adapt these to actual requirements!
-        self._params = {&#39;command_class&#39;: MD_Command_Str,            # remember to import the needed class!
-                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,   # check MD_Globals.py for constants
-                        PLUGIN_ATTR_NET_HOST: &#39;&#39;,                   # this creates self._host for network connections
-                        PLUGIN_ATTR_NET_PORT: 0, 
-                        PLUGIN_ATTR_CONN_AUTO_CONN: True,
-                        PLUGIN_ATTR_CONN_RETRIES: 5, 
-                        PLUGIN_ATTR_CONN_CYCLE: 3, 
-                        PLUGIN_ATTR_CONN_TIMEOUT: 3, 
-                        PLUGIN_ATTR_CONN_TERMINATOR: b&#39;\r&#39;,
-                        &#39;disconnected_callback&#39;: None}
-
     def _post_init(self):
         # if you don&#39;t know what to do with this method, just delete it!
 
@@ -146,6 +112,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <li><code><a title="multidevice.MD_Device.MD_Device.on_disconnect" href="../MD_Device.html#multidevice.MD_Device.MD_Device.on_disconnect">on_disconnect</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.read_all_commands" href="../MD_Device.html#multidevice.MD_Device.MD_Device.read_all_commands">read_all_commands</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.send_command" href="../MD_Device.html#multidevice.MD_Device.MD_Device.send_command">send_command</a></code></li>
+<li><code><a title="multidevice.MD_Device.MD_Device.set_custom_item" href="../MD_Device.html#multidevice.MD_Device.MD_Device.set_custom_item">set_custom_item</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.set_runtime_data" href="../MD_Device.html#multidevice.MD_Device.MD_Device.set_runtime_data">set_runtime_data</a></code></li>
 <li><code><a title="multidevice.MD_Device.MD_Device.update_device_params" href="../MD_Device.html#multidevice.MD_Device.MD_Device.update_device_params">update_device_params</a></code></li>
 </ul>

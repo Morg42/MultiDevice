@@ -29,11 +29,11 @@ import re
 from pydoc import locate
 
 if MD_standalone:
-    from MD_Globals import *
+    from MD_Globals import (CommandsError, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_DEV_TYPE, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_WRITE, CMD_ATTR_WRITE_CMD, COMMAND_PARAMS, COMMAND_SEP, INDEX_GENERIC)
     from MD_Command import MD_Command
     import datatypes as DT
 else:
-    from .MD_Globals import *
+    from .MD_Globals import (CommandsError, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_DEV_TYPE, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_WRITE, CMD_ATTR_WRITE_CMD, COMMAND_PARAMS, COMMAND_SEP, INDEX_GENERIC)
     from .MD_Command import MD_Command
     from . import datatypes as DT
 
@@ -362,7 +362,7 @@ class MD_Commands(object):
             # 'control' is only a section, and the only valid 'content' apart from sections or commands is 'item_attrs' to provide
             # for read triggers or other extensions. If 'item_attrs' is defined, it is syntactically identical to the following
             # commands, so the identifier 'item_attrs' is read as command name.
-            if cmd[-len(CMD_ATTR_ITEM_ATTRS)-len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
+            if cmd[-len(CMD_ATTR_ITEM_ATTRS) - len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
                 continue
 
             # preset default values

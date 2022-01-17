@@ -3,10 +3,10 @@
 
 
 if MD_standalone:
-    from MD_Globals import *
+    from MD_Globals import PLUGIN_ATTR_SERIAL_PORT
     from MD_Device import MD_Device
 else:
-    from ..MD_Globals import *
+    from ..MD_Globals import PLUGIN_ATTR_SERIAL_PORT
     from ..MD_Device import MD_Device
 
 
@@ -171,7 +171,7 @@ class MD_Device(MD_Device):
         except Exception as e:
             err = e
         if not res:
-            logger.info(f'Could not initialize communication using protocol {protocol}. {err if err else ""}')
+            self.logger.info(f'Could not initialize communication using protocol {protocol}. {err if err else ""}')
             return False
 
         self._result = None

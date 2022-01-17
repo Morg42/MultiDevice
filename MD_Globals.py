@@ -26,7 +26,6 @@
 
 from lib.utils import Utils
 from ast import literal_eval
-from collections import abc
 
 
 #############################################################################################################################################################################################################################################
@@ -203,12 +202,3 @@ def sanitize_param(val):
         except Exception:
             pass
     return val
-
-
-def update(d, u):
-    for k, v in u.items():
-        if isinstance(v, abc.Mapping):
-            d[k] = update(d.get(k, {}), v)
-        else:
-            d[k] = v
-    return d

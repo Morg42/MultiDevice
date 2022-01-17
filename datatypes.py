@@ -26,12 +26,6 @@
 
 import json
 
-if MD_standalone:
-    from MD_Globals import *
-else:
-    from .MD_Globals import *
-
-
 # default / reference datatypes
 datatypes = (
     'int', 'num', 'str', 'dict', 'list', 'tuple', 'bytes', 'bytearray', 'json'

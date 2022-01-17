@@ -173,6 +173,8 @@ Public methods:
 * ``set_runtime_data(**kwargs)``
 * ``update_device_params(**kwargs)``
 * ``get_lookup(lookup)``
+* ``has_recursive_custom_attribute(index=1)``
+* ``set_custom_item(item, command, index, value)``
 
 
 Public callback methods:
@@ -229,8 +231,8 @@ Public methods:
 Public callback methods:
 
 * ``on_data_received(by, data, command=None)``
-* ``on_connected(by=None)``
-* ``on_disconnected(by=None)``
+* ``on_connect(by=None)``
+* ``on_disconnect(by=None)``
 
 
 Methods necessary to overwrite for derived classes:
@@ -315,16 +317,7 @@ Public methods:
 * ``get_send_data(command, data=None, **kwargs)``
 * ``get_shng_data(command, data, **kwargs)``
 * ``get_command_from_reply(data)``
-* ``get_lookup(lookup)``
-
-
-Methods possible to overwrite, if a custom format for ``commands.py`` is necessary:
-
-* ``_read_commands(device_id)``
-* ``_parse_commands(device_id, commands, cmds=[])``
-* ``_parse_lookups(device_id, lookups)``
-
-Beware of (unintended) consequences towards other device classes...
+* ``get_lookup(lookup, type='fwd')``
 
 
 Options and syntax of commands configuration are detailed in the `commands.py`
@@ -366,7 +359,7 @@ This class has subclasses defined for the following types of commands:
 
 * ``MD_Command_Str``        for string-based communication with device
 * ``MD_Command_ParseStr``   ditto with attribute parsing and regexes
-* ``MD_Command_Jsonrpc``    for JSON-RPC 2.0 commands with multiple arguments
+* ``MD_Command_JSON``       for JSON-RPC 2.0 commands with multiple arguments
 * ``MD_Command_Viessmann``  for the binary Viessmann heating protocols
 
 The classes ``MD_Command_Str`` and ``MD_Command_ParseStr`` are examples for
@@ -459,6 +452,15 @@ provide for proper loading (it loads in place of the connection class). If for
 some reason the protocol layer should be selected and loaded manually, it can
 be forced by providing the ``protocol: <protocolname>`` attribute. As with the
 model, this attribute should normally not be present in the configuration.
+
+
+Three custom item attributes exist, aptly named ``md_custom1`` through
+``md_custom3``. These can be used by the device for arbitrary functions.
+Unlike other item attributes, these can be configured to be used recursively,
+meaning that it only needs to be set for one item and is used for all sub-items.
+To effect this behaviour, the device configuration takes the parameter
+``recursive_custom: <foo>``, where <foo> can be a number from 1 to 3 or a list
+of any combination of the three.
 
 A list of all currently supported attributes is found in the ``MD_Globals.py``
 file next to their respective identifiers.
@@ -589,6 +591,8 @@ class MultiDevice(SmartPlugin):
         if not sh:
             self.logger = logger
 
+        self._sh = sh
+
         self.logger.info(f'Initializing MultiDevice-Plugin as {__name__}')
 
         self._devices = {}              # contains all configured devices - <device_id>: {'device_type': <device_type>, 'device': <class-instance>, 'logger': <logger-instance>, 'params': {'param1': val1, 'param2': val2...}}
@@ -714,9 +718,7 @@ class MultiDevice(SmartPlugin):
                         # if valid struct definition is found
                         if raw_struct is not None:
 
-                            struct_list = device_instance.get_structs()
-                            if not struct_list:
-                                struct_list = list(raw_struct.keys())
+                            struct_list = list(raw_struct.keys())
                             self.logger.debug(f'loaded {len(struct_list)} structs for processing')
                             # replace all mentions of 'DEVICE' with the plugin/device's name
                             mod_struct = self._process_struct(raw_struct, device_id)
@@ -766,6 +768,21 @@ class MultiDevice(SmartPlugin):
         :param item:    The item to process.
         :return:        Recall function for item updates
         """
+
+        def find_custom_attr(item, index=1):
+            """ find spare item attribute recursively. Returns attribute or None """
+            # self.logger.debug(f'looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...')
+            parent = item.return_parent()
+
+            if type(parent) != type(item):
+                # reached top of item tree
+                return None
+
+            if self.has_iattr(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                return self.get_iattr_value(parent.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+
+            return find_custom_attr(parent, index)
+
         # item is marked for plugin handling.
         device_id = self.get_iattr_value(item.conf, ITEM_ATTR_DEVICE)
 
@@ -786,6 +803,19 @@ class MultiDevice(SmartPlugin):
                 if not device.is_valid_command(command):
                     self.logger.warning(f'Item {item} requests undefined command {command} for device {device_id}, ignoring item')
                     return
+
+                # handle custom item attributes
+                for index in (1, 2, 3):
+
+                    if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                        val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                        self.logger.debug(f'Item {item} has custom item attribute {index} with value {val}')
+                    elif device.has_recursive_custom_attribute(index):
+                        val = find_custom_attr(item, index)
+                        if val is not None:
+                            self.logger.debug(f'Item {item} inherited custom item attribute {index} with value {val}')
+                    if val is not None:
+                        device.set_custom_item(item, command, index, val)
 
                 var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading

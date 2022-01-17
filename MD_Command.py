@@ -476,12 +476,8 @@ class MD_Command_JSON(MD_Command):
 
             params[self.params[idx]] = val
 
-        print(f'I 0000 000000 {self.__class__.__name__} - kwargs is {kwargs}, params is {params}')
-
         if 'playerid' in params and 'playerid' in kwargs:
             params['playerid'] = kwargs['playerid']
-
-        print(f'I 0000 000000 {self.__class__.__name__} - kwargs is {kwargs}, params is {params}')
 
         return params
 

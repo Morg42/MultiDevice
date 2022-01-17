@@ -127,6 +127,10 @@ class MD_Connection(object):
 
         return response
 
+    def connected(self):
+        """ getter for self._is_connected """
+        return self._is_connected
+
     def on_data_received(self, by, data):
         """ callback for on_data_received event """
         if data:
@@ -147,10 +151,6 @@ class MD_Connection(object):
         self._is_connected = False
         if self._disconnected_callback:
             self._disconnected_callback()
-
-    def connected(self):
-        """ getter for self._is_connected """
-        return self._is_connected
 
     #
     #

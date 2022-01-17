@@ -2,7 +2,6 @@
 ---
 # vim: expandtab:ts=4:sw=4
 info:
-
     read:
         type: bool
         enforce_updates: true
@@ -65,8 +64,6 @@ status:
         enforce_updates: true
         md_device: DEVICENAME
         md_read_group_trigger: status
-        md_read_initial: true
-        md_read_cycle: 300
 
     update:
         type: bool
@@ -296,8 +293,6 @@ ALL:
             enforce_updates: true
             md_device: DEVICENAME
             md_read_group_trigger: ALL.status
-            md_read_initial: true
-            md_read_cycle: 300
 
         update:
             type: bool

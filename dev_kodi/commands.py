@@ -13,7 +13,7 @@ commands = {
         'subtitles':        {'read': True, 'write': False, 'opcode': 'subtitles',                   'reply_token': 'subtitles',                   'item_type': 'dict', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
         'macro':            {'read': True, 'write': True,  'opcode': 'macro',                       'reply_token': 'macro',                       'item_type': 'bool', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
     },
-    'status': {'item_attrs': {'initial': True, 'cycle': 300},
+    'status': {
         'update':           {'read': True, 'write': True,  'opcode': 'update',                      'reply_token': 'update',                      'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},
         'ping':             {'read': True, 'write': False, 'opcode': 'JSONRPC.Ping',                'reply_token': 'JSONRPC.Ping',                'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},
         'get_status_au':    {'read': True, 'write': False, 'opcode': 'Application.GetProperties',   'reply_token': 'Application.GetProperties',   'item_type': 'bool', 'dev_datatype': 'raw', 'params': ['properties'], 'param_values': [['volume', 'muted']]},

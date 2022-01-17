@@ -368,6 +368,17 @@ class MD_Device(object):
         else:
             return None
 
+    def has_recursive_custom_attribute(self, index=1):
+        rec = self._params.get(PLUGIN_ATTR_RECURSIVE, [])
+        if isinstance(rec, list):
+            return index in rec
+        else:
+            return rec == index
+
+    def set_custom_item(self, item, command, index, value):
+        """ this is called by parse_items if md_custom[123] is found. """
+        pass
+
     #
     #
     # check if overwriting needed
@@ -722,6 +733,3 @@ class MD_Device(object):
             cls = MD_Command
         self._commands = MD_Commands(self.device_type, self.device_id, cls, **self._params)
         return True
-
-    def get_structs(self):
-        return getattr(self._commands, '_dev_structs', [])

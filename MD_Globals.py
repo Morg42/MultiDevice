@@ -44,6 +44,7 @@ PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to disab
 PLUGIN_ATTR_MODEL            = 'model'                   # select model if applicable. Don't set if not necessary!
 PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stucts not supported by chosen model
 PLUGIN_ATTR_CMD_CLASS        = 'command_class'           # name of class to use for commands
+PLUGIN_ATTR_RECURSIVE        = 'recursive_custom'        # indices of custom item attributes for which to enable recursive lookup (number or list of numbers)
 
 # general connection attributes
 PLUGIN_ATTR_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
@@ -72,7 +73,7 @@ PLUGIN_ATTR_PROTOCOL         = 'protocol'                # manually choose proto
 PLUGIN_ATTR_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to wait for reply to command (JSON-RPC only)
 PLUGIN_ATTR_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
 
-PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT, PLUGIN_ATTR_CMD_CLASS,
+PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_RECURSIVE,
                 PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_TIMEOUT,
                 PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_CYCLE,
                 PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT,
@@ -106,8 +107,12 @@ ITEM_ATTR_GROUP             = 'md_read_group'
 ITEM_ATTR_WRITE             = 'md_write'
 ITEM_ATTR_READ_GRP          = 'md_read_group_trigger'
 ITEM_ATTR_LOOKUP            = 'md_lookup'
+ITEM_ATTR_CUSTOM_PREFIX     = 'md_custom'
+ITEM_ATTR_CUSTOM1           = 'md_custom1'
+ITEM_ATTR_CUSTOM2           = 'md_custom2'
+ITEM_ATTR_CUSTOM3           = 'md_custom3'
 
-ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP)
+ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_CUSTOM1, ITEM_ATTR_CUSTOM2, ITEM_ATTR_CUSTOM3)
 
 # command definition
 COMMAND_READ                = True

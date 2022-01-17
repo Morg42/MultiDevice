@@ -30,6 +30,7 @@ import requests
 import serial
 from threading import Lock, Thread
 from contextlib import contextmanager
+import urllib.parse
 
 from lib.network import Tcp_client
 
@@ -94,7 +95,7 @@ class MD_Connection(object):
             self._is_connected = True
             self._send_init_on_open()
 
-        return self._is_connected        
+        return self._is_connected
 
     def close(self):
         """ wrapper method provides stable interface and allows overwriting """
@@ -121,7 +122,7 @@ class MD_Connection(object):
             raise ValueError('send provided with empty data_dict["payload"], aborting')
 
         response = None
-        
+
         if self._send_init_on_send():
             response = self._send(data_dict)
 
@@ -134,7 +135,7 @@ class MD_Connection(object):
     def on_data_received(self, by, data):
         """ callback for on_data_received event """
         if data:
-            self.logger.debug(f'received raw data "{data}" from "{by}"')
+            self.logger.debug(f'received raw data "{urllib.parse.unquote_plus(data)}" from "{by}"')
             if self._data_received_callback:
                 self._data_received_callback(by, data)
 
@@ -338,7 +339,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f'{self.__class__.__name__} opening connection with params {self._params}')
         if not self._tcp.connected():
             self._tcp.connect()
-            # give a moment to establish connection (threaded call). 
+            # give a moment to establish connection (threaded call).
             # immediate return would always fail
             # "proper" control is executed by using on_connect callback
             sleep(2)
@@ -606,7 +607,7 @@ class MD_Connection_Serial(MD_Connection):
         # self.logger.debug('_read_bytes: start read')
         starttime = time()
 
-        # prevent concurrent read attempts; 
+        # prevent concurrent read attempts;
         with self._lock.acquire_timeout(self.__lock_timeout) as locked:
 
             if locked:

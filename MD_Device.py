@@ -29,6 +29,7 @@ import time
 import sys
 from lib.shyaml import yaml_load
 import importlib
+import urllib.parse
 
 if MD_standalone:
     from MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
@@ -269,23 +270,24 @@ class MD_Device(object):
         :param by: client object / name / identifier
         :type command: str
         """
+        data_tolog = urllib.parse.unquote_plus(data)
         if command is not None:
-            self.logger.debug(f'received data "{data}" for command {command}')
+            self.logger.debug(f'received data "{data_tolog}" for command {command}')
         else:
             # command == None means that we got raw data from a callback and don't know yet to
             # which command this belongs to. So find out...
-            self.logger.debug(f'received data "{data}" without command specification')
+            self.logger.debug(f'received data "{data_tolog}" without command specification')
             command = self._commands.get_command_from_reply(data)
             if not command:
-                self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
+                self.logger.debug(f'data "{data_tolog}" did not identify a known command, ignoring it')
                 return
 
         try:
             value = self._commands.get_shng_data(command, data)
         except Exception as e:
-            self.logger.info(f'received data "{data}" for command {command}, error {e} occurred while converting. Discarding data.')
+            self.logger.info(f'received data "{data_tolog}" for command {command}, error {e} occurred while converting. Discarding data.')
         else:
-            self.logger.debug(f'received data "{data}" for command {command} converted to value {value}')
+            self.logger.debug(f'received data "{data_tolog}" for command {command} converted to value {value}')
             if self._data_received_callback:
                 self._data_received_callback(self.device_id, command, value)
             else:

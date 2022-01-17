@@ -1233,14 +1233,14 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             # item -> print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
-                item['type'] = node.get(CMD_ATTR_ITEM_TYPE)
+                item['type'] = node.get(CMD_ATTR_ITEM_TYPE, 'foo')
                 item[ITEM_ATTR_DEVICE] = 'DEVICENAME'
                 cmd = path if path else node_name
                 if cut_levels:
                     cmd = COMMAND_SEP.join(cmd.split(COMMAND_SEP)[cut_levels:])
                 item[ITEM_ATTR_COMMAND] = cmd
-                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ)
-                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE)
+                item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ, True)
+                item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE, False)
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)

@@ -1,0 +1,29 @@
+%YAML 1.1
+# vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
+---
+
+device:
+    description: 'Yamaha MusicCast'
+    maintainer: Morg
+
+parameters:
+    host:
+        type: str
+        description: 'Hostname oder IP-Adresse'
+
+    port:
+        type: int
+        default: 41100
+        description: 'Port'
+
+    # nicht ändern
+    command_class:
+        type: str
+        default: MD_Command_ParseStr
+        description: 'Name der Klasse für Commands'
+
+    # nicht ändern
+    conn_type:
+        type: str
+        default: MD_Connection_Net_Ucast_Request
+        description: 'Name der Klasse für Connection'

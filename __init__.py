@@ -604,6 +604,7 @@ class MultiDevice(SmartPlugin):
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {<command>: {'cycle': <cycle>, 'next': <next>}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - <device_id>: ['grp', 'grp', ...]
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {<grp>: {'cycle': <cycle>, 'next': <next>}}
+        self._items_custom = {}         # contains item md_custom<x> attributes - <item_id>: {1: custom1, 2: custom2, 3:custom3}
 
         self._webif = None
 
@@ -804,6 +805,7 @@ class MultiDevice(SmartPlugin):
                     return
 
                 # handle custom item attributes
+                self._items_custom[item.id()] = {1: None, 2: None, 3: None}
                 for index in (1, 2, 3):
 
                     if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
@@ -815,6 +817,7 @@ class MultiDevice(SmartPlugin):
                             self.logger.debug(f'Item {item} inherited custom item attribute {index} with value {val}')
                     if val is not None:
                         device.set_custom_item(item, command, index, val)
+                        self._items_custom[item.id()][index] = val
 
                 var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading
@@ -944,7 +947,7 @@ class MultiDevice(SmartPlugin):
                     device = self._get_device(device_id)
                     command = self._items_write[item.id()]['command']
                     dev_log.debug(f'Writing value "{item()}" from item {item.id()} with command "{command}"')
-                    if not device.send_command(command, item()):
+                    if not device.send_command(command, item(), custom=self._items_custom[item.id()]):
                         dev_log.debug(f'Writing value "{item()}"" from item {item.id()} with command "{command}" failed, resetting item value')
                         item(item.property.last_value, self.get_shortname() + '.' + device_id)
                         return None

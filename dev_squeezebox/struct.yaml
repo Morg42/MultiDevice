@@ -1,0 +1,73 @@
+%YAML 1.1
+---
+# vim: expandtab:ts=4:sw=4
+server:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: server
+
+    listenmode:
+        type: bool
+        md_device: DEVICENAME
+        md_command: server.listenmode
+        md_read: true
+        md_write: true
+
+playercontrol:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: playercontrol
+
+    volume:
+        type: num
+        md_device: DEVICENAME
+        md_command: playercontrol.volume
+        md_read: true
+        md_write: true
+        md_read_group: ['playercontrol']
+
+ALL:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: ALL
+
+    server:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: ALL.server
+
+        listenmode:
+            type: bool
+            md_device: DEVICENAME
+            md_command: server.listenmode
+            md_read: true
+            md_write: true
+
+    playercontrol:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: ALL.playercontrol
+
+        volume:
+            type: num
+            md_device: DEVICENAME
+            md_command: playercontrol.volume
+            md_read: true
+            md_write: true
+            md_read_group: ['ALL', 'ALL.playercontrol']
+

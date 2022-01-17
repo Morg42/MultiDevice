@@ -183,6 +183,15 @@ class Datatype(object):
                     raise
 
 
+class DT_none(Datatype):
+    """ don't pass on anything. Maybe needed someplace... """
+    def get_send_data(self, data, **kwargs):
+        return None
+
+    def get_shng_data(self, data, type=None, **kwargs):
+        return None
+
+
 class DT_raw(Datatype):
     """ pass on data, identical to base class """
     pass

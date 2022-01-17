@@ -203,7 +203,7 @@ class MD_Command_Str(MD_Command):
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
-    Default behaviour is identical to MD_Command_Str.
+    Default behaviour is identical to MD_Command.
 
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
@@ -312,6 +312,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     Default behaviour is identical to MD_Command_Str.
 
+    opcode, write_cmd and read_cmd will be parsed to substitute values.
     Giving write_cmd as ':<write expression>:' (note colons) will format the
     given string (without the colons), replacing 'VAL' with the value by using
     write_cmd.format(VAL=data_dict['payload']), so you can immediately embed

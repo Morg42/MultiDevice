@@ -427,7 +427,7 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
             return False
 
         # default to get if not 'post' specified
-        method = data_dict.get('method', 'get')
+        method = 'post' if data_dict.get('data') else 'get'
 
         # check for additional data
         par = {}
@@ -435,6 +435,7 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
             par[arg] = data_dict.get(arg, {})
 
         # send data
+        self.logger.debug(f'sending command with {method} to {url}')
         response = requests.request(method, url,
                                     params=par['params'],
                                     headers=par['headers'],

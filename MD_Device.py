@@ -73,7 +73,7 @@ class MD_Device(object):
 
         As additional device classes are expected to be implemented as
         subclasses, most initialization steps are modularized as methods which
-        can be overwritten as needed. 
+        can be overwritten as needed.
 
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn't need to be changed.
@@ -120,7 +120,7 @@ class MD_Device(object):
         self._params.update(kwargs)
         self._plugin = self._params.get('plugin', None)
 
-        # possibly initialize additional 
+        # possibly initialize additional
         self._set_custom_vars()
 
         # check if manually disabled
@@ -201,7 +201,7 @@ class MD_Device(object):
     def send_command(self, command, value=None, **kwargs):
         """
         Sends the specified command to the device providing <value> as data
-        Not providing data will issue a read command, trying to read the value 
+        Not providing data will issue a read command, trying to read the value
         from the device and writing it to the associated item.
 
         :param command: the command to send
@@ -234,7 +234,7 @@ class MD_Device(object):
             self.logger.warning(f'command {command} with value {value} yielded empty command payload, aborting')
             return False
 
-        data_dict = self._transform_send_data(data_dict)
+        data_dict = self._transform_send_data(data_dict, **kwargs)
         self.logger.debug(f'command {command} with value {value} yielded send data_dict {data_dict}')
 
         # if an error occurs on sending, an exception is thrown
@@ -251,7 +251,7 @@ class MD_Device(object):
                 value = self._commands.get_shng_data(command, result, **kwargs)
             except Exception as e:
                 self.logger.info(f'command {command} received result {result}, error {e} occurred while converting. Discarding result.')
-            else:            
+            else:
                 self.logger.debug(f'command {command} received result {result}, converted to value {value}')
                 if self._data_received_callback:
                     self._data_received_callback(self.device_id, command, value)
@@ -393,19 +393,19 @@ class MD_Device(object):
         pass
 
     def _post_init(self):
-        """ do something after default initializing is done. Overwrite if needed. 
+        """ do something after default initializing is done. Overwrite if needed.
 
         If for some reason you find compelling argument to stop loading the
         device instance, set self._disabled to true.
         """
         pass
 
-    def _transform_send_data(self, data_dict):
+    def _transform_send_data(self, data_dict, **kwargs):
         """
         This method provides a way to adjust, modify or transform all data before
         it is sent to the device.
-        This might be to add general parameters, add/change line endings or
-        add your favourite pets' name... 
+        This might be to add general parameters, include custom attributes,
+        add/change line endings or add your favourite pet's name...
         By default, nothing happens here.
         """
         return data_dict
@@ -506,7 +506,7 @@ class MD_Device(object):
                 conn_type = self._params[PLUGIN_ATTR_CONNECTION]
             else:
                 conn_classname = self._params[PLUGIN_ATTR_CONNECTION]
-        
+
         if not conn_type and not conn_cls and not conn_classname:
             if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
@@ -645,18 +645,18 @@ class MD_Device(object):
             return
         else:
             self.logger.info('Triggering cyclic command read')
- 
+
         # set lock
         self._cyclic_update_active = True
         currenttime = time.time()
         read_cmds = 0
         todo = []
         for cmd in self._commands_cyclic:
- 
+
             # Is the command already due?
             if self._commands_cyclic[cmd]['next'] <= currenttime:
                 todo.append(cmd)
- 
+
         for cmd in todo:
             # as this loop can take considerable time, repeatedly check if shng wants to stop
             if not self.alive:
@@ -672,7 +672,7 @@ class MD_Device(object):
             self.send_command(cmd)
             self._commands_cyclic[cmd]['next'] = currenttime + self._commands_cyclic[cmd]['cycle']
             read_cmds += 1
- 
+
         if read_cmds:
             self.logger.debug(f'Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items')
 
@@ -680,11 +680,11 @@ class MD_Device(object):
         read_grps = 0
         todo = []
         for grp in self._triggers_cyclic:
- 
+
             # Is the trigger already due?
             if self._triggers_cyclic[grp]['next'] <= currenttime:
                 todo.append(grp)
- 
+
         for grp in todo:
             # as this loop can take considerable time, repeatedly check if shng wants to stop
             if not self.alive:
@@ -700,7 +700,7 @@ class MD_Device(object):
             self.read_all_commands(grp)
             self._triggers_cyclic[grp]['next'] = currenttime + self._triggers_cyclic[grp]['cycle']
             read_grps += 1
- 
+
         if read_grps:
             self.logger.debug(f'Cyclic triggers took {(time.time() - currenttime):.1f} seconds for {read_grps} groups')
 
@@ -712,7 +712,7 @@ class MD_Device(object):
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overwritten to do something else.
         """
-        cls = None        
+        cls = None
         if isinstance(self._command_class, type):
             cls = self._command_class
         elif isinstance(self._command_class, str):

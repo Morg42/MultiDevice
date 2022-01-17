@@ -152,14 +152,16 @@ zone1:
         md_read_group: ['zone1']
         md_read_initial: true
 
-        update_reverse:
+        reverse:
             type: bool
-            eval: sh...reverse.timer(2, True)
+            eval: True
+            enforce_updates: True
             eval_trigger: ..
 
-        reverse:
-            type: dict
-            eval: "{v: k for (k, v) in sh...().items()}"
+            update:
+                type: bool
+                eval: sh...timer(2, {})
+                #eval_trigger: ...
 
     power:
         type: bool
@@ -219,18 +221,6 @@ zone1:
         custom_name:
             type: str
             on_change: .. = sh....custom_inputnames.reverse()[value]
-
-        item_attrs:
-
-            attributes:
-
-                custom_name:
-
-                    read:
-                        type: bool
-                        enforce_updates: true
-                        md_device: DEVICENAME
-                        md_read_group_trigger: zone1.input.item_attrs.attributes.custom_name
 
     listeningmode:
         type: str
@@ -1083,18 +1073,6 @@ ALL:
                 type: str
                 on_change: .. = sh....custom_inputnames.reverse()[value]
 
-            item_attrs:
-
-                attributes:
-
-                    custom_name:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: ALL.zone1.input.item_attrs.attributes.custom_name
-
         listeningmode:
             type: str
             md_device: DEVICENAME
@@ -1637,18 +1615,6 @@ AVR-X6300H:
             custom_name:
                 type: str
                 on_change: .. = sh....custom_inputnames.reverse()[value]
-
-            item_attrs:
-
-                attributes:
-
-                    custom_name:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: AVR-X6300H.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -2454,18 +2420,6 @@ AVR-X4300H:
             custom_name:
                 type: str
                 on_change: .. = sh....custom_inputnames.reverse()[value]
-
-            item_attrs:
-
-                attributes:
-
-                    custom_name:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: AVR-X4300H.zone1.input.item_attrs.attributes.custom_name
 
         listeningmode:
             type: str
@@ -3310,18 +3264,6 @@ AVR-X3300W:
                 type: str
                 on_change: .. = sh....custom_inputnames.reverse()[value]
 
-            item_attrs:
-
-                attributes:
-
-                    custom_name:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: AVR-X3300W.zone1.input.item_attrs.attributes.custom_name
-
         listeningmode:
             type: str
             md_device: DEVICENAME
@@ -4011,18 +3953,6 @@ AVR-X2300W:
                 type: str
                 on_change: .. = sh....custom_inputnames.reverse()[value]
 
-            item_attrs:
-
-                attributes:
-
-                    custom_name:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: AVR-X2300W.zone1.input.item_attrs.attributes.custom_name
-
         listeningmode:
             type: str
             md_device: DEVICENAME
@@ -4660,18 +4590,6 @@ AVR-X1300W:
                 type: str
                 on_change: .. = sh....custom_inputnames.reverse()[value]
 
-            item_attrs:
-
-                attributes:
-
-                    custom_name:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: AVR-X1300W.zone1.input.item_attrs.attributes.custom_name
-
         listeningmode:
             type: str
             md_device: DEVICENAME
@@ -5059,4 +4977,3 @@ AVR-X1300W:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X1300W', 'AVR-X1300W.zone2']
-

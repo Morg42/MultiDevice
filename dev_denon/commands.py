@@ -308,14 +308,14 @@ lookups = {
 
 item_templates = {
     'custom_inputnames': {
-        'update_reverse': {
-            'type': 'bool',
-            'eval': 'sh...reverse.timer(2, True)',
-            'eval_trigger': '..'
-        },
         'reverse': {
             'type': 'dict',
-            'eval': '"{v: k for (k, v) in sh...().items()}"'
+            'eval': '"{v: k for (k, v) in sh...().items()}"',
+            'update': {
+                'type': 'bool',
+                'eval': 'sh...timer(2, {})',
+                'eval_trigger': '...'
+            }
         }
     }
 }

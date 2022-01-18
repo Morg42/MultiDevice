@@ -31,13 +31,13 @@ from lib.shyaml import yaml_load
 import importlib
 
 if MD_standalone:
-    from MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from MD_Commands import MD_Commands
     from MD_Command import MD_Command
     from MD_Connection import MD_Connection
     from MD_Protocol import MD_Protocol
 else:
-    from .MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from .MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from .MD_Commands import MD_Commands
     from .MD_Command import MD_Command
     from .MD_Connection import MD_Connection
@@ -91,6 +91,9 @@ class MD_Device(object):
 
         # the commands object
         self._commands = None
+
+        # None for normal operations, 1..3 for combined custom commands (<command>#<customx>)
+        self.custom_commands = None
 
         # set class properties
         self.device_type = device_type
@@ -210,6 +213,15 @@ class MD_Device(object):
         :return: True if send was successful, False otherwise
         :rtype: bool
         """
+        if self.custom_commands:
+            try:
+                command, custom_value = command.split('#')
+                if 'custom' not in kwargs:
+                    kwargs['custom'] = {}
+                kwargs['custom'][self.custom_commands] = custom_value
+            except Exception as e:
+                self.logger.warning(f'extracting custom value from command failed. Error was: {e}')
+
         if not self.alive:
             self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
             return False
@@ -280,8 +292,14 @@ class MD_Device(object):
                 self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
                 return
 
+        custom = None
+        if self.custom_commands:
+            custom = self.get_custom_value(command, data)
+
         try:
             value = self._commands.get_shng_data(command, data)
+            if custom:
+                command = command + CUSTOM_SEP + custom
         except Exception as e:
             self.logger.info(f'received data "{data}" for command {command}, error {e} occurred while converting. Discarding data.')
         else:
@@ -315,6 +333,9 @@ class MD_Device(object):
         :return: True if command is valid, False otherwise
         :rtype: bool
         """
+        if self.custom_commands:
+            command, custom_value = command.split('#')
+
         if self._commands:
             return self._commands.is_valid_command(command, read)
         else:
@@ -438,6 +459,10 @@ class MD_Device(object):
     def on_disconnect(self, by=None):
         """ callback if connection is broken. """
         pass
+
+    def get_custom_value(self, command, data):
+        """ extract custom value from data. Needs to be overwritten """
+        return None
 
     #
     #

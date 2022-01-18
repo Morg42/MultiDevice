@@ -117,6 +117,7 @@ ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYC
 COMMAND_READ                = True
 COMMAND_WRITE               = False
 COMMAND_SEP                 = '.'
+CUSTOM_SEP                  = '#'
 
 # command definition attributes
 CMD_ATTR_OPCODE             = 'opcode'

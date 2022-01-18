@@ -30,7 +30,6 @@ import requests
 import serial
 from threading import Lock, Thread
 from contextlib import contextmanager
-import urllib.parse
 
 from lib.network import Tcp_client
 
@@ -135,7 +134,7 @@ class MD_Connection(object):
     def on_data_received(self, by, data):
         """ callback for on_data_received event """
         if data:
-            self.logger.debug(f'received raw data "{urllib.parse.unquote_plus(data)}" from "{by}"')
+            self.logger.debug(f'received raw data "{data}" from "{by}"')
             if self._data_received_callback:
                 self._data_received_callback(by, data)
 

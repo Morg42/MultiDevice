@@ -808,6 +808,7 @@ class MultiDevice(SmartPlugin):
                 self._items_custom[item.id()] = {1: None, 2: None, 3: None}
                 for index in (1, 2, 3):
 
+                    val = None
                     if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
                         val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
                         self.logger.debug(f'Item {item} has custom item attribute {index} with value {val}')
@@ -825,7 +826,7 @@ class MultiDevice(SmartPlugin):
                 # By this modification, multiple items with the same command but different customx-Values
                 # can "coexist" and be differentiated by the plugin and the device.
                 if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
-                    command = command + CUSTOM_SEP + self._items_custom[item.id()][device.custom_commands]
+                    command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
 
                 # from here on command is combined if device.custom_commands is set
 

@@ -334,7 +334,10 @@ class MD_Device(object):
         :rtype: bool
         """
         if self.custom_commands:
-            command, custom_value = command.split('#')
+            try:
+                command, custom_value = command.split('#')
+            except ValueError:
+                pass
 
         if self._commands:
             return self._commands.is_valid_command(command, read)

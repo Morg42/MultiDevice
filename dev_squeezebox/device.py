@@ -21,7 +21,7 @@ class MD_Device(MD_Device):
     """
 
     def _set_custom_vars(self):
-        self.custom_commands = '1'
+        self.custom_commands = 1
         # set our own preferences concerning connections
         if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
             self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI

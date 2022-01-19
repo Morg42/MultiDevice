@@ -2,6 +2,7 @@
 ---
 # vim: expandtab:ts=4:sw=4
 info:
+
     read:
         type: bool
         enforce_updates: true
@@ -141,7 +142,7 @@ control:
         type: bool
         md_device: DEVICENAME
         md_command: control.playpause
-        md_read: false
+        md_read: true
         md_write: true
 
     seek:
@@ -204,14 +205,14 @@ control:
         type: bool
         md_device: DEVICENAME
         md_command: control.mute
-        md_read: false
+        md_read: true
         md_write: true
 
     volume:
         type: num
         md_device: DEVICENAME
         md_command: control.volume
-        md_read: false
+        md_read: true
         md_write: true
 
     action:
@@ -370,7 +371,7 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: control.playpause
-            md_read: false
+            md_read: true
             md_write: true
 
         seek:
@@ -433,14 +434,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: control.mute
-            md_read: false
+            md_read: true
             md_write: true
 
         volume:
             type: num
             md_device: DEVICENAME
             md_command: control.volume
-            md_read: false
+            md_read: true
             md_write: true
 
         action:

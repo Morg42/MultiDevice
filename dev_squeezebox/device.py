@@ -62,15 +62,12 @@ class MD_Device(MD_Device):
         """ extract custom value from data. Needs to be overwritten """
         if not self.custom_commands:
             return None
-        try:
-            cv = re.match('^([^ ]+) ', data)[1]
-        except Exception:
-            cv = None
-        if not re.match('([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', cv):
-            self.logger.debug(f'received custom token {cv} seems to be no valid MAC address, ignoring')
+        res = re.match('([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', data)
+        if not res:
+            self.logger.debug(f'custom token not found or no valid MAC address in {data}, ignoring')
             return None
-        elif cv in self._custom_values[self.custom_commands]:
-            return cv
+        elif res[0] in self._custom_values[self.custom_commands]:
+            return res[0]
         else:
-            self.logger.debug(f'received custom token {cv}, not in list of known tokens {self._custom_values[self.custom_commands]}')
+            self.logger.debug(f'received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}')
             return None

@@ -272,6 +272,15 @@ class MD_Device(object):
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
         return True
 
+    def _transform_received_data(self, data):
+        """
+        This method provides a way to adjust, modify or transform all data as soon
+        as it is received from the device.
+        This might be useful to clean or parse data.
+        By default, nothing happens here.
+        """
+        return data
+
     def on_data_received(self, by, data, command=None):
         """
         Callback function for received data e.g. from an event loop
@@ -282,6 +291,7 @@ class MD_Device(object):
         :param by: client object / name / identifier
         :type command: str
         """
+        data = self._transform_received_data(data)
         if command is not None:
             self.logger.debug(f'received data "{data}" for command {command}')
         else:

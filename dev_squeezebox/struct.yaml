@@ -16,6 +16,129 @@ server:
         md_read: true
         md_write: true
 
+    playercount:
+        type: num
+        md_device: DEVICENAME
+        md_command: server.playercount
+        md_read: true
+        md_write: false
+        md_read_group: ['server']
+
+    favoritescount:
+        type: num
+        md_device: DEVICENAME
+        md_command: server.favoritescount
+        md_read: true
+        md_write: false
+        md_read_group: ['server']
+
+database:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: database
+
+    rescan:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: database.rescan
+
+        start:
+            type: str
+            md_device: DEVICENAME
+            md_command: database.rescan.start
+            md_read: false
+            md_write: true
+
+        running:
+            type: bool
+            md_device: DEVICENAME
+            md_command: database.rescan.running
+            md_read: true
+            md_write: false
+            md_read_group: ['database', 'database.rescan']
+
+        progress:
+            type: str
+            md_device: DEVICENAME
+            md_command: database.rescan.progress
+            md_read: true
+            md_write: false
+
+        runningtime:
+            type: str
+            md_device: DEVICENAME
+            md_command: database.rescan.runningtime
+            md_read: true
+            md_write: false
+            md_read_group: ['database', 'database.rescan']
+
+        fail:
+            type: str
+            md_device: DEVICENAME
+            md_command: database.rescan.fail
+            md_read: true
+            md_write: false
+
+        abortscan:
+            type: bool
+            md_device: DEVICENAME
+            md_command: database.rescan.abortscan
+            md_read: true
+            md_write: true
+
+        wipecache:
+            type: bool
+            md_device: DEVICENAME
+            md_command: database.rescan.wipecache
+            md_read: false
+            md_write: true
+
+    totalgenres:
+        type: num
+        md_device: DEVICENAME
+        md_command: database.totalgenres
+        md_read: true
+        md_write: false
+        md_read_group: ['database']
+
+    totalduration:
+        type: num
+        md_device: DEVICENAME
+        md_command: database.totalduration
+        md_read: true
+        md_write: false
+        md_read_group: ['database']
+
+    totalartists:
+        type: num
+        md_device: DEVICENAME
+        md_command: database.totalartists
+        md_read: true
+        md_write: false
+        md_read_group: ['database']
+
+    totalalbums:
+        type: num
+        md_device: DEVICENAME
+        md_command: database.totalalbums
+        md_read: true
+        md_write: false
+        md_read_group: ['database']
+
+    totalsongs:
+        type: num
+        md_device: DEVICENAME
+        md_command: database.totalsongs
+        md_read: true
+        md_write: false
+        md_read_group: ['database']
+
 playercontrol:
 
     read:
@@ -54,6 +177,129 @@ ALL:
             md_command: server.listenmode
             md_read: true
             md_write: true
+
+        playercount:
+            type: num
+            md_device: DEVICENAME
+            md_command: server.playercount
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.server']
+
+        favoritescount:
+            type: num
+            md_device: DEVICENAME
+            md_command: server.favoritescount
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.server']
+
+    database:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: ALL.database
+
+        rescan:
+
+            read:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: ALL.database.rescan
+
+            start:
+                type: str
+                md_device: DEVICENAME
+                md_command: database.rescan.start
+                md_read: false
+                md_write: true
+
+            running:
+                type: bool
+                md_device: DEVICENAME
+                md_command: database.rescan.running
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.database', 'ALL.database.rescan']
+
+            progress:
+                type: str
+                md_device: DEVICENAME
+                md_command: database.rescan.progress
+                md_read: true
+                md_write: false
+
+            runningtime:
+                type: str
+                md_device: DEVICENAME
+                md_command: database.rescan.runningtime
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.database', 'ALL.database.rescan']
+
+            fail:
+                type: str
+                md_device: DEVICENAME
+                md_command: database.rescan.fail
+                md_read: true
+                md_write: false
+
+            abortscan:
+                type: bool
+                md_device: DEVICENAME
+                md_command: database.rescan.abortscan
+                md_read: true
+                md_write: true
+
+            wipecache:
+                type: bool
+                md_device: DEVICENAME
+                md_command: database.rescan.wipecache
+                md_read: false
+                md_write: true
+
+        totalgenres:
+            type: num
+            md_device: DEVICENAME
+            md_command: database.totalgenres
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.database']
+
+        totalduration:
+            type: num
+            md_device: DEVICENAME
+            md_command: database.totalduration
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.database']
+
+        totalartists:
+            type: num
+            md_device: DEVICENAME
+            md_command: database.totalartists
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.database']
+
+        totalalbums:
+            type: num
+            md_device: DEVICENAME
+            md_command: database.totalalbums
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.database']
+
+        totalsongs:
+            type: num
+            md_device: DEVICENAME
+            md_command: database.totalsongs
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.database']
 
     playercontrol:
 

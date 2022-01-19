@@ -78,15 +78,15 @@ commands = {
 
             # the following entries are directives for the struct.yaml generator
 
-            # create md_read_initial: true entry
+            # create "md_read_initial: true" entry
             # can also be specified for sections to trigger initial read group reading
             'initial': False,
 
-            # create md_read_cycle entry with given cycle time
+            # create "md_read_cycle: <cycle>" entry with given cycle time
             # can also be specified for section to trigger cyclic read group reading
             'cycle': None,
 
-            # create enforce_updates: true entry
+            # create "enforce_updates: true" entry
             'enforce': False,
 
             # control autocreation of item read groups. None or key not present
@@ -105,7 +105,8 @@ commands = {
             'lookup_item': False,
 
             # attributes to add to the item definition verbatim
-            # e.g. 'enforce_updates': 'true', 'md_initial_read': 'true'
+            # e.g. eval: or on_change: attributes. you can even 
+            # create special sub-items here (provide as sub-dict)
             'attributes': {
                 'attr1': 'value1',
                 'attr2': 'value2'
@@ -129,7 +130,7 @@ commands = {
                 },
                 {
                     'name': '<read group 2>',
-                    'trigger': 'path.to.other.item'
+                    'trigger': '..path.to.other.item'
                 }
             ],
         }
@@ -191,7 +192,8 @@ commands = {
         'cmd4': {'read': False, 'write': False, 'opcode': '4d', 'attrib': '...'},
     },
     'model3': {
-        'cmd1': {'read': True, 'write': True, 'opcode': '3a', 'attrib': '...'},  # note different opcode
+        # note different opcode for cmd1, which overwrites cmd1 from ALL section
+        'cmd1': {'read': True, 'write': True, 'opcode': '3a', 'attrib': '...'},
         'cmd3': {'read': True, 'write': False, 'opcode': '3z', 'attrib': '...'},
     },
     'model4': {

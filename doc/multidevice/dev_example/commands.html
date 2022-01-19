@@ -90,7 +90,7 @@ commands = {
 
         # optional, regex with one capturing group to automatically extract reply values from the reply
         # implemented only in MD_Command_ParseStr as of now
-        # 
+        #
         &#39;reply_pattern&#39;: &#39;&#39;,
 
         # optional, this dict defines limits for value validity for sending data to the device.
@@ -132,7 +132,7 @@ commands = {
             # means create all levels (default)
             # 0 means don&#39;t create read groups (not even from &#39;read_groups&#39; dict!)
             # x (int &gt; 0) means include the x lowest levels of read groups
-            # e.g. if current item gets read groups 
+            # e.g. if current item gets read groups
             #      [&#39;l1&#39;, &#39;l1.l2&#39;, &#39;l1.l2.l3&#39;, &#39;l1.l2.l3.l4&#39;], setting
             #      read_group_levels&#39;: 2 will yield
             #      md_read_groups: [&#39;l1.l2.l3&#39;, &#39;l1.l2.l3.l4&#39;]
@@ -146,7 +146,7 @@ commands = {
             # attributes to add to the item definition verbatim
             # e.g. &#39;enforce_updates&#39;: &#39;true&#39;, &#39;md_initial_read&#39;: &#39;true&#39;
             &#39;attributes&#39;: {
-                &#39;attr1&#39;: &#39;value1&#39;,  
+                &#39;attr1&#39;: &#39;value1&#39;,
                 &#39;attr2&#39;: &#39;value2&#39;
             },
 
@@ -167,7 +167,7 @@ commands = {
                     &#39;trigger&#39;: &#39;path.to.item&#39;
                 },
                 {
-                    &#39;name&#39;: &#39;&lt;read group 2&gt;&#39;, 
+                    &#39;name&#39;: &#39;&lt;read group 2&gt;&#39;,
                     &#39;trigger&#39;: &#39;path.to.other.item&#39;
                 }
             ],
@@ -179,7 +179,7 @@ commands = {
 
 If many commands are present, it might be beneficial to create a hierarchical
 structure via nested dicts. This is simple as nesting can - more or less - be
-used as you like. 
+used as you like.
 In the item definition, the combined command names from the following example
 are:
 
@@ -222,25 +222,25 @@ will be ignored.
 
 commands = {
     &#39;ALL&#39;: {
-        &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;1a&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
-        &#39;cmd2&#39;: {&#39;read&#39;: False, &#39;write&#39;: True, &#39;opcode&#39;: &#39;2b&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
+        &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;1a&#39;, &#39;attrib&#39;: &#39;...&#39;},
+        &#39;cmd2&#39;: {&#39;read&#39;: False, &#39;write&#39;: True, &#39;opcode&#39;: &#39;2b&#39;, &#39;attrib&#39;: &#39;...&#39;},
     },
     &#39;model1&#39;: {
-        &#39;cmd3&#39;: {&#39;read&#39;: True, &#39;write&#39;: False, &#39;opcode&#39;: &#39;3c&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
-        &#39;cmd4&#39;: {&#39;read&#39;: False, &#39;write&#39;: False, &#39;opcode&#39;: &#39;4d&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
+        &#39;cmd3&#39;: {&#39;read&#39;: True, &#39;write&#39;: False, &#39;opcode&#39;: &#39;3c&#39;, &#39;attrib&#39;: &#39;...&#39;},
+        &#39;cmd4&#39;: {&#39;read&#39;: False, &#39;write&#39;: False, &#39;opcode&#39;: &#39;4d&#39;, &#39;attrib&#39;: &#39;...&#39;},
     },
     &#39;model3&#39;: {
         &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;3a&#39;, &#39;attrib&#39;: &#39;...&#39;},  # note different opcode
-        &#39;cmd3&#39;: {&#39;read&#39;: True, &#39;write&#39;: False, &#39;opcode&#39;: &#39;3z&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
+        &#39;cmd3&#39;: {&#39;read&#39;: True, &#39;write&#39;: False, &#39;opcode&#39;: &#39;3z&#39;, &#39;attrib&#39;: &#39;...&#39;},
     },
     &#39;model4&#39;: {
         &#39;section1&#39;: {
-            &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;VI&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
-            &#39;cmd2&#39;: {&#39;read&#39;: False, &#39;write&#39;: True, &#39;opcode&#39;: &#39;VII&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
+            &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;VI&#39;, &#39;attrib&#39;: &#39;...&#39;},
+            &#39;cmd2&#39;: {&#39;read&#39;: False, &#39;write&#39;: True, &#39;opcode&#39;: &#39;VII&#39;, &#39;attrib&#39;: &#39;...&#39;},
         },
         &#39;section2&#39;: {
-            &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;XX&#39;, &#39;attrib&#39;: &#39;...&#39;}, 
-            &#39;cmd2&#39;: {&#39;read&#39;: False, &#39;write&#39;: True, &#39;opcode&#39;: &#39;YY&#39;, &#39;attrib&#39;: &#39;...&#39;},         
+            &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;XX&#39;, &#39;attrib&#39;: &#39;...&#39;},
+            &#39;cmd2&#39;: {&#39;read&#39;: False, &#39;write&#39;: True, &#39;opcode&#39;: &#39;YY&#39;, &#39;attrib&#39;: &#39;...&#39;},
         }
     }
 }

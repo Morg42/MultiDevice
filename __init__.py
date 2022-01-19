@@ -50,10 +50,10 @@ configuration.
 
 Possible commands are bundled by the ``MD_Commands`` class which handles
 loading, validating and calling the separate ``MD_Command`` or derived
-objects. 
+objects.
 
 Each ``MD_Command`` object handles one command and is responsible for creating
-command tokens/strings to/from the real device. 
+command tokens/strings to/from the real device.
 
 Each command is assigned a data type, which is represented by a ``Datatype``-
 derived class and transforms values between the real device and the command
@@ -61,7 +61,7 @@ object.
 
 To actually talk to the real device, that is, send commands/values and receive
 replies, it uses a standardized interface via one of the ``MD_Connection`` or
-derived classes. 
+derived classes.
 
 Thus, the plugin, devices and commands are ignorant of physical connection
 details, the connection implementation is transparent regarding actual data
@@ -74,7 +74,7 @@ with validity of data sent or received.
 
     Be aware that while creating complex commands indeed can be fun, string
     parsing will not be able to detect or cope with some data type conversions.
-    
+
     You have been warned 😉
 
 
@@ -437,9 +437,9 @@ of configuration files in python format. Furthermore, the device-dependent
 type and configuration of connection should be set in ``etc/plugin.yaml`` for
 each device used.
 
-For some device classes, it is possible to choose from different models. In 
+For some device classes, it is possible to choose from different models. In
 this case, the attribute ``model: <modelname>`` needs to be present. In any
-other case, the ``model`` key should not be present. 
+other case, the ``model`` key should not be present.
 
 
 The connection classes will be chosen and configured by the device classes.
@@ -571,17 +571,17 @@ else:
 
 class MultiDevice(SmartPlugin):
     """ MultiDevice class provides the SmartPlugin class for SmartHomeNG
-    
+
     This class does the actual interface work between SmartHomeNG and the device
     classes. Mainly it parses plugin and item configuration data, sets up
     associations between devices and items and handles data exchange between
-    SmartHomeNG and the device classes. Furthermore, it calls all devices' run
-    () and stop() methods if so instructed by SmartHomeNG.
+    SmartHomeNG and the device classes. Furthermore, it calls all devices'
+    `run()` and `stop()` methods if so instructed by SmartHomeNG.
 
     It also looks good.
     """
 
-    PLUGIN_VERSION = '0.3.0'
+    PLUGIN_VERSION = '0.4.0'
 
     def __init__(self, sh, standalone_device='', logger=None, **kwargs):
         """
@@ -591,14 +591,12 @@ class MultiDevice(SmartPlugin):
         if not sh:
             self.logger = logger
 
-        self._sh = sh
-
         self.logger.info(f'Initializing MultiDevice-Plugin as {__name__}')
 
         self._devices = {}              # contains all configured devices - <device_id>: {'device_type': <device_type>, 'device': <class-instance>, 'logger': <logger-instance>, 'params': {'param1': val1, 'param2': val2...}}
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_id': <device_id>, 'command': <command>}
         self._items_read_all = {}       # contains items which trigger 'read all' - <item_id>: <device_id>
-        self._items_read_grp = {}       # contains items which trigger 'read group x' - <item_id>: [<device_id>, <x>]
+        self._items_read_grp = {}       # contains items which trigger 'read group foo' - <item_id>: [<device_id>, <foo>]
         self._commands_read = {}        # contains all commands per device with read command - <device_id>: {<command>: <item_object>}
         self._commands_read_grp = {}    # contains all commands per device with read group command - <device_id>: {<group>: {<command>: <item_object>}}}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_id>: ['command', 'command', ...]
@@ -607,6 +605,7 @@ class MultiDevice(SmartPlugin):
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {<grp>: {'cycle': <cycle>, 'next': <next>}}
         self._items_custom = {}         # contains item md_custom<x> attributes - <item_id>: {1: custom1, 2: custom2, 3:custom3}
 
+        self._sh = sh
         self._webif = None
 
         # Call init code of parent class (SmartPlugin)
@@ -675,10 +674,10 @@ class MultiDevice(SmartPlugin):
                         device_type = device_id = None
 
             if device_id and device_id in self._devices:
-                self.logger.warning(f'Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id]["device_type"]}. Skipping processing of spare device id {device_id}')
-                break
+                self.logger.warning(f'Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id]["device_type"]}. Skipping processing of spare device type {device_type}')
+                continue
 
-            # did we get a device id?
+            # did we get a device type?
             if device_type:
                 device_instance = None
                 try:
@@ -687,7 +686,7 @@ class MultiDevice(SmartPlugin):
                     if not MD_standalone:
                         mod_str = '.' + mod_str
                     device_module = importlib.import_module(mod_str, __name__)
-                    # get class name
+                    # get class
                     device_class = getattr(device_module, 'MD_Device')
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
@@ -710,6 +709,10 @@ class MultiDevice(SmartPlugin):
                     self._triggers_cyclic[device_id] = {}
                     dev_logger = None
 
+                    # "alias" devices as class properties (prevent collisions)
+                    if not hasattr(self, device_id):
+                        setattr(self, device_id, self.get_device(device_id))
+
                     # check for and load struct definitions
                     if not MD_standalone:
                         self.logger.debug(f'trying to load struct definitions for device {device_id} from folder dev_{device_type}')
@@ -721,7 +724,7 @@ class MultiDevice(SmartPlugin):
 
                             struct_list = list(raw_struct.keys())
                             self.logger.debug(f'loaded {len(struct_list)} structs for processing')
-                            # replace all mentions of 'DEVICE' with the plugin/device's name
+                            # replace all mentions of 'DEVICENAME' with the plugin/device's name
                             mod_struct = self._process_struct(raw_struct, device_id)
                             for struct_name in struct_list:
                                 if struct_name in mod_struct:
@@ -771,10 +774,11 @@ class MultiDevice(SmartPlugin):
         """
 
         def find_custom_attr(item, index=1):
-            """ find spare item attribute recursively. Returns attribute or None """
+            """ find custom item attribute recursively. Returns attribute or None """
             # self.logger.debug(f'looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...')
             parent = item.return_parent()
 
+            # parent(top_item) is sh.items
             if type(parent) != type(item):
                 # reached top of item tree
                 return None
@@ -794,7 +798,7 @@ class MultiDevice(SmartPlugin):
                 self.logger.warning(f'Item {item} requests device {device_id}, which is not configured, ignoring item')
                 return
 
-            device = self._get_device(device_id)
+            device = self.get_device(device_id)
             self.logger.debug(f'Item {item}: parse for device {device_id}')
 
             command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
@@ -829,7 +833,7 @@ class MultiDevice(SmartPlugin):
                 if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
                     command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
 
-                # from here on command is combined if device.custom_commands is set
+                # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
@@ -954,7 +958,7 @@ class MultiDevice(SmartPlugin):
 
                     # get data and send new value
                     device_id = self._items_write[item.id()]['device_id']
-                    device = self._get_device(device_id)
+                    device = self.get_device(device_id)
                     command = self._items_write[item.id()]['command']
                     dev_log.debug(f'Writing value "{item()}" from item {item.id()} with command "{command}"')
                     if not device.send_command(command, item(), custom=self._items_custom[item.id()]):
@@ -966,7 +970,7 @@ class MultiDevice(SmartPlugin):
 
                     # get data and trigger read_all
                     device_id = self._items_read_all[item.id()]
-                    device = self._get_device(device_id)
+                    device = self.get_device(device_id)
                     dev_log.debug('Triggering read_all')
                     device.read_all_commands()
 
@@ -974,7 +978,7 @@ class MultiDevice(SmartPlugin):
 
                     # get data and trigger read_grp
                     device_id, group = self._items_read_grp[item.id()]
-                    device = self._get_device(device_id)
+                    device = self.get_device(device_id)
                     dev_log.debug(f'Triggering read_group {group}')
                     device.read_all_commands(group)
 
@@ -1000,7 +1004,7 @@ class MultiDevice(SmartPlugin):
                 item = self._commands_read[device_id][command]
                 dev_log.debug(f'Command {command} updated item {item.id()} with value {value}')
                 item(value, self.get_shortname() + '.' + device_id)
-            elif not self._get_device(device_id).is_valid_command(command, COMMAND_READ):
+            elif not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
                 dev_log.debug(f'Command {command} yielded value {value}, but not configured for reading, discarding data')
             else:
                 dev_log.warning(f'Command {command} yielded value {value}, not assigned to any item, discarding data')
@@ -1020,9 +1024,9 @@ class MultiDevice(SmartPlugin):
             return
 
         self.logger.debug(f'updating parameters for device {device_id}')
-        device = self._get_device(device_id)
+        device = self.get_device(device_id)
         if device:
-            device.update_device_params(**self._get_device_params(device_id))
+            device.update_device_params(**self.get_device_params(device_id))
 
     def _apply_on_all_devices(self, method, args_function=None):
         """
@@ -1040,7 +1044,7 @@ class MultiDevice(SmartPlugin):
             kwargs = {}
             if args_function:
                 kwargs = args_function(device)
-            getattr(self._get_device(device), method)(**kwargs)
+            getattr(self.get_device(device), method)(**kwargs)
 
     def _generate_runtime_data(self, device_id):
         """
@@ -1057,7 +1061,7 @@ class MultiDevice(SmartPlugin):
             'cycle_commands': self._commands_cyclic[device_id],
             'cycle_triggers': self._triggers_cyclic[device_id],
             'initial_commands': self._commands_initial[device_id],
-            'initial_triggers': self._triggers_initial[device_id],            
+            'initial_triggers': self._triggers_initial[device_id],
             'callback': self.on_data_received
         }
 
@@ -1069,7 +1073,7 @@ class MultiDevice(SmartPlugin):
         else:
             return None
 
-    def _get_device(self, device_id):
+    def get_device(self, device_id):
         """ getter method for device object """
         dev = self._devices.get(device_id, None)
         if dev:
@@ -1094,7 +1098,7 @@ class MultiDevice(SmartPlugin):
         return log
 
     def _process_struct(self, raw_struct, device_id):
-        """ clean structs before adding """
+        """ clean structs before adding - remove unsupported commands """
 
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], OrderedDict)):
@@ -1356,7 +1360,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
 
             # 'level node' -> print read item
             elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
-                
+
                 item['read'] = {'type': 'bool'}
                 item['read']['enforce_updates'] = True
                 item['read'][ITEM_ATTR_DEVICE] = 'DEVICENAME'
@@ -1387,7 +1391,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
         for key in [key for key in node if not isinstance(node[key], dict)]:
             if isinstance(node[key], bool):
                 p_text(f'{key}: {str(node[key]).lower()}', 1)
-            else:                
+            else:
                 p_text(f'{key}: {node[key]}', 1)
 
         print()
@@ -1535,9 +1539,11 @@ if __name__ == '__main__':
     devices are modular extensions, it is not possible to print a list of
     supported devices.
 
+    ===============
+
     You need to call this plugin with the device id as the first parameter, any
     necessary configuration options either as arg=value pairs or as a python
-    dict(this needs to be enclosed in quotes). 
+    dict(this needs to be enclosed in quotes).
     Be aware that later parameters, be they dict or pair type, overwrite earlier
     parameters of the same name.
 
@@ -1551,6 +1557,8 @@ if __name__ == '__main__':
     debug information:
 
     ./__init__.py <device> -v
+
+    ===============
 
     If you call it with -s as a parameter after the device id, the plugin will
     print a struct.yaml file from the devices' commands.py:
@@ -1589,7 +1597,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         device = sys.argv[1]
 
-    if device:
+    if device and device not in ['-h', '--help', '-?', '/?', '/h', '/help']:
 
         # check for further command line arguments
         params = {}
@@ -1628,7 +1636,7 @@ if __name__ == '__main__':
 
     if struct_mode:
 
-        # as we output a formatted syntax, we can not print any information now
+        # as we output a formatted syntax, we can not create any output now
         create_struct_yaml(device, indent, write_output)
         exit(0)
 

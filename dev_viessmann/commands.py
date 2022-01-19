@@ -48,7 +48,7 @@ commands = {
             'Soll':                 {'read': True, 'write': False, 'opcode': '555a', 'reply_token': '555a', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},     # Kesselsolltemperatur
         },
         'Fehler': {
-            # Fehler                
+            # Fehler
             'Sammelstoerung':           {'read': True, 'write': False, 'opcode': '0a82', 'reply_token': '0a82', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'returnstatus'},     # Sammelstörung
             'Error0':                   {'read': True, 'write': False, 'opcode': '7507', 'reply_token': '7507', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 9], 'lookup': 'errors'},     # Fehlerhistory Eintrag 1
             'Error1':                   {'read': True, 'write': False, 'opcode': '7510', 'reply_token': '7510', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 9], 'lookup': 'errors'},     # Fehlerhistory Eintrag 2
@@ -62,7 +62,7 @@ commands = {
             'Error9':                   {'read': True, 'write': False, 'opcode': '7558', 'reply_token': '7558', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 9], 'lookup': 'errors'},     # Fehlerhistory Eintrag 10
         },
         'Pumpen': {
-            # Pumpen                
+            # Pumpen
             'Speicherlade':             {'read': True, 'write': False, 'opcode': '6513', 'reply_token': '6513', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Speicherladepumpe
             'Zirkulation':              {'read': True, 'write': False, 'opcode': '6515', 'reply_token': '6515', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Zirkulationspumpe
             'Intern':                   {'read': True, 'write': False, 'opcode': '7660', 'reply_token': '7660', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Interne Pumpe
@@ -73,7 +73,7 @@ commands = {
             'Relais_Status':            {'read': True, 'write': False, 'opcode': 'a152', 'reply_token': 'a152', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Relais-Status Heizkreispumpe 1
         },
         'Brenner': {
-            # Brenner               
+            # Brenner
             'Starts':                   {'read': True, 'write': True,  'opcode': '088a', 'reply_token': '088a', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 4], 'cmd_settings': {'force_min': 0, 'force_max': 1193045}},     # Brennerstarts
             'Betriebsstunden':          {'read': True, 'write': True,  'opcode': '08a7', 'reply_token': '08a7', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 3600, 4], 'cmd_settings': {'force_min': 0, 'force_max': 1193045}},     # Brenner-Betriebsstunden
             'Status_1':                 {'read': True, 'write': False, 'opcode': '0842', 'reply_token': '0842', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Brennerstatus Stufe1
@@ -84,16 +84,16 @@ commands = {
         'Solar': {
             # Solar
             'Nachladeunterdrueckung':   {'read': True, 'write': False, 'opcode': '6551', 'reply_token': '6551', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},
-            'Pumpe':                    {'read': True, 'write': False, 'opcode': '6552', 'reply_token': '6552', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     
+            'Pumpe':                    {'read': True, 'write': False, 'opcode': '6552', 'reply_token': '6552', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},
             'Kollektortemperatur':      {'read': True, 'write': False, 'opcode': '6564', 'reply_token': '6564', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},
-            'Speichertemperatur':       {'read': True, 'write': False, 'opcode': '6566', 'reply_token': '6566', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},     
+            'Speichertemperatur':       {'read': True, 'write': False, 'opcode': '6566', 'reply_token': '6566', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},
             'Betriebsstunden':          {'read': True, 'write': False, 'opcode': '6568', 'reply_token': '6568', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 100, 4]},
             'Steuerung':                {'read': True, 'write': False, 'opcode': '7754', 'reply_token': '7754', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 2]},
         },
         'Heizkreis': {
             'A1M1': {
                 # Heizkreis A1M1
-                'Temperatur': {           
+                'Temperatur': {
                     'Raum': {
                         'Ist':                           {'read': True, 'write': False, 'opcode': '0896', 'reply_token': '0896', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1]},     # Raumtemperatur A1M1
                         'Soll_Normalbetrieb':            {'read': True, 'write': True,  'opcode': '2306', 'reply_token': '2306', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 3, 'force_max': 37}},     # Raumtemperatur Soll Normalbetrieb A1M1
@@ -111,13 +111,13 @@ commands = {
                     'Grenze_red_Betrieb':                {'read': True, 'write': True,  'opcode': '27f8', 'reply_token': '27f8', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -61, 'force_max': 10}},     # Temperaturgrenze für Aufhebung des reduzierten Betriebs -5 ºC
                     'Grenze_red_Raumtemp':               {'read': True, 'write': True,  'opcode': '27f9', 'reply_token': '27f9', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -60, 'force_max': 10}},     # Temperaturgrenze für Anhebung des reduzierten RaumtemperaturSollwertes
                 },
-                'Status': {           
+                'Status': {
                     'Aktuelle_Betriebsart':              {'read': True, 'write': False, 'opcode': '2301', 'reply_token': '2301', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'operatingmodes'},     # Aktuelle Betriebsart A1M1
                     'Betriebsart':                       {'read': True, 'write': True,  'opcode': '2323', 'reply_token': '2323', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 4}},     # Betriebsart A1M1
                     'Sparbetrieb':                       {'read': True, 'write': False, 'opcode': '2302', 'reply_token': '2302', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Sparbetrieb A1M1
-                    'Zustand_Sparbetrieb':               {'read': True, 'write': True,  'opcode': '2331', 'reply_token': '2331', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Sparbetrieb A1M1        
+                    'Zustand_Sparbetrieb':               {'read': True, 'write': True,  'opcode': '2331', 'reply_token': '2331', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Sparbetrieb A1M1
                     'Partybetrieb':                      {'read': True, 'write': False, 'opcode': '2303', 'reply_token': '2303', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Partybetrieb A1M1
-                    'Zustand_Partybetrieb':              {'read': True, 'write': True,  'opcode': '2330', 'reply_token': '2330', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Partybetrieb A1M1        
+                    'Zustand_Partybetrieb':              {'read': True, 'write': True,  'opcode': '2330', 'reply_token': '2330', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Partybetrieb A1M1
                     'StatusFrost':                       {'read': True, 'write': False, 'opcode': '2500', 'reply_token': '2500', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Status Frostwarnung A1M1
                     'Externe_Raumsolltemperatur_Normal': {'read': True, 'write': True,  'opcode': '2321', 'reply_token': '2321', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 0, 'force_max': 37}},     # Externe Raumsolltemperatur Normal A1M1
                     'Externe_Betriebsartenumschaltung':  {'read': True, 'write': True,  'opcode': '2549', 'reply_token': '2549', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 4}},     # Externe Betriebsartenumschaltung A1M1
@@ -129,7 +129,7 @@ commands = {
                     'Mischersparfunktion':               {'read': True, 'write': True,  'opcode': '27a7', 'reply_token': '27a7', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Mischersparfunktion
                     'Pumpenstillstandzeit':              {'read': True, 'write': True,  'opcode': '27a9', 'reply_token': '27a9', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 15}},     # Pumpenstillstandzeit
                 },
-                'Heizkennlinie': {           
+                'Heizkennlinie': {
                     'Neigung':                           {'read': True, 'write': True,  'opcode': '27d3', 'reply_token': '27d3', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 1], 'cmd_settings': {'force_min': 0.2, 'force_max': 3.5}},     # Neigung Heizkennlinie A1M1
                     'Niveau':                            {'read': True, 'write': True,  'opcode': '27d4', 'reply_token': '27d4', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -13, 'force_max': 40}},     # Niveau Heizkennlinie A1M1
                 },
@@ -137,7 +137,7 @@ commands = {
             },
             'M2': {
                 # Heizkreis M2
-                'Temperatur': {           
+                'Temperatur': {
                     'Raum': {
                         'Ist':                           {'read': True, 'write': False, 'opcode': '0898', 'reply_token': '0898', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1]},     # Raumtemperatur
                         'Soll_Normalbetrieb':            {'read': True, 'write': True,  'opcode': '3306', 'reply_token': '3306', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 3, 'force_max': 37}},     # Raumtemperatur Soll Normalbetrieb
@@ -151,17 +151,17 @@ commands = {
                         'Max':                           {'read': True, 'write': True,  'opcode': '37c6', 'reply_token': '37c6', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 10, 'force_max': 127}},     # Maximalbegrenzung der Vorlauftemperatur
                         'Erhoehung_Soll':                {'read': True, 'write': True,  'opcode': '37fa', 'reply_token': '37fa', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 0, 'force_max': 50}},     # Erhöhung des Kesselwasser- bzw. Vorlauftemperatur-Sollwertes beim Übergang von Betrieb mit reduzierter Raumtemperatur in den Betrieb mit normaler Raumtemperatur um 20 %
                         'Erhoehung_Zeit':                {'read': True, 'write': True,  'opcode': '37fb', 'reply_token': '37fb', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 0, 'force_max': 150}},     # Zeitdauer für die Erhöhung des Kesselwasser bzw.VorlauftemperaturSollwertes (siehe Codieradresse „FA“) 60 min.
-                    },           
+                    },
                     'Grenze_red_Betrieb':                {'read': True, 'write': True,  'opcode': '37f8', 'reply_token': '37f8', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -61, 'force_max': 10}},     # Temperaturgrenze für Aufhebung des reduzierten Betriebs -5 ºC
                     'Grenze_red_Raumtemp':               {'read': True, 'write': True,  'opcode': '37f9', 'reply_token': '37f9', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -60, 'force_max': 10}},     # Temperaturgrenze für Anhebung des reduzierten RaumtemperaturSollwertes
                 },
-                'Status': {           
+                'Status': {
                     'Aktuelle_Betriebsart':              {'read': True, 'write': False, 'opcode': '3301', 'reply_token': '3301', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'operatingmodes'},     # Aktuelle Betriebsart
                     'Betriebsart':                       {'read': True, 'write': True,  'opcode': '3323', 'reply_token': '3323', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 4}},     # Betriebsart
                     'Sparbetrieb':                       {'read': True, 'write': False, 'opcode': '3302', 'reply_token': '3302', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Sparbetrieb
-                    'Zustand_Sparbetrieb':               {'read': True, 'write': True,  'opcode': '3331', 'reply_token': '3331', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Sparbetrieb 
+                    'Zustand_Sparbetrieb':               {'read': True, 'write': True,  'opcode': '3331', 'reply_token': '3331', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Sparbetrieb
                     'Partybetrieb':                      {'read': True, 'write': False, 'opcode': '3303', 'reply_token': '3303', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Partybetrieb
-                    'Zustand_Partybetrieb':              {'read': True, 'write': True,  'opcode': '3330', 'reply_token': '3330', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Partybetrieb        
+                    'Zustand_Partybetrieb':              {'read': True, 'write': True,  'opcode': '3330', 'reply_token': '3330', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Zustand Partybetrieb
                     'StatusFrost':                       {'read': True, 'write': False, 'opcode': '3500', 'reply_token': '3500', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Status Frostwarnung
                     'Externe_Raumsolltemperatur_Normal': {'read': True, 'write': True,  'opcode': '3321', 'reply_token': '3321', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 0, 'force_max': 37}},     # Externe Raumsolltemperatur Normal
                     'Externe_Betriebsartenumschaltung':  {'read': True, 'write': True,  'opcode': '3549', 'reply_token': '3549', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 4}},     # Externe Betriebsartenumschaltung
@@ -173,7 +173,7 @@ commands = {
                     'Mischersparfunktion':               {'read': True, 'write': True,  'opcode': '37a7', 'reply_token': '37a7', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 1}},     # Mischersparfunktion
                     'Pumpenstillstandzeit':              {'read': True, 'write': True,  'opcode': '37a9', 'reply_token': '37a9', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 15}},     # Pumpenstillstandzeit
                 },
-                'Heizkennlinie': {           
+                'Heizkennlinie': {
                     'Neigung':                           {'read': True, 'write': True,  'opcode': '37d3', 'reply_token': '37d3', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 1], 'cmd_settings': {'force_min': 0.2, 'force_max': 3.5}},     # Neigung Heizkennlinie
                     'Niveau':                            {'read': True, 'write': True,  'opcode': '37d4', 'reply_token': '37d4', 'item_type': 'num', 'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -13, 'force_max': 40}},     # Niveau Heizkennlinie
                 },
@@ -195,7 +195,7 @@ commands = {
                 'Rückreisetag': {'read': True, 'write': True,  'opcode': '2311', 'reply_token': '2311', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Rückreisetag A1M1
             },
             'M2': {
-                # Ferienprogramm HK              
+                # Ferienprogramm HK
                 'Status':       {'read': True, 'write': False, 'opcode': '3535', 'reply_token': '3535', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Ferienprogramm M2
                 'Abreisetag':   {'read': True, 'write': True,  'opcode': '3309', 'reply_token': '3309', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Abreisetag M2
                 'Rückreisetag': {'read': True, 'write': True,  'opcode': '3311', 'reply_token': '3311', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Rückreisetag M2
@@ -203,7 +203,7 @@ commands = {
         },
         'Timer': {
             'Warmwasser': {
-                # Schaltzeiten Warmwasser               
+                # Schaltzeiten Warmwasser
                 'Mo': {'read': True, 'write': True, 'opcode': '2100', 'reply_token': '2100', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Montag
                 'Di': {'read': True, 'write': True, 'opcode': '2108', 'reply_token': '2108', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '2110', 'reply_token': '2110', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Mittwoch
@@ -213,7 +213,7 @@ commands = {
                 'So': {'read': True, 'write': True, 'opcode': '2130', 'reply_token': '2130', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Sonntag
             },
             'A1M1': {
-                # Schaltzeiten HK              
+                # Schaltzeiten HK
                 'Mo': {'read': True, 'write': True, 'opcode': '2000', 'reply_token': '2000', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Montag
                 'Di': {'read': True, 'write': True, 'opcode': '2008', 'reply_token': '2008', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '2010', 'reply_token': '2010', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Mittwoch
@@ -223,7 +223,7 @@ commands = {
                 'So': {'read': True, 'write': True, 'opcode': '2030', 'reply_token': '2030', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Sonntag
             },
             'M2': {
-                # Schaltzeiten HK                
+                # Schaltzeiten HK
                 'Mo': {'read': True, 'write': True, 'opcode': '3000', 'reply_token': '3000', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Montag
                 'Di': {'read': True, 'write': True, 'opcode': '3008', 'reply_token': '3008', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '3010', 'reply_token': '3010', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Mittwoch
@@ -233,7 +233,7 @@ commands = {
                 'So': {'read': True, 'write': True, 'opcode': '3030', 'reply_token': '3030', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Sonntag
             },
             'Zirkulation': {
-                # Schaltzeiten Zirkulation              
+                # Schaltzeiten Zirkulation
                 'Mo': {'read': True, 'write': True, 'opcode': '2200', 'reply_token': '2200', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Zirkulationspumpe Montag
                 'Di': {'read': True, 'write': True, 'opcode': '2208', 'reply_token': '2208', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Zirkulationspumpe Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '2210', 'reply_token': '2210', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Zirkulationspumpe Mittwoch
@@ -300,7 +300,7 @@ commands = {
         },
         'Heizkreis': {
             '1': {
-                # Heizkreis 1            
+                # Heizkreis 1
                 'Betriebsart':      {'read': True, 'write': True,  'opcode': '2500', 'reply_token': '2500', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 3}},     # Betriebsart (0=Abschaltbetrieb, 1=Red. Betrieb, 2=Normalbetrieb (Schaltuhr), 3=Normalbetrieb (Dauernd))
                 'Heizart':          {'read': True, 'write': True,  'opcode': '2323', 'reply_token': '2323', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 4}},     # Heizart     (0=Abschaltbetrieb, 1=Nur Warmwasser, 2=Heizen und Warmwasser, 3=Normalbetrieb (Reduziert), 4=Normalbetrieb (Dauernd))
                 'Temperatur': {
@@ -309,7 +309,7 @@ commands = {
                 },
             },
             '2': {
-                # Heizkreis 2            
+                # Heizkreis 2
                 'Betriebsart':      {'read': True, 'write': True,  'opcode': '3500', 'reply_token': '3500', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 3}},     # Betriebsart (0=Abschaltbetrieb, 1=Red. Betrieb, 2=Normalbetrieb (Schaltuhr), 3=Normalbetrieb (Dauernd))
                 'Heizart':          {'read': True, 'write': True,  'opcode': '3323', 'reply_token': '3323', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 4}},     # Heizart     (0=Abschaltbetrieb, 1=Nur Warmwasser, 2=Heizen und Warmwasser, 3=Normalbetrieb (Reduziert), 4=Normalbetrieb (Dauernd))
                 'Temperatur': {
@@ -319,7 +319,7 @@ commands = {
             },
         },
         'Warmwasser': {
-            # Warmwasser            
+            # Warmwasser
             'Ist':                  {'read': True, 'write': False, 'opcode': '0812', 'reply_token': '0812', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},     # Warmwassertemperatur in Grad C
             'Soll':                 {'read': True, 'write': True,  'opcode': '6300', 'reply_token': '6300', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 10, 'force_max': 80}},     # Warmwasser-Solltemperatur
             'Austritt':             {'read': True, 'write': False, 'opcode': '0814', 'reply_token': '0814', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},     # Warmwasseraustrittstemperatur in Grad C
@@ -330,20 +330,20 @@ commands = {
             # Allgemein
             'Temperatur': {
                 'Aussen':                 {'read': True, 'write': False, 'opcode': '0800', 'reply_token': '0800', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},     # Aussentemperatur_tiefpass
-                'Aussen_Dp':              {'read': True, 'write': False, 'opcode': '5527', 'reply_token': '5527', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},     # Aussentemperatur in Grad C (Gedaempft)            
+                'Aussen_Dp':              {'read': True, 'write': False, 'opcode': '5527', 'reply_token': '5527', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},     # Aussentemperatur in Grad C (Gedaempft)
             },
             'Anlagenschema':              {'read': True, 'write': False, 'opcode': '7700', 'reply_token': '7700', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 2], 'lookup': 'systemschemes'},     # Anlagenschema
             'AnlagenSoftwareIndex':       {'read': True, 'write': False, 'opcode': '7330', 'reply_token': '7330', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Bedienteil SoftwareIndex
             'Systemtime':                 {'read': True, 'write': True,  'opcode': '088e', 'reply_token': '088e', 'item_type': 'bool', 'dev_datatype': 'T', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Systemzeit
         },
         'Kessel': {
-            # Kessel            
+            # Kessel
             'TempKOffset':                {'read': True, 'write': True,  'opcode': '6760', 'reply_token': '6760', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 10, 'force_max': 50}},     # Kesseloffset KT ueber WWsoll in Grad C
             'Ist':                        {'read': True, 'write': False, 'opcode': '0802', 'reply_token': '0802', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},     # Kesseltemperatur
             'Soll':                       {'read': True, 'write': True,  'opcode': '5502', 'reply_token': '5502', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 2]},     # Kesselsolltemperatur
         },
         'Fehler': {
-            # Fehler            
+            # Fehler
             'Sammelstoerung':             {'read': True, 'write': False, 'opcode': '0847', 'reply_token': '0847', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'returnstatus'},     # Sammelstörung
             'Brennerstoerung':            {'read': True, 'write': False, 'opcode': '0883', 'reply_token': '0883', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'returnstatus'},
             'Error0':                     {'read': True, 'write': False, 'opcode': '7507', 'reply_token': '7507', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 9], 'lookup': 'errors'},     # Fehlerhistory Eintrag 1
@@ -358,14 +358,14 @@ commands = {
             'Error9':                     {'read': True, 'write': False, 'opcode': '7558', 'reply_token': '7558', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 9], 'lookup': 'errors'},     # Fehlerhistory Eintrag 10
         },
         'Pumpen': {
-            # Pumpen            
+            # Pumpen
             'Speicherlade':               {'read': True, 'write': False, 'opcode': '0845', 'reply_token': '0845', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Speicherladepumpe für Warmwasser
             'Zirkulation':                {'read': True, 'write': False, 'opcode': '0846', 'reply_token': '0846', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Zirkulationspumpe
             'Heizkreis_A1M1':             {'read': True, 'write': False, 'opcode': '2906', 'reply_token': '2906', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Heizkreispumpe A1M1
             'Heizkreis_M2':               {'read': True, 'write': False, 'opcode': '3906', 'reply_token': '3906', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Heizkreispumpe M2
         },
         'Brenner': {
-            # Brenner            
+            # Brenner
             'Typ':                        {'read': True, 'write': False, 'opcode': 'a30b', 'reply_token': 'a30b', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Brennertyp 0=einstufig 1=zweistufig 2=modulierend
             'Stufe':                      {'read': True, 'write': False, 'opcode': '551e', 'reply_token': '551e', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'returnstatus'},     # Ermittle die aktuelle Brennerstufe
             'Starts':                     {'read': True, 'write': True,  'opcode': '088a', 'reply_token': '088a', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 2], 'cmd_settings': {'force_min': 0, 'force_max': 1193045}},     # Brennerstarts
@@ -377,7 +377,7 @@ commands = {
         'Heizkreis': {
             'A1M1': {
                 # Heizkreis A1M1
-                'Temperatur': {           
+                'Temperatur': {
                     'Raum': {
                         'Soll_Normal':    {'read': True, 'write': True,  'opcode': '2306', 'reply_token': '2306', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 4, 'force_max': 37}},     # Raumtemperatur Soll Normalbetrieb A1M1
                         'Soll_Reduziert': {'read': True, 'write': True,  'opcode': '2307', 'reply_token': '2307', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 4, 'force_max': 37}},     # Raumtemperatur Soll Reduzierter Betrieb A1M1
@@ -396,14 +396,14 @@ commands = {
                 'MischerM1':              {'read': True, 'write': False, 'opcode': '254c', 'reply_token': '254c', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 2.55, 1]},     # Ermittle Mischerposition M1
                 'Heizkreispumpenlogik':   {'read': True, 'write': True,  'opcode': '27a5', 'reply_token': '27a5', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 0, 'force_max': 15}},     # 0=ohne HPL-Funktion, 1=AT > RTsoll + 5 K, 2=AT > RTsoll + 4 K, 3=AT > RTsoll + 3 K, 4=AT > RTsoll + 2 K, 5=AT > RTsoll + 1 K, 6=AT > RTsoll, 7=AT > RTsoll - 1 K, 8=AT > RTsoll - 2 K, 9=AT > RTsoll - 3 K, 10=AT > RTsoll - 4 K, 11=AT > RTsoll - 5 K, 12=AT > RTsoll - 6 K, 13=AT > RTsoll - 7 K, 14=AT > RTsoll - 8 K, 15=AT > RTsoll - 9 K
                 'Sparschaltung':          {'read': True, 'write': True,  'opcode': '27a6', 'reply_token': '27a6', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 5, 'force_max': 36}},     # AbsolutSommersparschaltung
-                'Heizkennlinie': {           
+                'Heizkennlinie': {
                     'Neigung':            {'read': True, 'write': True,  'opcode': '2305', 'reply_token': '2305', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 1], 'cmd_settings': {'force_min': 0.2, 'force_max': 3.5}},     # Neigung Heizkennlinie A1M1
                     'Niveau':             {'read': True, 'write': True,  'opcode': '2304', 'reply_token': '2304', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -13, 'force_max': 40}},     # Niveau Heizkennlinie A1M1
                 },
             },
             'M2': {
                 # Heizkreis M2
-                'Temperatur': {           
+                'Temperatur': {
                     'Raum': {
                         'Soll_Normal':    {'read': True, 'write': True,  'opcode': '3306', 'reply_token': '3306', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 4, 'force_max': 37}},     # Raumtemperatur Soll Normalbetrieb
                         'Soll_Reduziert': {'read': True, 'write': True,  'opcode': '3307', 'reply_token': '3307', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 4, 'force_max': 37}},     # Raumtemperatur Soll Reduzierter Betrieb
@@ -428,14 +428,14 @@ commands = {
                 'Sparschaltung':          {'read': True, 'write': True,  'opcode': '37a6', 'reply_token': '37a6', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': 5, 'force_max': 36}},     # AbsolutSommersparschaltung
                 'StatusKlemme2':          {'read': True, 'write': False, 'opcode': '3904', 'reply_token': '3904', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # 0=OK, 1=Kurzschluss, 2=nicht vorhanden, 3-5=Referenzfehler, 6=nicht vorhanden
                 'StatusKlemme17':         {'read': True, 'write': False, 'opcode': '3905', 'reply_token': '3905', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # 0=OK, 1=Kurzschluss, 2=nicht vorhanden, 3-5=Referenzfehler, 6=nicht vorhanden
-                'Heizkennlinie': {           
+                'Heizkennlinie': {
                     'Neigung':            {'read': True, 'write': True,  'opcode': '3305', 'reply_token': '3305', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'len'], 'param_values': ['VAL', 10, 1], 'cmd_settings': {'force_min': 0.2, 'force_max': 3.5}},     # Neigung Heizkennlinie M2
                     'Niveau':             {'read': True, 'write': True,  'opcode': '3304', 'reply_token': '3304', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'signed', 'len'], 'param_values': ['VAL', True, 1], 'cmd_settings': {'force_min': -13, 'force_max': 40}},     # Niveau Heizkennlinie M2
                 },
             },
         },
         'Warmwasser': {
-            # Warmwasser            
+            # Warmwasser
             'Status':           {'read': True, 'write': False, 'opcode': '650A', 'reply_token': '650A', 'item_type': 'bool', 'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # 0=Ladung inaktiv, 1=in Ladung, 2=im Nachlauf
             'KesselOffset':     {'read': True, 'write': True,  'opcode': '6760', 'reply_token': '6760', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 10, 'force_max': 50}},     # Warmwasser Kessel Offset in K
             'BeiPartyDNormal':  {'read': True, 'write': True,  'opcode': '6764', 'reply_token': '6764', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 2}},     # WW Heizen bei Party 0=AUS, 1=nach Schaltuhr, 2=EIN
@@ -446,13 +446,13 @@ commands = {
         },
         'Ferienprogramm': {
             'A1M1': {
-                # Ferienprogramm HK            
+                # Ferienprogramm HK
                 'Status':       {'read': True, 'write': False, 'opcode': '2535', 'reply_token': '2535', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Ferienprogramm A1M1 0=inaktiv 1=aktiv
                 'Abreisetag':   {'read': True, 'write': True,  'opcode': '2309', 'reply_token': '2309', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Abreisetag A1M1
                 'Rückreisetag': {'read': True, 'write': True,  'opcode': '2311', 'reply_token': '2311', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Rückreisetag A1M1
             },
             'M2': {
-                # Ferienprogramm HK            
+                # Ferienprogramm HK
                 'Status':       {'read': True, 'write': False, 'opcode': '3535', 'reply_token': '3535', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1]},     # Ferienprogramm M2 0=inaktiv 1=aktiv
                 'Abreisetag':   {'read': True, 'write': True,  'opcode': '3309', 'reply_token': '3309', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Abreisetag M2
                 'Rückreisetag': {'read': True, 'write': True,  'opcode': '3311', 'reply_token': '3311', 'item_type': 'bool', 'dev_datatype': 'D', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Ferien Rückreisetag M2
@@ -460,7 +460,7 @@ commands = {
         },
         'Timer': {
             'Warmwasser': {
-                # Schaltzeiten Warmwasser            
+                # Schaltzeiten Warmwasser
                 'Mo': {'read': True, 'write': True, 'opcode': '2100', 'reply_token': '2100', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Montag
                 'Di': {'read': True, 'write': True, 'opcode': '2108', 'reply_token': '2108', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '2110', 'reply_token': '2110', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Mittwoch
@@ -470,7 +470,7 @@ commands = {
                 'So': {'read': True, 'write': True, 'opcode': '2130', 'reply_token': '2130', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Warmwasserbereitung Sonntag
             },
             'A1M1': {
-                # Schaltzeiten HK            
+                # Schaltzeiten HK
                 'Mo': {'read': True, 'write': True, 'opcode': '2000', 'reply_token': '2000', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Montag
                 'Di': {'read': True, 'write': True, 'opcode': '2008', 'reply_token': '2008', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '2010', 'reply_token': '2010', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Mittwoch
@@ -480,7 +480,7 @@ commands = {
                 'So': {'read': True, 'write': True, 'opcode': '2030', 'reply_token': '2030', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Sonntag
             },
             'M2': {
-                # Schaltzeiten HK            
+                # Schaltzeiten HK
                 'Mo': {'read': True, 'write': True, 'opcode': '3000', 'reply_token': '3000', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Montag
                 'Di': {'read': True, 'write': True, 'opcode': '3008', 'reply_token': '3008', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Dienstag
                 'Mi': {'read': True, 'write': True, 'opcode': '3010', 'reply_token': '3010', 'item_type': 'list', 'dev_datatype': 'C', 'params': ['value', 'len'], 'param_values': ['VAL', 8]},     # Timer Heizkreis Mittwoch
@@ -496,7 +496,7 @@ commands = {
             'Temperatur': {
                 'Aussen':             {'read': True, 'write': False, 'opcode': '0101', 'reply_token': '0101', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'mult', 'signed', 'len'], 'param_values': ['VAL', 10, True, 2]},     # getTempA -- Information - Allgemein: Aussentemperatur (-40..70)
             },
-            # Anlagenstatus            
+            # Anlagenstatus
             'Betriebsart':            {'read': True, 'write': True,  'opcode': 'b000', 'reply_token': 'b000', 'item_type': 'str',  'dev_datatype': 'H', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'lookup': 'operatingmodes', 'item_attrs': {'attributes': {'md_read_initial': True}, 'lookup_item': True}},     # getBetriebsart -- Bedienung HK1 - Heizkreis 1: Betriebsart (Textstring)
             'Manuell':                {'read': True, 'write': True,  'opcode': 'b020', 'reply_token': 'b020', 'item_type': 'num',  'dev_datatype': 'V', 'params': ['value', 'len'], 'param_values': ['VAL', 1], 'cmd_settings': {'force_min': 0, 'force_max': 2}},     # getManuell / setManuell -- 0 = normal, 1 = manueller Heizbetrieb, 2 = 1x Warmwasser auf Temp2
             # Allgemein

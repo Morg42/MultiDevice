@@ -37,6 +37,8 @@ implementiert. Derzeit sind dies:
 
 * Kodi Mediencenter (kodi)
 
+* Squeezebox Medienserver
+
 * Viessmann-Heizungen (viessmann)
 
   * V200KW2
@@ -51,11 +53,11 @@ Konfiguration
 plugin.yaml
 ~~~~~~~~~~~
 
-Liste von Geräten und ggf. deren Konfiguration. 
+Liste von Geräten und ggf. deren Konfiguration.
 
 Geräte-ID ist eine eindeutige Kennzeichnung, die auch in der Item-Konfiguration
 in der Option ``md_device`` angegeben wird; Geräte-Typ ist der Name des Gerätes
-im Ordner ``dev_<Geräte-Typ>``. 
+im Ordner ``dev_<Geräte-Typ>``.
 
 Mindestangabe ist der Geräte-Typ; wenn keine Geräte-ID vergeben wird, ist diese
 gleich dem Geräte-Typ (beachte: pro Geräte-Typ nur einmal möglich).
@@ -119,6 +121,10 @@ Standalone-Modus
 Das Plugin kann auch im Standalone-Modus verwendet werden. Dazu wird es aus dem
 SmartHomeNG-Ordner mit einem Gerätetypen <device> als erstem Argument aufgerufen.
 
+
+Gerätefunktion
+~~~~~~~~~~~~~~
+
 Im Standardmodus wird die Standalone-Funktion des jeweiligen Gerätes aufgerufen,
 sofern diese implementiert ist. Da Geräte modular erweitert werden können, ist
 es nicht möglich, eine Übersicht über unterstützte Geräte und deren Funktionen
@@ -162,7 +168,7 @@ verwendet werden kann und beim Start von SmartHomeNG eingelesen wird:
 
 Wenn es mit dem Parameter -S aufgerufen wird, wird die Struktur nicht auf
 ausgegeben, sondern automatisch im Ordner des jeweiligen Gerätes als
-``struct.yaml`` gespeichert. 
+``struct.yaml`` gespeichert.
 
 .. code:: bash
 
@@ -183,8 +189,12 @@ Einrückweite fest:
 Web Interface
 -------------
 
-Derzeit noch nicht weitergehend implementiert.
+Das Web-Interface bietet eine Übersicht über die konfigurierten Geräte mit ihren
+Parameter und ermöglicht es, Geräte zu stoppen, zu starten und die Parameter zu
+ändern.
 
+Weiterhin gibt es eine Übersicht über die Items, die für das Plugin konfiguriert
+und verknüpft sind.
 
 
 Entwicklung von eigenen Geräte-Klassen

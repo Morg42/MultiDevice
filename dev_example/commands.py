@@ -51,7 +51,7 @@ commands = {
 
         # optional, regex with one capturing group to automatically extract reply values from the reply
         # implemented only in MD_Command_ParseStr as of now
-        # 
+        #
         'reply_pattern': '',
 
         # optional, this dict defines limits for value validity for sending data to the device.
@@ -93,7 +93,7 @@ commands = {
             # means create all levels (default)
             # 0 means don't create read groups (not even from 'read_groups' dict!)
             # x (int > 0) means include the x lowest levels of read groups
-            # e.g. if current item gets read groups 
+            # e.g. if current item gets read groups
             #      ['l1', 'l1.l2', 'l1.l2.l3', 'l1.l2.l3.l4'], setting
             #      read_group_levels': 2 will yield
             #      md_read_groups: ['l1.l2.l3', 'l1.l2.l3.l4']
@@ -107,7 +107,7 @@ commands = {
             # attributes to add to the item definition verbatim
             # e.g. 'enforce_updates': 'true', 'md_initial_read': 'true'
             'attributes': {
-                'attr1': 'value1',  
+                'attr1': 'value1',
                 'attr2': 'value2'
             },
 
@@ -128,7 +128,7 @@ commands = {
                     'trigger': 'path.to.item'
                 },
                 {
-                    'name': '<read group 2>', 
+                    'name': '<read group 2>',
                     'trigger': 'path.to.other.item'
                 }
             ],
@@ -140,7 +140,7 @@ commands = {
 
 If many commands are present, it might be beneficial to create a hierarchical
 structure via nested dicts. This is simple as nesting can - more or less - be
-used as you like. 
+used as you like.
 In the item definition, the combined command names from the following example
 are:
 
@@ -183,25 +183,25 @@ will be ignored.
 
 commands = {
     'ALL': {
-        'cmd1': {'read': True, 'write': True, 'opcode': '1a', 'attrib': '...'}, 
-        'cmd2': {'read': False, 'write': True, 'opcode': '2b', 'attrib': '...'}, 
+        'cmd1': {'read': True, 'write': True, 'opcode': '1a', 'attrib': '...'},
+        'cmd2': {'read': False, 'write': True, 'opcode': '2b', 'attrib': '...'},
     },
     'model1': {
-        'cmd3': {'read': True, 'write': False, 'opcode': '3c', 'attrib': '...'}, 
-        'cmd4': {'read': False, 'write': False, 'opcode': '4d', 'attrib': '...'}, 
+        'cmd3': {'read': True, 'write': False, 'opcode': '3c', 'attrib': '...'},
+        'cmd4': {'read': False, 'write': False, 'opcode': '4d', 'attrib': '...'},
     },
     'model3': {
         'cmd1': {'read': True, 'write': True, 'opcode': '3a', 'attrib': '...'},  # note different opcode
-        'cmd3': {'read': True, 'write': False, 'opcode': '3z', 'attrib': '...'}, 
+        'cmd3': {'read': True, 'write': False, 'opcode': '3z', 'attrib': '...'},
     },
     'model4': {
         'section1': {
-            'cmd1': {'read': True, 'write': True, 'opcode': 'VI', 'attrib': '...'}, 
-            'cmd2': {'read': False, 'write': True, 'opcode': 'VII', 'attrib': '...'}, 
+            'cmd1': {'read': True, 'write': True, 'opcode': 'VI', 'attrib': '...'},
+            'cmd2': {'read': False, 'write': True, 'opcode': 'VII', 'attrib': '...'},
         },
         'section2': {
-            'cmd1': {'read': True, 'write': True, 'opcode': 'XX', 'attrib': '...'}, 
-            'cmd2': {'read': False, 'write': True, 'opcode': 'YY', 'attrib': '...'},         
+            'cmd1': {'read': True, 'write': True, 'opcode': 'XX', 'attrib': '...'},
+            'cmd2': {'read': False, 'write': True, 'opcode': 'YY', 'attrib': '...'},
         }
     }
 }

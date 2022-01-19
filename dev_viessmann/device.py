@@ -11,7 +11,7 @@ else:
 
 
 class MD_Device(MD_Device):
-    """ Device class for Viessmann heating systems. 
+    """ Device class for Viessmann heating systems.
 
     Standalone mode is automatic device type discovery
     """

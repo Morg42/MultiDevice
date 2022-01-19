@@ -704,7 +704,7 @@ class MD_Protocol_Viessmann(MD_Protocol):
         return rawdatabytes
 
     def _build_payload(self, data_dict):
-        """ 
+        """
         create payload from data_dict. Necessary data:
 
         data_dict['payload']: address from/to which to read/write (hex, str)

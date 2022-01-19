@@ -23,7 +23,7 @@ class MD_Device(MD_Device):
     """
 
     def _set_device_defaults(self):
-        
+
         self.custom_commands = 1
         self._custom_pattern = '([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}'
         self._use_callbacks = True

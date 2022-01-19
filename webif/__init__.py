@@ -95,7 +95,7 @@ class WebInterface(SmartPluginWebIf):
 
                 # run/stop command
                 cmd, __, dev = button.partition('#')
-                device = self.plugin._get_device(dev)
+                device = self.plugin.get_device(dev)
                 if device:
                     if cmd == 'run':
                         self.logger.info(f'Webinterface starting device {dev}')

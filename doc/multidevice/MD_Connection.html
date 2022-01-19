@@ -122,7 +122,7 @@ class MD_Connection(object):
             self._is_connected = True
             self._send_init_on_open()
 
-        return self._is_connected        
+        return self._is_connected
 
     def close(self):
         &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
@@ -149,7 +149,7 @@ class MD_Connection(object):
             raise ValueError(&#39;send provided with empty data_dict[&#34;payload&#34;], aborting&#39;)
 
         response = None
-        
+
         if self._send_init_on_send():
             response = self._send(data_dict)
 
@@ -366,7 +366,7 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
         self.logger.debug(f&#39;{self.__class__.__name__} opening connection with params {self._params}&#39;)
         if not self._tcp.connected():
             self._tcp.connect()
-            # give a moment to establish connection (threaded call). 
+            # give a moment to establish connection (threaded call).
             # immediate return would always fail
             # &#34;proper&#34; control is executed by using on_connect callback
             sleep(2)
@@ -634,7 +634,7 @@ class MD_Connection_Serial(MD_Connection):
         # self.logger.debug(&#39;_read_bytes: start read&#39;)
         starttime = time()
 
-        # prevent concurrent read attempts; 
+        # prevent concurrent read attempts;
         with self._lock.acquire_timeout(self.__lock_timeout) as locked:
 
             if locked:
@@ -848,7 +848,7 @@ is something to implement in the interface-specific derived classes.</p>
             self._is_connected = True
             self._send_init_on_open()
 
-        return self._is_connected        
+        return self._is_connected
 
     def close(self):
         &#34;&#34;&#34; wrapper method provides stable interface and allows overwriting &#34;&#34;&#34;
@@ -875,7 +875,7 @@ is something to implement in the interface-specific derived classes.</p>
             raise ValueError(&#39;send provided with empty data_dict[&#34;payload&#34;], aborting&#39;)
 
         response = None
-        
+
         if self._send_init_on_send():
             response = self._send(data_dict)
 
@@ -1117,7 +1117,7 @@ is something to implement in the interface-specific derived classes.</p>
         raise ValueError(&#39;send provided with empty data_dict[&#34;payload&#34;], aborting&#39;)
 
     response = None
-    
+
     if self._send_init_on_send():
         response = self._send(data_dict)
 
@@ -1204,7 +1204,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
         self.logger.debug(f&#39;{self.__class__.__name__} opening connection with params {self._params}&#39;)
         if not self._tcp.connected():
             self._tcp.connect()
-            # give a moment to establish connection (threaded call). 
+            # give a moment to establish connection (threaded call).
             # immediate return would always fail
             # &#34;proper&#34; control is executed by using on_connect callback
             sleep(2)
@@ -1636,7 +1636,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
         # self.logger.debug(&#39;_read_bytes: start read&#39;)
         starttime = time()
 
-        # prevent concurrent read attempts; 
+        # prevent concurrent read attempts;
         with self._lock.acquire_timeout(self.__lock_timeout) as locked:
 
             if locked:

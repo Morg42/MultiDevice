@@ -134,7 +134,7 @@ CMD_ATTR_LOOKUP             = 'lookup'
 CMD_ATTR_PARAMS             = 'params'
 CMD_ATTR_PARAM_VALUES       = 'param_values'
 CMD_ATTR_ITEM_ATTRS         = 'item_attrs'
-    
+
 CMD_IATTR_RG_LEVELS         = 'read_group_levels'
 CMD_IATTR_LOOKUP_ITEM       = 'lookup_item'
 CMD_IATTR_ATTRIBUTES        = 'attributes'

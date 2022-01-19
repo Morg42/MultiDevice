@@ -143,8 +143,6 @@ class MD_Connection(object):
         """ callback for on_connect event """
         self._is_connected = True
         self.logger.info(f'on_connect called by {by}')
-        if self._connected_callback:
-            self._connected_callback(by)
 
     def on_disconnect(self, by=None):
         """ callback for on_disconnect event """
@@ -396,15 +394,9 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
         self._srv_buffer = 1024
         self.__receive_thread = None
         self._connected = True
-        self._params.update({PLUGIN_ATTR_NET_HOST: '',
-                             PLUGIN_ATTR_NET_PORT: 0,
-                             PLUGIN_ATTR_CB_ON_DISCONNECT: None,
-                             PLUGIN_ATTR_CB_ON_CONNECT: self.on_disconnect})
-
-        self._set_connection_params()
 
     def _open(self):
-        self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} with params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} opening connection with params {self._params}')
         self.alive = True
         self.__receive_thread = Thread(target=self._receive_thread_worker, name='Unicast_Listener')
         self.__receive_thread.daemon = True
@@ -413,7 +405,7 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
         return True
 
     def _close(self):
-        self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__} with params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} closing connection')
         self.alive = False
         try:
             self._sock.close()
@@ -457,6 +449,8 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
 
     def _receive_thread_worker(self):
         self.sock = Ucast(self._port)
+        if self._connected_callback:
+            self._connected_callback(self.__str__() + ' Unicast_listener')
         while self.alive:
             data, addr = self.sock.recvfrom(self._srv_buffer)
             try:
@@ -464,17 +458,18 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
             except Exception as e:
                 self.logger.warning(f'error receiving data - host/port not readable. Error was: {e}')
                 return
-            if host not in list(self._yamaha_dev.keys()):
-                self.logger.debug(f'received notify from unknown host {host}')
             else:
                 # connected device sends updates every second for
                 # about 10 minutes without further interaction
                 # self.logger.debug(
                 #     "Yamaha unicast received {} bytes from {}: {}".format(
                 #     len(data), host, data))
-                return data.decode('utf-8')
+                if self._data_received_callback:
+                    self._data_received_callback(host, data.decode('utf-8'))
 
         self.sock.close()
+        if self._disconnected_callback:
+            self._disconnected_callback(self.__str__() + ' Unicast_listener')
 
 
 class MD_Connection_Serial(MD_Connection):

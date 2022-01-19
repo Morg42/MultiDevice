@@ -292,11 +292,11 @@ class MD_Device(object):
         """
         data = self._transform_received_data(data)
         if command is not None:
-            self.logger.debug(f'received data "{data}" for command {command}')
+            self.logger.debug(f'received data "{data}" from {by} for command {command}')
         else:
             # command == None means that we got raw data from a callback and don't know yet to
             # which command this belongs to. So find out...
-            self.logger.debug(f'received data "{data}" without command specification')
+            self.logger.debug(f'received data "{data}" from {by} without command specification')
             command = self._commands.get_command_from_reply(data)
             if not command:
                 self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')

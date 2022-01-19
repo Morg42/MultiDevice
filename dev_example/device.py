@@ -10,6 +10,10 @@ else:
 class MD_Device(MD_Device):
     """ Example class for TCP client (async receiving) connection. """
 
+    def _set_custom_vars(self):
+        # set to True to use on_connect and on_disconnect callbacks
+        self._use_callbacks = False
+
     def _post_init(self):
         # if you don't know what to do with this method, just delete it!
 

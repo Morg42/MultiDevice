@@ -104,6 +104,8 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
+
+        # set to True to use on_connect and on_disconnect callbacks
         self._use_callbacks = False
 
         self._data_received_callback = None

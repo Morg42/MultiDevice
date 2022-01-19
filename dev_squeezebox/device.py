@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
-import re
 import urllib.parse
 
 
@@ -23,9 +22,12 @@ class MD_Device(MD_Device):
     The know-how is in the commands.py (and some DT_ classes...)
     """
 
-    def _set_custom_vars(self):
+    def _set_device_defaults(self):
+        
         self.custom_commands = 1
+        self._custom_pattern = '([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}'
         self._use_callbacks = True
+
         # set our own preferences concerning connections
         if not self._params.get(PLUGIN_ATTR_CONNECTION):
             if PLUGIN_ATTR_NET_HOST in self._params and self._params.get(PLUGIN_ATTR_NET_HOST):
@@ -39,7 +41,6 @@ class MD_Device(MD_Device):
 
     def on_connect(self, by=None):
         self.logger.debug("On connect squeezebox")
-        super().on_connect(by)
         self.send_command('server.listenmode', True)
 
     def _transform_send_data(self, data=None, **kwargs):
@@ -57,17 +58,3 @@ class MD_Device(MD_Device):
 
     def _transform_received_data(self, data):
         return urllib.parse.unquote_plus(data)
-
-    def get_custom_value(self, command, data):
-        """ extract custom value from data. Needs to be overwritten """
-        if not self.custom_commands:
-            return None
-        res = re.match('([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', data)
-        if not res:
-            self.logger.debug(f'custom token not found or no valid MAC address in {data}, ignoring')
-            return None
-        elif res[0] in self._custom_values[self.custom_commands]:
-            return res[0]
-        else:
-            self.logger.debug(f'received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}')
-            return None

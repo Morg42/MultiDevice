@@ -27,6 +27,7 @@
 import logging
 import time
 import sys
+import re
 from lib.shyaml import yaml_load
 import importlib
 
@@ -86,17 +87,28 @@ class MD_Device(object):
 
         self.logger.info(f'initializing from device module {str(self.__class__).split(".")[-3]} with arguments {kwargs}')
 
-        # the connection object
-        self._connection = None
-
-        # the commands object
-        self._commands = None
+        #
+        # the following can be set in _set_device_defaults to customize device behaviour
+        #
 
         # None for normal operations, 1..3 for combined custom commands (<command>#<customx>)
         self.custom_commands = None
-        self._custom_values = {1: [], 2: [], 3: []}
+
+        # set for detection / extraction of custom token from reply
+        self._custom_pattern = ''
+
+        # set to True to use on_connect and on_disconnect callbacks
+        self._use_callbacks = False
+
+        #
+        #
+        #
 
         # set class properties
+        self._connection = None
+        self._commands = None
+        self._custom_values = {1: [], 2: [], 3: []}
+
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -104,9 +116,6 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-
-        # set to True to use on_connect and on_disconnect callbacks
-        self._use_callbacks = False
 
         self._data_received_callback = None
         self._commands_read = {}
@@ -126,8 +135,8 @@ class MD_Device(object):
         self._params.update(kwargs)
         self._plugin = self._params.get('plugin', None)
 
-        # possibly initialize additional
-        self._set_custom_vars()
+        # possibly initialize additional (overwrite _set_device_defaults)
+        self._set_device_defaults()
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
@@ -138,9 +147,6 @@ class MD_Device(object):
         # MD_Device will probably be created towards a specific command class
         # but, just in case, be well-behaved...
         self._command_class = self._params.get('command_class', MD_Command)
-
-        # set device parameters, if any
-        self._set_device_params()
 
         # try to read configuration files
         try:
@@ -163,7 +169,7 @@ class MD_Device(object):
 
         self.disabled = False
 
-        # call method for possible custom work...
+        # call method for possible custom work (overwrite _post_init)
         self._post_init()
 
     def start(self):
@@ -274,15 +280,6 @@ class MD_Device(object):
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
         return True
 
-    def _transform_received_data(self, data):
-        """
-        This method provides a way to adjust, modify or transform all data as soon
-        as it is received from the device.
-        This might be useful to clean or parse data.
-        By default, nothing happens here.
-        """
-        return data
-
     def on_data_received(self, by, data, command=None):
         """
         Callback function for received data e.g. from an event loop
@@ -307,7 +304,7 @@ class MD_Device(object):
 
         custom = None
         if self.custom_commands:
-            custom = self.get_custom_value(command, data)
+            custom = self._get_custom_value(command, data)
 
         try:
             value = self._commands.get_shng_data(command, data)
@@ -375,8 +372,8 @@ class MD_Device(object):
             self._triggers_initial = kwargs.get('initial_triggers', [])
             self._data_received_callback = kwargs.get('callback', None)
             self._runtime_data_set = True
-        except KeyError as e:
-            self.logger.error(f'error in runtime data: {e}. Stopping device.')
+        except Exception as e:
+            self.logger.error(f'error in runtime data: {e}.')
 
     def update_device_params(self, **kwargs):
         """
@@ -394,9 +391,6 @@ class MD_Device(object):
 
         # merge new params with self._params, overwrite old values if necessary
         self._params.update(kwargs)
-
-        # update this class' settings
-        self._set_device_params()
 
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
@@ -426,7 +420,7 @@ class MD_Device(object):
     #
     #
 
-    def _set_custom_vars(self):
+    def _set_device_defaults(self):
         """ Set custom class properties. Overwrite as needed... """
 
         # if you want to enable callbacks, overwrite this method and set
@@ -451,6 +445,15 @@ class MD_Device(object):
         """
         return data_dict
 
+    def _transform_received_data(self, data):
+        """
+        This method provides a way to adjust, modify or transform all data as soon
+        as it is received from the device.
+        This might be useful to clean or parse data.
+        By default, nothing happens here.
+        """
+        return data
+
     def _send(self, data_dict):
         """
         This method acts as a overwritable intermediate between the handling
@@ -464,14 +467,6 @@ class MD_Device(object):
         """
         return self._connection.send(data_dict)
 
-    def _set_device_params(self):
-        """
-        This method parses self._params for parameters it needs itself and does the
-        necessary initialization.
-        Needs to be overwritten for maximum effect...
-        """
-        pass
-
     def on_connect(self, by=None):
         """ callback if connection is made. """
         pass
@@ -480,10 +475,19 @@ class MD_Device(object):
         """ callback if connection is broken. """
         pass
 
-    def get_custom_value(self, command, data):
-        """ extract custom value from data. Needs to be overwritten """
-        return None
-
+    def _get_custom_value(self, command, data):
+        """ extract custom value from data. At least PATTERN Needs to be overwritten """
+        if not self.custom_commands:
+            return None
+        res = re.match(self._custom_pattern, data)
+        if not res:
+            self.logger.debug(f'custom token not found in {data}, ignoring')
+            return None
+        elif res[0] in self._custom_values[self.custom_commands]:
+            return res[0]
+        else:
+            self.logger.debug(f'received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}')
+            return None
     #
     #
     # utility methods

@@ -55,17 +55,18 @@
 import logging
 import time
 import sys
+import re
 from lib.shyaml import yaml_load
 import importlib
 
 if MD_standalone:
-    from MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from MD_Commands import MD_Commands
     from MD_Command import MD_Command
     from MD_Connection import MD_Connection
     from MD_Protocol import MD_Protocol
 else:
-    from .MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from .MD_Globals import (CONNECTION_TYPES, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from .MD_Commands import MD_Commands
     from .MD_Command import MD_Command
     from .MD_Connection import MD_Connection
@@ -101,7 +102,7 @@ class MD_Device(object):
 
         As additional device classes are expected to be implemented as
         subclasses, most initialization steps are modularized as methods which
-        can be overwritten as needed. 
+        can be overwritten as needed.
 
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn&#39;t need to be changed.
@@ -114,13 +115,28 @@ class MD_Device(object):
 
         self.logger.info(f&#39;initializing from device module {str(self.__class__).split(&#34;.&#34;)[-3]} with arguments {kwargs}&#39;)
 
-        # the connection object
-        self._connection = None
+        #
+        # the following can be set in _set_device_defaults to customize device behaviour
+        #
 
-        # the commands object
-        self._commands = None
+        # None for normal operations, 1..3 for combined custom commands (&lt;command&gt;#&lt;customx&gt;)
+        self.custom_commands = None
+
+        # set for detection / extraction of custom token from reply
+        self._custom_pattern = &#39;&#39;
+
+        # set to True to use on_connect and on_disconnect callbacks
+        self._use_callbacks = False
+
+        #
+        #
+        #
 
         # set class properties
+        self._connection = None
+        self._commands = None
+        self._custom_values = {1: [], 2: [], 3: []}
+
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -128,7 +144,6 @@ class MD_Device(object):
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-        self._use_callbacks = False
 
         self._data_received_callback = None
         self._commands_read = {}
@@ -148,8 +163,8 @@ class MD_Device(object):
         self._params.update(kwargs)
         self._plugin = self._params.get(&#39;plugin&#39;, None)
 
-        # possibly initialize additional 
-        self._set_custom_vars()
+        # possibly initialize additional (overwrite _set_device_defaults)
+        self._set_device_defaults()
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
@@ -160,9 +175,6 @@ class MD_Device(object):
         # MD_Device will probably be created towards a specific command class
         # but, just in case, be well-behaved...
         self._command_class = self._params.get(&#39;command_class&#39;, MD_Command)
-
-        # set device parameters, if any
-        self._set_device_params()
 
         # try to read configuration files
         try:
@@ -185,7 +197,7 @@ class MD_Device(object):
 
         self.disabled = False
 
-        # call method for possible custom work...
+        # call method for possible custom work (overwrite _post_init)
         self._post_init()
 
     def start(self):
@@ -229,7 +241,7 @@ class MD_Device(object):
     def send_command(self, command, value=None, **kwargs):
         &#34;&#34;&#34;
         Sends the specified command to the device providing &lt;value&gt; as data
-        Not providing data will issue a read command, trying to read the value 
+        Not providing data will issue a read command, trying to read the value
         from the device and writing it to the associated item.
 
         :param command: the command to send
@@ -238,6 +250,15 @@ class MD_Device(object):
         :return: True if send was successful, False otherwise
         :rtype: bool
         &#34;&#34;&#34;
+        if self.custom_commands:
+            try:
+                command, custom_value = command.split(&#39;#&#39;)
+                if &#39;custom&#39; not in kwargs:
+                    kwargs[&#39;custom&#39;] = {}
+                kwargs[&#39;custom&#39;][self.custom_commands] = custom_value
+            except ValueError:
+                self.logger.debug(f&#39;extracting custom token failed, maybe not present in command {command}&#39;)
+
         if not self.alive:
             self.logger.warning(f&#39;trying to send command {command} with value {value}, but device is not active.&#39;)
             return False
@@ -262,7 +283,7 @@ class MD_Device(object):
             self.logger.warning(f&#39;command {command} with value {value} yielded empty command payload, aborting&#39;)
             return False
 
-        data_dict = self._transform_send_data(data_dict)
+        data_dict = self._transform_send_data(data_dict, **kwargs)
         self.logger.debug(f&#39;command {command} with value {value} yielded send data_dict {data_dict}&#39;)
 
         # if an error occurs on sending, an exception is thrown
@@ -279,7 +300,7 @@ class MD_Device(object):
                 value = self._commands.get_shng_data(command, result, **kwargs)
             except Exception as e:
                 self.logger.info(f&#39;command {command} received result {result}, error {e} occurred while converting. Discarding result.&#39;)
-            else:            
+            else:
                 self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
                 if self._data_received_callback:
                     self._data_received_callback(self.device_id, command, value)
@@ -297,6 +318,7 @@ class MD_Device(object):
         :param by: client object / name / identifier
         :type command: str
         &#34;&#34;&#34;
+        data = self._transform_received_data(data)
         if command is not None:
             self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command}&#39;)
         else:
@@ -308,8 +330,14 @@ class MD_Device(object):
                 self.logger.debug(f&#39;data &#34;{data}&#34; did not identify a known command, ignoring it&#39;)
                 return
 
+        custom = None
+        if self.custom_commands:
+            custom = self._get_custom_value(command, data)
+
         try:
             value = self._commands.get_shng_data(command, data)
+            if custom:
+                command = command + CUSTOM_SEP + custom
         except Exception as e:
             self.logger.info(f&#39;received data &#34;{data}&#34; for command {command}, error {e} occurred while converting. Discarding data.&#39;)
         else:
@@ -343,6 +371,15 @@ class MD_Device(object):
         :return: True if command is valid, False otherwise
         :rtype: bool
         &#34;&#34;&#34;
+        if self.custom_commands:
+            try:
+                command, custom_value = command.split(&#39;#&#39;)
+                if custom_value not in self._custom_values[self.custom_commands]:
+                    self.logger.debug(f&#39;custom value {custom_value} not in known custom values {self._custom_values[self.custom_commands]}&#39;)
+                    return None
+            except ValueError:
+                pass
+
         if self._commands:
             return self._commands.is_valid_command(command, read)
         else:
@@ -363,8 +400,8 @@ class MD_Device(object):
             self._triggers_initial = kwargs.get(&#39;initial_triggers&#39;, [])
             self._data_received_callback = kwargs.get(&#39;callback&#39;, None)
             self._runtime_data_set = True
-        except KeyError as e:
-            self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)
+        except Exception as e:
+            self.logger.error(f&#39;error in runtime data: {e}.&#39;)
 
     def update_device_params(self, **kwargs):
         &#34;&#34;&#34;
@@ -382,9 +419,6 @@ class MD_Device(object):
 
         # merge new params with self._params, overwrite old values if necessary
         self._params.update(kwargs)
-
-        # update this class&#39; settings
-        self._set_device_params()
 
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
@@ -405,7 +439,8 @@ class MD_Device(object):
 
     def set_custom_item(self, item, command, index, value):
         &#34;&#34;&#34; this is called by parse_items if md_custom[123] is found. &#34;&#34;&#34;
-        pass
+        self._custom_values[index].append(value)
+        self._custom_values[index] = list(set(self._custom_values[index]))
 
     #
     #
@@ -413,7 +448,7 @@ class MD_Device(object):
     #
     #
 
-    def _set_custom_vars(self):
+    def _set_device_defaults(self):
         &#34;&#34;&#34; Set custom class properties. Overwrite as needed... &#34;&#34;&#34;
 
         # if you want to enable callbacks, overwrite this method and set
@@ -421,22 +456,31 @@ class MD_Device(object):
         pass
 
     def _post_init(self):
-        &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed. 
+        &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed.
 
         If for some reason you find compelling argument to stop loading the
         device instance, set self._disabled to true.
         &#34;&#34;&#34;
         pass
 
-    def _transform_send_data(self, data_dict):
+    def _transform_send_data(self, data_dict, **kwargs):
         &#34;&#34;&#34;
         This method provides a way to adjust, modify or transform all data before
         it is sent to the device.
-        This might be to add general parameters, add/change line endings or
-        add your favourite pets&#39; name... 
+        This might be to add general parameters, include custom attributes,
+        add/change line endings or add your favourite pet&#39;s name...
         By default, nothing happens here.
         &#34;&#34;&#34;
         return data_dict
+
+    def _transform_received_data(self, data):
+        &#34;&#34;&#34;
+        This method provides a way to adjust, modify or transform all data as soon
+        as it is received from the device.
+        This might be useful to clean or parse data.
+        By default, nothing happens here.
+        &#34;&#34;&#34;
+        return data
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
@@ -451,14 +495,6 @@ class MD_Device(object):
         &#34;&#34;&#34;
         return self._connection.send(data_dict)
 
-    def _set_device_params(self):
-        &#34;&#34;&#34;
-        This method parses self._params for parameters it needs itself and does the
-        necessary initialization.
-        Needs to be overwritten for maximum effect...
-        &#34;&#34;&#34;
-        pass
-
     def on_connect(self, by=None):
         &#34;&#34;&#34; callback if connection is made. &#34;&#34;&#34;
         pass
@@ -467,6 +503,19 @@ class MD_Device(object):
         &#34;&#34;&#34; callback if connection is broken. &#34;&#34;&#34;
         pass
 
+    def _get_custom_value(self, command, data):
+        &#34;&#34;&#34; extract custom value from data. At least PATTERN Needs to be overwritten &#34;&#34;&#34;
+        if not self.custom_commands:
+            return None
+        res = re.match(self._custom_pattern, data)
+        if not res:
+            self.logger.debug(f&#39;custom token not found in {data}, ignoring&#39;)
+            return None
+        elif res[0] in self._custom_values[self.custom_commands]:
+            return res[0]
+        else:
+            self.logger.debug(f&#39;received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}&#39;)
+            return None
     #
     #
     # utility methods
@@ -489,10 +538,6 @@ class MD_Device(object):
         p = yaml.get(&#39;parameters&#39;, {})
         self._params.update({k: v.get(&#39;default&#39;, None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
 
-        if self._use_callbacks:
-            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
-            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
-
     def _get_connection(self):
         &#34;&#34;&#34;
         return connection object. Try to identify the wanted connection  and return
@@ -509,6 +554,11 @@ class MD_Device(object):
         and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
         &#34;&#34;&#34;
+        if self._use_callbacks:
+            self.logger.debug(&#39;setting callbacks&#39;)
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
         conn_type = None
         conn_classname = None
         conn_cls = None
@@ -534,7 +584,7 @@ class MD_Device(object):
                 conn_type = self._params[PLUGIN_ATTR_CONNECTION]
             else:
                 conn_classname = self._params[PLUGIN_ATTR_CONNECTION]
-        
+
         if not conn_type and not conn_cls and not conn_classname:
             if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
@@ -673,18 +723,18 @@ class MD_Device(object):
             return
         else:
             self.logger.info(&#39;Triggering cyclic command read&#39;)
- 
+
         # set lock
         self._cyclic_update_active = True
         currenttime = time.time()
         read_cmds = 0
         todo = []
         for cmd in self._commands_cyclic:
- 
+
             # Is the command already due?
             if self._commands_cyclic[cmd][&#39;next&#39;] &lt;= currenttime:
                 todo.append(cmd)
- 
+
         for cmd in todo:
             # as this loop can take considerable time, repeatedly check if shng wants to stop
             if not self.alive:
@@ -700,7 +750,7 @@ class MD_Device(object):
             self.send_command(cmd)
             self._commands_cyclic[cmd][&#39;next&#39;] = currenttime + self._commands_cyclic[cmd][&#39;cycle&#39;]
             read_cmds += 1
- 
+
         if read_cmds:
             self.logger.debug(f&#39;Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items&#39;)
 
@@ -708,11 +758,11 @@ class MD_Device(object):
         read_grps = 0
         todo = []
         for grp in self._triggers_cyclic:
- 
+
             # Is the trigger already due?
             if self._triggers_cyclic[grp][&#39;next&#39;] &lt;= currenttime:
                 todo.append(grp)
- 
+
         for grp in todo:
             # as this loop can take considerable time, repeatedly check if shng wants to stop
             if not self.alive:
@@ -728,7 +778,7 @@ class MD_Device(object):
             self.read_all_commands(grp)
             self._triggers_cyclic[grp][&#39;next&#39;] = currenttime + self._triggers_cyclic[grp][&#39;cycle&#39;]
             read_grps += 1
- 
+
         if read_grps:
             self.logger.debug(f&#39;Cyclic triggers took {(time.time() - currenttime):.1f} seconds for {read_grps} groups&#39;)
 
@@ -740,7 +790,7 @@ class MD_Device(object):
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overwritten to do something else.
         &#34;&#34;&#34;
-        cls = None        
+        cls = None
         if isinstance(self._command_class, type):
             cls = self._command_class
         elif isinstance(self._command_class, str):
@@ -790,7 +840,7 @@ received from the device.</p>
 <p>This initializes the class object.</p>
 <p>As additional device classes are expected to be implemented as
 subclasses, most initialization steps are modularized as methods which
-can be overwritten as needed. </p>
+can be overwritten as needed.</p>
 <p>As all pre-implemented methods are called in hopefully-logical sequence,
 this <strong>init</strong> probably doesn't need to be changed.</p></div>
 <details class="source">
@@ -820,7 +870,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         As additional device classes are expected to be implemented as
         subclasses, most initialization steps are modularized as methods which
-        can be overwritten as needed. 
+        can be overwritten as needed.
 
         As all pre-implemented methods are called in hopefully-logical sequence,
         this __init__ probably doesn&#39;t need to be changed.
@@ -833,13 +883,28 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         self.logger.info(f&#39;initializing from device module {str(self.__class__).split(&#34;.&#34;)[-3]} with arguments {kwargs}&#39;)
 
-        # the connection object
-        self._connection = None
+        #
+        # the following can be set in _set_device_defaults to customize device behaviour
+        #
 
-        # the commands object
-        self._commands = None
+        # None for normal operations, 1..3 for combined custom commands (&lt;command&gt;#&lt;customx&gt;)
+        self.custom_commands = None
+
+        # set for detection / extraction of custom token from reply
+        self._custom_pattern = &#39;&#39;
+
+        # set to True to use on_connect and on_disconnect callbacks
+        self._use_callbacks = False
+
+        #
+        #
+        #
 
         # set class properties
+        self._connection = None
+        self._commands = None
+        self._custom_values = {1: [], 2: [], 3: []}
+
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
@@ -847,7 +912,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
-        self._use_callbacks = False
 
         self._data_received_callback = None
         self._commands_read = {}
@@ -867,8 +931,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         self._params.update(kwargs)
         self._plugin = self._params.get(&#39;plugin&#39;, None)
 
-        # possibly initialize additional 
-        self._set_custom_vars()
+        # possibly initialize additional (overwrite _set_device_defaults)
+        self._set_device_defaults()
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
@@ -879,9 +943,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         # MD_Device will probably be created towards a specific command class
         # but, just in case, be well-behaved...
         self._command_class = self._params.get(&#39;command_class&#39;, MD_Command)
-
-        # set device parameters, if any
-        self._set_device_params()
 
         # try to read configuration files
         try:
@@ -904,7 +965,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         self.disabled = False
 
-        # call method for possible custom work...
+        # call method for possible custom work (overwrite _post_init)
         self._post_init()
 
     def start(self):
@@ -948,7 +1009,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     def send_command(self, command, value=None, **kwargs):
         &#34;&#34;&#34;
         Sends the specified command to the device providing &lt;value&gt; as data
-        Not providing data will issue a read command, trying to read the value 
+        Not providing data will issue a read command, trying to read the value
         from the device and writing it to the associated item.
 
         :param command: the command to send
@@ -957,6 +1018,15 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         :return: True if send was successful, False otherwise
         :rtype: bool
         &#34;&#34;&#34;
+        if self.custom_commands:
+            try:
+                command, custom_value = command.split(&#39;#&#39;)
+                if &#39;custom&#39; not in kwargs:
+                    kwargs[&#39;custom&#39;] = {}
+                kwargs[&#39;custom&#39;][self.custom_commands] = custom_value
+            except ValueError:
+                self.logger.debug(f&#39;extracting custom token failed, maybe not present in command {command}&#39;)
+
         if not self.alive:
             self.logger.warning(f&#39;trying to send command {command} with value {value}, but device is not active.&#39;)
             return False
@@ -981,7 +1051,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self.logger.warning(f&#39;command {command} with value {value} yielded empty command payload, aborting&#39;)
             return False
 
-        data_dict = self._transform_send_data(data_dict)
+        data_dict = self._transform_send_data(data_dict, **kwargs)
         self.logger.debug(f&#39;command {command} with value {value} yielded send data_dict {data_dict}&#39;)
 
         # if an error occurs on sending, an exception is thrown
@@ -998,7 +1068,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
                 value = self._commands.get_shng_data(command, result, **kwargs)
             except Exception as e:
                 self.logger.info(f&#39;command {command} received result {result}, error {e} occurred while converting. Discarding result.&#39;)
-            else:            
+            else:
                 self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
                 if self._data_received_callback:
                     self._data_received_callback(self.device_id, command, value)
@@ -1016,6 +1086,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         :param by: client object / name / identifier
         :type command: str
         &#34;&#34;&#34;
+        data = self._transform_received_data(data)
         if command is not None:
             self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command}&#39;)
         else:
@@ -1027,8 +1098,14 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
                 self.logger.debug(f&#39;data &#34;{data}&#34; did not identify a known command, ignoring it&#39;)
                 return
 
+        custom = None
+        if self.custom_commands:
+            custom = self._get_custom_value(command, data)
+
         try:
             value = self._commands.get_shng_data(command, data)
+            if custom:
+                command = command + CUSTOM_SEP + custom
         except Exception as e:
             self.logger.info(f&#39;received data &#34;{data}&#34; for command {command}, error {e} occurred while converting. Discarding data.&#39;)
         else:
@@ -1062,6 +1139,15 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         :return: True if command is valid, False otherwise
         :rtype: bool
         &#34;&#34;&#34;
+        if self.custom_commands:
+            try:
+                command, custom_value = command.split(&#39;#&#39;)
+                if custom_value not in self._custom_values[self.custom_commands]:
+                    self.logger.debug(f&#39;custom value {custom_value} not in known custom values {self._custom_values[self.custom_commands]}&#39;)
+                    return None
+            except ValueError:
+                pass
+
         if self._commands:
             return self._commands.is_valid_command(command, read)
         else:
@@ -1082,8 +1168,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self._triggers_initial = kwargs.get(&#39;initial_triggers&#39;, [])
             self._data_received_callback = kwargs.get(&#39;callback&#39;, None)
             self._runtime_data_set = True
-        except KeyError as e:
-            self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)
+        except Exception as e:
+            self.logger.error(f&#39;error in runtime data: {e}.&#39;)
 
     def update_device_params(self, **kwargs):
         &#34;&#34;&#34;
@@ -1101,9 +1187,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
         # merge new params with self._params, overwrite old values if necessary
         self._params.update(kwargs)
-
-        # update this class&#39; settings
-        self._set_device_params()
 
         # update = recreate the connection with new parameters
         self._connection = self._get_connection()
@@ -1124,7 +1207,8 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
 
     def set_custom_item(self, item, command, index, value):
         &#34;&#34;&#34; this is called by parse_items if md_custom[123] is found. &#34;&#34;&#34;
-        pass
+        self._custom_values[index].append(value)
+        self._custom_values[index] = list(set(self._custom_values[index]))
 
     #
     #
@@ -1132,7 +1216,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
     #
     #
 
-    def _set_custom_vars(self):
+    def _set_device_defaults(self):
         &#34;&#34;&#34; Set custom class properties. Overwrite as needed... &#34;&#34;&#34;
 
         # if you want to enable callbacks, overwrite this method and set
@@ -1140,22 +1224,31 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         pass
 
     def _post_init(self):
-        &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed. 
+        &#34;&#34;&#34; do something after default initializing is done. Overwrite if needed.
 
         If for some reason you find compelling argument to stop loading the
         device instance, set self._disabled to true.
         &#34;&#34;&#34;
         pass
 
-    def _transform_send_data(self, data_dict):
+    def _transform_send_data(self, data_dict, **kwargs):
         &#34;&#34;&#34;
         This method provides a way to adjust, modify or transform all data before
         it is sent to the device.
-        This might be to add general parameters, add/change line endings or
-        add your favourite pets&#39; name... 
+        This might be to add general parameters, include custom attributes,
+        add/change line endings or add your favourite pet&#39;s name...
         By default, nothing happens here.
         &#34;&#34;&#34;
         return data_dict
+
+    def _transform_received_data(self, data):
+        &#34;&#34;&#34;
+        This method provides a way to adjust, modify or transform all data as soon
+        as it is received from the device.
+        This might be useful to clean or parse data.
+        By default, nothing happens here.
+        &#34;&#34;&#34;
+        return data
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
@@ -1170,14 +1263,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34;
         return self._connection.send(data_dict)
 
-    def _set_device_params(self):
-        &#34;&#34;&#34;
-        This method parses self._params for parameters it needs itself and does the
-        necessary initialization.
-        Needs to be overwritten for maximum effect...
-        &#34;&#34;&#34;
-        pass
-
     def on_connect(self, by=None):
         &#34;&#34;&#34; callback if connection is made. &#34;&#34;&#34;
         pass
@@ -1186,6 +1271,19 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         &#34;&#34;&#34; callback if connection is broken. &#34;&#34;&#34;
         pass
 
+    def _get_custom_value(self, command, data):
+        &#34;&#34;&#34; extract custom value from data. At least PATTERN Needs to be overwritten &#34;&#34;&#34;
+        if not self.custom_commands:
+            return None
+        res = re.match(self._custom_pattern, data)
+        if not res:
+            self.logger.debug(f&#39;custom token not found in {data}, ignoring&#39;)
+            return None
+        elif res[0] in self._custom_values[self.custom_commands]:
+            return res[0]
+        else:
+            self.logger.debug(f&#39;received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}&#39;)
+            return None
     #
     #
     # utility methods
@@ -1208,10 +1306,6 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         p = yaml.get(&#39;parameters&#39;, {})
         self._params.update({k: v.get(&#39;default&#39;, None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
 
-        if self._use_callbacks:
-            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
-            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
-
     def _get_connection(self):
         &#34;&#34;&#34;
         return connection object. Try to identify the wanted connection  and return
@@ -1228,6 +1322,11 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
         &#34;&#34;&#34;
+        if self._use_callbacks:
+            self.logger.debug(&#39;setting callbacks&#39;)
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
         conn_type = None
         conn_classname = None
         conn_cls = None
@@ -1253,7 +1352,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
                 conn_type = self._params[PLUGIN_ATTR_CONNECTION]
             else:
                 conn_classname = self._params[PLUGIN_ATTR_CONNECTION]
-        
+
         if not conn_type and not conn_cls and not conn_classname:
             if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
 
@@ -1392,18 +1491,18 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             return
         else:
             self.logger.info(&#39;Triggering cyclic command read&#39;)
- 
+
         # set lock
         self._cyclic_update_active = True
         currenttime = time.time()
         read_cmds = 0
         todo = []
         for cmd in self._commands_cyclic:
- 
+
             # Is the command already due?
             if self._commands_cyclic[cmd][&#39;next&#39;] &lt;= currenttime:
                 todo.append(cmd)
- 
+
         for cmd in todo:
             # as this loop can take considerable time, repeatedly check if shng wants to stop
             if not self.alive:
@@ -1419,7 +1518,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self.send_command(cmd)
             self._commands_cyclic[cmd][&#39;next&#39;] = currenttime + self._commands_cyclic[cmd][&#39;cycle&#39;]
             read_cmds += 1
- 
+
         if read_cmds:
             self.logger.debug(f&#39;Cyclic command read took {(time.time() - currenttime):.1f} seconds for {read_cmds} items&#39;)
 
@@ -1427,11 +1526,11 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         read_grps = 0
         todo = []
         for grp in self._triggers_cyclic:
- 
+
             # Is the trigger already due?
             if self._triggers_cyclic[grp][&#39;next&#39;] &lt;= currenttime:
                 todo.append(grp)
- 
+
         for grp in todo:
             # as this loop can take considerable time, repeatedly check if shng wants to stop
             if not self.alive:
@@ -1447,7 +1546,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
             self.read_all_commands(grp)
             self._triggers_cyclic[grp][&#39;next&#39;] = currenttime + self._triggers_cyclic[grp][&#39;cycle&#39;]
             read_grps += 1
- 
+
         if read_grps:
             self.logger.debug(f&#39;Cyclic triggers took {(time.time() - currenttime):.1f} seconds for {read_grps} groups&#39;)
 
@@ -1459,7 +1558,7 @@ this <strong>init</strong> probably doesn't need to be changed.</p></div>
         Basically, this calls the MD_Commands object to fill itselt; but if needed,
         this can be overwritten to do something else.
         &#34;&#34;&#34;
-        cls = None        
+        cls = None
         if isinstance(self._command_class, type):
             cls = self._command_class
         elif isinstance(self._command_class, str):
@@ -1556,6 +1655,15 @@ Possible to check only for reading or writing</p>
     :return: True if command is valid, False otherwise
     :rtype: bool
     &#34;&#34;&#34;
+    if self.custom_commands:
+        try:
+            command, custom_value = command.split(&#39;#&#39;)
+            if custom_value not in self._custom_values[self.custom_commands]:
+                self.logger.debug(f&#39;custom value {custom_value} not in known custom values {self._custom_values[self.custom_commands]}&#39;)
+                return None
+        except ValueError:
+            pass
+
     if self._commands:
         return self._commands.is_valid_command(command, read)
     else:
@@ -1600,6 +1708,7 @@ Processes data and dispatches value to plugin class</p>
     :param by: client object / name / identifier
     :type command: str
     &#34;&#34;&#34;
+    data = self._transform_received_data(data)
     if command is not None:
         self.logger.debug(f&#39;received data &#34;{data}&#34; for command {command}&#39;)
     else:
@@ -1611,8 +1720,14 @@ Processes data and dispatches value to plugin class</p>
             self.logger.debug(f&#39;data &#34;{data}&#34; did not identify a known command, ignoring it&#39;)
             return
 
+    custom = None
+    if self.custom_commands:
+        custom = self._get_custom_value(command, data)
+
     try:
         value = self._commands.get_shng_data(command, data)
+        if custom:
+            command = command + CUSTOM_SEP + custom
     except Exception as e:
         self.logger.info(f&#39;received data &#34;{data}&#34; for command {command}, error {e} occurred while converting. Discarding data.&#39;)
     else:
@@ -1678,7 +1793,7 @@ from the device and writing it to the associated item.</p>
 <pre><code class="python">def send_command(self, command, value=None, **kwargs):
     &#34;&#34;&#34;
     Sends the specified command to the device providing &lt;value&gt; as data
-    Not providing data will issue a read command, trying to read the value 
+    Not providing data will issue a read command, trying to read the value
     from the device and writing it to the associated item.
 
     :param command: the command to send
@@ -1687,6 +1802,15 @@ from the device and writing it to the associated item.</p>
     :return: True if send was successful, False otherwise
     :rtype: bool
     &#34;&#34;&#34;
+    if self.custom_commands:
+        try:
+            command, custom_value = command.split(&#39;#&#39;)
+            if &#39;custom&#39; not in kwargs:
+                kwargs[&#39;custom&#39;] = {}
+            kwargs[&#39;custom&#39;][self.custom_commands] = custom_value
+        except ValueError:
+            self.logger.debug(f&#39;extracting custom token failed, maybe not present in command {command}&#39;)
+
     if not self.alive:
         self.logger.warning(f&#39;trying to send command {command} with value {value}, but device is not active.&#39;)
         return False
@@ -1711,7 +1835,7 @@ from the device and writing it to the associated item.</p>
         self.logger.warning(f&#39;command {command} with value {value} yielded empty command payload, aborting&#39;)
         return False
 
-    data_dict = self._transform_send_data(data_dict)
+    data_dict = self._transform_send_data(data_dict, **kwargs)
     self.logger.debug(f&#39;command {command} with value {value} yielded send data_dict {data_dict}&#39;)
 
     # if an error occurs on sending, an exception is thrown
@@ -1728,7 +1852,7 @@ from the device and writing it to the associated item.</p>
             value = self._commands.get_shng_data(command, result, **kwargs)
         except Exception as e:
             self.logger.info(f&#39;command {command} received result {result}, error {e} occurred while converting. Discarding result.&#39;)
-        else:            
+        else:
             self.logger.debug(f&#39;command {command} received result {result}, converted to value {value}&#39;)
             if self._data_received_callback:
                 self._data_received_callback(self.device_id, command, value)
@@ -1748,7 +1872,8 @@ from the device and writing it to the associated item.</p>
 </summary>
 <pre><code class="python">def set_custom_item(self, item, command, index, value):
     &#34;&#34;&#34; this is called by parse_items if md_custom[123] is found. &#34;&#34;&#34;
-    pass</code></pre>
+    self._custom_values[index].append(value)
+    self._custom_values[index] = list(set(self._custom_values[index]))</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Device.MD_Device.set_runtime_data"><code class="name flex">
@@ -1776,8 +1901,8 @@ from the device and writing it to the associated item.</p>
         self._triggers_initial = kwargs.get(&#39;initial_triggers&#39;, [])
         self._data_received_callback = kwargs.get(&#39;callback&#39;, None)
         self._runtime_data_set = True
-    except KeyError as e:
-        self.logger.error(f&#39;error in runtime data: {e}. Stopping device.&#39;)</code></pre>
+    except Exception as e:
+        self.logger.error(f&#39;error in runtime data: {e}.&#39;)</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MD_Device.MD_Device.start"><code class="name flex">
@@ -1853,9 +1978,6 @@ from the device and writing it to the associated item.</p>
 
     # merge new params with self._params, overwrite old values if necessary
     self._params.update(kwargs)
-
-    # update this class&#39; settings
-    self._set_device_params()
 
     # update = recreate the connection with new parameters
     self._connection = self._get_connection()</code></pre>

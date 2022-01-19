@@ -186,11 +186,12 @@ Public callback methods:
 
 Methods possibly needed to overwrite for inherited classes:
 
-* ``_set_custom_vars()``
+* ``_set_device_defaults()``
 * ``_post_init()``
 * ``_transform_send_data(data_dict)``
+* ``_transform_received_data(data_dict)``
 * ``_send(data_dict)``
-* ``_set_device_params()``
+* ``_get_custom_data(command, data)``
 * ``run_standalone()``
 
 
@@ -830,7 +831,6 @@ class MultiDevice(SmartPlugin):
 
                 # from here on command is combined if device.custom_commands is set
 
-                var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
                     if device.is_valid_command(command, COMMAND_READ):

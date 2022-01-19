@@ -16,12 +16,6 @@ class MD_Device(MD_Device):
     Device class for Yamaha MusicCast devices.
     """
 
-    def _set_device_defaults(self):
-        """ Set custom class properties. Overwrite as needed... """
-        # self._use_callbacks = True
-        # self._params[PLUGIN_ATTR_CMD_CLASS] = MD_Command_ParseStr
-        self._params['conn_type'] = ''
-
     def _transform_send_data(self, data_dict, **kwargs):
         payload = data_dict['payload']
         if self.custom_commands:

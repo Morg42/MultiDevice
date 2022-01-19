@@ -226,8 +226,8 @@ class MD_Device(object):
             try:
                 command, custom_value = command.split('#')
                 if 'custom' not in kwargs:
-                    kwargs['custom'] = {}
-                kwargs['custom'] = custom_value
+                    kwargs['custom'] = {1: None, 2: None, 3: None}
+                kwargs['custom'][self.custom_commands] = custom_value
             except ValueError:
                 self.logger.debug(f'extracting custom token failed, maybe not present in command {command}')
 

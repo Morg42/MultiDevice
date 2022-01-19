@@ -44,8 +44,8 @@ class MD_Device(MD_Device):
         self.send_command('server.listenmode', True)
 
     def _transform_send_data(self, data=None, **kwargs):
-        if kwargs.get('custom'):
-            player_id = f"{kwargs['custom']} "
+        if kwargs.get('custom') and kwargs['custom'].get(self.custom_commands):
+            player_id = f"{kwargs['custom'][self.custom_commands]} "
         else:
             player_id = ''
         if data:

@@ -456,9 +456,9 @@ class MD_Connection_Net_Ucast_Request(MD_Connection_Net_Tcp_Request):
         return None
 
     def _receive_thread_worker(self):
-        self.sock = Ucast(self.srv_port)
+        self.sock = Ucast(self._port)
         while self.alive:
-            data, addr = self.sock.recvfrom(self.srv_buffer)
+            data, addr = self.sock.recvfrom(self._srv_buffer)
             try:
                 host, port = addr
             except Exception as e:

@@ -2,6 +2,7 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 import re
+import urllib.parse
 
 
 if MD_standalone:
@@ -24,6 +25,7 @@ class MD_Device(MD_Device):
 
     def _set_custom_vars(self):
         self.custom_commands = 1
+        self._use_callbacks = True
         # set our own preferences concerning connections
         if not self._params.get(PLUGIN_ATTR_CONNECTION):
             if PLUGIN_ATTR_NET_HOST in self._params and self._params.get(PLUGIN_ATTR_NET_HOST):
@@ -36,15 +38,9 @@ class MD_Device(MD_Device):
             self._params[PLUGIN_ATTR_CONN_TERMINATOR] = b
 
     def on_connect(self, by=None):
+        self.logger.debug("On connect squeezebox")
         super().on_connect(by)
-        self._set_listen()
-
-    def _set_listen(self):
-        """
-        This method requests notification
-        """
-        if self.alive:
-            self.send_command('server.listenmode', 1)
+        self.send_command('server.listenmode', True)
 
     def _transform_send_data(self, data=None, **kwargs):
         if kwargs.get('custom') and kwargs['custom'].get(1) is not None:
@@ -58,6 +54,9 @@ class MD_Device(MD_Device):
             except Exception as e:
                 self.logger.error(f'ERROR {e}')
         return data
+
+    def _transform_received_data(self, data):
+        return urllib.parse.unquote_plus(data)
 
     def get_custom_value(self, command, data):
         """ extract custom value from data. Needs to be overwritten """

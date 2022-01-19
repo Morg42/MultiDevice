@@ -117,15 +117,15 @@ commands = {
 
             # the following entries are directives for the struct.yaml generator
 
-            # create md_read_initial: true entry
+            # create &#34;md_read_initial: true&#34; entry
             # can also be specified for sections to trigger initial read group reading
             &#39;initial&#39;: False,
 
-            # create md_read_cycle entry with given cycle time
+            # create &#34;md_read_cycle: &lt;cycle&gt;&#34; entry with given cycle time
             # can also be specified for section to trigger cyclic read group reading
             &#39;cycle&#39;: None,
 
-            # create enforce_updates: true entry
+            # create &#34;enforce_updates: true&#34; entry
             &#39;enforce&#39;: False,
 
             # control autocreation of item read groups. None or key not present
@@ -144,7 +144,8 @@ commands = {
             &#39;lookup_item&#39;: False,
 
             # attributes to add to the item definition verbatim
-            # e.g. &#39;enforce_updates&#39;: &#39;true&#39;, &#39;md_initial_read&#39;: &#39;true&#39;
+            # e.g. eval: or on_change: attributes. you can even 
+            # create special sub-items here (provide as sub-dict)
             &#39;attributes&#39;: {
                 &#39;attr1&#39;: &#39;value1&#39;,
                 &#39;attr2&#39;: &#39;value2&#39;
@@ -168,7 +169,7 @@ commands = {
                 },
                 {
                     &#39;name&#39;: &#39;&lt;read group 2&gt;&#39;,
-                    &#39;trigger&#39;: &#39;path.to.other.item&#39;
+                    &#39;trigger&#39;: &#39;..path.to.other.item&#39;
                 }
             ],
         }
@@ -230,7 +231,8 @@ commands = {
         &#39;cmd4&#39;: {&#39;read&#39;: False, &#39;write&#39;: False, &#39;opcode&#39;: &#39;4d&#39;, &#39;attrib&#39;: &#39;...&#39;},
     },
     &#39;model3&#39;: {
-        &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;3a&#39;, &#39;attrib&#39;: &#39;...&#39;},  # note different opcode
+        # note different opcode for cmd1, which overwrites cmd1 from ALL section
+        &#39;cmd1&#39;: {&#39;read&#39;: True, &#39;write&#39;: True, &#39;opcode&#39;: &#39;3a&#39;, &#39;attrib&#39;: &#39;...&#39;},
         &#39;cmd3&#39;: {&#39;read&#39;: True, &#39;write&#39;: False, &#39;opcode&#39;: &#39;3z&#39;, &#39;attrib&#39;: &#39;...&#39;},
     },
     &#39;model4&#39;: {

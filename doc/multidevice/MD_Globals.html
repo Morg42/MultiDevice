@@ -108,6 +108,7 @@ PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT
                 PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT)
 
 # connection types for PLUGIN_ATTR_CONNECTION
+CONN_NULL                   = &#39;&#39;                 # use base connection class without real connection functionality, for testing
 CONN_NET_TCP_REQ            = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
 CONN_NET_TCP_CLI            = &#39;net_tcp_client&#39;   # persistent TCP client connection with async callback for responses
 CONN_NET_TCP_JSONRPC        = &#39;net_tcp_jsonrpc&#39;  # JSON RPC via persistent TCP client connection with async callback for responses
@@ -115,7 +116,7 @@ CONN_NET_UDP_SRV            = &#39;net_udp_server&#39;   # UDP server connection
 CONN_SER_DIR                = &#39;serial&#39;           # serial connection with query-reply logic
 CONN_SER_ASYNC              = &#39;serial_async&#39;     # serial connection with only async data callback
 
-CONNECTION_TYPES = (CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
+CONNECTION_TYPES = (CONN_NULL, CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
 
 # protocol types for PLUGIN_ATTR_PROTOCOL
 PROTO_NULL                  = &#39;&#39;                 # use base protocol class without added functionality (why??)

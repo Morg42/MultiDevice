@@ -37,15 +37,15 @@ creates an object based on <code><a title="multidevice.MD_Device" href="MD_Devic
 configuration.</p>
 <p>Possible commands are bundled by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code> class which handles
 loading, validating and calling the separate <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> or derived
-objects. </p>
+objects.</p>
 <p>Each <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> object handles one command and is responsible for creating
-command tokens/strings to/from the real device. </p>
+command tokens/strings to/from the real device.</p>
 <p>Each command is assigned a data type, which is represented by a <code>Datatype</code>-
 derived class and transforms values between the real device and the command
 object.</p>
 <p>To actually talk to the real device, that is, send commands/values and receive
 replies, it uses a standardized interface via one of the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> or
-derived classes. </p>
+derived classes.</p>
 <p>Thus, the plugin, devices and commands are ignorant of physical connection
 details, the connection implementation is transparent regarding actual data
 structures or content, and only the datatype classes need to concern itself
@@ -326,7 +326,7 @@ type and configuration of connection should be set in <code>etc/plugin.yaml</cod
 each device used.</p>
 <p>For some device classes, it is possible to choose from different models. In
 this case, the attribute <code>model: &lt;modelname&gt;</code> needs to be present. In any
-other case, the <code>model</code> key should not be present. </p>
+other case, the <code>model</code> key should not be present.</p>
 <p>The connection classes will be chosen and configured by the device classes.
 They should not need further configuration, as all data transformation is done
 by the device classes and the connection-specific attributes are provided
@@ -997,13 +997,13 @@ class MultiDevice(SmartPlugin):
     This class does the actual interface work between SmartHomeNG and the device
     classes. Mainly it parses plugin and item configuration data, sets up
     associations between devices and items and handles data exchange between
-    SmartHomeNG and the device classes. Furthermore, it calls all devices&#39; run
-    () and stop() methods if so instructed by SmartHomeNG.
+    SmartHomeNG and the device classes. Furthermore, it calls all devices&#39;
+    `run()` and `stop()` methods if so instructed by SmartHomeNG.
 
     It also looks good.
     &#34;&#34;&#34;
 
-    PLUGIN_VERSION = &#39;0.3.0&#39;
+    PLUGIN_VERSION = &#39;0.4.0&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
         &#34;&#34;&#34;
@@ -1013,14 +1013,12 @@ class MultiDevice(SmartPlugin):
         if not sh:
             self.logger = logger
 
-        self._sh = sh
-
         self.logger.info(f&#39;Initializing MultiDevice-Plugin as {__name__}&#39;)
 
         self._devices = {}              # contains all configured devices - &lt;device_id&gt;: {&#39;device_type&#39;: &lt;device_type&gt;, &#39;device&#39;: &lt;class-instance&gt;, &#39;logger&#39;: &lt;logger-instance&gt;, &#39;params&#39;: {&#39;param1&#39;: val1, &#39;param2&#39;: val2...}}
         self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_id&#39;: &lt;device_id&gt;, &#39;command&#39;: &lt;command&gt;}
         self._items_read_all = {}       # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_id&gt;
-        self._items_read_grp = {}       # contains items which trigger &#39;read group x&#39; - &lt;item_id&gt;: [&lt;device_id&gt;, &lt;x&gt;]
+        self._items_read_grp = {}       # contains items which trigger &#39;read group foo&#39; - &lt;item_id&gt;: [&lt;device_id&gt;, &lt;foo&gt;]
         self._commands_read = {}        # contains all commands per device with read command - &lt;device_id&gt;: {&lt;command&gt;: &lt;item_object&gt;}
         self._commands_read_grp = {}    # contains all commands per device with read group command - &lt;device_id&gt;: {&lt;group&gt;: {&lt;command&gt;: &lt;item_object&gt;}}}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_id&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
@@ -1029,6 +1027,7 @@ class MultiDevice(SmartPlugin):
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {&lt;grp&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
         self._items_custom = {}         # contains item md_custom&lt;x&gt; attributes - &lt;item_id&gt;: {1: custom1, 2: custom2, 3:custom3}
 
+        self._sh = sh
         self._webif = None
 
         # Call init code of parent class (SmartPlugin)
@@ -1097,10 +1096,10 @@ class MultiDevice(SmartPlugin):
                         device_type = device_id = None
 
             if device_id and device_id in self._devices:
-                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of spare device id {device_id}&#39;)
-                break
+                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of spare device type {device_type}&#39;)
+                continue
 
-            # did we get a device id?
+            # did we get a device type?
             if device_type:
                 device_instance = None
                 try:
@@ -1109,7 +1108,7 @@ class MultiDevice(SmartPlugin):
                     if not MD_standalone:
                         mod_str = &#39;.&#39; + mod_str
                     device_module = importlib.import_module(mod_str, __name__)
-                    # get class name
+                    # get class
                     device_class = getattr(device_module, &#39;MD_Device&#39;)
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
@@ -1132,6 +1131,10 @@ class MultiDevice(SmartPlugin):
                     self._triggers_cyclic[device_id] = {}
                     dev_logger = None
 
+                    # &#34;alias&#34; devices as class properties (prevent collisions)
+                    if not hasattr(self, device_id):
+                        setattr(self, device_id, self.get_device(device_id))
+
                     # check for and load struct definitions
                     if not MD_standalone:
                         self.logger.debug(f&#39;trying to load struct definitions for device {device_id} from folder dev_{device_type}&#39;)
@@ -1143,7 +1146,7 @@ class MultiDevice(SmartPlugin):
 
                             struct_list = list(raw_struct.keys())
                             self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
-                            # replace all mentions of &#39;DEVICE&#39; with the plugin/device&#39;s name
+                            # replace all mentions of &#39;DEVICENAME&#39; with the plugin/device&#39;s name
                             mod_struct = self._process_struct(raw_struct, device_id)
                             for struct_name in struct_list:
                                 if struct_name in mod_struct:
@@ -1193,10 +1196,11 @@ class MultiDevice(SmartPlugin):
         &#34;&#34;&#34;
 
         def find_custom_attr(item, index=1):
-            &#34;&#34;&#34; find spare item attribute recursively. Returns attribute or None &#34;&#34;&#34;
+            &#34;&#34;&#34; find custom item attribute recursively. Returns attribute or None &#34;&#34;&#34;
             # self.logger.debug(f&#39;looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...&#39;)
             parent = item.return_parent()
 
+            # parent(top_item) is sh.items
             if type(parent) != type(item):
                 # reached top of item tree
                 return None
@@ -1251,7 +1255,7 @@ class MultiDevice(SmartPlugin):
                 if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
                     command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
 
-                # from here on command is combined if device.custom_commands is set
+                # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
@@ -1491,7 +1495,7 @@ class MultiDevice(SmartPlugin):
         else:
             return None
 
-    def _get_device(self, device_id):
+    def get_device(self, device_id):
         &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
@@ -1516,7 +1520,7 @@ class MultiDevice(SmartPlugin):
         return log
 
     def _process_struct(self, raw_struct, device_id):
-        &#34;&#34;&#34; clean structs before adding &#34;&#34;&#34;
+        &#34;&#34;&#34; clean structs before adding - remove unsupported commands &#34;&#34;&#34;
 
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], OrderedDict)):
@@ -1957,6 +1961,8 @@ if __name__ == &#39;__main__&#39;:
     devices are modular extensions, it is not possible to print a list of
     supported devices.
 
+    ===============
+
     You need to call this plugin with the device id as the first parameter, any
     necessary configuration options either as arg=value pairs or as a python
     dict(this needs to be enclosed in quotes).
@@ -1973,6 +1979,8 @@ if __name__ == &#39;__main__&#39;:
     debug information:
 
     ./__init__.py &lt;device&gt; -v
+
+    ===============
 
     If you call it with -s as a parameter after the device id, the plugin will
     print a struct.yaml file from the devices&#39; commands.py:
@@ -2011,7 +2019,7 @@ if __name__ == &#39;__main__&#39;:
     if len(sys.argv) &gt; 1:
         device = sys.argv[1]
 
-    if device:
+    if device and device not in [&#39;-h&#39;, &#39;--help&#39;, &#39;-?&#39;, &#39;/?&#39;, &#39;/h&#39;, &#39;/help&#39;]:
 
         # check for further command line arguments
         params = {}
@@ -2050,7 +2058,7 @@ if __name__ == &#39;__main__&#39;:
 
     if struct_mode:
 
-        # as we output a formatted syntax, we can not print any information now
+        # as we output a formatted syntax, we can not create any output now
         create_struct_yaml(device, indent, write_output)
         exit(0)
 
@@ -2527,8 +2535,8 @@ if __name__ == &#39;__main__&#39;:
 <p>This class does the actual interface work between SmartHomeNG and the device
 classes. Mainly it parses plugin and item configuration data, sets up
 associations between devices and items and handles data exchange between
-SmartHomeNG and the device classes. Furthermore, it calls all devices' run
-() and stop() methods if so instructed by SmartHomeNG.</p>
+SmartHomeNG and the device classes. Furthermore, it calls all devices'
+<code>run()</code> and <code>stop()</code> methods if so instructed by SmartHomeNG.</p>
 <p>It also looks good.</p>
 <p>Initalizes the plugin. For this plugin, this means collecting all device
 modules and initializing them by instantiating the proper class.</p></div>
@@ -2542,13 +2550,13 @@ modules and initializing them by instantiating the proper class.</p></div>
     This class does the actual interface work between SmartHomeNG and the device
     classes. Mainly it parses plugin and item configuration data, sets up
     associations between devices and items and handles data exchange between
-    SmartHomeNG and the device classes. Furthermore, it calls all devices&#39; run
-    () and stop() methods if so instructed by SmartHomeNG.
+    SmartHomeNG and the device classes. Furthermore, it calls all devices&#39;
+    `run()` and `stop()` methods if so instructed by SmartHomeNG.
 
     It also looks good.
     &#34;&#34;&#34;
 
-    PLUGIN_VERSION = &#39;0.3.0&#39;
+    PLUGIN_VERSION = &#39;0.4.0&#39;
 
     def __init__(self, sh, standalone_device=&#39;&#39;, logger=None, **kwargs):
         &#34;&#34;&#34;
@@ -2558,14 +2566,12 @@ modules and initializing them by instantiating the proper class.</p></div>
         if not sh:
             self.logger = logger
 
-        self._sh = sh
-
         self.logger.info(f&#39;Initializing MultiDevice-Plugin as {__name__}&#39;)
 
         self._devices = {}              # contains all configured devices - &lt;device_id&gt;: {&#39;device_type&#39;: &lt;device_type&gt;, &#39;device&#39;: &lt;class-instance&gt;, &#39;logger&#39;: &lt;logger-instance&gt;, &#39;params&#39;: {&#39;param1&#39;: val1, &#39;param2&#39;: val2...}}
         self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_id&#39;: &lt;device_id&gt;, &#39;command&#39;: &lt;command&gt;}
         self._items_read_all = {}       # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_id&gt;
-        self._items_read_grp = {}       # contains items which trigger &#39;read group x&#39; - &lt;item_id&gt;: [&lt;device_id&gt;, &lt;x&gt;]
+        self._items_read_grp = {}       # contains items which trigger &#39;read group foo&#39; - &lt;item_id&gt;: [&lt;device_id&gt;, &lt;foo&gt;]
         self._commands_read = {}        # contains all commands per device with read command - &lt;device_id&gt;: {&lt;command&gt;: &lt;item_object&gt;}
         self._commands_read_grp = {}    # contains all commands per device with read group command - &lt;device_id&gt;: {&lt;group&gt;: {&lt;command&gt;: &lt;item_object&gt;}}}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_id&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
@@ -2574,6 +2580,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         self._triggers_cyclic = {}      # contains all read groups per device to be triggered cyclically - device_id: {&lt;grp&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
         self._items_custom = {}         # contains item md_custom&lt;x&gt; attributes - &lt;item_id&gt;: {1: custom1, 2: custom2, 3:custom3}
 
+        self._sh = sh
         self._webif = None
 
         # Call init code of parent class (SmartPlugin)
@@ -2642,10 +2649,10 @@ modules and initializing them by instantiating the proper class.</p></div>
                         device_type = device_id = None
 
             if device_id and device_id in self._devices:
-                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of spare device id {device_id}&#39;)
-                break
+                self.logger.warning(f&#39;Duplicate device id {device_id} configured for device_types {device_type} and {self._devices[device_id][&#34;device_type&#34;]}. Skipping processing of spare device type {device_type}&#39;)
+                continue
 
-            # did we get a device id?
+            # did we get a device type?
             if device_type:
                 device_instance = None
                 try:
@@ -2654,7 +2661,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     if not MD_standalone:
                         mod_str = &#39;.&#39; + mod_str
                     device_module = importlib.import_module(mod_str, __name__)
-                    # get class name
+                    # get class
                     device_class = getattr(device_module, &#39;MD_Device&#39;)
                     # get class instance
                     device_instance = device_class(device_type, device_id, plugin=self, **param)
@@ -2677,6 +2684,10 @@ modules and initializing them by instantiating the proper class.</p></div>
                     self._triggers_cyclic[device_id] = {}
                     dev_logger = None
 
+                    # &#34;alias&#34; devices as class properties (prevent collisions)
+                    if not hasattr(self, device_id):
+                        setattr(self, device_id, self.get_device(device_id))
+
                     # check for and load struct definitions
                     if not MD_standalone:
                         self.logger.debug(f&#39;trying to load struct definitions for device {device_id} from folder dev_{device_type}&#39;)
@@ -2688,7 +2699,7 @@ modules and initializing them by instantiating the proper class.</p></div>
 
                             struct_list = list(raw_struct.keys())
                             self.logger.debug(f&#39;loaded {len(struct_list)} structs for processing&#39;)
-                            # replace all mentions of &#39;DEVICE&#39; with the plugin/device&#39;s name
+                            # replace all mentions of &#39;DEVICENAME&#39; with the plugin/device&#39;s name
                             mod_struct = self._process_struct(raw_struct, device_id)
                             for struct_name in struct_list:
                                 if struct_name in mod_struct:
@@ -2738,10 +2749,11 @@ modules and initializing them by instantiating the proper class.</p></div>
         &#34;&#34;&#34;
 
         def find_custom_attr(item, index=1):
-            &#34;&#34;&#34; find spare item attribute recursively. Returns attribute or None &#34;&#34;&#34;
+            &#34;&#34;&#34; find custom item attribute recursively. Returns attribute or None &#34;&#34;&#34;
             # self.logger.debug(f&#39;looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...&#39;)
             parent = item.return_parent()
 
+            # parent(top_item) is sh.items
             if type(parent) != type(item):
                 # reached top of item tree
                 return None
@@ -2796,7 +2808,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                 if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
                     command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
 
-                # from here on command is combined if device.custom_commands is set
+                # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
@@ -3036,7 +3048,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         else:
             return None
 
-    def _get_device(self, device_id):
+    def get_device(self, device_id):
         &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
@@ -3061,7 +3073,7 @@ modules and initializing them by instantiating the proper class.</p></div>
         return log
 
     def _process_struct(self, raw_struct, device_id):
-        &#34;&#34;&#34; clean structs before adding &#34;&#34;&#34;
+        &#34;&#34;&#34; clean structs before adding - remove unsupported commands &#34;&#34;&#34;
 
         def walk(node, node_name, parent=None, func=None):
             for child in list(k for k in node.keys() if isinstance(node[k], OrderedDict)):
@@ -3128,6 +3140,24 @@ modules and initializing them by instantiating the proper class.</p></div>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="multidevice.MultiDevice.get_device"><code class="name flex">
+<span>def <span class="ident">get_device</span></span>(<span>self, device_id)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>getter method for device object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_device(self, device_id):
+    &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
+    dev = self._devices.get(device_id, None)
+    if dev:
+        return dev[&#39;device&#39;]
+    else:
+        return None</code></pre>
+</details>
+</dd>
 <dt id="multidevice.MultiDevice.on_data_received"><code class="name flex">
 <span>def <span class="ident">on_data_received</span></span>(<span>self, device_id, command, value)</span>
 </code></dt>
@@ -3199,10 +3229,11 @@ Recall function for item updates</p></div>
     &#34;&#34;&#34;
 
     def find_custom_attr(item, index=1):
-        &#34;&#34;&#34; find spare item attribute recursively. Returns attribute or None &#34;&#34;&#34;
+        &#34;&#34;&#34; find custom item attribute recursively. Returns attribute or None &#34;&#34;&#34;
         # self.logger.debug(f&#39;looking recursively for {ITEM_ATTR_CUSTOM_PREFIX + str(index)} in {item} with {item.conf}...&#39;)
         parent = item.return_parent()
 
+        # parent(top_item) is sh.items
         if type(parent) != type(item):
             # reached top of item tree
             return None
@@ -3257,7 +3288,7 @@ Recall function for item updates</p></div>
             if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
                 command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
 
-            # from here on command is combined if device.custom_commands is set
+            # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
             # command marked for reading
             if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
@@ -3522,6 +3553,7 @@ SmartHomeNG. It should write the changed value out to the device
 <h4><code><a title="multidevice.MultiDevice" href="#multidevice.MultiDevice">MultiDevice</a></code></h4>
 <ul class="two-column">
 <li><code><a title="multidevice.MultiDevice.PLUGIN_VERSION" href="#multidevice.MultiDevice.PLUGIN_VERSION">PLUGIN_VERSION</a></code></li>
+<li><code><a title="multidevice.MultiDevice.get_device" href="#multidevice.MultiDevice.get_device">get_device</a></code></li>
 <li><code><a title="multidevice.MultiDevice.on_data_received" href="#multidevice.MultiDevice.on_data_received">on_data_received</a></code></li>
 <li><code><a title="multidevice.MultiDevice.parse_item" href="#multidevice.MultiDevice.parse_item">parse_item</a></code></li>
 <li><code><a title="multidevice.MultiDevice.run" href="#multidevice.MultiDevice.run">run</a></code></li>

@@ -17,7 +17,6 @@ parameters:
         default: None
         description: 'Gerätemodell'
 
-    # ändern, wenn notwendig
     viess_proto:
         type: str
         default: P300

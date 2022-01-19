@@ -22,7 +22,10 @@ class MD_Device(MD_Device):
     The know-how is in the commands.py (and some DT_ classes...)
     """
 
-    def _set_custom_vars(self):
+    def _set_device_defaults(self):
+
+        self._custom_inputnames = {}
+
         # set our own preferences concerning connections
         if PLUGIN_ATTR_NET_HOST in self._params and self._params[PLUGIN_ATTR_NET_HOST]:
             self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
@@ -48,9 +51,6 @@ class MD_Device(MD_Device):
             except Exception as e:
                 self.logger.error(f'ERROR {e}')
         return data
-
-    def _post_init(self):
-        self._custom_inputnames = {}
 
     def on_data_received(self, by, data, command=None):
 

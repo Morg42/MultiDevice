@@ -42,8 +42,7 @@ class MD_Device(MD_Device):
           another place, in ``commands.py`` and/or the item configuration.
     """
 
-    def _set_custom_vars(self):
-        """ Set custom class properties. Overwrite as needed... """
+    def _set_device_defaults(self):
         self._use_callbacks = True
 
     def _post_init(self):

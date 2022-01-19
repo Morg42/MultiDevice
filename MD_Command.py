@@ -230,6 +230,7 @@ class MD_Command_Str(MD_Command):
 
     def get_send_data(self, data, **kwargs):
 
+        self._plugin_params.update(kwargs)
         data = self._check_value(data)
 
         if data is None:
@@ -344,6 +345,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     def get_send_data(self, data, **kwargs):
 
+        self._plugin_params.update(kwargs)
         data = self._check_value(data)
 
         if data is None:
@@ -355,17 +357,19 @@ class MD_Command_ParseStr(MD_Command_Str):
         else:
             # create write data
             if self.write_cmd:
-                # test if write_cmd is ':foo:' to trigger formatting/substitution
-                # reminder: ':val:' replaces val with 'raw' val, 'MD_VALUE' uses DT.get_send_data(val)
-                if self.write_cmd[0] == ':' and self.write_cmd[-1] == ':':
-                    if isinstance(data, str):
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
-                    else:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
-                else:
-                    cmd_str = self._parse_str(self.write_cmd, data)
+                cmd = self.write_cmd
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd = self.opcode
+
+            # test if write_cmd is ':foo:' to trigger formatting/substitution
+            # reminder: ':val:' replaces val with 'raw' val, 'MD_VALUE' uses DT.get_send_data(val)
+            if cmd[0] == ':' and cmd[-1] == ':':
+                if isinstance(data, str):
+                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
+                else:
+                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data))
+            else:
+                cmd_str = self._parse_str(cmd, data)
 
         return {'payload': cmd_str, 'data': None if data is None else self._DT.get_send_data(data)}
 

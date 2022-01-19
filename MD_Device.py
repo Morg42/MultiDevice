@@ -506,10 +506,6 @@ class MD_Device(object):
         p = yaml.get('parameters', {})
         self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
 
-        if self._use_callbacks:
-            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
-            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
-
     def _get_connection(self):
         """
         return connection object. Try to identify the wanted connection  and return
@@ -526,6 +522,11 @@ class MD_Device(object):
         and preselect with PLUGIN_ATTR_CONNECTION in /etc/plugin.yaml, so this
         class will never be used.
         """
+        if self._use_callbacks:
+            self.logger.debug('setting callbacks')
+            self._params[PLUGIN_ATTR_CB_ON_CONNECT] = self.on_connect
+            self._params[PLUGIN_ATTR_CB_ON_DISCONNECT] = self.on_disconnect
+
         conn_type = None
         conn_classname = None
         conn_cls = None

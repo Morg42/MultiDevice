@@ -94,6 +94,7 @@ class MD_Device(object):
 
         # None for normal operations, 1..3 for combined custom commands (<command>#<customx>)
         self.custom_commands = None
+        self._custom_values = {1: [], 2: [], 3: []}
 
         # set class properties
         self.device_type = device_type
@@ -219,8 +220,8 @@ class MD_Device(object):
                 if 'custom' not in kwargs:
                     kwargs['custom'] = {}
                 kwargs['custom'][self.custom_commands] = custom_value
-            except Exception as e:
-                self.logger.warning(f'extracting custom value from command failed. Error was: {e}')
+            except ValueError:
+                self.logger.debug(f'extracting custom token failed, maybe not present in command {command}')
 
         if not self.alive:
             self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
@@ -336,6 +337,9 @@ class MD_Device(object):
         if self.custom_commands:
             try:
                 command, custom_value = command.split('#')
+                if custom_value not in self._custom_values[self.custom_commands]:
+                    self.logger.debug(f'custom value {custom_value} not in known custom values {self._custom_values[self.custom_commands]}')
+                    return None
             except ValueError:
                 pass
 
@@ -401,7 +405,8 @@ class MD_Device(object):
 
     def set_custom_item(self, item, command, index, value):
         """ this is called by parse_items if md_custom[123] is found. """
-        pass
+        self._custom_values[index].append(value)
+        self._custom_values[index] = list(set(self._custom_values[index]))
 
     #
     #

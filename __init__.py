@@ -833,7 +833,6 @@ class MultiDevice(SmartPlugin):
                 var = self.get_iattr_value(item.conf, ITEM_ATTR_READ)
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
-                    print(f'{command}: {var} is type {type(var)}')
                     if device.is_valid_command(command, COMMAND_READ):
                         if command in self._commands_read[device_id]:
                             self.logger.warning(f'Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item')

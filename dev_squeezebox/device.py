@@ -24,6 +24,8 @@ class MD_Device(MD_Device):
 
     def _set_custom_vars(self):
         self.custom_commands = 1
+        self._use_callbacks = True
+
         # set our own preferences concerning connections
         if not self._params.get(PLUGIN_ATTR_CONNECTION):
             if PLUGIN_ATTR_NET_HOST in self._params and self._params.get(PLUGIN_ATTR_NET_HOST):

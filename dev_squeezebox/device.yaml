@@ -40,7 +40,7 @@ parameters:
     # nicht ändern
     terminator:
         type: str
-        default: '\r'
+        default: "\r"
         description: 'Ende einer Kommandozeile'
 
     # nicht ändern

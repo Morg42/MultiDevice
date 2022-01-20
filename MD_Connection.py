@@ -115,7 +115,7 @@ class MD_Connection(object):
             if self._autoreconnect:
                 self._open()
             if not self._is_connected:
-                raise RuntimeError(f'trying to send, but not connected')
+                raise RuntimeError('trying to send, but not connected')
 
         data = data_dict.get('payload', None)
         if not data:
@@ -143,13 +143,15 @@ class MD_Connection(object):
         """ callback for on_connect event """
         self._is_connected = True
         self.logger.info(f'on_connect called by {by}')
+        if self._connected_callback:
+            self._connected_callback(by)
 
     def on_disconnect(self, by=None):
         """ callback for on_disconnect event """
         self.logger.debug(f'on_disconnect called by {by}')
         self._is_connected = False
         if self._disconnected_callback:
-            self._disconnected_callback()
+            self._disconnected_callback(by)
 
     #
     #
@@ -318,6 +320,8 @@ class MD_Connection_Net_Tcp_Client(MD_Connection):
                         PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None}
         self._params.update(kwargs)
+        if isinstance(self._params[PLUGIN_ATTR_CONN_TERMINATOR], str):
+            self._params[PLUGIN_ATTR_CONN_TERMINATOR] = bytes(self._params[PLUGIN_ATTR_CONN_TERMINATOR], 'utf-8')
 
         # convert params to protected properties (self._params['foo'] -> self._foo)
         self._set_connection_params()

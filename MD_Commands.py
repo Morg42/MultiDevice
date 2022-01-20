@@ -93,6 +93,7 @@ class MD_Commands(object):
         return getattr(self._commands[command], CMD_ATTR_READ if read else CMD_ATTR_WRITE, False)
 
     def get_send_data(self, command, data=None, **kwargs):
+        print(f'C-gsd {kwargs}')
         if command in self._commands:
             lu = self._get_cmd_lookup(command)
             if lu:

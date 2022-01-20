@@ -224,6 +224,7 @@ class MD_Device(object):
         :return: True if send was successful, False otherwise
         :rtype: bool
         """
+        kwargs.update(self._params)
         if self.custom_commands:
             try:
                 command, custom_value = command.split(CUSTOM_SEP)
@@ -248,6 +249,7 @@ class MD_Device(object):
                 return False
 
         try:
+            print(f'D-sc2 {kwargs}')
             data_dict = self._commands.get_send_data(command, value, **kwargs)
         except Exception as e:
             self.logger.warning(f'command {command} with value {value} produced error on converting value, aborting. Error was: {e}')

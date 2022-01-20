@@ -28,10 +28,10 @@ import logging
 import re
 
 if MD_standalone:
-    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
+    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, ITEM_ATTR_CUSTOM_PREFIX, MINMAXKEYS)
     import datatypes as DT
 else:
-    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
+    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, ITEM_ATTR_CUSTOM_PREFIX, MINMAXKEYS)
     from . import datatypes as DT
 
 
@@ -236,7 +236,7 @@ class MD_Command_Str(MD_Command):
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd, **kwargs)
+                cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
             else:
                 cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
@@ -273,7 +273,7 @@ class MD_Command_Str(MD_Command):
             return str(self._plugin_params.get(matchobj.group(2), ''))
 
         def cust_func(matchobj):
-            if kwargs and 'custom' in kwargs:
+            if self._kwargs and 'custom' in kwargs:
                 return str(kwargs['custom'].get(int(matchobj.group(2))))
             return ''
 
@@ -283,9 +283,17 @@ class MD_Command_Str(MD_Command):
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, repl_func, string)
 
-        regex = '(MD_CUSTOM([123]))'
-        while re.match('.*' + regex + '.*', string):
-            string = re.sub(regex, cust_func, string)
+        print(11)
+        print(kwargs)
+        if kwargs and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
+            print(string)
+            regex = '(MD_CUSTOM([123]))'
+            while re.match('.*' + regex + '.*', string):
+                index = int(re.match(regex, string).group(2))
+                print(index)
+                if index in kwargs[ITEM_ATTR_CUSTOM_PREFIX]:
+                    string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
+            print(string)
 
         if data is not None:
             string = string.replace('MD_VALUE', str(self._DT.get_send_data(data)))
@@ -356,19 +364,20 @@ class MD_Command_ParseStr(MD_Command_Str):
 
         self._plugin_params.update(kwargs)
         data = self._check_value(data)
+        print(f'Cps-gsd {kwargs}')
 
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd)
+                cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
             # create write data
             if self.write_cmd:
-                cmd = self.write_cmd
+                cmd = self._parse_str(self.write_cmd, data, **kwargs)
             else:
-                cmd = self.opcode
+                cmd = self._parse_str(self.opcode, data, **kwargs)
 
             # test if write_cmd is ':foo:' to trigger formatting/substitution
             # reminder: ':val:' replaces val with 'raw' val, 'MD_VALUE' uses DT.get_send_data(val)

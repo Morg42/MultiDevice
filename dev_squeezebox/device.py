@@ -34,10 +34,6 @@ class MD_Device(MD_Device):
                 self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
             elif PLUGIN_ATTR_SERIAL_PORT in self._params and self._params.get(PLUGIN_ATTR_SERIAL_PORT):
                 self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
-        if PLUGIN_ATTR_CONN_TERMINATOR in self._params:
-            b = self._params[PLUGIN_ATTR_CONN_TERMINATOR].encode()
-            b = b.decode('unicode-escape').encode()
-            self._params[PLUGIN_ATTR_CONN_TERMINATOR] = b
 
     def on_connect(self, by=None):
         self.logger.debug("Activating listen mode after connection.")

@@ -3,10 +3,10 @@
 
 if MD_standalone:
     from MD_Device import MD_Device
-    from MD_Globals import (COMMAND_SEP, CUSTOM_SEP, PLUGIN_ATTR_RECURSIVE)
+    from MD_Globals import (COMMAND_SEP, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTR_RECURSIVE)
 else:
     from ..MD_Device import MD_Device
-    from ..MD_Globals import (COMMAND_SEP, CUSTOM_SEP, PLUGIN_ATTR_RECURSIVE)
+    from ..MD_Globals import (COMMAND_SEP, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTR_RECURSIVE)
 
 from lib.network import Network
 import json
@@ -46,8 +46,8 @@ class MD_Device(MD_Device):
 
     def _transform_send_data(self, data_dict, **kwargs):
         payload = data_dict['payload']
-        if self.custom_commands:
-            host = kwargs['custom'][self.custom_commands]
+        if self.custom_commands and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
+            host = kwargs[ITEM_ATTR_CUSTOM_PREFIX][self.custom_commands]
         else:
             host = self._params['host']
 

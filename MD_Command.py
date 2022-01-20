@@ -275,7 +275,7 @@ class MD_Command_Str(MD_Command):
         def cust_func(matchobj):
             if kwargs and 'custom' in kwargs:
                 return str(kwargs['custom'].get(int(matchobj.group(2))))
-            return matchobj.group(0)
+            return ''
 
         string = string.replace('MD_OPCODE', self.opcode)
 
@@ -286,7 +286,6 @@ class MD_Command_Str(MD_Command):
         regex = '(MD_CUSTOM([123]))'
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, cust_func, string)
-
 
         if data is not None:
             string = string.replace('MD_VALUE', str(self._DT.get_send_data(data)))

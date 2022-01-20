@@ -266,7 +266,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 requeue_cmds = []
 
                 # self._message_archive[message_id] = [time(), method, params, repeat]
-                self.logger.debug('Checking for unanswered commands, last check was {} seconds ago, {} commands saved'.format(int(time()) - self._last_stale_check, len(self._message_archive)))
+                self.logger.debug(f'Checking for unanswered commands, last check was {int(time()) - self._last_stale_check} seconds ago, {len(self._message_archive)} commands saved')
                 # !! self.logger.debug('Stale commands: {}'.format(stale_messages))
                 for (message_id, (send_time, method, params, repeat)) in stale_messages.items():
 
@@ -276,16 +276,16 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                         if repeat <= self._message_repeat:
 
                             # send again, increase counter
-                            self.logger.info('Repeating unanswered command {} ({}), try {}'.format(method, params, repeat + 1))
+                            self.logger.info(f'Repeating unanswered command {method} ({params}), try {repeat + 1}')
                             requeue_cmds.append([method, params, message_id, repeat + 1])
                         else:
-                            self.logger.info('Unanswered command {} ({}) repeated {} times, giving up.'.format(method, params, repeat))
+                            self.logger.info(f'Unanswered command {method} ({params}) repeated {repeat} times, giving up.')
                             remove_ids.append(message_id)
 
                 for msgid in remove_ids:
                     # it is possible that while processing stale commands, a reply arrived
                     # and the command was removed. So just to be sure, 'try' and delete...
-                    self.logger.debug('Removing stale msgid {} from archive'.format(msgid))
+                    self.logger.debug(f'Removing stale msgid {msgid} from archive')
                     try:
                         del self._message_archive[msgid]
                     except KeyError:

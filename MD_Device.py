@@ -32,13 +32,13 @@ from lib.shyaml import yaml_load
 import importlib
 
 if MD_standalone:
-    from MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from MD_Commands import MD_Commands
     from MD_Command import MD_Command
     from MD_Connection import MD_Connection
     from MD_Protocol import MD_Protocol
 else:
-    from .MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from .MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from .MD_Commands import MD_Commands
     from .MD_Command import MD_Command
     from .MD_Connection import MD_Connection
@@ -105,16 +105,16 @@ class MD_Device(object):
         #
 
         # set class properties
-        self._connection = None
-        self._commands = None
-        self._custom_values = {1: [], 2: [], 3: []}
+        self._connection = None                             # connection instance
+        self._commands = None                               # commands instance
+        self._custom_values = {1: [], 2: [], 3: []}         # keep custom123 values
 
         self.device_type = device_type
         self.device_id = device_id
         self.alive = False
         self.disabled = True
-        self._discard_unknown_command = True
-        self._unknown_command = '.notify.'
+        self._discard_unknown_command = True                # by default, discard data not assignable to known command
+        self._unknown_command = '.notify.'                  # if not discarding data, set this command instead
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
@@ -148,7 +148,7 @@ class MD_Device(object):
         # this is only viable for the base class. All derived classes from
         # MD_Device will probably be created towards a specific command class
         # but, just in case, be well-behaved...
-        self._command_class = self._params.get('command_class', MD_Command)
+        self._command_class = self._params.get(PLUGIN_ATTR_CMD_CLASS, MD_Command)
 
         # try to read configuration files
         try:
@@ -226,10 +226,10 @@ class MD_Device(object):
         """
         if self.custom_commands:
             try:
-                command, custom_value = command.split('#')
-                if 'custom' not in kwargs:
-                    kwargs['custom'] = {1: None, 2: None, 3: None}
-                kwargs['custom'][self.custom_commands] = custom_value
+                command, custom_value = command.split(CUSTOM_SEP)
+                if ITEM_ATTR_CUSTOM_PREFIX not in kwargs:
+                    kwargs[ITEM_ATTR_CUSTOM_PREFIX] = {1: None, 2: None, 3: None}
+                kwargs[ITEM_ATTR_CUSTOM_PREFIX][self.custom_commands] = custom_value
             except ValueError:
                 self.logger.debug(f'extracting custom token failed, maybe not present in command {command}')
 
@@ -279,7 +279,7 @@ class MD_Device(object):
                 if self._data_received_callback:
                     by = None
                     if self.custom_commands:
-                        by = kwargs['custom'][self.custom_commands]
+                        by = kwargs[ITEM_ATTR_CUSTOM_PREFIX][self.custom_commands]
                     self._data_received_callback(self.device_id, command, value, by)
                 else:
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
@@ -354,7 +354,7 @@ class MD_Device(object):
         """
         if self.custom_commands:
             try:
-                command, custom_value = command.split('#')
+                command, custom_value = command.split(CUSTOM_SEP)
                 if custom_value not in self._custom_values[self.custom_commands]:
                     self.logger.debug(f'custom value {custom_value} not in known custom values {self._custom_values[self.custom_commands]}')
                     return None

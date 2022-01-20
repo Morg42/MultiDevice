@@ -273,7 +273,7 @@ class MD_Command_Str(MD_Command):
             return str(self._plugin_params.get(matchobj.group(2), ''))
 
         def cust_func(matchobj):
-            if self._kwargs and 'custom' in kwargs:
+            if kwargs and 'custom' in kwargs:
                 return str(kwargs['custom'].get(int(matchobj.group(2))))
             return ''
 

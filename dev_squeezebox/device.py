@@ -47,7 +47,7 @@ class MD_Device(MD_Device):
         if data:
             try:
                 data['limit_response'] = self._params.get(PLUGIN_ATTR_CONN_TERMINATOR, b'\r')
-                data['payload'] = f'{data.get("payload")}{data["limit_response"]}'
+                data['payload'] = f'{data.get("payload")}\r'
             except Exception as e:
                 self.logger.error(f'ERROR transforming send data: {e}')
         return data

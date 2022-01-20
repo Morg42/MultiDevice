@@ -283,17 +283,16 @@ class MD_Command_Str(MD_Command):
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, repl_func, string)
 
-        print(11)
-        print(kwargs)
-        if kwargs and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
-            print(string)
-            regex = '(MD_CUSTOM([123]))'
-            while re.match('.*' + regex + '.*', string):
-                index = int(re.match(regex, string).group(2))
-                print(index)
-                if index in kwargs[ITEM_ATTR_CUSTOM_PREFIX]:
-                    string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
-            print(string)
+        regex = '(MD_CUSTOM([123]))'
+        while re.match('.*' + regex + '.*', string):
+            string = re.sub(regex, cust_func, string)
+
+        # if kwargs and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
+        #     regex = '(MD_CUSTOM([123]))'
+        #     while re.match('.*' + regex + '.*', string):
+        #         index = int(re.match(regex, string).group(2))
+        #         if index in kwargs[ITEM_ATTR_CUSTOM_PREFIX]:
+        #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
 
         if data is not None:
             string = string.replace('MD_VALUE', str(self._DT.get_send_data(data)))
@@ -364,7 +363,6 @@ class MD_Command_ParseStr(MD_Command_Str):
 
         self._plugin_params.update(kwargs)
         data = self._check_value(data)
-        print(f'Cps-gsd {kwargs}')
 
         if data is None:
             # create read data

@@ -249,7 +249,6 @@ class MD_Device(object):
                 return False
 
         try:
-            print(f'D-sc2 {kwargs}')
             data_dict = self._commands.get_send_data(command, value, **kwargs)
         except Exception as e:
             self.logger.warning(f'command {command} with value {value} produced error on converting value, aborting. Error was: {e}')

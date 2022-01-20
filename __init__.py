@@ -982,7 +982,7 @@ class MultiDevice(SmartPlugin):
                     dev_log.debug(f'Triggering read_group {group}')
                     device.read_all_commands(group)
 
-    def on_data_received(self, device_id, command, value):
+    def on_data_received(self, device_id, command, value, by=None):
         """
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item

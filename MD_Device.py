@@ -113,6 +113,8 @@ class MD_Device(object):
         self.device_id = device_id
         self.alive = False
         self.disabled = True
+        self._discard_unknown_command = True
+        self._unknown_command = '.notify.'
         self._runtime_data_set = False
         self._initial_values_read = False
         self._cyclic_update_active = False
@@ -275,7 +277,10 @@ class MD_Device(object):
             else:
                 self.logger.debug(f'command {command} received result {result}, converted to value {value}')
                 if self._data_received_callback:
-                    self._data_received_callback(self.device_id, command, value)
+                    by = None
+                    if self.custom_commands:
+                        by = kwargs['custom'][self.custom_commands]
+                    self._data_received_callback(self.device_id, command, value, by)
                 else:
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
         return True
@@ -299,8 +304,12 @@ class MD_Device(object):
             self.logger.debug(f'received data "{data}" from {by} without command specification')
             command = self._commands.get_command_from_reply(data)
             if not command:
-                self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
-                return
+                if self._discard_unknown_command:
+                    self.logger.debug(f'data "{data}" did not identify a known command, ignoring it')
+                    return
+                elif self._data_received_callback:
+                    self.logger.debug(f'data "{data}" did not identify a known command, forwarding it anyway for {self._unknown_command}')
+                    self._data_received_callback(self.device_id, self._unknown_command, data, by)
 
         custom = None
         if self.custom_commands:
@@ -315,7 +324,7 @@ class MD_Device(object):
         else:
             self.logger.debug(f'received data "{data}" for command {command} converted to value {value}')
             if self._data_received_callback:
-                self._data_received_callback(self.device_id, command, value)
+                self._data_received_callback(self.device_id, command, value, by)
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 

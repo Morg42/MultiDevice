@@ -16,10 +16,22 @@ class DT_mc(DT.Datatype):
 
     def get_shng_data(self, data, type=None, **kwargs):
         if type is None:
-            return json.loads(data)
+            try:
+                return json.loads(data)
+            except Exception:
+                return data
 
         # let the base class do some work if type is explicitly requested
         return super().get_shng_data(data, type)
+
+
+class DT_url(DT_mc):
+
+    def get_shng_data(self, data, type=None, **kwargs):
+        if data:
+            return f'http://{kwargs["custom"][1]}{data}'
+        else:
+            return ''
 
 
 class DT_al_on(DT_mc):

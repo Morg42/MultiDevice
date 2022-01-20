@@ -27,7 +27,25 @@ commands = {
         'totalsongs': {'read': True, 'write': False, 'read_cmd': 'info total songs ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total songs (\d+)'},
         'totalalbums': {'read': True, 'write': False, 'read_cmd': 'info total albums ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total albums (\d+)'},
     },
-    'playercontrol': {
-        'volume': {'read': True, 'write': True, 'read_cmd': 'mixer volume ?', 'item_type': 'num', 'write_cmd': ':prefset server volume {VAL}:', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'.*(?:mixer|prefset server) volume (\d{1,3})'}
+    'player': {
+        'control': {
+            'power': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 power ?', 'item_type': 'bool', 'write_cmd': ':MD_CUSTOM1 power {VAL:01}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'MD_CUSTOM1 prefset server power (\d)'},
+            'volume': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 mixer volume ?', 'item_type': 'num', 'write_cmd': ':MD_CUSTOM1 prefset server volume {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'MD_CUSTOM1 (?:mixer|prefset server) volume (\d{1,3})'},
+            'alarm': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 alarm ?', 'item_type': 'str', 'write_cmd': ':MD_CUSTOM1 alarm {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 alarm (.*)'},
+            'sync': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 sync ?', 'write_cmd': ':MD_CUSTOM1 sync {VAL}:', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 sync (.*)'},
+            'unsync': {'read': False, 'write': True, 'write_cmd': 'MD_CUSTOM1 sync -', 'item_type': 'bool', 'dev_datatype': 'str'},
+            'display': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 display ?', 'item_type': 'str', 'write_cmd': ':MD_CUSTOM1 display {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 display (.*)'},
+            'connect': {'read': True, 'write': True, 'item_type': 'str', 'write_cmd': ':MD_CUSTOM1 connect {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 connect (.*)'},
+            'disconnect': {'read': True, 'write': True, 'item_type': 'str', 'write_cmd': ':disconnect MD_CUSTOM1 {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'disconnect MD_CUSTOM1 (.*)'},
+        },
+        'info': {
+            'connected': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 connected ?', 'item_type': 'bool', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'MD_CUSTOM1 connected (\d)'},
+            'playername': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 playername ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 playername (.*)'},
+            'sleep': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 sleep ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 sleep (.*)'},
+            'alarms': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 alarms ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'MD_CUSTOM1 alarms (.*)'},
+            'syncgroups': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 syncgroups ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'MD_CUSTOM1 syncgroups (\d+)'},
+            'signalstrength': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 signalstrength ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'MD_CUSTOM1 signalstrength (\d+)'},
+        }
+
     }
 }

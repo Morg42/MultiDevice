@@ -236,20 +236,20 @@ class MD_Command_Str(MD_Command):
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd)
+                cmd_str = self._parse_str(self.read_cmd, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
             # create write data
             if self.write_cmd:
-                cmd_str = self._parse_str(self.write_cmd, data)
+                cmd_str = self._parse_str(self.write_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
 
         data_dict = {}
         data_dict['payload'] = cmd_str
         for k in self._plugin_params.keys():
-            data_dict[k] = self._parse_tree(self.params[k], data)
+            data_dict[k] = self._parse_tree(self.params[k], data, **kwargs)
 
         return data_dict
 
@@ -259,7 +259,7 @@ class MD_Command_Str(MD_Command):
         value = self._DT.get_shng_data(data, **kwargs)
         return value
 
-    def _parse_str(self, string, data=None):
+    def _parse_str(self, string, data=None, **kwargs):
         """
         parse string and replace
         - MD_OPCODE with the command opcode
@@ -272,18 +272,28 @@ class MD_Command_Str(MD_Command):
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), ''))
 
+        def cust_func(matchobj):
+            if kwargs and 'custom' in kwargs:
+                return str(kwargs['custom'].get(int(matchobj.group(2))))
+            return matchobj.group(0)
+
         string = string.replace('MD_OPCODE', self.opcode)
 
         regex = '(MD_PARAM:([^:]+):)'
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, repl_func, string)
 
+        regex = '(MD_CUSTOM([123]))'
+        while re.match('.*' + regex + '.*', string):
+            string = re.sub(regex, cust_func, string)
+
+
         if data is not None:
             string = string.replace('MD_VALUE', str(self._DT.get_send_data(data)))
 
         return string
 
-    def _parse_tree(self, node, data):
+    def _parse_tree(self, node, data, **kwargs):
         """
         traverse node and
         - apply _parse_str to strings
@@ -291,15 +301,15 @@ class MD_Command_Str(MD_Command):
         - return unknown or unparseable elements unchanged
         """
         if issubclass(node, str):
-            return self._parse_str(node, data)
+            return self._parse_str(node, data, **kwargs)
         elif issubclass(node, list):
-            return [self._parse_tree(k, data) for k in node]
+            return [self._parse_tree(k, data, **kwargs) for k in node]
         elif issubclass(node, tuple):
-            return (self._parse_tree(k, data) for k in node)
+            return (self._parse_tree(k, data, **kwargs) for k in node)
         elif issubclass(node, dict):
             new_dict = {}
             for k in node.keys():
-                new_dict[k] = self._parse_tree(node[k], data)
+                new_dict[k] = self._parse_tree(node[k], data, **kwargs)
             return new_dict
         else:
             return node

@@ -231,7 +231,7 @@ class MD_Command_Str(MD_Command):
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
-    Default behaviour is identical to MD_Command_Str.
+    Default behaviour is identical to MD_Command.
 
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
@@ -258,6 +258,7 @@ class MD_Command_Str(MD_Command):
 
     def get_send_data(self, data, **kwargs):
 
+        self._plugin_params.update(kwargs)
         data = self._check_value(data)
 
         if data is None:
@@ -340,6 +341,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     Default behaviour is identical to MD_Command_Str.
 
+    opcode, write_cmd and read_cmd will be parsed to substitute values.
     Giving write_cmd as &#39;:&lt;write expression&gt;:&#39; (note colons) will format the
     given string (without the colons), replacing &#39;VAL&#39; with the value by using
     write_cmd.format(VAL=data_dict[&#39;payload&#39;]), so you can immediately embed
@@ -371,6 +373,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
     def get_send_data(self, data, **kwargs):
 
+        self._plugin_params.update(kwargs)
         data = self._check_value(data)
 
         if data is None:
@@ -382,17 +385,19 @@ class MD_Command_ParseStr(MD_Command_Str):
         else:
             # create write data
             if self.write_cmd:
-                # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
-                # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
-                if self.write_cmd[0] == &#39;:&#39; and self.write_cmd[-1] == &#39;:&#39;:
-                    if isinstance(data, str):
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
-                    else:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
-                else:
-                    cmd_str = self._parse_str(self.write_cmd, data)
+                cmd = self.write_cmd
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd = self.opcode
+
+            # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
+            # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
+            if cmd[0] == &#39;:&#39; and cmd[-1] == &#39;:&#39;:
+                if isinstance(data, str):
+                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
+                else:
+                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data))
+            else:
+                cmd_str = self._parse_str(cmd, data)
 
         return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}
 
@@ -1042,7 +1047,8 @@ actual item value.</p>
 <p>With this class, you can simplify the creation of read and write commands
 containing data values.</p>
 <p>Default behaviour is identical to MD_Command_Str.</p>
-<p>Giving write_cmd as ':<write expression>:' (note colons) will format the
+<p>opcode, write_cmd and read_cmd will be parsed to substitute values.
+Giving write_cmd as ':<write expression>:' (note colons) will format the
 given string (without the colons), replacing 'VAL' with the value by using
 write_cmd.format(VAL=data_dict['payload']), so you can immediately embed
 the value in the command string with configurable formatting conforming
@@ -1076,6 +1082,7 @@ MRE by JF properly :)</p></div>
 
     Default behaviour is identical to MD_Command_Str.
 
+    opcode, write_cmd and read_cmd will be parsed to substitute values.
     Giving write_cmd as &#39;:&lt;write expression&gt;:&#39; (note colons) will format the
     given string (without the colons), replacing &#39;VAL&#39; with the value by using
     write_cmd.format(VAL=data_dict[&#39;payload&#39;]), so you can immediately embed
@@ -1107,6 +1114,7 @@ MRE by JF properly :)</p></div>
 
     def get_send_data(self, data, **kwargs):
 
+        self._plugin_params.update(kwargs)
         data = self._check_value(data)
 
         if data is None:
@@ -1118,17 +1126,19 @@ MRE by JF properly :)</p></div>
         else:
             # create write data
             if self.write_cmd:
-                # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
-                # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
-                if self.write_cmd[0] == &#39;:&#39; and self.write_cmd[-1] == &#39;:&#39;:
-                    if isinstance(data, str):
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
-                    else:
-                        cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
-                else:
-                    cmd_str = self._parse_str(self.write_cmd, data)
+                cmd = self.write_cmd
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd = self.opcode
+
+            # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
+            # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
+            if cmd[0] == &#39;:&#39; and cmd[-1] == &#39;:&#39;:
+                if isinstance(data, str):
+                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
+                else:
+                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data))
+            else:
+                cmd_str = self._parse_str(cmd, data)
 
         return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}
 
@@ -1189,6 +1199,7 @@ MRE by JF properly :)</p></div>
 </summary>
 <pre><code class="python">def get_send_data(self, data, **kwargs):
 
+    self._plugin_params.update(kwargs)
     data = self._check_value(data)
 
     if data is None:
@@ -1200,17 +1211,19 @@ MRE by JF properly :)</p></div>
     else:
         # create write data
         if self.write_cmd:
-            # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
-            # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
-            if self.write_cmd[0] == &#39;:&#39; and self.write_cmd[-1] == &#39;:&#39;:
-                if isinstance(data, str):
-                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
-                else:
-                    cmd_str = self._parse_str(self.write_cmd[1:-1].format(VAL=data))
-            else:
-                cmd_str = self._parse_str(self.write_cmd, data)
+            cmd = self.write_cmd
         else:
-            cmd_str = self._parse_str(self.opcode, data)
+            cmd = self.opcode
+
+        # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
+        # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
+        if cmd[0] == &#39;:&#39; and cmd[-1] == &#39;:&#39;:
+            if isinstance(data, str):
+                cmd_str = self._parse_str(cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
+            else:
+                cmd_str = self._parse_str(cmd[1:-1].format(VAL=data))
+        else:
+            cmd_str = self._parse_str(cmd, data)
 
     return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}</code></pre>
 </details>
@@ -1287,7 +1300,7 @@ a meaningful value. To signal the error, an exception will be raised.</p></div>
 <div class="desc"><p>Command for string-based communication</p>
 <p>This class represents a command which uses a string with arguments as payload,
 for example as query URL.</p>
-<p>Default behaviour is identical to MD_Command_Str.</p>
+<p>Default behaviour is identical to MD_Command.</p>
 <p>For sending, the read_cmd/write_cmd strings, opcode and data are parsed
 (recursively), to enable the following parameters:</p>
 <ul>
@@ -1313,7 +1326,7 @@ element from a json response:</p>
     This class represents a command which uses a string with arguments as payload,
     for example as query URL.
 
-    Default behaviour is identical to MD_Command_Str.
+    Default behaviour is identical to MD_Command.
 
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
@@ -1340,6 +1353,7 @@ element from a json response:</p>
 
     def get_send_data(self, data, **kwargs):
 
+        self._plugin_params.update(kwargs)
         data = self._check_value(data)
 
         if data is None:
@@ -1441,6 +1455,7 @@ element from a json response:</p>
 </summary>
 <pre><code class="python">def get_send_data(self, data, **kwargs):
 
+    self._plugin_params.update(kwargs)
     data = self._check_value(data)
 
     if data is None:

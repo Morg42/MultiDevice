@@ -211,6 +211,15 @@ class Datatype(object):
                     raise
 
 
+class DT_none(Datatype):
+    &#34;&#34;&#34; don&#39;t pass on anything. Maybe needed someplace... &#34;&#34;&#34;
+    def get_send_data(self, data, **kwargs):
+        return None
+
+    def get_shng_data(self, data, type=None, **kwargs):
+        return None
+
+
 class DT_raw(Datatype):
     &#34;&#34;&#34; pass on data, identical to base class &#34;&#34;&#34;
     pass
@@ -665,6 +674,40 @@ get_shng_data() and/or get_send_data().</p>
 </li>
 </ul>
 </dd>
+<dt id="multidevice.datatypes.DT_none"><code class="flex name class">
+<span>class <span class="ident">DT_none</span></span>
+<span>(</span><span>fail_silent=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>don't pass on anything. Maybe needed someplace&hellip; </p>
+<p>:param fail_silent: keep silent on data conversion error or raise exception
+:type fail_silent: bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DT_none(Datatype):
+    &#34;&#34;&#34; don&#39;t pass on anything. Maybe needed someplace... &#34;&#34;&#34;
+    def get_send_data(self, data, **kwargs):
+        return None
+
+    def get_shng_data(self, data, type=None, **kwargs):
+        return None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="multidevice.datatypes.Datatype" href="#multidevice.datatypes.Datatype">Datatype</a></b></code>:
+<ul class="hlist">
+<li><code><a title="multidevice.datatypes.Datatype.get_send_data" href="#multidevice.datatypes.Datatype.get_send_data">get_send_data</a></code></li>
+<li><code><a title="multidevice.datatypes.Datatype.get_shng_data" href="#multidevice.datatypes.Datatype.get_shng_data">get_shng_data</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="multidevice.datatypes.DT_num"><code class="flex name class">
 <span>class <span class="ident">DT_num</span></span>
 <span>(</span><span>fail_silent=True)</span>
@@ -1037,6 +1080,7 @@ get_shng_data() and/or get_send_data().</p>
 <li><a title="multidevice.datatypes.DT_int" href="#multidevice.datatypes.DT_int">DT_int</a></li>
 <li><a title="multidevice.datatypes.DT_json" href="#multidevice.datatypes.DT_json">DT_json</a></li>
 <li><a title="multidevice.datatypes.DT_list" href="#multidevice.datatypes.DT_list">DT_list</a></li>
+<li><a title="multidevice.datatypes.DT_none" href="#multidevice.datatypes.DT_none">DT_none</a></li>
 <li><a title="multidevice.datatypes.DT_num" href="#multidevice.datatypes.DT_num">DT_num</a></li>
 <li><a title="multidevice.datatypes.DT_raw" href="#multidevice.datatypes.DT_raw">DT_raw</a></li>
 <li><a title="multidevice.datatypes.DT_str" href="#multidevice.datatypes.DT_str">DT_str</a></li>
@@ -1231,6 +1275,9 @@ Beware of special needs if converting complex data types.</p>
 </li>
 <li>
 <h4><code><a title="multidevice.datatypes.DT_list" href="#multidevice.datatypes.DT_list">DT_list</a></code></h4>
+</li>
+<li>
+<h4><code><a title="multidevice.datatypes.DT_none" href="#multidevice.datatypes.DT_none">DT_none</a></code></h4>
 </li>
 <li>
 <h4><code><a title="multidevice.datatypes.DT_num" href="#multidevice.datatypes.DT_num">DT_num</a></code></h4>

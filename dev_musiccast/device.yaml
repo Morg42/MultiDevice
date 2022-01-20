@@ -4,12 +4,13 @@
 
 device:
     description: 'Yamaha MusicCast'
+    description_long: 'Yamaha MusicCast-Geräte, grundlegende Unterstützung. Der Item-Baum muss pro Gerät erstellt werden und auf der obersten Ebene das Item-Attribut "md_custom1" mit dem Wert des jeweiligen Hostnamens bzw. der jeweiligen IP enthalten.'
     maintainer: Morg
 
 parameters:
     host:
         type: str
-        description: 'Hostname oder IP-Adresse'
+        description: 'Hostname oder IP-Adresse (alternativ über Item-Attribut "md_custom1")'
 
     port:
         type: int

@@ -46,6 +46,7 @@ implementiert. Derzeit sind dies:
   * V200WO1C
   * V200HO1C
 
+* Yamaha MusicCast-Geräte (musiccast)
 
 Konfiguration
 -------------

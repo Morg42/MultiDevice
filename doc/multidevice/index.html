@@ -1404,7 +1404,7 @@ class MultiDevice(SmartPlugin):
                     dev_log.debug(f&#39;Triggering read_group {group}&#39;)
                     device.read_all_commands(group)
 
-    def on_data_received(self, device_id, command, value):
+    def on_data_received(self, device_id, command, value, by=None):
         &#34;&#34;&#34;
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item
@@ -2957,7 +2957,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     dev_log.debug(f&#39;Triggering read_group {group}&#39;)
                     device.read_all_commands(group)
 
-    def on_data_received(self, device_id, command, value):
+    def on_data_received(self, device_id, command, value, by=None):
         &#34;&#34;&#34;
         Callback function - new data has been received from device.
         Value is already in item-compatible format, so find appropriate item
@@ -3159,7 +3159,7 @@ modules and initializing them by instantiating the proper class.</p></div>
 </details>
 </dd>
 <dt id="multidevice.MultiDevice.on_data_received"><code class="name flex">
-<span>def <span class="ident">on_data_received</span></span>(<span>self, device_id, command, value)</span>
+<span>def <span class="ident">on_data_received</span></span>(<span>self, device_id, command, value, by=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Callback function - new data has been received from device.
@@ -3174,7 +3174,7 @@ and update value</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def on_data_received(self, device_id, command, value):
+<pre><code class="python">def on_data_received(self, device_id, command, value, by=None):
     &#34;&#34;&#34;
     Callback function - new data has been received from device.
     Value is already in item-compatible format, so find appropriate item

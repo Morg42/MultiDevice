@@ -139,21 +139,138 @@ database:
         md_write: false
         md_read_group: ['database']
 
-playercontrol:
+player:
 
     read:
         type: bool
         enforce_updates: true
         md_device: DEVICENAME
-        md_read_group_trigger: playercontrol
+        md_read_group_trigger: player
 
-    volume:
-        type: num
-        md_device: DEVICENAME
-        md_command: playercontrol.volume
-        md_read: true
-        md_write: true
-        md_read_group: ['playercontrol']
+    control:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: player.control
+
+        power:
+            type: bool
+            md_device: DEVICENAME
+            md_command: player.control.power
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
+        volume:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.control.volume
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
+        alarm:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.alarm
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
+        sync:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.sync
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
+        unsync:
+            type: bool
+            md_device: DEVICENAME
+            md_command: player.control.unsync
+            md_read: false
+            md_write: true
+
+        display:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.display
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
+        connect:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.connect
+            md_read: true
+            md_write: true
+
+        disconnect:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.disconnect
+            md_read: true
+            md_write: true
+
+    info:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: player.info
+
+        connected:
+            type: bool
+            md_device: DEVICENAME
+            md_command: player.info.connected
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        playername:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.info.playername
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        sleep:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.info.sleep
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        alarms:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.info.alarms
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        syncgroups:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.info.syncgroups
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        signalstrength:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.info.signalstrength
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
 
 ALL:
 
@@ -301,19 +418,136 @@ ALL:
             md_write: false
             md_read_group: ['ALL', 'ALL.database']
 
-    playercontrol:
+    player:
 
         read:
             type: bool
             enforce_updates: true
             md_device: DEVICENAME
-            md_read_group_trigger: ALL.playercontrol
+            md_read_group_trigger: ALL.player
 
-        volume:
-            type: num
-            md_device: DEVICENAME
-            md_command: playercontrol.volume
-            md_read: true
-            md_write: true
-            md_read_group: ['ALL', 'ALL.playercontrol']
+        control:
+
+            read:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: ALL.player.control
+
+            power:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.power
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            volume:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            alarm:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.alarm
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            sync:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.sync
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            unsync:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.unsync
+                md_read: false
+                md_write: true
+
+            display:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.display
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            connect:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.connect
+                md_read: true
+                md_write: true
+
+            disconnect:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.disconnect
+                md_read: true
+                md_write: true
+
+        info:
+
+            read:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: ALL.player.info
+
+            connected:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.info.connected
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            playername:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.playername
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            sleep:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.sleep
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            alarms:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.alarms
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            syncgroups:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.syncgroups
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            signalstrength:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.signalstrength
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
 

@@ -40,21 +40,18 @@ class MD_Device(MD_Device):
             self._params[PLUGIN_ATTR_CONN_TERMINATOR] = b
 
     def on_connect(self, by=None):
-        self.logger.debug("On connect squeezebox")
+        self.logger.debug("Activating listen mode after connection.")
         self.send_command('server.listenmode', True)
 
     def _transform_send_data(self, data=None, **kwargs):
-        if kwargs.get('custom') and kwargs['custom'].get(self.custom_commands):
-            player_id = f"{kwargs['custom'][self.custom_commands]} "
-        else:
-            player_id = ''
         if data:
             try:
                 data['limit_response'] = self._params.get(PLUGIN_ATTR_CONN_TERMINATOR, b'\r')
-                data['payload'] = f'{player_id}{data.get("payload")}\r'
+                data['payload'] = f'{data.get("payload")}{data["limit_response"]}'
             except Exception as e:
-                self.logger.error(f'ERROR {e}')
+                self.logger.error(f'ERROR transforming send data: {e}')
         return data
 
     def _transform_received_data(self, data):
+        # fix weird representation of MAC address (%3A = :), etc.
         return urllib.parse.unquote_plus(data)

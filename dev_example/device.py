@@ -10,6 +10,7 @@ else:
 
 from random import random
 
+
 class MD_Device(MD_Device):
     """ Example class. 
 

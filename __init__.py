@@ -172,7 +172,7 @@ Public methods:
 * ``is_valid_command(command, read=None)``
 * ``set_runtime_data(**kwargs)``
 * ``update_device_params(**kwargs)``
-* ``get_lookup(lookup)``
+* ``get_lookup(lookup, mode='fwd')``
 * ``has_recursive_custom_attribute(index=1)``
 * ``set_custom_item(item, command, index, value)``
 
@@ -188,10 +188,10 @@ Methods possibly needed to overwrite for inherited classes:
 
 * ``_set_device_defaults()``
 * ``_post_init()``
-* ``_transform_send_data(data_dict)``
+* ``_transform_send_data(data_dict, **kwargs)``
 * ``_transform_received_data(data_dict)``
 * ``_send(data_dict)``
-* ``_get_custom_data(command, data)``
+* ``_get_custom_value(command, data)``
 * ``run_standalone()``
 
 
@@ -231,7 +231,7 @@ Public methods:
 
 Public callback methods:
 
-* ``on_data_received(by, data, command=None)``
+* ``on_data_received(by, data)``
 * ``on_connect(by=None)``
 * ``on_disconnect(by=None)``
 
@@ -253,7 +253,7 @@ This class has subclasses defined for the following types of connection:
 
 * ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
 * ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-* ``MD_Connection_Net_Udp_Server``  for UDP listering server with async callback
+* ``MD_Connection_Net_Udp_Request`` for UDP listering server with async callback
 * ``MD_Connection_Serial``          for query-reply serial connections
 * ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 

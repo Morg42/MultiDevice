@@ -28,10 +28,10 @@ import logging
 import re
 
 if MD_standalone:
-    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, ITEM_ATTR_CUSTOM_PREFIX, MINMAXKEYS)
+    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
     import datatypes as DT
 else:
-    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, ITEM_ATTR_CUSTOM_PREFIX, MINMAXKEYS)
+    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
     from . import datatypes as DT
 
 

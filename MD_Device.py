@@ -94,8 +94,11 @@ class MD_Device(object):
         # None for normal operations, 1..3 for combined custom commands (<command>#<customx>)
         self.custom_commands = None
 
-        # set for detection / extraction of custom token from reply
+        # for extraction of custom token from reply
         self._custom_pattern = ''
+
+        # for detection of custom tokens in reply_pattern
+        self._custom_patterns = {1: '', 2: '', 3: ''}
 
         # set to True to use on_connect and on_disconnect callbacks
         self._use_callbacks = False
@@ -139,6 +142,9 @@ class MD_Device(object):
 
         # possibly initialize additional (overwrite _set_device_defaults)
         self._set_device_defaults()
+
+        # save modified value for passing to MD_Commands
+        self._params['custom_patterns'] = self._custom_patterns
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
@@ -547,7 +553,6 @@ class MD_Device(object):
         proto_type = None
         proto_classname = None
         proto_cls = None
-        params = self._params
 
         mod_str = 'MD_Connection'
         if not MD_standalone:
@@ -581,12 +586,7 @@ class MD_Device(object):
                 # this seems to be a serial killer application
                 conn_type = CONN_SER_DIR
 
-            if conn_type:
-                params[PLUGIN_ATTR_CONNECTION] = conn_type
-            else:
-                # self.logger.error(f'can not identify connection type and no preference given')
-                # return None
-
+            if not conn_type:
                 # if not preset and not identified, use "empty" connection, e.g. for testing
                 # when physical device is not present
                 conn_classname = 'MD_Connection'

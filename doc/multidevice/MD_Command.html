@@ -264,20 +264,20 @@ class MD_Command_Str(MD_Command):
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd)
+                cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
             # create write data
             if self.write_cmd:
-                cmd_str = self._parse_str(self.write_cmd, data)
+                cmd_str = self._parse_str(self.write_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
 
         data_dict = {}
         data_dict[&#39;payload&#39;] = cmd_str
         for k in self._plugin_params.keys():
-            data_dict[k] = self._parse_tree(self.params[k], data)
+            data_dict[k] = self._parse_tree(self.params[k], data, **kwargs)
 
         return data_dict
 
@@ -287,7 +287,7 @@ class MD_Command_Str(MD_Command):
         value = self._DT.get_shng_data(data, **kwargs)
         return value
 
-    def _parse_str(self, string, data=None):
+    def _parse_str(self, string, data=None, **kwargs):
         &#34;&#34;&#34;
         parse string and replace
         - MD_OPCODE with the command opcode
@@ -300,18 +300,34 @@ class MD_Command_Str(MD_Command):
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
 
+        def cust_func(matchobj):
+            if kwargs and &#39;custom&#39; in kwargs:
+                return str(kwargs[&#39;custom&#39;].get(int(matchobj.group(2))))
+            return &#39;&#39;
+
         string = string.replace(&#39;MD_OPCODE&#39;, self.opcode)
 
         regex = &#39;(MD_PARAM:([^:]+):)&#39;
         while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
             string = re.sub(regex, repl_func, string)
 
+        regex = &#39;(MD_CUSTOM([123]))&#39;
+        while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
+            string = re.sub(regex, cust_func, string)
+
+        # if kwargs and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
+        #     regex = &#39;(MD_CUSTOM([123]))&#39;
+        #     while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
+        #         index = int(re.match(regex, string).group(2))
+        #         if index in kwargs[ITEM_ATTR_CUSTOM_PREFIX]:
+        #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
+
         if data is not None:
             string = string.replace(&#39;MD_VALUE&#39;, str(self._DT.get_send_data(data)))
 
         return string
 
-    def _parse_tree(self, node, data):
+    def _parse_tree(self, node, data, **kwargs):
         &#34;&#34;&#34;
         traverse node and
         - apply _parse_str to strings
@@ -319,15 +335,15 @@ class MD_Command_Str(MD_Command):
         - return unknown or unparseable elements unchanged
         &#34;&#34;&#34;
         if issubclass(node, str):
-            return self._parse_str(node, data)
+            return self._parse_str(node, data, **kwargs)
         elif issubclass(node, list):
-            return [self._parse_tree(k, data) for k in node]
+            return [self._parse_tree(k, data, **kwargs) for k in node]
         elif issubclass(node, tuple):
-            return (self._parse_tree(k, data) for k in node)
+            return (self._parse_tree(k, data, **kwargs) for k in node)
         elif issubclass(node, dict):
             new_dict = {}
             for k in node.keys():
-                new_dict[k] = self._parse_tree(node[k], data)
+                new_dict[k] = self._parse_tree(node[k], data, **kwargs)
             return new_dict
         else:
             return node
@@ -379,15 +395,15 @@ class MD_Command_ParseStr(MD_Command_Str):
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd)
+                cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
             # create write data
             if self.write_cmd:
-                cmd = self.write_cmd
+                cmd = self._parse_str(self.write_cmd, data, **kwargs)
             else:
-                cmd = self.opcode
+                cmd = self._parse_str(self.opcode, data, **kwargs)
 
             # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
             # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
@@ -1120,15 +1136,15 @@ MRE by JF properly :)</p></div>
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd)
+                cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
             # create write data
             if self.write_cmd:
-                cmd = self.write_cmd
+                cmd = self._parse_str(self.write_cmd, data, **kwargs)
             else:
-                cmd = self.opcode
+                cmd = self._parse_str(self.opcode, data, **kwargs)
 
             # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
             # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
@@ -1205,15 +1221,15 @@ MRE by JF properly :)</p></div>
     if data is None:
         # create read data
         if self.read_cmd:
-            cmd_str = self._parse_str(self.read_cmd)
+            cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
         else:
-            cmd_str = self._parse_str(self.opcode, data)
+            cmd_str = self._parse_str(self.opcode, data, **kwargs)
     else:
         # create write data
         if self.write_cmd:
-            cmd = self.write_cmd
+            cmd = self._parse_str(self.write_cmd, data, **kwargs)
         else:
-            cmd = self.opcode
+            cmd = self._parse_str(self.opcode, data, **kwargs)
 
         # test if write_cmd is &#39;:foo:&#39; to trigger formatting/substitution
         # reminder: &#39;:val:&#39; replaces val with &#39;raw&#39; val, &#39;MD_VALUE&#39; uses DT.get_send_data(val)
@@ -1359,20 +1375,20 @@ element from a json response:</p>
         if data is None:
             # create read data
             if self.read_cmd:
-                cmd_str = self._parse_str(self.read_cmd)
+                cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
         else:
             # create write data
             if self.write_cmd:
-                cmd_str = self._parse_str(self.write_cmd, data)
+                cmd_str = self._parse_str(self.write_cmd, data, **kwargs)
             else:
-                cmd_str = self._parse_str(self.opcode, data)
+                cmd_str = self._parse_str(self.opcode, data, **kwargs)
 
         data_dict = {}
         data_dict[&#39;payload&#39;] = cmd_str
         for k in self._plugin_params.keys():
-            data_dict[k] = self._parse_tree(self.params[k], data)
+            data_dict[k] = self._parse_tree(self.params[k], data, **kwargs)
 
         return data_dict
 
@@ -1382,7 +1398,7 @@ element from a json response:</p>
         value = self._DT.get_shng_data(data, **kwargs)
         return value
 
-    def _parse_str(self, string, data=None):
+    def _parse_str(self, string, data=None, **kwargs):
         &#34;&#34;&#34;
         parse string and replace
         - MD_OPCODE with the command opcode
@@ -1395,18 +1411,34 @@ element from a json response:</p>
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
 
+        def cust_func(matchobj):
+            if kwargs and &#39;custom&#39; in kwargs:
+                return str(kwargs[&#39;custom&#39;].get(int(matchobj.group(2))))
+            return &#39;&#39;
+
         string = string.replace(&#39;MD_OPCODE&#39;, self.opcode)
 
         regex = &#39;(MD_PARAM:([^:]+):)&#39;
         while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
             string = re.sub(regex, repl_func, string)
 
+        regex = &#39;(MD_CUSTOM([123]))&#39;
+        while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
+            string = re.sub(regex, cust_func, string)
+
+        # if kwargs and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
+        #     regex = &#39;(MD_CUSTOM([123]))&#39;
+        #     while re.match(&#39;.*&#39; + regex + &#39;.*&#39;, string):
+        #         index = int(re.match(regex, string).group(2))
+        #         if index in kwargs[ITEM_ATTR_CUSTOM_PREFIX]:
+        #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
+
         if data is not None:
             string = string.replace(&#39;MD_VALUE&#39;, str(self._DT.get_send_data(data)))
 
         return string
 
-    def _parse_tree(self, node, data):
+    def _parse_tree(self, node, data, **kwargs):
         &#34;&#34;&#34;
         traverse node and
         - apply _parse_str to strings
@@ -1414,15 +1446,15 @@ element from a json response:</p>
         - return unknown or unparseable elements unchanged
         &#34;&#34;&#34;
         if issubclass(node, str):
-            return self._parse_str(node, data)
+            return self._parse_str(node, data, **kwargs)
         elif issubclass(node, list):
-            return [self._parse_tree(k, data) for k in node]
+            return [self._parse_tree(k, data, **kwargs) for k in node]
         elif issubclass(node, tuple):
-            return (self._parse_tree(k, data) for k in node)
+            return (self._parse_tree(k, data, **kwargs) for k in node)
         elif issubclass(node, dict):
             new_dict = {}
             for k in node.keys():
-                new_dict[k] = self._parse_tree(node[k], data)
+                new_dict[k] = self._parse_tree(node[k], data, **kwargs)
             return new_dict
         else:
             return node</code></pre>
@@ -1461,20 +1493,20 @@ element from a json response:</p>
     if data is None:
         # create read data
         if self.read_cmd:
-            cmd_str = self._parse_str(self.read_cmd)
+            cmd_str = self._parse_str(self.read_cmd, data, **kwargs)
         else:
-            cmd_str = self._parse_str(self.opcode, data)
+            cmd_str = self._parse_str(self.opcode, data, **kwargs)
     else:
         # create write data
         if self.write_cmd:
-            cmd_str = self._parse_str(self.write_cmd, data)
+            cmd_str = self._parse_str(self.write_cmd, data, **kwargs)
         else:
-            cmd_str = self._parse_str(self.opcode, data)
+            cmd_str = self._parse_str(self.opcode, data, **kwargs)
 
     data_dict = {}
     data_dict[&#39;payload&#39;] = cmd_str
     for k in self._plugin_params.keys():
-        data_dict[k] = self._parse_tree(self.params[k], data)
+        data_dict[k] = self._parse_tree(self.params[k], data, **kwargs)
 
     return data_dict</code></pre>
 </details>

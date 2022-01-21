@@ -232,10 +232,10 @@ player:
             md_write: false
             md_read_group: ['player', 'player.info']
 
-        playername:
+        name:
             type: str
             md_device: DEVICENAME
-            md_command: player.info.playername
+            md_command: player.info.name
             md_read: true
             md_write: false
             md_read_group: ['player', 'player.info']
@@ -307,6 +307,30 @@ player:
             type: str
             md_device: DEVICENAME
             md_command: player.info.title
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        current_title:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.info.current_title
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        path:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.info.path
+            md_read: true
+            md_write: false
+            md_read_group: ['player', 'player.info']
+
+        duration:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.info.duration
             md_read: true
             md_write: false
             md_read_group: ['player', 'player.info']
@@ -550,10 +574,10 @@ ALL:
                 md_write: false
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
 
-            playername:
+            name:
                 type: str
                 md_device: DEVICENAME
-                md_command: player.info.playername
+                md_command: player.info.name
                 md_read: true
                 md_write: false
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
@@ -625,6 +649,30 @@ ALL:
                 type: str
                 md_device: DEVICENAME
                 md_command: player.info.title
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            current_title:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.current_title
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            path:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.path
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            duration:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.duration
                 md_read: true
                 md_write: false
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']

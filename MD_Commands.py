@@ -326,7 +326,7 @@ class MD_Commands(object):
             self._flatten_cmds(cmds)
 
             # actually import commands
-            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist), self._params.get('custom_pattern'))
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist), self._params.get('custom_patterns'))
         else:
             if not MD_standalone:
                 self.logger.warning('no command definitions found. This device probably will not work...')
@@ -347,7 +347,7 @@ class MD_Commands(object):
 
         return True
 
-    def _parse_commands(self, device_id, commands, cmds=[], custom_pattern=''):
+    def _parse_commands(self, device_id, commands, cmds=[], custom_patterns=''):
         """
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
@@ -382,8 +382,9 @@ class MD_Commands(object):
                     kw[CMD_ATTR_CMD_SETTINGS]['valid_list_ci'] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[CMD_ATTR_CMD_SETTINGS]['valid_list_ci']]
 
             if CMD_ATTR_REPLY_PATTERN in kw:
-                if 'CUSTOM_PATTERN' in kw[CMD_ATTR_REPLY_PATTERN] and custom_pattern:
-                    kw[CMD_ATTR_REPLY_PATTERN] = kw[CMD_ATTR_REPLY_PATTERN].replace('CUSTOM_PATTERN', custom_pattern)
+                if 'CUSTOM_PATTERN' in kw[CMD_ATTR_REPLY_PATTERN] and custom_patterns:
+                    for index in (1, 2, 3):
+                        kw[CMD_ATTR_REPLY_PATTERN] = kw[CMD_ATTR_REPLY_PATTERN].replace('CUSTOM_PATTERN' + str(index), custom_patterns[index])
 
             dt_class = None
             dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, '')

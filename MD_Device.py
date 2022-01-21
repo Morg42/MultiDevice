@@ -94,8 +94,11 @@ class MD_Device(object):
         # None for normal operations, 1..3 for combined custom commands (<command>#<customx>)
         self.custom_commands = None
 
-        # set for detection / extraction of custom token from reply
+        # for extraction of custom token from reply
         self._custom_pattern = ''
+
+        # for detection of custom tokens in reply_pattern
+        self._custom_patterns = {1: '', 2: '', 3: ''}
 
         # set to True to use on_connect and on_disconnect callbacks
         self._use_callbacks = False
@@ -141,7 +144,7 @@ class MD_Device(object):
         self._set_device_defaults()
 
         # save modified value for passing to MD_Commands
-        self._params['custom_pattern'] = self._custom_pattern
+        self._params['custom_patterns'] = self._custom_patterns
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:

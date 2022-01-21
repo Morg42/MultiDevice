@@ -121,7 +121,7 @@ changed by device configuration.</p>
 <li><code>is_valid_command(command, read=None)</code></li>
 <li><code>set_runtime_data(**kwargs)</code></li>
 <li><code>update_device_params(**kwargs)</code></li>
-<li><code>get_lookup(lookup)</code></li>
+<li><code>get_lookup(lookup, mode='fwd')</code></li>
 <li><code>has_recursive_custom_attribute(index=1)</code></li>
 <li><code>set_custom_item(item, command, index, value)</code></li>
 </ul>
@@ -135,10 +135,10 @@ changed by device configuration.</p>
 <ul>
 <li><code>_set_device_defaults()</code></li>
 <li><code>_post_init()</code></li>
-<li><code>_transform_send_data(data_dict)</code></li>
+<li><code>_transform_send_data(data_dict, **kwargs)</code></li>
 <li><code>_transform_received_data(data_dict)</code></li>
 <li><code>_send(data_dict)</code></li>
-<li><code>_get_custom_data(command, data)</code></li>
+<li><code>_get_custom_value(command, data)</code></li>
 <li><code>run_standalone()</code></li>
 </ul>
 <h2 id="md_connection">Md_Connection</h2>
@@ -168,7 +168,7 @@ classes.</p>
 </ul>
 <p>Public callback methods:</p>
 <ul>
-<li><code>on_data_received(by, data, command=None)</code></li>
+<li><code>on_data_received(by, data)</code></li>
 <li><code>on_connect(by=None)</code></li>
 <li><code>on_disconnect(by=None)</code></li>
 </ul>
@@ -188,8 +188,7 @@ classes.</p>
 <li><code>MD_Connection_Net_Tcp_Request</code> for query-reply TCP connections</li>
 <li><code>MD_Connection_Net_Tcp_Client</code>
 for persistent TCP connections with async replies</li>
-<li><code>MD_Connection_Net_Udp_Server</code>
-for UDP listering server with async callback</li>
+<li><code>MD_Connection_Net_Udp_Request</code> for UDP listering server with async callback</li>
 <li><code>MD_Connection_Serial</code>
 for query-reply serial connections</li>
 <li><code>MD_Connection_Serial_Async</code>
@@ -594,7 +593,7 @@ Public methods:
 * ``is_valid_command(command, read=None)``
 * ``set_runtime_data(**kwargs)``
 * ``update_device_params(**kwargs)``
-* ``get_lookup(lookup)``
+* ``get_lookup(lookup, mode=&#39;fwd&#39;)``
 * ``has_recursive_custom_attribute(index=1)``
 * ``set_custom_item(item, command, index, value)``
 
@@ -610,10 +609,10 @@ Methods possibly needed to overwrite for inherited classes:
 
 * ``_set_device_defaults()``
 * ``_post_init()``
-* ``_transform_send_data(data_dict)``
+* ``_transform_send_data(data_dict, **kwargs)``
 * ``_transform_received_data(data_dict)``
 * ``_send(data_dict)``
-* ``_get_custom_data(command, data)``
+* ``_get_custom_value(command, data)``
 * ``run_standalone()``
 
 
@@ -653,7 +652,7 @@ Public methods:
 
 Public callback methods:
 
-* ``on_data_received(by, data, command=None)``
+* ``on_data_received(by, data)``
 * ``on_connect(by=None)``
 * ``on_disconnect(by=None)``
 
@@ -675,7 +674,7 @@ This class has subclasses defined for the following types of connection:
 
 * ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
 * ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-* ``MD_Connection_Net_Udp_Server``  for UDP listering server with async callback
+* ``MD_Connection_Net_Udp_Request`` for UDP listering server with async callback
 * ``MD_Connection_Serial``          for query-reply serial connections
 * ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
@@ -2104,7 +2103,7 @@ if __name__ == &#39;__main__&#39;:
 </dd>
 <dt><code class="name"><a title="multidevice.MD_Globals" href="MD_Globals.html">multidevice.MD_Globals</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Global definitions of constants and functions for MultiDevice</p></div>
 </dd>
 <dt><code class="name"><a title="multidevice.MD_Protocol" href="MD_Protocol.html">multidevice.MD_Protocol</a></code></dt>
 <dd>

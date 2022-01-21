@@ -28,10 +28,10 @@ import logging
 
 if MD_standalone:
     from MD_Globals import (CONN_NET_TCP_CLI, CONN_SER_DIR, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP)
-    from MD_Connection import MD_Connection, MD_Connection_Net_Tcp_Client, MD_Connection_Serial
+    from MD_Connection import MD_Connection
 else:
     from .MD_Globals import (CONN_NET_TCP_CLI, CONN_SER_DIR, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP)
-    from .MD_Connection import MD_Connection, MD_Connection_Net_Tcp_Client, MD_Connection_Serial
+    from .MD_Connection import MD_Connection
 
 
 from collections import OrderedDict
@@ -81,6 +81,8 @@ class MD_Protocol(MD_Connection):
         # make sure we have a basic set of parameters
         self._params = {PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None,
+                        PLUGIN_ATTR_MSG_TIMEOUT: 3,
+                        PLUGIN_ATTR_MSG_REPEAT: 3,
                         PLUGIN_ATTR_CONNECTION: MD_Connection}
         self._params.update(kwargs)
 
@@ -175,7 +177,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         # self._message_archive[str message_id] = [time() sendtime, str method, str params or None, int repeat]
         self._message_archive = {}
 
-        self._check_stale_cycle = float(self._message_timeout) / 2
+        self._check_stale_cycle = float(self._params[PLUGIN_ATTR_MSG_TIMEOUT]) / 2
         self._next_stale_check = 0
         self._last_stale_check = 0
 
@@ -270,10 +272,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 # !! self.logger.debug('Stale commands: {}'.format(stale_messages))
                 for (message_id, (send_time, method, params, repeat)) in stale_messages.items():
 
-                    if send_time + self._message_timeout < time():
+                    if send_time + self._params[PLUGIN_ATTR_MSG_TIMEOUT] < time():
 
                         # reply timeout reached, check repeat count
-                        if repeat <= self._message_repeat:
+                        if repeat <= self._params[PLUGIN_ATTR_MSG_REPEAT]:
 
                             # send again, increase counter
                             self.logger.info(f'Repeating unanswered command {method} ({params}), try {repeat + 1}')

@@ -140,6 +140,9 @@ class MD_Device(object):
         # possibly initialize additional (overwrite _set_device_defaults)
         self._set_device_defaults()
 
+        # save modified value for passing to MD_Commands
+        self._params['custom_pattern'] = self._custom_pattern
+
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
             self.logger.warning('device attribute "enabled" set to False, not loading device')
@@ -547,7 +550,6 @@ class MD_Device(object):
         proto_type = None
         proto_classname = None
         proto_cls = None
-        params = self._params
 
         mod_str = 'MD_Connection'
         if not MD_standalone:
@@ -581,12 +583,7 @@ class MD_Device(object):
                 # this seems to be a serial killer application
                 conn_type = CONN_SER_DIR
 
-            if conn_type:
-                params[PLUGIN_ATTR_CONNECTION] = conn_type
-            else:
-                # self.logger.error(f'can not identify connection type and no preference given')
-                # return None
-
+            if not conn_type:
                 # if not preset and not identified, use "empty" connection, e.g. for testing
                 # when physical device is not present
                 conn_classname = 'MD_Connection'

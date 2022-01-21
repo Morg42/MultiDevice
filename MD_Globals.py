@@ -24,9 +24,11 @@
 #
 #########################################################################
 
+""" Global definitions of constants and functions for MultiDevice """
+
 from lib.utils import Utils
 from ast import literal_eval
-
+import types
 
 #############################################################################################################################################################################################################################################
 #
@@ -39,9 +41,9 @@ from ast import literal_eval
 # plugin attributes, used in plugin config 'device'
 
 # general attributes
-PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to disable loading of device
+PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to manually disable loading of device
 PLUGIN_ATTR_MODEL            = 'model'                   # select model if applicable. Don't set if not necessary!
-PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stucts not supported by chosen model
+PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
 PLUGIN_ATTR_CMD_CLASS        = 'command_class'           # name of class to use for commands
 PLUGIN_ATTR_RECURSIVE        = 'recursive_custom'        # indices of custom item attributes for which to enable recursive lookup (number or list of numbers)
 
@@ -188,7 +190,7 @@ def sanitize_param(val):
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     """
-    if isinstance(val, (int, float, bool)):
+    if isinstance(val, (int, float, bool)) or isinstance(val, type) or type(val) == types.FunctionType:
         return val
     if Utils.is_int(str(val)):
         val = int(val)

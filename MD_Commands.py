@@ -67,16 +67,19 @@ class MD_Commands(object):
         self.device_id = device_id
         self._device_type = device_type
         self._cmd_class = command_obj_class
-        self._plugin_params = {}
-        self._plugin_params.update(kwargs)
+        self._params = {}
+        self._params.update(kwargs)
 
-        self._model = self._plugin_params.get('model', None)
+        self._model = self._params.get('model', None)
 
         self._dt = {}
         self._return_value = None
+
         self._read_dt_classes(device_type)
+
         if not self._read_commands(device_id):
             return None
+
         if self._commands is not None:
             self.logger.debug(f'{len(self._commands)} commands initialized')
         elif not MD_standalone:
@@ -127,10 +130,10 @@ class MD_Commands(object):
                         try:
                             regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
                             if regex.match(data) is not None:
-                                self.logger.debug(f'matched reply_pattern {getattr(self._commands[command], "reply_pattern")} as regex against data {data}, found command {command}')
+                                self.logger.debug(f'matched reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} as regex against data {data}, found command {command}')
                                 return command
                         except Exception as e:
-                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], "reply_pattern")} from command {command} as regex failed. Error was: {e}. Ignoring')
+                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring')
                     elif token != '' and token == data[:len(token)]:
 
                         # token ist just a string
@@ -323,7 +326,7 @@ class MD_Commands(object):
             self._flatten_cmds(cmds)
 
             # actually import commands
-            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist), self._params.get('custom_pattern'))
         else:
             if not MD_standalone:
                 self.logger.warning('no command definitions found. This device probably will not work...')
@@ -344,7 +347,7 @@ class MD_Commands(object):
 
         return True
 
-    def _parse_commands(self, device_id, commands, cmds=[]):
+    def _parse_commands(self, device_id, commands, cmds=[], custom_pattern=''):
         """
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
@@ -378,6 +381,10 @@ class MD_Commands(object):
                 if 'valid_list_ci' in kw[CMD_ATTR_CMD_SETTINGS]:
                     kw[CMD_ATTR_CMD_SETTINGS]['valid_list_ci'] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[CMD_ATTR_CMD_SETTINGS]['valid_list_ci']]
 
+            if CMD_ATTR_REPLY_PATTERN in kw:
+                if 'CUSTOM_PATTERN' in kw[CMD_ATTR_REPLY_PATTERN] and custom_pattern:
+                    kw[CMD_ATTR_REPLY_PATTERN] = kw[CMD_ATTR_REPLY_PATTERN].replace('CUSTOM_PATTERN', custom_pattern)
+
             dt_class = None
             dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, '')
             if dev_datatype:
@@ -391,7 +398,7 @@ class MD_Commands(object):
             if not dt_class:
                 self.logger.error(f'importing command {cmd} found invalid datatype "{dev_datatype}", replacing with DT_raw. Check function of device')
                 dt_class = DT.DT_raw
-            self._commands[cmd] = self._cmd_class(self.device_id, cmd, dt_class, **{'cmd': kw, 'plugin': self._plugin_params})
+            self._commands[cmd] = self._cmd_class(self.device_id, cmd, dt_class, **{'cmd': kw, 'plugin': self._params})
 
     def _parse_lookups(self, device_id, lookups):
         """

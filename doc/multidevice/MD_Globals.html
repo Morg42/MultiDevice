@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
 <title>multidevice.MD_Globals API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Global definitions of constants and functions for MultiDevice" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,6 +22,7 @@
 <h1 class="title">Module <code>multidevice.MD_Globals</code></h1>
 </header>
 <section id="section-intro">
+<p>Global definitions of constants and functions for MultiDevice</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -52,9 +53,11 @@
 #
 #########################################################################
 
+&#34;&#34;&#34; Global definitions of constants and functions for MultiDevice &#34;&#34;&#34;
+
 from lib.utils import Utils
 from ast import literal_eval
-
+import types
 
 #############################################################################################################################################################################################################################################
 #
@@ -67,9 +70,9 @@ from ast import literal_eval
 # plugin attributes, used in plugin config &#39;device&#39;
 
 # general attributes
-PLUGIN_ATTR_ENABLED          = &#39;enabled&#39;                 # set to False to disable loading of device
+PLUGIN_ATTR_ENABLED          = &#39;enabled&#39;                 # set to False to manually disable loading of device
 PLUGIN_ATTR_MODEL            = &#39;model&#39;                   # select model if applicable. Don&#39;t set if not necessary!
-PLUGIN_ATTR_CLEAN_STRUCT     = &#39;clean_structs&#39;           # remove items from stucts not supported by chosen model
+PLUGIN_ATTR_CLEAN_STRUCT     = &#39;clean_structs&#39;           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
 PLUGIN_ATTR_CMD_CLASS        = &#39;command_class&#39;           # name of class to use for commands
 PLUGIN_ATTR_RECURSIVE        = &#39;recursive_custom&#39;        # indices of custom item attributes for which to enable recursive lookup (number or list of numbers)
 
@@ -216,7 +219,7 @@ def sanitize_param(val):
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     &#34;&#34;&#34;
-    if isinstance(val, (int, float, bool)):
+    if isinstance(val, (int, float, bool)) or isinstance(val, type) or type(val) == types.FunctionType:
         return val
     if Utils.is_int(str(val)):
         val = int(val)
@@ -269,7 +272,7 @@ def sanitize_param(val):
     :param val: value to sanitize
     :return: sanitized (or unchanged) value
     &#34;&#34;&#34;
-    if isinstance(val, (int, float, bool)):
+    if isinstance(val, (int, float, bool)) or isinstance(val, type) or type(val) == types.FunctionType:
         return val
     if Utils.is_int(str(val)):
         val = int(val)

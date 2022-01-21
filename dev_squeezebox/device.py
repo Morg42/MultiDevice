@@ -30,7 +30,7 @@ class MD_Device(MD_Device):
         self.custom_commands = 1
         self._custom_pattern = '([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}'
         # for substitution in reply_pattern
-        self._custom_patterns = {1: '', 2: '', 3: ''}
+        self._custom_patterns = {1: '(?:[0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', 2: '', 3: ''}
         self._use_callbacks = True
 
         # set our own preferences concerning connections

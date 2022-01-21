@@ -7,10 +7,10 @@ from lib.item import Items
 items = Items.get_instance()
 
 if MD_standalone:
-    from MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
+    from MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
     from MD_Device import MD_Device
 else:
-    from ..MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
+    from ..MD_Globals import (PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
     from ..MD_Device import MD_Device
 
 
@@ -57,7 +57,7 @@ class MD_Device(MD_Device):
             if player_id and art_item:
                 try:
                     host = self._params.get(PLUGIN_ATTR_NET_HOST)
-                    port = self._params.get('port') # should be PLUGIN_ATTR_NET_PORT ?
+                    port = self._params.get(PLUGIN_ATTR_NET_PORT)
                     url = f'http://{host}:{port}/music/current/cover.jpg?player={player_id}'
                     art_item(url, 'multidevice', 'start')
                     self.logger.debug(f'Albumart folder for item {art_item} set to {url}')

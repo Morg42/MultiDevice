@@ -234,9 +234,9 @@ class MD_Device(object):
         if self.custom_commands:
             try:
                 command, custom_value = command.split(CUSTOM_SEP)
-                if ITEM_ATTR_CUSTOM_PREFIX not in kwargs:
-                    kwargs[ITEM_ATTR_CUSTOM_PREFIX] = {1: None, 2: None, 3: None}
-                kwargs[ITEM_ATTR_CUSTOM_PREFIX][self.custom_commands] = custom_value
+                if 'custom' not in kwargs:
+                    kwargs['custom'] = {1: None, 2: None, 3: None}
+                kwargs['custom'][self.custom_commands] = custom_value
             except ValueError:
                 self.logger.debug(f'extracting custom token failed, maybe not present in command {command}')
 
@@ -286,7 +286,7 @@ class MD_Device(object):
                 if self._data_received_callback:
                     by = None
                     if self.custom_commands:
-                        by = kwargs[ITEM_ATTR_CUSTOM_PREFIX][self.custom_commands]
+                        by = kwargs['custom'][self.custom_commands]
                     self._data_received_callback(self.device_id, command, value, by)
                 else:
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')
@@ -495,7 +495,7 @@ class MD_Device(object):
         """ extract custom value from data. At least PATTERN Needs to be overwritten """
         if not self.custom_commands:
             return None
-        res = re.match(self._custom_pattern, data)
+        res = re.search(self._custom_pattern, data)
         if not res:
             self.logger.debug(f'custom token not found in {data}, ignoring')
             return None

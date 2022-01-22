@@ -295,7 +295,6 @@ player:
             md_read: true
             md_write: false
             md_read_group: ['player', 'player.info']
-            md_albumart: 
 
             currentalbumarturl:
                 type: str
@@ -637,7 +636,6 @@ ALL:
                 md_read: true
                 md_write: false
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_albumart: 
 
                 currentalbumarturl:
                     type: str

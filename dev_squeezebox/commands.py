@@ -59,8 +59,6 @@ commands = {
 
 item_templates = {
     'albumart': {
-        'md_albumart': '',
-
         'currentalbumarturl': {
             'type': 'str',
             'visu_acl': 'ro',

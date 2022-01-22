@@ -69,13 +69,14 @@ class MD_Device(MD_Device):
     def data_callback(self, device_id, command, data, by=None):
 
         def _dispatch(command, value, custom=None):
-
+            # send command via callback to plugin
             if custom:
                 command = command + CUSTOM_SEP + custom
             if self._plugin_callback:
                 self._plugin_callback(device_id, command, value)
 
         def _check_value(token, value, custom):
+            # test if current token designates valid command and process it
             res = self._commands.get_command_from_reply(token)
             if res:
                 self.logger.debug(f'found reply component {token} for command {res}, assigning value {value}')
@@ -125,9 +126,11 @@ class MD_Device(MD_Device):
                 result = self._commands._lookup(data['response_code'], lu)
                 _dispatch('info.error', result, custom)
 
+        # check all keys in reply, test for valid reply tokens
         for l1 in list(data.keys()):
             if isinstance(data[l1], dict):
                 for l2 in list(data[l1].keys()):
+                    # check combined l1+l2 command to distinguish 1st level
                     _check_value(l1 + COMMAND_SEP + l2, data[l1][l2], custom)
             else:
                 _check_value(l1, data[l1], custom)

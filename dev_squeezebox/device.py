@@ -64,9 +64,39 @@ class MD_Device(MD_Device):
             if self._data_received_callback:
                 self._data_received_callback(self.device_id, command, value)
 
-        # find possible custom item = player_id
+        def _trigger_read(command, custom=None):
+            if custom:
+                command = command + CUSTOM_SEP + custom
+            self.logger.debug(f"Sending read command for {command}")
+            self.send_command(command)
+
+        if not custom:
+            return
+            
+        # set album art URL
         if command == 'player.info.album':
             host = self._params.get(PLUGIN_ATTR_NET_HOST)
             port = self._params.get(PLUGIN_ATTR_NET_PORT)
             url = f'http://{host}:{port}/music/current/cover.jpg?player={custom}'
             _dispatch('player.info.albumarturl', url, custom)
+
+        # update on new song
+        if command == 'player.info.current_title':
+            _trigger_read('player.control.playmode', custom)
+            _trigger_read('playlist.index', custom)
+
+        # update current time info
+        if command == 'player.info.time' and "+" in data or "-" in data:
+            _trigger_read('player.control.time', custom)
+
+        # update play and stop items based on playmode
+        if command == 'player.control.playmode':
+            mode = data.split("mode")[-1].strip()
+            mode = mode.split("playlist")[-1].strip()
+            _dispatch('player.control.playpause', True if mode == "play" else False, custom)
+            _dispatch('player.control.stop', True if mode == "stop" else False, custom)
+            _trigger_read('player.control.time', custom)
+
+        # update play and stop items based on playmode
+        if command in ['player.control.playpause', 'player.control.stop']:
+            _trigger_read('player.control.playmode', custom)

@@ -171,6 +171,20 @@ player:
             md_write: true
             md_read_group: ['player', 'player.control']
 
+        playpause:
+            type: bool
+            md_device: DEVICENAME
+            md_command: player.control.playpause
+            md_read: true
+            md_write: true
+
+        stop:
+            type: bool
+            md_device: DEVICENAME
+            md_command: player.control.stop
+            md_read: true
+            md_write: true
+
         mute:
             type: bool
             md_device: DEVICENAME
@@ -186,6 +200,46 @@ player:
             md_read: true
             md_write: true
             md_read_group: ['player', 'player.control']
+
+        volume_low:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.control.volume_low
+            md_read: false
+            md_write: true
+            cache: true
+            enforce_updates: true
+            initial_value: 60
+
+        volume_high:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.control.volume_high
+            md_read: false
+            md_write: true
+            cache: true
+            enforce_updates: true
+            initial_value: 80
+
+        volumeup:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.control.volumeup
+            md_read: false
+            md_write: true
+            cache: true
+            enforce_updates: true
+            initial_value: 1
+
+        volumedown:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.control.volumedown
+            md_read: false
+            md_write: true
+            cache: true
+            enforce_updates: true
+            initial_value: 1
 
         alarm:
             type: str
@@ -231,6 +285,22 @@ player:
             md_command: player.control.disconnect
             md_read: true
             md_write: true
+
+        customskip:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.customskip
+            md_read: false
+            md_write: true
+            cache: true
+
+        time:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.time
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
 
     info:
 
@@ -351,6 +421,50 @@ player:
             md_command: player.info.albumarturl
             md_read: true
             md_write: false
+
+playlist:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: playlist
+
+    repeat:
+        type: num
+        md_device: DEVICENAME
+        md_command: playlist.repeat
+        md_read: true
+        md_write: true
+        md_read_group: ['playlist']
+        remark: 0 = Off, 1 = Song, 2 = Playlist
+
+        lookup:
+            type: list
+            md_device: DEVICENAME
+            md_lookup: REPEAT#list
+
+    shuffle:
+        type: num
+        md_device: DEVICENAME
+        md_command: playlist.shuffle
+        md_read: true
+        md_write: true
+        md_read_group: ['playlist']
+        remark: 0 = Off, 1 = Song, 2 = Album
+
+        lookup:
+            type: list
+            md_device: DEVICENAME
+            md_lookup: SHUFFLE#list
+
+    index:
+        type: str
+        md_device: DEVICENAME
+        md_command: playlist.index
+        md_read: true
+        md_write: true
+        md_read_group: ['playlist']
 
 ALL:
 
@@ -530,6 +644,20 @@ ALL:
                 md_write: true
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
 
+            playpause:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.playpause
+                md_read: true
+                md_write: true
+
+            stop:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.stop
+                md_read: true
+                md_write: true
+
             mute:
                 type: bool
                 md_device: DEVICENAME
@@ -545,6 +673,46 @@ ALL:
                 md_read: true
                 md_write: true
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            volume_low:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume_low
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 60
+
+            volume_high:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume_high
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 80
+
+            volumeup:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volumeup
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 1
+
+            volumedown:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volumedown
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 1
 
             alarm:
                 type: str
@@ -590,6 +758,22 @@ ALL:
                 md_command: player.control.disconnect
                 md_read: true
                 md_write: true
+
+            customskip:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.customskip
+                md_read: false
+                md_write: true
+                cache: true
+
+            time:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.time
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
 
         info:
 
@@ -710,4 +894,48 @@ ALL:
                 md_command: player.info.albumarturl
                 md_read: true
                 md_write: false
+
+    playlist:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: ALL.playlist
+
+        repeat:
+            type: num
+            md_device: DEVICENAME
+            md_command: playlist.repeat
+            md_read: true
+            md_write: true
+            md_read_group: ['ALL', 'ALL.playlist']
+            remark: 0 = Off, 1 = Song, 2 = Playlist
+
+            lookup:
+                type: list
+                md_device: DEVICENAME
+                md_lookup: REPEAT#list
+
+        shuffle:
+            type: num
+            md_device: DEVICENAME
+            md_command: playlist.shuffle
+            md_read: true
+            md_write: true
+            md_read_group: ['ALL', 'ALL.playlist']
+            remark: 0 = Off, 1 = Song, 2 = Album
+
+            lookup:
+                type: list
+                md_device: DEVICENAME
+                md_lookup: SHUFFLE#list
+
+        index:
+            type: str
+            md_device: DEVICENAME
+            md_command: playlist.index
+            md_read: true
+            md_write: true
+            md_read_group: ['ALL', 'ALL.playlist']
 

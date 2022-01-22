@@ -23,12 +23,15 @@ commands = {
         'totalgenres': {'read': True, 'write': False, 'read_cmd': 'info total genres ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total genres (\d+)'},
         'totalduration': {'read': True, 'write': False, 'read_cmd': 'info total duration ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total duration ([0-9.]*)'},
         'totalartists': {'read': True, 'write': False, 'read_cmd': 'info total artists ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total artists (\d+)'},
+        'totalalbums': {'read': True, 'write': False, 'read_cmd': 'info total albums ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total albums (\d+)'},
         'totalsongs': {'read': True, 'write': False, 'read_cmd': 'info total songs ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total songs (\d+)'},
         'totalalbums': {'read': True, 'write': False, 'read_cmd': 'info total albums ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'info total albums (\d+)'},
     },
     'player': {
         'control': {
             'power': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 power ?', 'item_type': 'bool', 'write_cmd': ':MD_CUSTOM1 power {VAL:01}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 prefset server power (\d)'},
+            'playmode': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 mode ?', 'item_type': 'str', 'write_cmd': ':MD_CUSTOM1 mode {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 mode (.*)'},
+            'mute': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 mixer muting ?', 'item_type': 'bool', 'write_cmd': ':MD_CUSTOM1 mixer muting {VAL:01}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 prefset server mute (\d)'},
             'volume': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 mixer volume ?', 'item_type': 'num', 'write_cmd': ':MD_CUSTOM1 prefset server volume {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 (?:mixer|prefset server) volume (\d{1,3})'},
             'alarm': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 alarm ?', 'item_type': 'str', 'write_cmd': ':MD_CUSTOM1 alarm {VAL}:', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 alarm (.*)'},
             'sync': {'read': True, 'write': True, 'read_cmd': 'MD_CUSTOM1 sync ?', 'write_cmd': ':MD_CUSTOM1 sync {VAL}:', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 sync (.*)'},
@@ -46,7 +49,7 @@ commands = {
             'signalstrength': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 signalstrength ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 signalstrength (\d+)'},
             'genre': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 genre ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 genre (.*)'},
             'artist': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 artist ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 artist (.*)'},
-            'album': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 album ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 album (.*)', 'item_attrs': {'item_template': 'albumart'}},
+            'album': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 album ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 album (.*)', 'item_attrs': {'initial': True}},
             'title': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 title ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 title (.*)'},
             'current_title': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 current_title ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 playlist newsong (.*)'},
             'path': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 path ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 path (.*)'},
@@ -54,16 +57,5 @@ commands = {
             'albumarturl': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': '(http://.*)'}
         }
 
-    }
-}
-
-item_templates = {
-    'albumart': {
-        'currentalbumarturl': {
-            'type': 'str',
-            'visu_acl': 'ro',
-            'cache': True,
-            'remark': 'Will get set to http://<SERVER IP>:<WEB_PORT>/music/current/cover.jpg?player=<PLAYER MAC> automatically on plugin start'
-        }
     }
 }

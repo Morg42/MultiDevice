@@ -163,6 +163,22 @@ player:
             md_write: true
             md_read_group: ['player', 'player.control']
 
+        playmode:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.playmode
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
+        mute:
+            type: bool
+            md_device: DEVICENAME
+            md_command: player.control.mute
+            md_read: true
+            md_write: true
+            md_read_group: ['player', 'player.control']
+
         volume:
             type: num
             md_device: DEVICENAME
@@ -295,12 +311,7 @@ player:
             md_read: true
             md_write: false
             md_read_group: ['player', 'player.info']
-
-            currentalbumarturl:
-                type: str
-                visu_acl: ro
-                cache: true
-                remark: Will get set to http://<SERVER IP>:<WEB_PORT>/music/current/cover.jpg?player=<PLAYER MAC> automatically on plugin start
+            md_read_initial: true
 
         title:
             type: str
@@ -511,6 +522,22 @@ ALL:
                 md_write: true
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
 
+            playmode:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.playmode
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
+            mute:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.mute
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+
             volume:
                 type: num
                 md_device: DEVICENAME
@@ -643,12 +670,7 @@ ALL:
                 md_read: true
                 md_write: false
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-
-                currentalbumarturl:
-                    type: str
-                    visu_acl: ro
-                    cache: true
-                    remark: Will get set to http://<SERVER IP>:<WEB_PORT>/music/current/cover.jpg?player=<PLAYER MAC> automatically on plugin start
+                md_read_initial: true
 
             title:
                 type: str

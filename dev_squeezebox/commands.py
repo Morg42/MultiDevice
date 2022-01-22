@@ -51,7 +51,8 @@ commands = {
             'title': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 title ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 title (.*)'},
             'current_title': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 current_title ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 playlist newsong (.*)'},
             'path': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 path ?', 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': 'CUSTOM_PATTERN1 path (.*)'},
-            'duration': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 duration ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 duration (\d+)'}
+            'duration': {'read': True, 'write': False, 'read_cmd': 'MD_CUSTOM1 duration ?', 'item_type': 'num', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': r'CUSTOM_PATTERN1 duration (\d+)'},
+            'albumarturl': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_token': 'REGEX', 'reply_pattern': '(http://.*)'}
         }
 
     }

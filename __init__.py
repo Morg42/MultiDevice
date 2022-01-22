@@ -192,6 +192,7 @@ Methods possibly needed to overwrite for inherited classes:
 * ``_transform_received_data(data_dict)``
 * ``_send(data_dict)``
 * ``_get_custom_value(command, data)``
+* ``_process_additional_data(command, data, custom)``
 * ``run_standalone()``
 
 

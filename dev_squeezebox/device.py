@@ -40,9 +40,6 @@ class MD_Device(MD_Device):
                 self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
 
     def on_connect(self, by=None):
-        self.logger.debug('redirecting callbacks')
-        self._plugin_callback = self._data_received_callback
-        self._data_received_callback = self.data_callback
         self.logger.debug("Activating listen mode after connection.")
         self.send_command('server.listenmode', True)
 
@@ -59,20 +56,17 @@ class MD_Device(MD_Device):
         # fix weird representation of MAC address (%3A = :), etc.
         return urllib.parse.unquote_plus(data)
 
-    def data_callback(self, device_id, command, data, by=None):
+    def _process_additional_data(self, command, data, custom):
 
         def _dispatch(command, value, custom=None):
             if custom:
                 command = command + CUSTOM_SEP + custom
-            if self._plugin_callback:
-                self._plugin_callback(device_id, command, value)
+            if self._data_received_callback:
+                self._data_received_callback(self.device_id, command, value)
 
         # find possible custom item = player_id
-        cmd, custom = command.split(CUSTOM_SEP)
-        if cmd == 'player.info.album':
+        if command == 'player.info.album':
             host = self._params.get(PLUGIN_ATTR_NET_HOST)
             port = self._params.get(PLUGIN_ATTR_NET_PORT)
             url = f'http://{host}:{port}/music/current/cover.jpg?player={custom}'
-            _dispatch('player.info.album.currentalbumarturl', url, custom)
-        if self._plugin_callback:
-            self._plugin_callback(device_id, command, data)
+            _dispatch('player.info.albumarturl', url, custom)

@@ -408,7 +408,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
         if self.reply_pattern:
             regex = re.compile(self.reply_pattern)
-            match = regex.match(data)
+            match = regex.search(data)
             if match:
                 if len(match.groups()) == 1:
 

@@ -336,7 +336,7 @@ class MD_Device(object):
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
-        self._process_additional_data(base_command, data, custom)
+        self._process_additional_data(base_command, data, custom, by)
 
     def read_all_commands(self, group=0):
         """
@@ -508,7 +508,7 @@ class MD_Device(object):
             self.logger.debug(f'received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}')
             return None
 
-    def _process_additional_data(self, command, data, custom):
+    def _process_additional_data(self, command, data, custom, by):
         """ do additional processing of received data
 
         Here you can do additional data examinating, filtering and possibly

@@ -139,6 +139,7 @@ changed by device configuration.</p>
 <li><code>_transform_received_data(data_dict)</code></li>
 <li><code>_send(data_dict)</code></li>
 <li><code>_get_custom_value(command, data)</code></li>
+<li><code>_process_additional_data(command, data, custom)</code></li>
 <li><code>run_standalone()</code></li>
 </ul>
 <h2 id="md_connection">Md_Connection</h2>
@@ -613,6 +614,7 @@ Methods possibly needed to overwrite for inherited classes:
 * ``_transform_received_data(data_dict)``
 * ``_send(data_dict)``
 * ``_get_custom_value(command, data)``
+* ``_process_additional_data(command, data, custom)``
 * ``run_standalone()``
 
 

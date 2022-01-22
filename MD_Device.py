@@ -322,6 +322,7 @@ class MD_Device(object):
         if self.custom_commands:
             custom = self._get_custom_value(command, data)
 
+        base_command = command
         try:
             value = self._commands.get_shng_data(command, data)
             if custom:
@@ -335,7 +336,7 @@ class MD_Device(object):
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
-        self._process_additional_data(command, data, custom)
+        self._process_additional_data(base_command, data, custom)
 
     def read_all_commands(self, group=0):
         """

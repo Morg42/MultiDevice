@@ -334,6 +334,13 @@ player:
             md_write: false
             md_read_group: ['player', 'player.info']
 
+        albumarturl:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.info.albumarturl
+            md_read: true
+            md_write: false
+
 ALL:
 
     read:
@@ -674,4 +681,11 @@ ALL:
                 md_read: true
                 md_write: false
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            albumarturl:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.albumarturl
+                md_read: true
+                md_write: false
 

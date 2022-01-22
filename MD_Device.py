@@ -32,13 +32,13 @@ from lib.shyaml import yaml_load
 import importlib
 
 if MD_standalone:
-    from MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from MD_Commands import MD_Commands
     from MD_Command import MD_Command
     from MD_Connection import MD_Connection
     from MD_Protocol import MD_Protocol
 else:
-    from .MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
+    from .MD_Globals import (CONNECTION_TYPES, CONN_NULL, CONN_NET_TCP_REQ, CONN_SER_DIR, CUSTOM_SEP, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_SERIAL_PORT, PROTOCOL_TYPES, PROTO_NULL)
     from .MD_Commands import MD_Commands
     from .MD_Command import MD_Command
     from .MD_Connection import MD_Connection
@@ -95,7 +95,7 @@ class MD_Device(object):
         self.custom_commands = None
 
         # for extraction of custom token from reply
-        self._custom_pattern = ''
+        self._token_pattern = ''
 
         # for detection of custom tokens in reply_pattern
         self._custom_patterns = {1: '', 2: '', 3: ''}
@@ -498,7 +498,7 @@ class MD_Device(object):
         """ extract custom value from data. At least PATTERN Needs to be overwritten """
         if not self.custom_commands:
             return None
-        res = re.search(self._custom_pattern, data)
+        res = re.search(self._token_pattern, data)
         if not res:
             self.logger.debug(f'custom token not found in {data}, ignoring')
             return None

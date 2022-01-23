@@ -26,6 +26,17 @@ class DT_SqueezePlay(DT.Datatype):
         return True if data == "play" else False
 
 
+class DT_SqueezePlayMode(DT.Datatype):
+    def get_shng_data(self, data, type=None, **kwargs):
+        if data in ["play", "pause 0"]:
+            return_value = "play"
+        elif data in ["pause", "pause 1"]:
+            return_value = "pause"
+        else:
+            return_value = "stop"
+        return return_value
+
+
 class DT_SqueezeStop(DT.Datatype):
     def get_send_data(self, data, type=None, **kwargs):
         return "play 3" if data is False else "stop"

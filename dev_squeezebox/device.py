@@ -72,7 +72,7 @@ class MD_Device(MD_Device):
 
         if not custom:
             return
-            
+
         # set album art URL
         if command == 'player.info.album':
             host = self._params.get(PLUGIN_ATTR_NET_HOST)
@@ -81,22 +81,26 @@ class MD_Device(MD_Device):
             _dispatch('player.info.albumarturl', url, custom)
 
         # update on new song
-        if command == 'player.info.current_title':
+        if command == 'player.info.title' or (command == 'player.control.playpause' and data == "True"):
             _trigger_read('player.control.playmode', custom)
-            _trigger_read('playlist.index', custom)
+            _trigger_read('player.playlist.index', custom)
+            _trigger_read('player.info.duration', custom)
+            _trigger_read('player.info.album', custom)
+            _trigger_read('player.info.artist', custom)
+            _trigger_read('player.info.genre', custom)
 
         # update current time info
-        if command == 'player.info.time' and "+" in data or "-" in data:
+        if command in ['player.control.forward', 'player.control.rewind']:
             _trigger_read('player.control.time', custom)
 
         # update play and stop items based on playmode
         if command == 'player.control.playmode':
             mode = data.split("mode")[-1].strip()
             mode = mode.split("playlist")[-1].strip()
-            _dispatch('player.control.playpause', True if mode == "play" else False, custom)
+            _dispatch('player.control.playpause', True if mode in ["play", "pause 0"] else False, custom)
             _dispatch('player.control.stop', True if mode == "stop" else False, custom)
             _trigger_read('player.control.time', custom)
 
         # update play and stop items based on playmode
-        if command in ['player.control.playpause', 'player.control.stop']:
+        if command == 'player.control.stop' or (command == 'player.control.playpause' and data == "False"):
             _trigger_read('player.control.playmode', custom)

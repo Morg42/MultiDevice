@@ -149,6 +149,9 @@ The ``-s`` argument prints the struct file contents to screen, ``-S`` causes the
 plugin to write the ``struct.yaml`` directly to the devices' folder. Beware that
 existing files will be overwritten.
 
+The additional argument ``-a`` instructs the generator to add ``visu_acl:`` item
+attributes, setting the value to ``ro`` or ``rw`` depending on the write property
+of the respective command.
 
 MD_Device
 ---------
@@ -1172,7 +1175,7 @@ def update(d, u):
     return d
 
 
-def create_struct_yaml(device, indentwidth=4, write_output=False):
+def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
     """ read commands.py and export struct.yaml """
     global item_tree
 
@@ -1297,6 +1300,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 item[ITEM_ATTR_COMMAND] = cmd
                 item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ, True)
                 item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE, False)
+                if acl:
+                    item['visu_acl'] = 'rw' if node.get(CMD_ATTR_WRITE, False) else 'ro'
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)
@@ -1593,6 +1598,7 @@ if __name__ == '__main__':
     device = ''
     struct_mode = False
     write_output = False
+    acl = False
     indent = 4
 
     if len(sys.argv) > 1:
@@ -1613,6 +1619,9 @@ if __name__ == '__main__':
             elif arg_str[:2].lower() == '-s':
                 struct_mode = True
                 write_output = arg_str[1] == 'S'
+
+            elif arg_str[:2].lower() == '-a':
+                acl = True
 
             elif arg_str[1:].isnumeric():
                 try:
@@ -1638,7 +1647,7 @@ if __name__ == '__main__':
     if struct_mode:
 
         # as we output a formatted syntax, we can not create any output now
-        create_struct_yaml(device, indent, write_output)
+        create_struct_yaml(device, indent, write_output, acl)
         exit(0)
 
     print('This is MultiDevice plugin running in standalone mode')

@@ -186,6 +186,10 @@ Einrückweite fest:
 
     python3 plugins/multidevice/__init__.py <device> -s -2
 
+Das zusätzlich Argument -a veranlasst die Ausgabe des ``visu_acl:``-Attributs
+für alle Items, die ein Kommando enthalten. Dabei ist der Wert des Attributs
+abhängig davon, ob das Kommando schreibbar ist oder nicht.
+
 
 Web Interface
 -------------

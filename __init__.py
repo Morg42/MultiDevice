@@ -215,10 +215,11 @@ Data is exchanged with ``MD_Device`` in a special dict format:
 .. code:: python
 
     data_dict = {
-        'payload': raw data as needed by the connection}
-        'kw1': additional 'keyword' args or data specific to the connection type
-        'kw2': additional 'keyword' args or data specific to the connection type
-        '...': additional 'keyword' args or data specific to the connection type
+        'payload': raw data as needed by the connection,
+        'data': data if not included in payload,
+        'kw1': additional 'keyword' args or data specific to the connection type,
+        'kw2': additional 'keyword' args or data specific to the connection type,
+        '...': additional 'keyword' args or data specific to the connection type,
     }
 
 

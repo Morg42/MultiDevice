@@ -105,6 +105,9 @@ or the <code>-S</code> argument:</p>
 <p>The <code>-s</code> argument prints the struct file contents to screen, <code>-S</code> causes the
 plugin to write the <code>struct.yaml</code> directly to the devices' folder. Beware that
 existing files will be overwritten.</p>
+<p>The additional argument <code>-a</code> instructs the generator to add <code>visu_acl:</code> item
+attributes, setting the value to <code>ro</code> or <code>rw</code> depending on the write property
+of the respective command.</p>
 <h2 id="md_device">Md_Device</h2>
 <p>The <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code>-class provides a framework for receiving (item) data values
 from the plugin and forward it to the connection class and vice versa.
@@ -153,10 +156,11 @@ classes.</p>
 <div class="admonition code">
 <p class="admonition-title">Code:&ensp;python</p>
 <p>data_dict = {
-'payload': raw data as needed by the connection}
-'kw1': additional 'keyword' args or data specific to the connection type
-'kw2': additional 'keyword' args or data specific to the connection type
-'&hellip;': additional 'keyword' args or data specific to the connection type
+'payload': raw data as needed by the connection,
+'data': data if not included in payload,
+'kw1': additional 'keyword' args or data specific to the connection type,
+'kw2': additional 'keyword' args or data specific to the connection type,
+'&hellip;': additional 'keyword' args or data specific to the connection type,
 }</p>
 </div>
 <p><code>MD_Connection(device_type, device_id, data_received_callback, **kwargs)</code></p>
@@ -571,6 +575,9 @@ The ``-s`` argument prints the struct file contents to screen, ``-S`` causes the
 plugin to write the ``struct.yaml`` directly to the devices&#39; folder. Beware that
 existing files will be overwritten.
 
+The additional argument ``-a`` instructs the generator to add ``visu_acl:`` item
+attributes, setting the value to ``ro`` or ``rw`` depending on the write property
+of the respective command.
 
 MD_Device
 ---------
@@ -634,10 +641,11 @@ Data is exchanged with ``MD_Device`` in a special dict format:
 .. code:: python
 
     data_dict = {
-        &#39;payload&#39;: raw data as needed by the connection}
-        &#39;kw1&#39;: additional &#39;keyword&#39; args or data specific to the connection type
-        &#39;kw2&#39;: additional &#39;keyword&#39; args or data specific to the connection type
-        &#39;...&#39;: additional &#39;keyword&#39; args or data specific to the connection type
+        &#39;payload&#39;: raw data as needed by the connection,
+        &#39;data&#39;: data if not included in payload,
+        &#39;kw1&#39;: additional &#39;keyword&#39; args or data specific to the connection type,
+        &#39;kw2&#39;: additional &#39;keyword&#39; args or data specific to the connection type,
+        &#39;...&#39;: additional &#39;keyword&#39; args or data specific to the connection type,
     }
 
 
@@ -1594,7 +1602,7 @@ def update(d, u):
     return d
 
 
-def create_struct_yaml(device, indentwidth=4, write_output=False):
+def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
     global item_tree
 
@@ -1719,6 +1727,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False):
                 item[ITEM_ATTR_COMMAND] = cmd
                 item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ, True)
                 item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE, False)
+                if acl:
+                    item[&#39;visu_acl&#39;] = &#39;rw&#39; if node.get(CMD_ATTR_WRITE, False) else &#39;ro&#39;
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)
@@ -2015,6 +2025,7 @@ if __name__ == &#39;__main__&#39;:
     device = &#39;&#39;
     struct_mode = False
     write_output = False
+    acl = False
     indent = 4
 
     if len(sys.argv) &gt; 1:
@@ -2035,6 +2046,9 @@ if __name__ == &#39;__main__&#39;:
             elif arg_str[:2].lower() == &#39;-s&#39;:
                 struct_mode = True
                 write_output = arg_str[1] == &#39;S&#39;
+
+            elif arg_str[:2].lower() == &#39;-a&#39;:
+                acl = True
 
             elif arg_str[1:].isnumeric():
                 try:
@@ -2060,7 +2074,7 @@ if __name__ == &#39;__main__&#39;:
     if struct_mode:
 
         # as we output a formatted syntax, we can not create any output now
-        create_struct_yaml(device, indent, write_output)
+        create_struct_yaml(device, indent, write_output, acl)
         exit(0)
 
     print(&#39;This is MultiDevice plugin running in standalone mode&#39;)
@@ -2141,7 +2155,7 @@ if __name__ == &#39;__main__&#39;:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="multidevice.create_struct_yaml"><code class="name flex">
-<span>def <span class="ident">create_struct_yaml</span></span>(<span>device, indentwidth=4, write_output=False)</span>
+<span>def <span class="ident">create_struct_yaml</span></span>(<span>device, indentwidth=4, write_output=False, acl=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>read commands.py and export struct.yaml</p></div>
@@ -2149,7 +2163,7 @@ if __name__ == &#39;__main__&#39;:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_struct_yaml(device, indentwidth=4, write_output=False):
+<pre><code class="python">def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
     &#34;&#34;&#34; read commands.py and export struct.yaml &#34;&#34;&#34;
     global item_tree
 
@@ -2274,6 +2288,8 @@ if __name__ == &#39;__main__&#39;:
                 item[ITEM_ATTR_COMMAND] = cmd
                 item[ITEM_ATTR_READ] = node.get(CMD_ATTR_READ, True)
                 item[ITEM_ATTR_WRITE] = node.get(CMD_ATTR_WRITE, False)
+                if acl:
+                    item[&#39;visu_acl&#39;] = &#39;rw&#39; if node.get(CMD_ATTR_WRITE, False) else &#39;ro&#39;
 
                 # set sub-node for readability
                 inode = node.get(CMD_ATTR_ITEM_ATTRS)

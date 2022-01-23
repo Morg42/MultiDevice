@@ -494,7 +494,7 @@ class MD_Commands(object):
                 if obj.cmd_settings and &#39;valid_list_ci&#39; in obj.cmd_settings and &#39;(MD_VALID_LIST_CI)&#39; in obj.reply_pattern:
 
                     vl = obj.cmd_settings[&#39;valid_list_ci&#39;]
-                    pattern = &#39;(?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;)&#39;
+                    pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;))&#39;
                     obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST_CI)&#39;, pattern)</code></pre>
 </details>
 </section>
@@ -944,7 +944,7 @@ MD_Command-object</p>
                 if obj.cmd_settings and &#39;valid_list_ci&#39; in obj.cmd_settings and &#39;(MD_VALID_LIST_CI)&#39; in obj.reply_pattern:
 
                     vl = obj.cmd_settings[&#39;valid_list_ci&#39;]
-                    pattern = &#39;(?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;)&#39;
+                    pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;))&#39;
                     obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST_CI)&#39;, pattern)</code></pre>
 </details>
 <h3>Methods</h3>

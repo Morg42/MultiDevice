@@ -122,13 +122,14 @@ class MD_Commands(object):
             patterns = getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None)
             if patterns:
                 for pattern in patterns:
-                    try:
-                        regex = re.compile(pattern)
-                        if regex.match(data) is not None:
-                            self.logger.debug(f'matched reply_pattern {pattern} as regex against data {data}, found command {command}')
-                            return command
-                    except Exception as e:
-                        self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring')
+                    if pattern:
+                        try:
+                            regex = re.compile(pattern)
+                            if regex.match(data) is not None:
+                                self.logger.debug(f'matched reply_pattern {pattern} as regex against data {data}, found command {command}')
+                                return command
+                        except Exception as e:
+                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring')
 
         return None
 
@@ -164,7 +165,7 @@ class MD_Commands(object):
         :type ci: bool
         :return: lookup result
         """
-        if data is None:
+        if data is None or isinstance(data, (list, tuple, set, dict)):
             return None
 
         mode = 'fwd'

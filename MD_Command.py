@@ -406,7 +406,7 @@ class MD_Command_ParseStr(MD_Command_Str):
 
         self.logger.debug(f'parse_str command got data {data} of type {type(data)}')
 
-        if self.reply_pattern:
+        if self.reply_pattern and isinstance(data, str):
             for pattern in self.reply_pattern:
                 regex = re.compile(pattern)
                 match = regex.search(data)

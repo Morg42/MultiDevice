@@ -46,8 +46,8 @@ class MD_Device(MD_Device):
 
     def _transform_send_data(self, data_dict, **kwargs):
         payload = data_dict['payload']
-        if self.custom_commands and ITEM_ATTR_CUSTOM_PREFIX in kwargs:
-            host = kwargs[ITEM_ATTR_CUSTOM_PREFIX][self.custom_commands]
+        if self.custom_commands and 'custom' in kwargs:
+            host = kwargs['custom'][self.custom_commands]
         else:
             host = self._params['host']
 

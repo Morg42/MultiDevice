@@ -5,18 +5,18 @@
 
 commands = {
     'info': {
-        'track':      {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'track', 'item_type': 'str', 'dev_datatype': 'mc'},
-        'albumart':   {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'albumart_url', 'item_type': 'str', 'dev_datatype': 'url'},
-        'artist':     {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'artist', 'item_type': 'str', 'dev_datatype': 'mc'},
-        'album':      {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'album', 'item_type': 'str', 'dev_datatype': 'mc'},
-        'curtime':    {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'play_time', 'item_type': 'num', 'dev_datatype': 'mc'},
-        'totaltime':  {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'total_time', 'item_type': 'num', 'dev_datatype': 'mc'},
-        'model':      {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'model_name', 'item_type': 'str', 'dev_datatype': 'mc'},
-        'zones':      {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'system.zone_num', 'item_type': 'num', 'dev_datatype': 'mc'},
-        'inputs_raw': {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'input_list', 'item_type': 'list', 'dev_datatype': 'mc'},
-        'inputs_sys': {'read': False, 'write': False, 'opcode': '', 'item_type': 'list', 'dev_datatype': 'mc'},
-        'inputs_user':{'read': False, 'write': False, 'opcode': '', 'item_type': 'list', 'dev_datatype': 'mc'},
-        'error':      {'read': False, 'write': False, 'opcode': '', 'item_type': 'str', 'dev_datatype': 'mc', 'lookup': 'error'},
+        'track':      {'read': True,  'write': False, 'reply_pattern': 'track', 'item_type': 'str', 'dev_datatype': 'mc'},
+        'albumart':   {'read': True,  'write': False, 'reply_pattern': 'albumart_url', 'item_type': 'str', 'dev_datatype': 'url'},
+        'artist':     {'read': True,  'write': False, 'reply_pattern': 'artist', 'item_type': 'str', 'dev_datatype': 'mc'},
+        'album':      {'read': True,  'write': False, 'reply_pattern': 'album', 'item_type': 'str', 'dev_datatype': 'mc'},
+        'curtime':    {'read': True,  'write': False, 'reply_pattern': 'play_time', 'item_type': 'num', 'dev_datatype': 'mc'},
+        'totaltime':  {'read': True,  'write': False, 'reply_pattern': 'total_time', 'item_type': 'num', 'dev_datatype': 'mc'},
+        'model':      {'read': True,  'write': False, 'reply_pattern': 'model_name', 'item_type': 'str', 'dev_datatype': 'mc'},
+        'zones':      {'read': True,  'write': False, 'reply_pattern': 'system.zone_num', 'item_type': 'num', 'dev_datatype': 'mc'},
+        'inputs_raw': {'read': True,  'write': False, 'reply_pattern': 'input_list', 'item_type': 'list', 'dev_datatype': 'mc'},
+        'inputs_sys': {'read': False, 'write': False, 'item_type': 'list', 'dev_datatype': 'mc'},
+        'inputs_user':{'read': False, 'write': False, 'item_type': 'list', 'dev_datatype': 'mc'},
+        'error':      {'read': False, 'write': False, 'item_type': 'str', 'dev_datatype': 'mc', 'lookup': 'error'},
     },
     'system': {
         'passthru':   {'read': True,  'write': True,  'opcode': ':{VAL}:', 'item_type': 'str', 'dev_datatype': 'mc', 'item_attrs': {'enforce': True}},
@@ -32,7 +32,7 @@ commands = {
         'input':      {'read': True,  'write': True,  'opcode': ':v1/main/setInput?input={VAL}:', 'reply_pattern': 'input', 'item_type': 'str', 'dev_datatype': 'mc', 'item_attrs': {'enforce': True}},
         'mute':       {'read': True,  'write': True,  'opcode': ':v1/main/setMute?enable={VAL}:', 'reply_pattern': 'mute', 'item_type': 'bool', 'dev_datatype': 'mc', 'lookup': 'bool', 'item_attrs': {'enforce': True}},
         'volume':     {'read': True,  'write': True,  'opcode': ':v1/main/setVolume?volume={VAL}:', 'reply_pattern': 'volume', 'item_type': 'num', 'dev_datatype': 'mc', 'item_attrs': {'enforce': True}},
-        'volume_max': {'read': False, 'write': False, 'opcode': '', 'reply_pattern': 'max_volume', 'item_type': 'num', 'dev_datatype': 'mc'},
+        'volume_max': {'read': True,  'write': False, 'opcode': '', 'reply_pattern': 'max_volume', 'item_type': 'num', 'dev_datatype': 'mc'},
     },
     'netusb': {
         'playinfo':   {'read': True,  'write': False, 'opcode': 'v1/netusb/getPlayInfo', 'item_type': 'bool', 'dev_datatype': 'mc', 'item_attrs': {'enforce': True, 'initial': True}},    # {'response_code': 0, 'input': 'server', 'play_queue_type': 'user', 'playback': 'play', 'repeat': 'all', 'shuffle': 'on', 'play_time': 119, 'total_time': 0, 'artist': 'Adele', 'album': '19', 'track': 'Daydreams', 'albumart_url': '/YamahaRemoteControl/AlbumART/AlbumART1623.jpg', 'albumart_id': 1623, 'usb_devicetype': 'unknown', 'auto_stopped': False, 'attribute': 83886591, 'repeat_available': ['off', 'one', 'all'], 'shuffle_available': ['off', 'on']}

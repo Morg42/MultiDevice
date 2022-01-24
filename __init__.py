@@ -1021,7 +1021,7 @@ class MultiDevice(SmartPlugin):
             elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
                 item = self._commands_pseudo[device_id][command]
 
-            if item:
+            if item is not None:
                 dev_log.debug(f'Command {command} updated item {item.id()} with value {value}')
                 item(value, self.get_shortname() + '.' + device_id)
             # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):

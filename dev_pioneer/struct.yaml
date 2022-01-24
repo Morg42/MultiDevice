@@ -13,7 +13,7 @@ general:
         type: str
         md_device: DEVICENAME
         md_command: general.error
-        md_read: false
+        md_read: true
         md_write: false
 
     display:
@@ -36,7 +36,7 @@ general:
         type: num
         md_device: DEVICENAME
         md_command: general.dimmer
-        md_read: false
+        md_read: true
         md_write: true
         remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -104,21 +104,21 @@ tuner:
         type: str
         md_device: DEVICENAME
         md_command: tuner.title
-        md_read: false
+        md_read: true
         md_write: false
 
     genre:
         type: str
         md_device: DEVICENAME
         md_command: tuner.genre
-        md_read: false
+        md_read: true
         md_write: false
 
     station:
         type: str
         md_device: DEVICENAME
         md_command: tuner.station
-        md_read: false
+        md_read: true
         md_write: false
 
 zone1:
@@ -821,7 +821,7 @@ ALL:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -844,7 +844,7 @@ ALL:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -898,21 +898,21 @@ ALL:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -1413,7 +1413,7 @@ SC-LX87:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -1436,7 +1436,7 @@ SC-LX87:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -1504,21 +1504,21 @@ SC-LX87:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -2221,7 +2221,7 @@ SC-LX77:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -2244,7 +2244,7 @@ SC-LX77:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -2312,21 +2312,21 @@ SC-LX77:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -3029,7 +3029,7 @@ SC-LX57:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -3052,7 +3052,7 @@ SC-LX57:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -3120,21 +3120,21 @@ SC-LX57:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -3837,7 +3837,7 @@ SC-2023:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -3860,7 +3860,7 @@ SC-2023:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -3914,21 +3914,21 @@ SC-2023:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -4631,7 +4631,7 @@ SC-1223:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -4654,7 +4654,7 @@ SC-1223:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -4708,21 +4708,21 @@ SC-1223:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -5297,7 +5297,7 @@ VSX-1123:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -5320,7 +5320,7 @@ VSX-1123:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -5374,21 +5374,21 @@ VSX-1123:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:
@@ -5889,7 +5889,7 @@ VSX-923:
             type: str
             md_device: DEVICENAME
             md_command: general.error
-            md_read: false
+            md_read: true
             md_write: false
 
         display:
@@ -5912,7 +5912,7 @@ VSX-923:
             type: num
             md_device: DEVICENAME
             md_command: general.dimmer
-            md_read: false
+            md_read: true
             md_write: true
             remark: 0 = very bright, 1 = bright, 2 = dark, 3 = off
 
@@ -5966,21 +5966,21 @@ VSX-923:
             type: str
             md_device: DEVICENAME
             md_command: tuner.title
-            md_read: false
+            md_read: true
             md_write: false
 
         genre:
             type: str
             md_device: DEVICENAME
             md_command: tuner.genre
-            md_read: false
+            md_read: true
             md_write: false
 
         station:
             type: str
             md_device: DEVICENAME
             md_command: tuner.station
-            md_read: false
+            md_read: true
             md_write: false
 
     zone1:

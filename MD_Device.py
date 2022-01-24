@@ -323,6 +323,7 @@ class MD_Device(object):
             custom = self._get_custom_value(command, data)
 
         base_command = command
+        value = None
         try:
             value = self._commands.get_shng_data(command, data)
             if custom:
@@ -336,7 +337,7 @@ class MD_Device(object):
             else:
                 self.logger.warning(f'command {command} yielded value {value}, but _data_received_callback is not set. Discarding data.')
 
-        self._process_additional_data(base_command, data, custom, by)
+        self._process_additional_data(base_command, data, value, custom, by)
 
     def read_all_commands(self, group=0):
         """
@@ -508,11 +509,11 @@ class MD_Device(object):
             self.logger.debug(f'received custom token {res[0]}, not in list of known tokens {self._custom_values[self.custom_commands]}')
             return None
 
-    def _process_additional_data(self, command, data, custom, by):
+    def _process_additional_data(self, command, data, value, custom, by):
         """ do additional processing of received data
 
         Here you can do additional data examinating, filtering and possibly
-        triggering additional commands or setting additional items. 
+        triggering additional commands or setting additional items.
         Overwrite as needed.
         """
         pass

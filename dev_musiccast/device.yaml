@@ -26,5 +26,5 @@ parameters:
     # nicht ändern
     conn_type:
         type: str
-        default: MD_Connection_Net_Ucast_Request
+        default: MD_Connection_Net_Udp_Request
         description: 'Name der Klasse für Connection'

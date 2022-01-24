@@ -13,84 +13,84 @@ info:
         type: str
         md_device: DEVICENAME
         md_command: info.track
-        md_read: true
+        md_read: false
         md_write: false
 
     albumart:
         type: str
         md_device: DEVICENAME
         md_command: info.albumart
-        md_read: true
+        md_read: false
         md_write: false
 
     artist:
         type: str
         md_device: DEVICENAME
         md_command: info.artist
-        md_read: true
+        md_read: false
         md_write: false
 
     album:
         type: str
         md_device: DEVICENAME
         md_command: info.album
-        md_read: true
+        md_read: false
         md_write: false
 
     curtime:
         type: num
         md_device: DEVICENAME
         md_command: info.curtime
-        md_read: true
+        md_read: false
         md_write: false
 
     totaltime:
         type: num
         md_device: DEVICENAME
         md_command: info.totaltime
-        md_read: true
+        md_read: false
         md_write: false
 
     model:
         type: str
         md_device: DEVICENAME
         md_command: info.model
-        md_read: true
+        md_read: false
         md_write: false
 
     zones:
         type: num
         md_device: DEVICENAME
         md_command: info.zones
-        md_read: true
+        md_read: false
         md_write: false
 
     inputs_raw:
         type: list
         md_device: DEVICENAME
         md_command: info.inputs_raw
-        md_read: true
+        md_read: false
         md_write: false
 
     inputs_sys:
         type: list
         md_device: DEVICENAME
         md_command: info.inputs_sys
-        md_read: true
+        md_read: false
         md_write: false
 
     inputs_user:
         type: list
         md_device: DEVICENAME
         md_command: info.inputs_user
-        md_read: true
+        md_read: false
         md_write: false
 
     error:
         type: str
         md_device: DEVICENAME
         md_command: info.error
-        md_read: true
+        md_read: false
         md_write: false
 
 system:
@@ -207,7 +207,7 @@ main:
         type: num
         md_device: DEVICENAME
         md_command: main.volume_max
-        md_read: true
+        md_read: false
         md_write: false
 
 netusb:
@@ -310,84 +310,84 @@ ALL:
             type: str
             md_device: DEVICENAME
             md_command: info.track
-            md_read: true
+            md_read: false
             md_write: false
 
         albumart:
             type: str
             md_device: DEVICENAME
             md_command: info.albumart
-            md_read: true
+            md_read: false
             md_write: false
 
         artist:
             type: str
             md_device: DEVICENAME
             md_command: info.artist
-            md_read: true
+            md_read: false
             md_write: false
 
         album:
             type: str
             md_device: DEVICENAME
             md_command: info.album
-            md_read: true
+            md_read: false
             md_write: false
 
         curtime:
             type: num
             md_device: DEVICENAME
             md_command: info.curtime
-            md_read: true
+            md_read: false
             md_write: false
 
         totaltime:
             type: num
             md_device: DEVICENAME
             md_command: info.totaltime
-            md_read: true
+            md_read: false
             md_write: false
 
         model:
             type: str
             md_device: DEVICENAME
             md_command: info.model
-            md_read: true
+            md_read: false
             md_write: false
 
         zones:
             type: num
             md_device: DEVICENAME
             md_command: info.zones
-            md_read: true
+            md_read: false
             md_write: false
 
         inputs_raw:
             type: list
             md_device: DEVICENAME
             md_command: info.inputs_raw
-            md_read: true
+            md_read: false
             md_write: false
 
         inputs_sys:
             type: list
             md_device: DEVICENAME
             md_command: info.inputs_sys
-            md_read: true
+            md_read: false
             md_write: false
 
         inputs_user:
             type: list
             md_device: DEVICENAME
             md_command: info.inputs_user
-            md_read: true
+            md_read: false
             md_write: false
 
         error:
             type: str
             md_device: DEVICENAME
             md_command: info.error
-            md_read: true
+            md_read: false
             md_write: false
 
     system:
@@ -504,7 +504,7 @@ ALL:
             type: num
             md_device: DEVICENAME
             md_command: main.volume_max
-            md_read: true
+            md_read: false
             md_write: false
 
     netusb:

@@ -57,11 +57,11 @@ import re
 from pydoc import locate
 
 if MD_standalone:
-    from MD_Globals import (CommandsError, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_DEV_TYPE, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_WRITE, CMD_ATTR_WRITE_CMD, COMMAND_PARAMS, COMMAND_SEP, INDEX_GENERIC)
+    from MD_Globals import (CommandsError, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_DEV_TYPE, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_WRITE, CMD_ATTR_WRITE_CMD, COMMAND_PARAMS, COMMAND_SEP, INDEX_GENERIC, PATTERN_LOOKUP, PATTERN_VALID_LIST, PATTERN_VALID_LIST_CI, PATTERN_CUSTOM_PATTERN)
     from MD_Command import MD_Command
     import datatypes as DT
 else:
-    from .MD_Globals import (CommandsError, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_DEV_TYPE, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_REPLY_TOKEN, CMD_ATTR_WRITE, CMD_ATTR_WRITE_CMD, COMMAND_PARAMS, COMMAND_SEP, INDEX_GENERIC)
+    from .MD_Globals import (CommandsError, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_DEV_TYPE, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_WRITE, CMD_ATTR_WRITE_CMD, COMMAND_PARAMS, COMMAND_SEP, INDEX_GENERIC, PATTERN_LOOKUP, PATTERN_VALID_LIST, PATTERN_VALID_LIST_CI, PATTERN_CUSTOM_PATTERN)
     from .MD_Command import MD_Command
     from . import datatypes as DT
 
@@ -353,18 +353,17 @@ class MD_Commands(object):
                     self.logger.debug(f&#39;found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}&#39;)
             self._flatten_cmds(cmds)
 
+            # do this before importing commands, because reply_patterns might need lookups
+            if hasattr(cmd_module, &#39;lookups&#39;) and isinstance(cmd_module.lookups, dict):
+                self._parse_lookups(device_id, cmd_module.lookups)
+            else:
+                self.logger.debug(&#39;no lookups found&#39;)
+
             # actually import commands
-            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist), self._params.get(&#39;custom_patterns&#39;))
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
         else:
             if not MD_standalone:
                 self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
-
-        if hasattr(cmd_module, &#39;lookups&#39;) and isinstance(cmd_module.lookups, dict):
-            self._parse_lookups(device_id, cmd_module.lookups)
-            if not MD_standalone:
-                self._parse_patterns(device_id)
-        else:
-            self.logger.debug(&#39;no lookups found&#39;)
 
         if hasattr(cmd_module, &#39;structs&#39;) and isinstance(cmd_module.structs, dict):
             self._dev_structs = cmd_module.structs.get(INDEX_GENERIC, [])
@@ -375,13 +374,15 @@ class MD_Commands(object):
 
         return True
 
-    def _parse_commands(self, device_id, commands, cmds=[], custom_patterns=&#39;&#39;):
+    def _parse_commands(self, device_id, commands, cmds=[]):
         &#34;&#34;&#34;
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
         For special purposes, this can be overwritten, if you want to use your
         own file format.
         &#34;&#34;&#34;
+        custom_patterns = self._params.get(&#39;custom_patterns&#39;)
+
         for cmd in cmds:
             # we found a &#34;section&#34; entry for which initial or cyclic read is specified. Just skip it...
             # the commands dict might look like this:
@@ -396,29 +397,61 @@ class MD_Commands(object):
             if cmd[-len(CMD_ATTR_ITEM_ATTRS) - len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
                 continue
 
+            cmd_obj = commands[cmd]
+
             # preset default values
             kw = {CMD_ATTR_READ: True, CMD_ATTR_WRITE: False, CMD_ATTR_OPCODE: &#39;&#39;, CMD_ATTR_ITEM_TYPE: &#39;bool&#39;, CMD_ATTR_DEV_TYPE: &#39;raw&#39;}
 
             # update with command attributes
             for arg in COMMAND_PARAMS:
-                if arg in commands[cmd]:
-                    kw[arg] = commands[cmd][arg]
+                if arg in cmd_obj:
+                    kw[arg] = cmd_obj[arg]
 
             # if valid_list_ci is present in settings, convert all str elements to lowercase only once
             if CMD_ATTR_CMD_SETTINGS in kw:
                 if &#39;valid_list_ci&#39; in kw[CMD_ATTR_CMD_SETTINGS]:
                     kw[CMD_ATTR_CMD_SETTINGS][&#39;valid_list_ci&#39;] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[CMD_ATTR_CMD_SETTINGS][&#39;valid_list_ci&#39;]]
 
-            if CMD_ATTR_REPLY_PATTERN in kw:
-                if &#39;CUSTOM_PATTERN&#39; in kw[CMD_ATTR_REPLY_PATTERN] and custom_patterns:
-                    for index in (1, 2, 3):
-                        kw[CMD_ATTR_REPLY_PATTERN] = kw[CMD_ATTR_REPLY_PATTERN].replace(&#39;CUSTOM_PATTERN&#39; + str(index), custom_patterns[index])
-
             dt_class = None
             dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, &#39;&#39;)
             if dev_datatype:
                 class_name = &#39;&#39; if dev_datatype[:2] == &#39;DT_&#39; else &#39;DT_&#39; + dev_datatype
                 dt_class = self._dt.get(class_name)
+
+            # process pattern substitution
+            if CMD_ATTR_REPLY_PATTERN in kw:
+                if not isinstance(kw[CMD_ATTR_REPLY_PATTERN], list):
+                    kw[CMD_ATTR_REPLY_PATTERN] = [kw[CMD_ATTR_REPLY_PATTERN]]
+                processed_patterns = []
+
+                for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
+
+                    if pattern == &#39;*&#39;:
+                        pattern = getattr(cmd_obj, &#39;opcode&#39;, &#39;&#39;)
+
+                    if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
+                        for index in (1, 2, 3):
+                            pattern = pattern.replace(&#39;(&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;)&#39;, custom_patterns[index])
+
+                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39; in pattern:
+
+                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_obj.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
+                        pattern = pattern.replace(&#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39;, lu_pattern)
+
+                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39; in pattern:
+
+                        vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list&#39;]) + &#39;)&#39;
+                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39;, vl_pattern)
+
+                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39; in pattern:
+
+                        vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list_ci&#39;]) + &#39;))&#39;
+                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39;, vl_pattern)
+
+                    processed_patterns.append(pattern)
+
+                # store processed patterns
+                kw[CMD_ATTR_REPLY_PATTERN] = processed_patterns
 
             if kw.get(CMD_ATTR_READ, False) and kw.get(CMD_ATTR_OPCODE, &#39;&#39;) == &#39;&#39; and kw.get(CMD_ATTR_READ_CMD, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for reading values. Check commands.py configuration...&#39;)
@@ -464,38 +497,7 @@ class MD_Commands(object):
                 else:
                     self.logger.warning(f&#39;key {table} in lookups not in dict format, ignoring&#39;)
         except Exception as e:
-            self.logger.error(f&#39;importing lookup tables not possible, check syntax. Error was: {e}&#39;)
-
-    def _parse_patterns(self, device_id):
-        &#34;&#34;&#34; check reply_patterns for lookup info and replace
-
-        If the reply_token is &#39;REGEX&#39; and the reply_pattern contains &#39;(MD_LOOKUP)&#39;
-        and lookup is set to a valid lookup table, the &#39;(MD_LOOKUP)&#39; identifier is
-        replaced with a regex which triggers on any of the possible lookup values.
-
-        The same applies for &#39;(MD_VALID_LIST)&#39;, but not for &#39;(MD_VALID_LIST_CI)&#39;
-        &#34;&#34;&#34;
-        for cmd in self._commands:
-
-            obj = self._commands[cmd]
-            if &#39;REGEX&#39; in obj.reply_token:
-                if obj.lookup and &#39;(MD_LOOKUP)&#39; in obj.reply_pattern:
-
-                    lu = self._lookups[obj.lookup][&#39;fwd&#39;]
-                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in lu.keys()) + &#39;)&#39;
-                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_LOOKUP)&#39;, pattern)
-
-                if obj.cmd_settings and &#39;valid_list&#39; in obj.cmd_settings and &#39;(MD_VALID_LIST)&#39; in obj.reply_pattern:
-
-                    vl = obj.cmd_settings[&#39;valid_list&#39;]
-                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;)&#39;
-                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST)&#39;, pattern)
-
-                if obj.cmd_settings and &#39;valid_list_ci&#39; in obj.cmd_settings and &#39;(MD_VALID_LIST_CI)&#39; in obj.reply_pattern:
-
-                    vl = obj.cmd_settings[&#39;valid_list_ci&#39;]
-                    pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;))&#39;
-                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST_CI)&#39;, pattern)</code></pre>
+            self.logger.error(f&#39;importing lookup tables not possible, check syntax. Error was: {e}&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -803,18 +805,17 @@ MD_Command-object</p>
                     self.logger.debug(f&#39;found {len(cmd_module.models.get(self._model, []))} commands for model {self._model}&#39;)
             self._flatten_cmds(cmds)
 
+            # do this before importing commands, because reply_patterns might need lookups
+            if hasattr(cmd_module, &#39;lookups&#39;) and isinstance(cmd_module.lookups, dict):
+                self._parse_lookups(device_id, cmd_module.lookups)
+            else:
+                self.logger.debug(&#39;no lookups found&#39;)
+
             # actually import commands
-            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist), self._params.get(&#39;custom_patterns&#39;))
+            self._parse_commands(device_id, cmds, self._get_cmdlist(cmds, cmdlist))
         else:
             if not MD_standalone:
                 self.logger.warning(&#39;no command definitions found. This device probably will not work...&#39;)
-
-        if hasattr(cmd_module, &#39;lookups&#39;) and isinstance(cmd_module.lookups, dict):
-            self._parse_lookups(device_id, cmd_module.lookups)
-            if not MD_standalone:
-                self._parse_patterns(device_id)
-        else:
-            self.logger.debug(&#39;no lookups found&#39;)
 
         if hasattr(cmd_module, &#39;structs&#39;) and isinstance(cmd_module.structs, dict):
             self._dev_structs = cmd_module.structs.get(INDEX_GENERIC, [])
@@ -825,13 +826,15 @@ MD_Command-object</p>
 
         return True
 
-    def _parse_commands(self, device_id, commands, cmds=[], custom_patterns=&#39;&#39;):
+    def _parse_commands(self, device_id, commands, cmds=[]):
         &#34;&#34;&#34;
         This is a reference implementation for parsing the commands dict imported
         from the commands.py file in the device subdirectory.
         For special purposes, this can be overwritten, if you want to use your
         own file format.
         &#34;&#34;&#34;
+        custom_patterns = self._params.get(&#39;custom_patterns&#39;)
+
         for cmd in cmds:
             # we found a &#34;section&#34; entry for which initial or cyclic read is specified. Just skip it...
             # the commands dict might look like this:
@@ -846,29 +849,61 @@ MD_Command-object</p>
             if cmd[-len(CMD_ATTR_ITEM_ATTRS) - len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
                 continue
 
+            cmd_obj = commands[cmd]
+
             # preset default values
             kw = {CMD_ATTR_READ: True, CMD_ATTR_WRITE: False, CMD_ATTR_OPCODE: &#39;&#39;, CMD_ATTR_ITEM_TYPE: &#39;bool&#39;, CMD_ATTR_DEV_TYPE: &#39;raw&#39;}
 
             # update with command attributes
             for arg in COMMAND_PARAMS:
-                if arg in commands[cmd]:
-                    kw[arg] = commands[cmd][arg]
+                if arg in cmd_obj:
+                    kw[arg] = cmd_obj[arg]
 
             # if valid_list_ci is present in settings, convert all str elements to lowercase only once
             if CMD_ATTR_CMD_SETTINGS in kw:
                 if &#39;valid_list_ci&#39; in kw[CMD_ATTR_CMD_SETTINGS]:
                     kw[CMD_ATTR_CMD_SETTINGS][&#39;valid_list_ci&#39;] = [entry.lower() if isinstance(entry, str) else entry for entry in kw[CMD_ATTR_CMD_SETTINGS][&#39;valid_list_ci&#39;]]
 
-            if CMD_ATTR_REPLY_PATTERN in kw:
-                if &#39;CUSTOM_PATTERN&#39; in kw[CMD_ATTR_REPLY_PATTERN] and custom_patterns:
-                    for index in (1, 2, 3):
-                        kw[CMD_ATTR_REPLY_PATTERN] = kw[CMD_ATTR_REPLY_PATTERN].replace(&#39;CUSTOM_PATTERN&#39; + str(index), custom_patterns[index])
-
             dt_class = None
             dev_datatype = kw.get(CMD_ATTR_DEV_TYPE, &#39;&#39;)
             if dev_datatype:
                 class_name = &#39;&#39; if dev_datatype[:2] == &#39;DT_&#39; else &#39;DT_&#39; + dev_datatype
                 dt_class = self._dt.get(class_name)
+
+            # process pattern substitution
+            if CMD_ATTR_REPLY_PATTERN in kw:
+                if not isinstance(kw[CMD_ATTR_REPLY_PATTERN], list):
+                    kw[CMD_ATTR_REPLY_PATTERN] = [kw[CMD_ATTR_REPLY_PATTERN]]
+                processed_patterns = []
+
+                for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
+
+                    if pattern == &#39;*&#39;:
+                        pattern = getattr(cmd_obj, &#39;opcode&#39;, &#39;&#39;)
+
+                    if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
+                        for index in (1, 2, 3):
+                            pattern = pattern.replace(&#39;(&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;)&#39;, custom_patterns[index])
+
+                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39; in pattern:
+
+                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_obj.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
+                        pattern = pattern.replace(&#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39;, lu_pattern)
+
+                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39; in pattern:
+
+                        vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list&#39;]) + &#39;)&#39;
+                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39;, vl_pattern)
+
+                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39; in pattern:
+
+                        vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list_ci&#39;]) + &#39;))&#39;
+                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39;, vl_pattern)
+
+                    processed_patterns.append(pattern)
+
+                # store processed patterns
+                kw[CMD_ATTR_REPLY_PATTERN] = processed_patterns
 
             if kw.get(CMD_ATTR_READ, False) and kw.get(CMD_ATTR_OPCODE, &#39;&#39;) == &#39;&#39; and kw.get(CMD_ATTR_READ_CMD, &#39;&#39;) == &#39;&#39;:
                 self.logger.info(f&#39;command {cmd} will not create a command for reading values. Check commands.py configuration...&#39;)
@@ -914,38 +949,7 @@ MD_Command-object</p>
                 else:
                     self.logger.warning(f&#39;key {table} in lookups not in dict format, ignoring&#39;)
         except Exception as e:
-            self.logger.error(f&#39;importing lookup tables not possible, check syntax. Error was: {e}&#39;)
-
-    def _parse_patterns(self, device_id):
-        &#34;&#34;&#34; check reply_patterns for lookup info and replace
-
-        If the reply_token is &#39;REGEX&#39; and the reply_pattern contains &#39;(MD_LOOKUP)&#39;
-        and lookup is set to a valid lookup table, the &#39;(MD_LOOKUP)&#39; identifier is
-        replaced with a regex which triggers on any of the possible lookup values.
-
-        The same applies for &#39;(MD_VALID_LIST)&#39;, but not for &#39;(MD_VALID_LIST_CI)&#39;
-        &#34;&#34;&#34;
-        for cmd in self._commands:
-
-            obj = self._commands[cmd]
-            if &#39;REGEX&#39; in obj.reply_token:
-                if obj.lookup and &#39;(MD_LOOKUP)&#39; in obj.reply_pattern:
-
-                    lu = self._lookups[obj.lookup][&#39;fwd&#39;]
-                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in lu.keys()) + &#39;)&#39;
-                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_LOOKUP)&#39;, pattern)
-
-                if obj.cmd_settings and &#39;valid_list&#39; in obj.cmd_settings and &#39;(MD_VALID_LIST)&#39; in obj.reply_pattern:
-
-                    vl = obj.cmd_settings[&#39;valid_list&#39;]
-                    pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;)&#39;
-                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST)&#39;, pattern)
-
-                if obj.cmd_settings and &#39;valid_list_ci&#39; in obj.cmd_settings and &#39;(MD_VALID_LIST_CI)&#39; in obj.reply_pattern:
-
-                    vl = obj.cmd_settings[&#39;valid_list_ci&#39;]
-                    pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in vl) + &#39;))&#39;
-                    obj.reply_pattern = obj.reply_pattern.replace(&#39;(MD_VALID_LIST_CI)&#39;, pattern)</code></pre>
+            self.logger.error(f&#39;importing lookup tables not possible, check syntax. Error was: {e}&#39;)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>

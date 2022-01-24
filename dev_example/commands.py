@@ -23,7 +23,7 @@ commands = {
     # provided values are defaults; dicts default to None, but are shown to
     # illustrate valid contents
     'cmd': {
-        # can this command read = receive information from the device?
+        # can this command read = request values from the device?
         'read': True,
 
         # can this command write = send item values to the device?
@@ -44,15 +44,23 @@ commands = {
         # datatype used to talk to the device (see ../datatypes.py). For DT_xyz class, use 'xyz'
         'dev_datatype': 'raw',
 
-        # optional, start sequence/beginning of reply to indicate reply belongs to this command
-        # this can be a string or a list of strings
-        # only in MD_Command_ParseStr, this can be 'REGEX' to enable the next parameter...
-        'reply_token': [],
-
-        # optional, regex with one capturing group to automatically extract reply values from the reply
-        # implemented only in MD_Command_ParseStr as of now
+        # optional, regex (str) or list of regexes (str) to identify a reply belonging to this command
+        # additionally, with only one (optional) capturing group to automatically
+        # extract the reply value from the reply
+        # Value extraction is implemented only in MD_Command_ParseStr as of now
         #
-        'reply_pattern': '',
+        # if reply_pattern is set to '*', it will be replaces with the opcode of the command
+        #
+        # you can use the following tokens to have them replaced by their respective values:
+        # - '(MD_LOOKUP)' to replace with a regex which matches on all values from the command lookup table
+        # - '(MD_VALID_LIST)' to replace with all valid values according to the cmd_settings
+        # - '(MD_VALID_LIST_CI)' ditto, with case-insensitive flag set
+        # - '(MD_CUSTOM_PATTERN[123])' to replace with the respective custom pattern as defined
+        #                            in the device class to identify one of the custom tokens
+        # the parentheses are necessary for substitution, but the final regex will
+        # not contain capturing parentheses; if you want to add the capturing group,
+        # do this manually (and in addition to the token parentheses)
+        'reply_pattern': [],
 
         # optional, this dict defines limits for value validity for sending data to the device.
         # - 'valid_min': minimum value, error if value is below

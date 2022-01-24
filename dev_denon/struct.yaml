@@ -125,14 +125,14 @@ tuner:
         type: bool
         md_device: DEVICENAME
         md_command: tuner.tunerpresetup
-        md_read: None
+        md_read: false
         md_write: true
 
     tunerpresetdown:
         type: bool
         md_device: DEVICENAME
         md_command: tuner.tunerpresetdown
-        md_read: None
+        md_read: false
         md_write: true
 
 zone1:
@@ -153,15 +153,13 @@ zone1:
         md_read_initial: true
 
         reverse:
-            type: bool
-            eval: True
-            enforce_updates: True
-            eval_trigger: ..
+            type: dict
+            eval: "{v: k for (k, v) in sh...().items()}"
 
             update:
                 type: bool
                 eval: sh...timer(2, {})
-                #eval_trigger: ...
+                eval_trigger: ...
 
     power:
         type: bool
@@ -199,14 +197,14 @@ zone1:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.volumeup
-        md_read: None
+        md_read: false
         md_write: true
 
     volumedown:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.volumedown
-        md_read: None
+        md_read: false
         md_write: true
 
     input:
@@ -338,14 +336,14 @@ zone1:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.dialogup
-        md_read: None
+        md_read: false
         md_write: true
 
     dialogdown:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.dialogdown
-        md_read: None
+        md_read: false
         md_write: true
 
     dialogenhance:
@@ -384,14 +382,14 @@ zone1:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.subwooferup
-        md_read: None
+        md_read: false
         md_write: true
 
     subwooferdown:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.subwooferdown
-        md_read: None
+        md_read: false
         md_write: true
 
     lfe:
@@ -406,14 +404,14 @@ zone1:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.lfeup
-        md_read: None
+        md_read: false
         md_write: true
 
     lfedown:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.lfedown
-        md_read: None
+        md_read: false
         md_write: true
 
     tone:
@@ -460,14 +458,14 @@ zone1:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.trebleup
-        md_read: None
+        md_read: false
         md_write: true
 
     trebledown:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.trebledown
-        md_read: None
+        md_read: false
         md_write: true
 
     bass:
@@ -482,14 +480,14 @@ zone1:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.bassup
-        md_read: None
+        md_read: false
         md_write: true
 
     bassdown:
         type: bool
         md_device: DEVICENAME
         md_command: zone1.bassdown
-        md_read: None
+        md_read: false
         md_write: true
 
     levels:
@@ -640,14 +638,14 @@ zone2:
         type: bool
         md_device: DEVICENAME
         md_command: zone2.volumeup
-        md_read: None
+        md_read: false
         md_write: true
 
     volumedown:
         type: bool
         md_device: DEVICENAME
         md_command: zone2.volumedown
-        md_read: None
+        md_read: false
         md_write: true
 
     sleep:
@@ -686,14 +684,14 @@ zone2:
         type: bool
         md_device: DEVICENAME
         md_command: zone2.trebleup
-        md_read: None
+        md_read: false
         md_write: true
 
     trebledown:
         type: bool
         md_device: DEVICENAME
         md_command: zone2.trebledown
-        md_read: None
+        md_read: false
         md_write: true
 
     bass:
@@ -708,14 +706,14 @@ zone2:
         type: bool
         md_device: DEVICENAME
         md_command: zone2.bassup
-        md_read: None
+        md_read: false
         md_write: true
 
     bassdown:
         type: bool
         md_device: DEVICENAME
         md_command: zone2.bassdown
-        md_read: None
+        md_read: false
         md_write: true
 
     level_front_left:
@@ -786,14 +784,14 @@ zone3:
         type: bool
         md_device: DEVICENAME
         md_command: zone3.volumeup
-        md_read: None
+        md_read: false
         md_write: true
 
     volumedown:
         type: bool
         md_device: DEVICENAME
         md_command: zone3.volumedown
-        md_read: None
+        md_read: false
         md_write: true
 
     sleep:
@@ -824,14 +822,14 @@ zone3:
         type: bool
         md_device: DEVICENAME
         md_command: zone3.trebleup
-        md_read: None
+        md_read: false
         md_write: true
 
     trebledown:
         type: bool
         md_device: DEVICENAME
         md_command: zone3.trebledown
-        md_read: None
+        md_read: false
         md_write: true
 
     bass:
@@ -846,14 +844,14 @@ zone3:
         type: bool
         md_device: DEVICENAME
         md_command: zone3.bassup
-        md_read: None
+        md_read: false
         md_write: true
 
     bassdown:
         type: bool
         md_device: DEVICENAME
         md_command: zone3.bassdown
-        md_read: None
+        md_read: false
         md_write: true
 
     level_front_left:
@@ -996,14 +994,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetup
-            md_read: None
+            md_read: false
             md_write: true
 
         tunerpresetdown:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetdown
-            md_read: None
+            md_read: false
             md_write: true
 
     zone1:
@@ -1050,14 +1048,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         input:
@@ -1141,14 +1139,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferup
-            md_read: None
+            md_read: false
             md_write: true
 
         subwooferdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferdown
-            md_read: None
+            md_read: false
             md_write: true
 
         lfe:
@@ -1163,14 +1161,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfeup
-            md_read: None
+            md_read: false
             md_write: true
 
         lfedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfedown
-            md_read: None
+            md_read: false
             md_write: true
 
         tone:
@@ -1217,14 +1215,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -1239,14 +1237,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         levels:
@@ -1389,14 +1387,14 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -1539,14 +1537,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetup
-            md_read: None
+            md_read: false
             md_write: true
 
         tunerpresetdown:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetdown
-            md_read: None
+            md_read: false
             md_write: true
 
     zone1:
@@ -1593,14 +1591,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         input:
@@ -1732,14 +1730,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferup
-            md_read: None
+            md_read: false
             md_write: true
 
         subwooferdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferdown
-            md_read: None
+            md_read: false
             md_write: true
 
         lfe:
@@ -1754,14 +1752,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfeup
-            md_read: None
+            md_read: false
             md_write: true
 
         lfedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfedown
-            md_read: None
+            md_read: false
             md_write: true
 
         tone:
@@ -1808,14 +1806,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -1830,14 +1828,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         levels:
@@ -1988,14 +1986,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -2034,14 +2032,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -2056,14 +2054,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         level_front_left:
@@ -2134,14 +2132,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -2172,14 +2170,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -2194,14 +2192,14 @@ AVR-X6300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         level_front_left:
@@ -2344,14 +2342,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetup
-            md_read: None
+            md_read: false
             md_write: true
 
         tunerpresetdown:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetdown
-            md_read: None
+            md_read: false
             md_write: true
 
     zone1:
@@ -2398,14 +2396,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         input:
@@ -2529,14 +2527,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogup
-            md_read: None
+            md_read: false
             md_write: true
 
         dialogdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogdown
-            md_read: None
+            md_read: false
             md_write: true
 
         subwoofertoggle:
@@ -2559,14 +2557,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferup
-            md_read: None
+            md_read: false
             md_write: true
 
         subwooferdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferdown
-            md_read: None
+            md_read: false
             md_write: true
 
         lfe:
@@ -2581,14 +2579,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfeup
-            md_read: None
+            md_read: false
             md_write: true
 
         lfedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfedown
-            md_read: None
+            md_read: false
             md_write: true
 
         tone:
@@ -2635,14 +2633,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -2657,14 +2655,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         levels:
@@ -2815,14 +2813,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -2861,14 +2859,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -2883,14 +2881,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         level_front_left:
@@ -2961,14 +2959,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -2999,14 +2997,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -3021,14 +3019,14 @@ AVR-X4300H:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone3.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         level_front_left:
@@ -3187,14 +3185,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetup
-            md_read: None
+            md_read: false
             md_write: true
 
         tunerpresetdown:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetdown
-            md_read: None
+            md_read: false
             md_write: true
 
     zone1:
@@ -3241,14 +3239,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         input:
@@ -3356,14 +3354,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogup
-            md_read: None
+            md_read: false
             md_write: true
 
         dialogdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogdown
-            md_read: None
+            md_read: false
             md_write: true
 
         subwoofertoggle:
@@ -3386,14 +3384,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferup
-            md_read: None
+            md_read: false
             md_write: true
 
         subwooferdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferdown
-            md_read: None
+            md_read: false
             md_write: true
 
         lfe:
@@ -3408,14 +3406,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfeup
-            md_read: None
+            md_read: false
             md_write: true
 
         lfedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfedown
-            md_read: None
+            md_read: false
             md_write: true
 
         tone:
@@ -3462,14 +3460,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -3484,14 +3482,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         levels:
@@ -3642,14 +3640,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -3688,14 +3686,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -3710,14 +3708,14 @@ AVR-X3300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         level_front_left:
@@ -3876,14 +3874,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetup
-            md_read: None
+            md_read: false
             md_write: true
 
         tunerpresetdown:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetdown
-            md_read: None
+            md_read: false
             md_write: true
 
     zone1:
@@ -3930,14 +3928,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         input:
@@ -4053,14 +4051,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogup
-            md_read: None
+            md_read: false
             md_write: true
 
         dialogdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogdown
-            md_read: None
+            md_read: false
             md_write: true
 
         subwoofertoggle:
@@ -4083,14 +4081,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferup
-            md_read: None
+            md_read: false
             md_write: true
 
         subwooferdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferdown
-            md_read: None
+            md_read: false
             md_write: true
 
         lfe:
@@ -4105,14 +4103,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfeup
-            md_read: None
+            md_read: false
             md_write: true
 
         lfedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfedown
-            md_read: None
+            md_read: false
             md_write: true
 
         tone:
@@ -4159,14 +4157,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -4181,14 +4179,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         levels:
@@ -4331,14 +4329,14 @@ AVR-X2300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -4513,14 +4511,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetup
-            md_read: None
+            md_read: false
             md_write: true
 
         tunerpresetdown:
             type: bool
             md_device: DEVICENAME
             md_command: tuner.tunerpresetdown
-            md_read: None
+            md_read: false
             md_write: true
 
     zone1:
@@ -4567,14 +4565,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         input:
@@ -4658,14 +4656,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogup
-            md_read: None
+            md_read: false
             md_write: true
 
         dialogdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.dialogdown
-            md_read: None
+            md_read: false
             md_write: true
 
         subwoofertoggle:
@@ -4688,14 +4686,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferup
-            md_read: None
+            md_read: false
             md_write: true
 
         subwooferdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.subwooferdown
-            md_read: None
+            md_read: false
             md_write: true
 
         lfe:
@@ -4710,14 +4708,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfeup
-            md_read: None
+            md_read: false
             md_write: true
 
         lfedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.lfedown
-            md_read: None
+            md_read: false
             md_write: true
 
         tone:
@@ -4764,14 +4762,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebleup
-            md_read: None
+            md_read: false
             md_write: true
 
         trebledown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.trebledown
-            md_read: None
+            md_read: false
             md_write: true
 
         bass:
@@ -4786,14 +4784,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassup
-            md_read: None
+            md_read: false
             md_write: true
 
         bassdown:
             type: bool
             md_device: DEVICENAME
             md_command: zone1.bassdown
-            md_read: None
+            md_read: false
             md_write: true
 
         levels:
@@ -4936,14 +4934,14 @@ AVR-X1300W:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumeup
-            md_read: None
+            md_read: false
             md_write: true
 
         volumedown:
             type: bool
             md_device: DEVICENAME
             md_command: zone2.volumedown
-            md_read: None
+            md_read: false
             md_write: true
 
         sleep:
@@ -4977,3 +4975,4 @@ AVR-X1300W:
             md_read: true
             md_write: true
             md_read_group: ['AVR-X1300W', 'AVR-X1300W.zone2']
+

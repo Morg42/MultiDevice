@@ -56,7 +56,7 @@ class MD_Device(MD_Device):
         # fix weird representation of MAC address (%3A = :), etc.
         return urllib.parse.unquote_plus(data)
 
-    def _process_additional_data(self, command, data, custom, by):
+    def _process_additional_data(self, command, data, value, custom, by):
 
         def _dispatch(command, value, custom=None):
             if custom:

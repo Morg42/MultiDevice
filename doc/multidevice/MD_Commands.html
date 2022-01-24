@@ -147,25 +147,18 @@ class MD_Commands(object):
             data = str(data.decode(&#39;utf-8&#39;))
 
         for command in self._commands:
-            tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
-            if tokens:
-                if not isinstance(tokens, list):
-                    tokens = [tokens]
-                for token in tokens:
-                    if token == &#39;REGEX&#39; and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
-
-                        # token is &#34;REGEX&#34; - parse read_cmd as regex
+            patterns = getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None)
+            if patterns:
+                for pattern in patterns:
+                    if pattern:
                         try:
-                            regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
+                            regex = re.compile(pattern)
                             if regex.match(data) is not None:
-                                self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} as regex against data {data}, found command {command}&#39;)
+                                self.logger.debug(f&#39;matched reply_pattern {pattern} as regex against data {data}, found command {command}&#39;)
                                 return command
                         except Exception as e:
                             self.logger.warning(f&#39;parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring&#39;)
-                    elif token != &#39;&#39; and token == data[:len(token)]:
 
-                        # token ist just a string
-                        return command
         return None
 
     def get_lookup(self, lookup, type=&#39;fwd&#39;):
@@ -200,7 +193,7 @@ class MD_Commands(object):
         :type ci: bool
         :return: lookup result
         &#34;&#34;&#34;
-        if data is None:
+        if data is None or isinstance(data, (list, tuple, set, dict)):
             return None
 
         mode = &#39;fwd&#39;
@@ -427,26 +420,26 @@ class MD_Commands(object):
                 for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
 
                     if pattern == &#39;*&#39;:
-                        pattern = getattr(cmd_obj, &#39;opcode&#39;, &#39;&#39;)
+                        pattern = getattr(cmd_obj, CMD_ATTR_READ_CMD, getattr(cmd_obj, CMD_ATTR_OPCODE, &#39;&#39;))
 
                     if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
                         for index in (1, 2, 3):
-                            pattern = pattern.replace(&#39;(&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;)&#39;, custom_patterns[index])
+                            pattern = pattern.replace(&#39;{&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;}&#39;, custom_patterns[index])
 
-                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39; in pattern:
+                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
 
                         lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_obj.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
-                        pattern = pattern.replace(&#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39;, lu_pattern)
+                        pattern = pattern.replace(&#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39;, lu_pattern)
 
                     if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39; in pattern:
 
                         vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list&#39;]) + &#39;)&#39;
-                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39;, vl_pattern)
+                        pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39;, vl_pattern)
 
                     if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39; in pattern:
 
                         vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list_ci&#39;]) + &#39;))&#39;
-                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39;, vl_pattern)
+                        pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST_CI + &#39;}&#39;, vl_pattern)
 
                     processed_patterns.append(pattern)
 
@@ -599,25 +592,18 @@ MD_Command-object</p>
             data = str(data.decode(&#39;utf-8&#39;))
 
         for command in self._commands:
-            tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
-            if tokens:
-                if not isinstance(tokens, list):
-                    tokens = [tokens]
-                for token in tokens:
-                    if token == &#39;REGEX&#39; and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
-
-                        # token is &#34;REGEX&#34; - parse read_cmd as regex
+            patterns = getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None)
+            if patterns:
+                for pattern in patterns:
+                    if pattern:
                         try:
-                            regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
+                            regex = re.compile(pattern)
                             if regex.match(data) is not None:
-                                self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} as regex against data {data}, found command {command}&#39;)
+                                self.logger.debug(f&#39;matched reply_pattern {pattern} as regex against data {data}, found command {command}&#39;)
                                 return command
                         except Exception as e:
                             self.logger.warning(f&#39;parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring&#39;)
-                    elif token != &#39;&#39; and token == data[:len(token)]:
 
-                        # token ist just a string
-                        return command
         return None
 
     def get_lookup(self, lookup, type=&#39;fwd&#39;):
@@ -652,7 +638,7 @@ MD_Command-object</p>
         :type ci: bool
         :return: lookup result
         &#34;&#34;&#34;
-        if data is None:
+        if data is None or isinstance(data, (list, tuple, set, dict)):
             return None
 
         mode = &#39;fwd&#39;
@@ -879,26 +865,26 @@ MD_Command-object</p>
                 for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
 
                     if pattern == &#39;*&#39;:
-                        pattern = getattr(cmd_obj, &#39;opcode&#39;, &#39;&#39;)
+                        pattern = getattr(cmd_obj, CMD_ATTR_READ_CMD, getattr(cmd_obj, CMD_ATTR_OPCODE, &#39;&#39;))
 
                     if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
                         for index in (1, 2, 3):
-                            pattern = pattern.replace(&#39;(&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;)&#39;, custom_patterns[index])
+                            pattern = pattern.replace(&#39;{&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;}&#39;, custom_patterns[index])
 
-                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39; in pattern:
+                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
 
                         lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_obj.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
-                        pattern = pattern.replace(&#39;(&#39; + PATTERN_LOOKUP + &#39;)&#39;, lu_pattern)
+                        pattern = pattern.replace(&#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39;, lu_pattern)
 
                     if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39; in pattern:
 
                         vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list&#39;]) + &#39;)&#39;
-                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39;, vl_pattern)
+                        pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39;, vl_pattern)
 
                     if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39; in pattern:
 
                         vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list_ci&#39;]) + &#39;))&#39;
-                        pattern = pattern.replace(&#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39;, vl_pattern)
+                        pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST_CI + &#39;}&#39;, vl_pattern)
 
                     processed_patterns.append(pattern)
 
@@ -967,25 +953,18 @@ MD_Command-object</p>
         data = str(data.decode(&#39;utf-8&#39;))
 
     for command in self._commands:
-        tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
-        if tokens:
-            if not isinstance(tokens, list):
-                tokens = [tokens]
-            for token in tokens:
-                if token == &#39;REGEX&#39; and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
-
-                    # token is &#34;REGEX&#34; - parse read_cmd as regex
+        patterns = getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None)
+        if patterns:
+            for pattern in patterns:
+                if pattern:
                     try:
-                        regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
+                        regex = re.compile(pattern)
                         if regex.match(data) is not None:
-                            self.logger.debug(f&#39;matched reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} as regex against data {data}, found command {command}&#39;)
+                            self.logger.debug(f&#39;matched reply_pattern {pattern} as regex against data {data}, found command {command}&#39;)
                             return command
                     except Exception as e:
                         self.logger.warning(f&#39;parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring&#39;)
-                elif token != &#39;&#39; and token == data[:len(token)]:
 
-                    # token ist just a string
-                    return command
     return None</code></pre>
 </details>
 </dd>

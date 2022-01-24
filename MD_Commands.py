@@ -392,26 +392,26 @@ class MD_Commands(object):
                 for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
 
                     if pattern == '*':
-                        pattern = getattr(cmd_obj, 'opcode', '')
+                        pattern = getattr(cmd_obj, CMD_ATTR_READ_CMD, getattr(cmd_obj, CMD_ATTR_OPCODE, ''))
 
                     if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
                         for index in (1, 2, 3):
-                            pattern = pattern.replace('(' + PATTERN_CUSTOM_PATTERN + str(index) + ')', custom_patterns[index])
+                            pattern = pattern.replace('{' + PATTERN_CUSTOM_PATTERN + str(index) + '}', custom_patterns[index])
 
-                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and '(' + PATTERN_LOOKUP + ')' in pattern:
+                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and '{' + PATTERN_LOOKUP + '}' in pattern:
 
                         lu_pattern = '(' + '|'.join(re.escape(key) for key in self._lookups[cmd_obj.lookup]['fwd'].keys()) + ')'
-                        pattern = pattern.replace('(' + PATTERN_LOOKUP + ')', lu_pattern)
+                        pattern = pattern.replace('{' + PATTERN_LOOKUP + '}', lu_pattern)
 
                     if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and 'valid_list' in cmd_obj.cmd_settings and '(' + PATTERN_VALID_LIST + ')' in pattern:
 
                         vl_pattern = '(' + '|'.join(re.escape(key) for key in cmd_obj.cmd_settings['valid_list']) + ')'
-                        pattern = pattern.replace('(' + PATTERN_VALID_LIST + ')', vl_pattern)
+                        pattern = pattern.replace('{' + PATTERN_VALID_LIST + '}', vl_pattern)
 
                     if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and 'valid_list_ci' in cmd_obj.cmd_settings and '(' + PATTERN_VALID_LIST_CI + ')' in pattern:
 
                         vl_pattern = '((?i:' + '|'.join(re.escape(key) for key in cmd_obj.cmd_settings['valid_list_ci']) + '))'
-                        pattern = pattern.replace('(' + PATTERN_VALID_LIST_CI + ')', vl_pattern)
+                        pattern = pattern.replace('{' + PATTERN_VALID_LIST_CI + '}', vl_pattern)
 
                     processed_patterns.append(pattern)
 

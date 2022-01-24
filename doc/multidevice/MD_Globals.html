@@ -111,69 +111,69 @@ PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT
                 PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT)
 
 # connection types for PLUGIN_ATTR_CONNECTION
-CONN_NULL                   = &#39;&#39;                 # use base connection class without real connection functionality, for testing
-CONN_NET_TCP_REQ            = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
-CONN_NET_TCP_CLI            = &#39;net_tcp_client&#39;   # persistent TCP client connection with async callback for responses
-CONN_NET_TCP_JSONRPC        = &#39;net_tcp_jsonrpc&#39;  # JSON RPC via persistent TCP client connection with async callback for responses
-CONN_NET_UDP_SRV            = &#39;net_udp_server&#39;   # UDP server connection with async data callback
-CONN_SER_DIR                = &#39;serial&#39;           # serial connection with query-reply logic
-CONN_SER_ASYNC              = &#39;serial_async&#39;     # serial connection with only async data callback
+CONN_NULL                    = &#39;&#39;                 # use base connection class without real connection functionality, for testing
+CONN_NET_TCP_REQ             = &#39;net_tcp_request&#39;  # TCP client connection with URL-based requests
+CONN_NET_TCP_CLI             = &#39;net_tcp_client&#39;   # persistent TCP client connection with async callback for responses
+CONN_NET_TCP_JSONRPC         = &#39;net_tcp_jsonrpc&#39;  # JSON RPC via persistent TCP client connection with async callback for responses
+CONN_NET_UDP_SRV             = &#39;net_udp_server&#39;   # UDP server connection with async data callback
+CONN_SER_DIR                 = &#39;serial&#39;           # serial connection with query-reply logic
+CONN_SER_ASYNC               = &#39;serial_async&#39;     # serial connection with only async data callback
 
 CONNECTION_TYPES = (CONN_NULL, CONN_NET_TCP_REQ, CONN_NET_TCP_CLI, CONN_NET_TCP_JSONRPC, CONN_NET_UDP_SRV, CONN_SER_DIR, CONN_SER_ASYNC)
 
 # protocol types for PLUGIN_ATTR_PROTOCOL
-PROTO_NULL                  = &#39;&#39;                 # use base protocol class without added functionality (why??)
-PROTO_JSONRPC               = &#39;jsonrpc&#39;          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
-PROTO_VIESSMANN             = &#39;viessmann&#39;        # Viessmann P300 / KW
+PROTO_NULL                   = &#39;&#39;                 # use base protocol class without added functionality (why??)
+PROTO_JSONRPC                = &#39;jsonrpc&#39;          # JSON-RPC 2.0 support with send queue, msgid and resend of unanswered commands
+PROTO_VIESSMANN              = &#39;viessmann&#39;        # Viessmann P300 / KW
 
 PROTOCOL_TYPES = (PROTO_NULL, PROTO_JSONRPC, PROTO_VIESSMANN)
 
 # item attributes (as defines in plugin.yaml)
-ITEM_ATTR_DEVICE            = &#39;md_device&#39;
-ITEM_ATTR_COMMAND           = &#39;md_command&#39;
-ITEM_ATTR_READ              = &#39;md_read&#39;
-ITEM_ATTR_CYCLE             = &#39;md_read_cycle&#39;
-ITEM_ATTR_READ_INIT         = &#39;md_read_initial&#39;
-ITEM_ATTR_GROUP             = &#39;md_read_group&#39;
-ITEM_ATTR_WRITE             = &#39;md_write&#39;
-ITEM_ATTR_READ_GRP          = &#39;md_read_group_trigger&#39;
-ITEM_ATTR_LOOKUP            = &#39;md_lookup&#39;
-ITEM_ATTR_CUSTOM_PREFIX     = &#39;md_custom&#39;
-ITEM_ATTR_CUSTOM1           = &#39;md_custom1&#39;
-ITEM_ATTR_CUSTOM2           = &#39;md_custom2&#39;
-ITEM_ATTR_CUSTOM3           = &#39;md_custom3&#39;
+ITEM_ATTR_DEVICE             = &#39;md_device&#39;
+ITEM_ATTR_COMMAND            = &#39;md_command&#39;
+ITEM_ATTR_READ               = &#39;md_read&#39;
+ITEM_ATTR_CYCLE              = &#39;md_read_cycle&#39;
+ITEM_ATTR_READ_INIT          = &#39;md_read_initial&#39;
+ITEM_ATTR_GROUP              = &#39;md_read_group&#39;
+ITEM_ATTR_WRITE              = &#39;md_write&#39;
+ITEM_ATTR_READ_GRP           = &#39;md_read_group_trigger&#39;
+ITEM_ATTR_LOOKUP             = &#39;md_lookup&#39;
+ITEM_ATTR_CUSTOM_PREFIX      = &#39;md_custom&#39;
+ITEM_ATTR_CUSTOM1            = &#39;md_custom1&#39;
+ITEM_ATTR_CUSTOM2            = &#39;md_custom2&#39;
+ITEM_ATTR_CUSTOM3            = &#39;md_custom3&#39;
 
 ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_CUSTOM1, ITEM_ATTR_CUSTOM2, ITEM_ATTR_CUSTOM3)
 
 # command definition
-COMMAND_READ                = True
-COMMAND_WRITE               = False
-COMMAND_SEP                 = &#39;.&#39;
-CUSTOM_SEP                  = &#39;#&#39;
+COMMAND_READ                 = True
+COMMAND_WRITE                = False
+COMMAND_SEP                  = &#39;.&#39;
+CUSTOM_SEP                   = &#39;#&#39;
 
 # command definition attributes
-CMD_ATTR_OPCODE             = &#39;opcode&#39;
-CMD_ATTR_READ               = &#39;read&#39;
-CMD_ATTR_WRITE              = &#39;write&#39;
-CMD_ATTR_ITEM_TYPE          = &#39;item_type&#39;
-CMD_ATTR_DEV_TYPE           = &#39;dev_datatype&#39;
-CMD_ATTR_READ_CMD           = &#39;read_cmd&#39;
-CMD_ATTR_WRITE_CMD          = &#39;write_cmd&#39;
-CMD_ATTR_REPLY_PATTERN      = &#39;reply_pattern&#39;
-CMD_ATTR_CMD_SETTINGS       = &#39;cmd_settings&#39;
-CMD_ATTR_LOOKUP             = &#39;lookup&#39;
-CMD_ATTR_PARAMS             = &#39;params&#39;
-CMD_ATTR_PARAM_VALUES       = &#39;param_values&#39;
-CMD_ATTR_ITEM_ATTRS         = &#39;item_attrs&#39;
+CMD_ATTR_OPCODE              = &#39;opcode&#39;
+CMD_ATTR_READ                = &#39;read&#39;
+CMD_ATTR_WRITE               = &#39;write&#39;
+CMD_ATTR_ITEM_TYPE           = &#39;item_type&#39;
+CMD_ATTR_DEV_TYPE            = &#39;dev_datatype&#39;
+CMD_ATTR_READ_CMD            = &#39;read_cmd&#39;
+CMD_ATTR_WRITE_CMD           = &#39;write_cmd&#39;
+CMD_ATTR_REPLY_PATTERN       = &#39;reply_pattern&#39;
+CMD_ATTR_CMD_SETTINGS        = &#39;cmd_settings&#39;
+CMD_ATTR_LOOKUP              = &#39;lookup&#39;
+CMD_ATTR_PARAMS              = &#39;params&#39;
+CMD_ATTR_PARAM_VALUES        = &#39;param_values&#39;
+CMD_ATTR_ITEM_ATTRS          = &#39;item_attrs&#39;
 
-CMD_IATTR_RG_LEVELS         = &#39;read_group_levels&#39;
-CMD_IATTR_LOOKUP_ITEM       = &#39;lookup_item&#39;
-CMD_IATTR_ATTRIBUTES        = &#39;attributes&#39;
-CMD_IATTR_READ_GROUPS       = &#39;read_groups&#39;
-CMD_IATTR_ENFORCE           = &#39;enforce&#39;
-CMD_IATTR_INITIAL           = &#39;initial&#39;
-CMD_IATTR_CYCLE             = &#39;cycle&#39;
-CMD_IATTR_TEMPLATE          = &#39;item_template&#39;
+CMD_IATTR_RG_LEVELS          = &#39;read_group_levels&#39;
+CMD_IATTR_LOOKUP_ITEM        = &#39;lookup_item&#39;
+CMD_IATTR_ATTRIBUTES         = &#39;attributes&#39;
+CMD_IATTR_READ_GROUPS        = &#39;read_groups&#39;
+CMD_IATTR_ENFORCE            = &#39;enforce&#39;
+CMD_IATTR_INITIAL            = &#39;initial&#39;
+CMD_IATTR_CYCLE              = &#39;cycle&#39;
+CMD_IATTR_TEMPLATE           = &#39;item_template&#39;
 
 # commands definition parameters
 COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE, CMD_ATTR_READ_CMD,
@@ -184,18 +184,30 @@ COMMAND_ITEM_ATTRS = (CMD_IATTR_RG_LEVELS, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTR
                       CMD_IATTR_READ_GROUPS, CMD_IATTR_CYCLE, CMD_IATTR_INITIAL, CMD_IATTR_ENFORCE)
 
 # reply pattern substitution tokens
-PATTERN_LOOKUP = &#39;MD_LOOKUP&#39;
-PATTERN_VALID_LIST = &#39;MD_VALID_LIST&#39;
-PATTERN_VALID_LIST_CI = &#39;MD_VALID_LIST_CI&#39;
+PATTERN_LOOKUP = &#39;LOOKUP&#39;
+PATTERN_VALID_LIST = &#39;VALID_LIST&#39;
+PATTERN_VALID_LIST_CI = &#39;VALID_LIST_CI&#39;
 PATTERN_CUSTOM_PATTERN = &#39;CUSTOM_PATTERN&#39;
 
 PATTERN_MARKERS = (PATTERN_LOOKUP, PATTERN_VALID_LIST, PATTERN_VALID_LIST_CI, PATTERN_CUSTOM_PATTERN)
 
+# command string substitution tokens
+CMD_STR_VAL_RAW = &#39;RAW_VALUE&#39;
+CMD_STR_VAL_UPP = &#39;RAW_VALUE_UPPER&#39;
+CMD_STR_VAL_LOW = &#39;RAW_VALUE_LOWER&#39;
+CMD_STR_VAL_CAP = &#39;RAW_VALUE_CAP&#39;
+CMD_STR_VALUE = &#39;VALUE&#39;
+CMD_STR_OPCODE = &#39;OPCODE&#39;
+CMD_STR_PARAM = &#39;PARAM:&#39;
+CMD_STR_CUSTOM = &#39;CUSTOM_ATTR&#39;
+
+CMD_STRINGS = (CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM)
+
 # keys for min / max values for data bounds
-MINMAXKEYS                  = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_min&#39;, &#39;force_max&#39;)
+MINMAXKEYS                   = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;force_min&#39;, &#39;force_max&#39;)
 
 # name of non-model specific key for commands, models and lookups
-INDEX_GENERIC               = &#39;ALL&#39;
+INDEX_GENERIC                = &#39;ALL&#39;
 
 
 #############################################################################################################################################################################################################################################

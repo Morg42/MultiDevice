@@ -28,10 +28,10 @@ import logging
 import re
 
 if MD_standalone:
-    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
+    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
     import datatypes as DT
 else:
-    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, COMMAND_PARAMS, MINMAXKEYS)
+    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
     from . import datatypes as DT
 
 
@@ -208,9 +208,10 @@ class MD_Command_Str(MD_Command):
     For sending, the read_cmd/write_cmd strings, opcode and data are parsed
     (recursively), to enable the following parameters:
 
-    - 'MD_OPCODE' is replaced with the opcode,
-    - 'MD_PARAM:attr:' is replaced with the value of the attr element from the plugin configuration,
-    - 'MD_VALUE' is replaced with the given value (converted by DT-class)
+    - '{OPCODE}' is replaced with the opcode,
+    - '{PARAM:attr}' is replaced with the value of the attr element from the plugin configuration,
+    - '{VALUE}' is replaced with the given value (converted by DT-class)
+    - '{CUSTOM_ATTR1}'..'{CUSTOM_ATTR3}' is replaced by the respective custom attribute
 
     The returned data is only parsed by the DT_... classes.
     For the DT_json class, the read_data dict can be used to extract a specific
@@ -265,6 +266,7 @@ class MD_Command_Str(MD_Command):
         - MD_OPCODE with the command opcode
         - MD_PARAM:<elem>: with the plugin parameter
         - MD_VALUE with the data value
+        - MD_CUSTOM[123] with the respective custom token value
 
         The replacement order ensures that MD_PARAM-patterns from the opcode
         can be replaced as well as MD_VALUE-pattern in any of the strings.
@@ -277,13 +279,13 @@ class MD_Command_Str(MD_Command):
                 return str(kwargs['custom'].get(int(matchobj.group(2))))
             return ''
 
-        string = string.replace('MD_OPCODE', self.opcode)
+        string = string.replace('{' + CMD_STR_OPCODE + '}', self.opcode)
 
-        regex = '(MD_PARAM:([^:]+):)'
+        regex = r'(\{' + CMD_STR_PARAM + r'([^}]+)\})'
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, repl_func, string)
 
-        regex = '(MD_CUSTOM([123]))'
+        regex = r'(\{' + CMD_STR_CUSTOM + r'([123])\})'
         while re.match('.*' + regex + '.*', string):
             string = re.sub(regex, cust_func, string)
 
@@ -295,7 +297,7 @@ class MD_Command_Str(MD_Command):
         #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
 
         if data is not None:
-            string = string.replace('MD_VALUE', str(self._DT.get_send_data(data)))
+            string = string.replace(r'\{' + CMD_STR_VALUE + r'\}', str(self._DT.get_send_data(data)))
 
         return string
 
@@ -330,14 +332,12 @@ class MD_Command_ParseStr(MD_Command_Str):
     Default behaviour is identical to MD_Command_Str.
 
     opcode, write_cmd and read_cmd will be parsed to substitute values.
-    Giving write_cmd as ':<write expression>:' (note colons) will format the
-    given string (without the colons), replacing 'VAL' with the value by using
-    write_cmd.format(VAL=data_dict['payload']), so you can immediately embed
-    the value in the command string with configurable formatting conforming
-    to str.format() syntax.
-    If you have to start and end the command string with colons, just use
-    '::foo::' as write_cmd. If you absolutely HAVE to use a literal
-    ':foo{VAL}bar:', you might need to write your own class...
+    write_cmd will be formatted, replacing ``{RAW_VALUE}`` with the value by
+    using write_cmd.format(RAW_VALUE=data_dict['payload']), so you can
+    immediately embed the value in the command string with configurable
+    formatting conforming to str.format() syntax.
+    Analogous to ``RAW_VALUE``, you can also use ``RAW_VALUE_UPPER``,
+    ``RAW_VALUE_LOWER`` and ``RAW_VALUE_CAP`` for string values.
 
     Giving reply_pattern as '<regex>' with one (1) match group will try and
     capture the matched group into the received value.
@@ -345,16 +345,18 @@ class MD_Command_ParseStr(MD_Command_Str):
     Giving reply_pattern as '<regex>' without capturing parentheses will return
     the reply value as is (can possibly be converted by the DT class).
 
-    HINT: If you give reply_pattern as regex and reply_token as 'REGEX', the
-    reply_pattern regex will be used to identify a reply as belonging to this
-    command if a match is found.
+    HINT: If you give reply_pattern as regex, the reply_pattern regex will be
+    used to identify a reply as belonging to this command if a match is found.
 
-    If the reply_token is 'REGEX' and the reply_pattern contains '(MD_LOOKUP)'
-    and lookup is set to a valid lookup table, the '(MD_LOOKUP)' identifier is
-    replaced with a regex which triggers on any of the possible lookup values.
-    The same applies for '(MD_VALID_LIST)' and '(MD_VALID_LIST_CI)'
+    If the reply_pattern contains ``{LOOKUP}`` and lookup is set to a valid
+    lookup table, the '{MD_LOOKUP}' identifier is replaced with a regex which
+    triggers on any of the possible lookup values.
+    The same applies for ``{VALID_LIST}`` and ``{VALID_LIST_CI}`` for the
+    respective valid_lists from the command settings; including one of 
+    ``{CUSTOM_PATTERN1}``...``{CUSTOM_PATTERN3}`` will replace these with the
+    respective custom pattern from the device class.
 
-    Both results can be achieved with customized DT_foo classes, but this
+    Some results can be achieved with customized DT_foo classes, but this
     might be an easier and cleaner solution. Please make sure to understand
     MRE by JF properly :)
     """
@@ -377,15 +379,16 @@ class MD_Command_ParseStr(MD_Command_Str):
             else:
                 cmd = self._parse_str(self.opcode, data, **kwargs)
 
-            # test if write_cmd is ':foo:' to trigger formatting/substitution
-            # reminder: ':val:' replaces val with 'raw' val, 'MD_VALUE' uses DT.get_send_data(val)
-            if cmd[0] == ':' and cmd[-1] == ':':
-                if isinstance(data, str):
-                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data, VAL_UPPER=data.upper(), VAL_LOWER=data.lower(), VAL_CAP=data.capitalize()), data)
-                else:
-                    cmd_str = self._parse_str(cmd[1:-1].format(VAL=data))
+            # apply substitutions
+            if isinstance(data, str):
+                d = {CMD_STR_VAL_RAW: data,
+                     CMD_STR_VAL_UPP: data.upper(),
+                     CMD_STR_VAL_LOW: data.lower(),
+                     CMD_STR_VAL_CAP: data.capitalize()}
+                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
             else:
-                cmd_str = self._parse_str(cmd, data)
+                d = {CMD_STR_VAL_RAW: data}
+                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
 
         return {'payload': cmd_str, 'data': None if data is None else self._DT.get_send_data(data)}
 

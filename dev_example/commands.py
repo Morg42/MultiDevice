@@ -30,6 +30,19 @@ commands = {
         'write': False,
 
         # general / fallback command sequence/string/..., HTTP URL for MD_Connection_Net_Tcp_Request
+        #
+        # With the MD_Command_Str class, the following substitutions are available:
+        # - ``{OPCODE}`` is replaced with the opcode,
+        # - ``{PARAM:attr}`` is replaced with the value of the attr element from the plugin configuration,
+        # - ``{VALUE}`` is replaced with the given value (converted by DT-class)
+        # - ``{CUSTOM_ATTR1}``...``{CUSTOM_ATTR3}`` is replaced by the respective custom attribute
+        #
+        # With the MD_Command_ParseStr class, the following additional substitutions
+        # apply for string values:
+        # - ``{RAW_VALUE}`` is replaced with the raw value
+        # - ``{RAW_VALUE_LOWER}`` is replaced with the lowercase value
+        # - ``{RAW_VALUE_UPPER}`` is replaced with the uppercase value
+        # - ``{RAW_VALUE_CAP}`` is replaces with the capitalized value
         'opcode': '',
 
         # optional, specific command to read value from device (if not defined, use opcode)
@@ -52,14 +65,11 @@ commands = {
         # if reply_pattern is set to '*', it will be replaces with the opcode of the command
         #
         # you can use the following tokens to have them replaced by their respective values:
-        # - '(MD_LOOKUP)' to replace with a regex which matches on all values from the command lookup table
-        # - '(MD_VALID_LIST)' to replace with all valid values according to the cmd_settings
-        # - '(MD_VALID_LIST_CI)' ditto, with case-insensitive flag set
-        # - '(MD_CUSTOM_PATTERN[123])' to replace with the respective custom pattern as defined
-        #                            in the device class to identify one of the custom tokens
-        # the parentheses are necessary for substitution, but the final regex will
-        # not contain capturing parentheses; if you want to add the capturing group,
-        # do this manually (and in addition to the token parentheses)
+        # - ``{LOOKUP}`` to replace with a regex which matches on all values from the command lookup table
+        # - ``{VALID_LIST}`` to replace with all valid values according to the cmd_settings
+        # - ``{VALID_LIST_CI}`` ditto, with case-insensitive flag set
+        # - ``{CUSTOM_PATTERN1}``...``{CUSTOM_PATTERN3}`` to replace with the respective
+        #   custom pattern as defined in the device class to identify one of the custom tokens
         'reply_pattern': [],
 
         # optional, this dict defines limits for value validity for sending data to the device.

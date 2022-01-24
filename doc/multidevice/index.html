@@ -1447,7 +1447,7 @@ class MultiDevice(SmartPlugin):
             elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
                 item = self._commands_pseudo[device_id][command]
 
-            if item:
+            if item is not None:
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
                 item(value, self.get_shortname() + &#39;.&#39; + device_id)
             # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
@@ -3023,7 +3023,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
                 item = self._commands_pseudo[device_id][command]
 
-            if item:
+            if item is not None:
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
                 item(value, self.get_shortname() + &#39;.&#39; + device_id)
             # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
@@ -3245,7 +3245,7 @@ and update value</p>
         elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
             item = self._commands_pseudo[device_id][command]
 
-        if item:
+        if item is not None:
             dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
             item(value, self.get_shortname() + &#39;.&#39; + device_id)
         # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):

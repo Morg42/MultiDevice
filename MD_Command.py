@@ -407,23 +407,25 @@ class MD_Command_ParseStr(MD_Command_Str):
         self.logger.debug(f'parse_str command got data {data} of type {type(data)}')
 
         if self.reply_pattern:
-            regex = re.compile(self.reply_pattern)
-            match = regex.search(data)
-            if match:
-                if len(match.groups()) == 1:
+            for pattern in self.reply_pattern:
+                regex = re.compile(pattern)
+                match = regex.search(data)
+                if match:
+                    if len(match.groups()) == 1:
 
-                    # one captured group - ok
-                    value = self._DT.get_shng_data(match.group(1), **kwargs)
-                elif len(match.groups()) > 1:
+                        # one captured group - ok
+                        value = self._DT.get_shng_data(match.group(1), **kwargs)
+                        break
+                    elif len(match.groups()) > 1:
 
-                    # more than one captured group - error
-                    raise ValueError(f'reply_pattern {self.reply_pattern} has more than one pair of capturing parentheses')
+                        # more than one captured group - error
+                        raise ValueError(f'reply_pattern {self.reply_pattern} has more than one pair of capturing parentheses')
+                    else:
+
+                        # no captured groups = no parentheses = no extraction of value, just do the "normal" thing
+                        value = self._DT.get_shng_data(data, **kwargs)
                 else:
-
-                    # no captured groups = no parentheses = no extraction of value, just do the "normal" thing
-                    value = self._DT.get_shng_data(data, **kwargs)
-            else:
-                raise ValueError(f'reply_pattern {self.reply_pattern} could not get a match on {data}')
+                    raise ValueError(f'reply_pattern {self.reply_pattern} could not get a match on {data}')
         else:
             value = self._DT.get_shng_data(data, **kwargs)
         return value

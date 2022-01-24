@@ -119,25 +119,17 @@ class MD_Commands(object):
             data = str(data.decode('utf-8'))
 
         for command in self._commands:
-            tokens = getattr(self._commands[command], CMD_ATTR_REPLY_TOKEN, None)
-            if tokens:
-                if not isinstance(tokens, list):
-                    tokens = [tokens]
-                for token in tokens:
-                    if token == 'REGEX' and getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None):
+            patterns = getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN, None)
+            if patterns:
+                for pattern in patterns:
+                    try:
+                        regex = re.compile(pattern)
+                        if regex.match(data) is not None:
+                            self.logger.debug(f'matched reply_pattern {pattern} as regex against data {data}, found command {command}')
+                            return command
+                    except Exception as e:
+                        self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring')
 
-                        # token is "REGEX" - parse read_cmd as regex
-                        try:
-                            regex = re.compile(getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN))
-                            if regex.match(data) is not None:
-                                self.logger.debug(f'matched reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} as regex against data {data}, found command {command}')
-                                return command
-                        except Exception as e:
-                            self.logger.warning(f'parsing or matching reply_pattern {getattr(self._commands[command], CMD_ATTR_REPLY_PATTERN)} from command {command} as regex failed. Error was: {e}. Ignoring')
-                    elif token != '' and token == data[:len(token)]:
-
-                        # token ist just a string
-                        return command
         return None
 
     def get_lookup(self, lookup, type='fwd'):

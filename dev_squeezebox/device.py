@@ -73,6 +73,22 @@ class MD_Device(MD_Device):
         if not custom:
             return
 
+        # set alarm
+        if command == 'player.control.alarms':
+            # This does not really work currently. The created string is somehow correct.
+            # However, much more logic has to be included to add/update/delete alarms, etc.
+            try:
+                for i in value.keys():
+                    d = value.get(i)
+                    alarm = f"id:{i} "
+                    for k, v in d.items():
+                        alarm += f"{k}:{v} "
+                    alarm = f"alarm add {alarm.strip()}"
+                    self.logger.debug(f"Set alarm: {alarm}")
+                    _dispatch('player.control.set_alarm', alarm, custom)
+            except Exception as e:
+                self.logger.error(f"Error setting alarm: {e}")
+
         # set album art URL
         if command == 'player.info.album':
             host = self._params.get(PLUGIN_ATTR_NET_HOST)
@@ -81,13 +97,14 @@ class MD_Device(MD_Device):
             _dispatch('player.info.albumarturl', url, custom)
 
         # update on new song
-        if command == 'player.info.title' or (command == 'player.control.playpause' and data == "True"):
+        if command == 'player.info.title' or (command == 'player.control.playpause' and value == "True"):
             _trigger_read('player.control.playmode', custom)
             _trigger_read('player.playlist.index', custom)
             _trigger_read('player.info.duration', custom)
             _trigger_read('player.info.album', custom)
             _trigger_read('player.info.artist', custom)
             _trigger_read('player.info.genre', custom)
+            _trigger_read('player.info.path', custom)
 
         # update current time info
         if command in ['player.control.forward', 'player.control.rewind']:
@@ -102,5 +119,5 @@ class MD_Device(MD_Device):
             _trigger_read('player.control.time', custom)
 
         # update play and stop items based on playmode
-        if command == 'player.control.stop' or (command == 'player.control.playpause' and data == "False"):
+        if command == 'player.control.stop' or (command == 'player.control.playpause' and value == "False"):
             _trigger_read('player.control.playmode', custom)

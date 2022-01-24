@@ -15,6 +15,7 @@ server:
         md_command: server.listenmode
         md_read: true
         md_write: true
+        visu_acl: rw
 
     playercount:
         type: num
@@ -22,7 +23,9 @@ server:
         md_command: server.playercount
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['server']
+        md_read_initial: true
 
     favoritescount:
         type: num
@@ -30,7 +33,9 @@ server:
         md_command: server.favoritescount
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['server']
+        md_read_initial: true
 
 database:
 
@@ -54,6 +59,7 @@ database:
             md_command: database.rescan.start
             md_read: false
             md_write: true
+            visu_acl: rw
 
         running:
             type: bool
@@ -61,7 +67,9 @@ database:
             md_command: database.rescan.running
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['database', 'database.rescan']
+            md_read_initial: true
 
         progress:
             type: str
@@ -69,6 +77,7 @@ database:
             md_command: database.rescan.progress
             md_read: true
             md_write: false
+            visu_acl: ro
 
         runningtime:
             type: str
@@ -76,6 +85,7 @@ database:
             md_command: database.rescan.runningtime
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['database', 'database.rescan']
 
         fail:
@@ -84,6 +94,7 @@ database:
             md_command: database.rescan.fail
             md_read: true
             md_write: false
+            visu_acl: ro
 
         abortscan:
             type: bool
@@ -91,6 +102,7 @@ database:
             md_command: database.rescan.abortscan
             md_read: true
             md_write: true
+            visu_acl: rw
 
         wipecache:
             type: bool
@@ -98,6 +110,7 @@ database:
             md_command: database.rescan.wipecache
             md_read: true
             md_write: true
+            visu_acl: rw
 
     totalgenres:
         type: num
@@ -105,7 +118,9 @@ database:
         md_command: database.totalgenres
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['database']
+        md_read_initial: true
 
     totalduration:
         type: num
@@ -113,7 +128,9 @@ database:
         md_command: database.totalduration
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['database']
+        md_read_initial: true
 
     totalartists:
         type: num
@@ -121,7 +138,9 @@ database:
         md_command: database.totalartists
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['database']
+        md_read_initial: true
 
     totalalbums:
         type: num
@@ -129,7 +148,9 @@ database:
         md_command: database.totalalbums
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['database']
+        md_read_initial: true
 
     totalsongs:
         type: num
@@ -137,7 +158,9 @@ database:
         md_command: database.totalsongs
         md_read: true
         md_write: false
+        visu_acl: ro
         md_read_group: ['database']
+        md_read_initial: true
 
 player:
 
@@ -161,7 +184,9 @@ player:
             md_command: player.control.power
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control']
+            md_read_initial: true
 
         playmode:
             type: str
@@ -169,7 +194,9 @@ player:
             md_command: player.control.playmode
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control']
+            md_read_initial: true
 
         playpause:
             type: bool
@@ -177,6 +204,7 @@ player:
             md_command: player.control.playpause
             md_read: true
             md_write: true
+            visu_acl: rw
 
         stop:
             type: bool
@@ -184,6 +212,7 @@ player:
             md_command: player.control.stop
             md_read: true
             md_write: true
+            visu_acl: rw
 
         mute:
             type: bool
@@ -191,7 +220,9 @@ player:
             md_command: player.control.mute
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control']
+            md_read_initial: true
 
         volume:
             type: num
@@ -199,7 +230,9 @@ player:
             md_command: player.control.volume
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control']
+            md_read_initial: true
 
         volume_low:
             type: num
@@ -207,6 +240,7 @@ player:
             md_command: player.control.volume_low
             md_read: false
             md_write: true
+            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 60
@@ -217,6 +251,7 @@ player:
             md_command: player.control.volume_high
             md_read: false
             md_write: true
+            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 80
@@ -227,6 +262,7 @@ player:
             md_command: player.control.volumeup
             md_read: false
             md_write: true
+            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 1
@@ -237,17 +273,38 @@ player:
             md_command: player.control.volumedown
             md_read: false
             md_write: true
+            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 1
 
-        alarm:
+        set_alarm:
             type: str
             md_device: DEVICENAME
-            md_command: player.control.alarm
+            md_command: player.control.set_alarm
             md_read: true
             md_write: true
-            md_read_group: ['player', 'player.control']
+            visu_acl: rw
+
+        alarms:
+            type: dict
+            md_device: DEVICENAME
+            md_command: player.control.alarms
+            md_read: true
+            md_write: false
+            visu_acl: ro
+            md_read_group: ['player', 'player.control', 'player.control.alarms.query']
+            md_read_initial: true
+
+            item_attrs:
+
+                read_groups:
+
+                    read:
+                        type: bool
+                        enforce_updates: true
+                        md_device: DEVICENAME
+                        md_read_group_trigger: player.control.alarms.item_attrs.read_groups
 
         sync:
             type: str
@@ -255,7 +312,9 @@ player:
             md_command: player.control.sync
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control']
+            md_read_initial: true
 
         unsync:
             type: bool
@@ -263,6 +322,7 @@ player:
             md_command: player.control.unsync
             md_read: false
             md_write: true
+            visu_acl: rw
 
         display:
             type: str
@@ -270,7 +330,9 @@ player:
             md_command: player.control.display
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control']
+            md_read_initial: true
 
         connect:
             type: str
@@ -278,6 +340,7 @@ player:
             md_command: player.control.connect
             md_read: true
             md_write: true
+            visu_acl: rw
 
         disconnect:
             type: str
@@ -285,6 +348,7 @@ player:
             md_command: player.control.disconnect
             md_read: true
             md_write: true
+            visu_acl: rw
 
         time:
             type: num
@@ -292,6 +356,7 @@ player:
             md_command: player.control.time
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.control', 'player.control.time_poll']
             enforce_updates: true
 
@@ -309,6 +374,7 @@ player:
             md_command: player.control.forward
             md_read: true
             md_write: true
+            visu_acl: rw
             enforce_updates: true
             initial_value: 10
 
@@ -318,6 +384,7 @@ player:
             md_command: player.control.rewind
             md_read: true
             md_write: true
+            visu_acl: rw
             enforce_updates: true
             initial_value: 10
 
@@ -330,12 +397,14 @@ player:
             md_read_group_trigger: player.playlist
 
         repeat:
-            type: num
+            type: str
             md_device: DEVICENAME
             md_command: player.playlist.repeat
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
+            md_read_initial: true
             remark: 0 = Off, 1 = Song, 2 = Playlist
 
             lookup:
@@ -344,12 +413,14 @@ player:
                 md_lookup: REPEAT#list
 
         shuffle:
-            type: num
+            type: str
             md_device: DEVICENAME
             md_command: player.playlist.shuffle
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
+            md_read_initial: true
             remark: 0 = Off, 1 = Song, 2 = Album
 
             lookup:
@@ -363,7 +434,9 @@ player:
             md_command: player.playlist.index
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
+            md_read_initial: true
 
         name:
             type: str
@@ -371,7 +444,9 @@ player:
             md_command: player.playlist.name
             md_read: true
             md_write: true
+            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
+            md_read_initial: true
 
         id:
             type: num
@@ -379,6 +454,7 @@ player:
             md_command: player.playlist.id
             md_read: true
             md_write: true
+            visu_acl: rw
 
         save:
             type: str
@@ -386,6 +462,7 @@ player:
             md_command: player.playlist.save
             md_read: true
             md_write: true
+            visu_acl: rw
 
         load:
             type: str
@@ -393,6 +470,7 @@ player:
             md_command: player.playlist.load
             md_read: true
             md_write: true
+            visu_acl: rw
 
         loadalbum:
             type: str
@@ -400,6 +478,7 @@ player:
             md_command: player.playlist.loadalbum
             md_read: true
             md_write: true
+            visu_acl: rw
 
         loadtracks:
             type: str
@@ -407,6 +486,7 @@ player:
             md_command: player.playlist.loadtracks
             md_read: true
             md_write: true
+            visu_acl: rw
 
         add:
             type: str
@@ -414,6 +494,7 @@ player:
             md_command: player.playlist.add
             md_read: true
             md_write: true
+            visu_acl: rw
 
         addalbum:
             type: str
@@ -421,6 +502,7 @@ player:
             md_command: player.playlist.addalbum
             md_read: true
             md_write: true
+            visu_acl: rw
 
         addtracks:
             type: str
@@ -428,6 +510,7 @@ player:
             md_command: player.playlist.addtracks
             md_read: true
             md_write: true
+            visu_acl: rw
 
         insertalbum:
             type: str
@@ -435,6 +518,7 @@ player:
             md_command: player.playlist.insertalbum
             md_read: true
             md_write: true
+            visu_acl: rw
 
         inserttracks:
             type: str
@@ -442,6 +526,7 @@ player:
             md_command: player.playlist.inserttracks
             md_read: true
             md_write: true
+            visu_acl: rw
 
         tracks:
             type: num
@@ -449,7 +534,9 @@ player:
             md_command: player.playlist.tracks
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.playlist']
+            md_read_initial: true
 
         clear:
             type: bool
@@ -457,6 +544,7 @@ player:
             md_command: player.playlist.clear
             md_read: true
             md_write: true
+            visu_acl: rw
             enforce_updates: true
             eval: True if value else None
 
@@ -466,6 +554,7 @@ player:
             md_command: player.playlist.delete
             md_read: true
             md_write: true
+            visu_acl: rw
 
         deleteitem:
             type: str
@@ -473,6 +562,7 @@ player:
             md_command: player.playlist.deleteitem
             md_read: true
             md_write: true
+            visu_acl: rw
 
         deletealbum:
             type: str
@@ -480,6 +570,7 @@ player:
             md_command: player.playlist.deletealbum
             md_read: true
             md_write: true
+            visu_acl: rw
 
         preview:
             type: str
@@ -487,6 +578,7 @@ player:
             md_command: player.playlist.preview
             md_read: true
             md_write: true
+            visu_acl: rw
 
         next:
             type: num
@@ -494,6 +586,7 @@ player:
             md_command: player.playlist.next
             md_read: false
             md_write: true
+            visu_acl: rw
             enforce_updates: true
             initial_value: 1
 
@@ -503,6 +596,7 @@ player:
             md_command: player.playlist.previous
             md_read: false
             md_write: true
+            visu_acl: rw
             enforce_updates: true
             initial_value: 1
 
@@ -512,6 +606,7 @@ player:
             md_command: player.playlist.customskip
             md_read: false
             md_write: true
+            visu_acl: rw
             cache: true
 
     info:
@@ -528,7 +623,9 @@ player:
             md_command: player.info.connected
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
+            md_read_initial: true
 
         name:
             type: str
@@ -536,7 +633,9 @@ player:
             md_command: player.info.name
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
+            md_read_initial: true
 
         sleep:
             type: num
@@ -544,15 +643,9 @@ player:
             md_command: player.info.sleep
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
-
-        alarms:
-            type: str
-            md_device: DEVICENAME
-            md_command: player.info.alarms
-            md_read: true
-            md_write: false
-            md_read_group: ['player', 'player.info']
+            md_read_initial: true
 
         syncgroups:
             type: num
@@ -560,7 +653,9 @@ player:
             md_command: player.info.syncgroups
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
+            md_read_initial: true
 
         signalstrength:
             type: num
@@ -568,7 +663,9 @@ player:
             md_command: player.info.signalstrength
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
+            md_read_initial: true
 
         genre:
             type: str
@@ -576,6 +673,7 @@ player:
             md_command: player.info.genre
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         artist:
@@ -584,6 +682,7 @@ player:
             md_command: player.info.artist
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         album:
@@ -592,6 +691,7 @@ player:
             md_command: player.info.album
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -601,7 +701,9 @@ player:
             md_command: player.info.title
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
+            md_read_initial: true
 
         path:
             type: str
@@ -609,6 +711,7 @@ player:
             md_command: player.info.path
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         duration:
@@ -617,6 +720,7 @@ player:
             md_command: player.info.duration
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         albumarturl:
@@ -625,6 +729,7 @@ player:
             md_command: player.info.albumarturl
             md_read: true
             md_write: false
+            visu_acl: ro
 
 ALL:
 
@@ -632,12 +737,39 @@ ALL:
 
         control:
 
+            alarms:
+                type: dict
+                md_device: DEVICENAME
+                md_command: player.control.alarms
+                md_read: true
+                md_write: false
+                visu_acl: ro
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.alarms.query']
+                md_read_initial: true
+
+                query:
+                    type: bool
+                    enforce_updates: true
+                    md_device: DEVICENAME
+                    md_read_group_trigger: player.control.alarms.query
+
+                item_attrs:
+
+                    read_groups:
+
+                        read:
+                            type: bool
+                            enforce_updates: true
+                            md_device: DEVICENAME
+                            md_read_group_trigger: ALL.player.control.alarms.item_attrs.read_groups
+
             time:
                 type: num
                 md_device: DEVICENAME
                 md_command: player.control.time
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.time_poll']
                 enforce_updates: true
 
@@ -661,7 +793,9 @@ ALL:
                 md_command: player.control.power
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
 
             playmode:
                 type: str
@@ -669,7 +803,9 @@ ALL:
                 md_command: player.control.playmode
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
 
             playpause:
                 type: bool
@@ -677,6 +813,7 @@ ALL:
                 md_command: player.control.playpause
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             stop:
                 type: bool
@@ -684,6 +821,7 @@ ALL:
                 md_command: player.control.stop
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             mute:
                 type: bool
@@ -691,7 +829,9 @@ ALL:
                 md_command: player.control.mute
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
 
             volume:
                 type: num
@@ -699,7 +839,9 @@ ALL:
                 md_command: player.control.volume
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
 
             volume_low:
                 type: num
@@ -707,6 +849,7 @@ ALL:
                 md_command: player.control.volume_low
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 cache: true
                 enforce_updates: true
                 initial_value: 60
@@ -717,6 +860,7 @@ ALL:
                 md_command: player.control.volume_high
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 cache: true
                 enforce_updates: true
                 initial_value: 80
@@ -727,6 +871,7 @@ ALL:
                 md_command: player.control.volumeup
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 cache: true
                 enforce_updates: true
                 initial_value: 1
@@ -737,17 +882,18 @@ ALL:
                 md_command: player.control.volumedown
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 cache: true
                 enforce_updates: true
                 initial_value: 1
 
-            alarm:
+            set_alarm:
                 type: str
                 md_device: DEVICENAME
-                md_command: player.control.alarm
+                md_command: player.control.set_alarm
                 md_read: true
                 md_write: true
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                visu_acl: rw
 
             sync:
                 type: str
@@ -755,7 +901,9 @@ ALL:
                 md_command: player.control.sync
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
 
             unsync:
                 type: bool
@@ -763,6 +911,7 @@ ALL:
                 md_command: player.control.unsync
                 md_read: false
                 md_write: true
+                visu_acl: rw
 
             display:
                 type: str
@@ -770,7 +919,9 @@ ALL:
                 md_command: player.control.display
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
 
             connect:
                 type: str
@@ -778,6 +929,7 @@ ALL:
                 md_command: player.control.connect
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             disconnect:
                 type: str
@@ -785,6 +937,7 @@ ALL:
                 md_command: player.control.disconnect
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             forward:
                 type: num
@@ -792,6 +945,7 @@ ALL:
                 md_command: player.control.forward
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 enforce_updates: true
                 initial_value: 10
 
@@ -801,6 +955,7 @@ ALL:
                 md_command: player.control.rewind
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 enforce_updates: true
                 initial_value: 10
 
@@ -819,12 +974,14 @@ ALL:
                 md_read_group_trigger: ALL.player.playlist
 
             repeat:
-                type: num
+                type: str
                 md_device: DEVICENAME
                 md_command: player.playlist.repeat
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
                 remark: 0 = Off, 1 = Song, 2 = Playlist
 
                 lookup:
@@ -833,12 +990,14 @@ ALL:
                     md_lookup: REPEAT#list
 
             shuffle:
-                type: num
+                type: str
                 md_device: DEVICENAME
                 md_command: player.playlist.shuffle
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
                 remark: 0 = Off, 1 = Song, 2 = Album
 
                 lookup:
@@ -852,7 +1011,9 @@ ALL:
                 md_command: player.playlist.index
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
 
             name:
                 type: str
@@ -860,7 +1021,9 @@ ALL:
                 md_command: player.playlist.name
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
 
             id:
                 type: num
@@ -868,6 +1031,7 @@ ALL:
                 md_command: player.playlist.id
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             save:
                 type: str
@@ -875,6 +1039,7 @@ ALL:
                 md_command: player.playlist.save
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             load:
                 type: str
@@ -882,6 +1047,7 @@ ALL:
                 md_command: player.playlist.load
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             loadalbum:
                 type: str
@@ -889,6 +1055,7 @@ ALL:
                 md_command: player.playlist.loadalbum
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             loadtracks:
                 type: str
@@ -896,6 +1063,7 @@ ALL:
                 md_command: player.playlist.loadtracks
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             add:
                 type: str
@@ -903,6 +1071,7 @@ ALL:
                 md_command: player.playlist.add
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             addalbum:
                 type: str
@@ -910,6 +1079,7 @@ ALL:
                 md_command: player.playlist.addalbum
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             addtracks:
                 type: str
@@ -917,6 +1087,7 @@ ALL:
                 md_command: player.playlist.addtracks
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             insertalbum:
                 type: str
@@ -924,6 +1095,7 @@ ALL:
                 md_command: player.playlist.insertalbum
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             inserttracks:
                 type: str
@@ -931,6 +1103,7 @@ ALL:
                 md_command: player.playlist.inserttracks
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             tracks:
                 type: num
@@ -938,7 +1111,9 @@ ALL:
                 md_command: player.playlist.tracks
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
 
             clear:
                 type: bool
@@ -946,6 +1121,7 @@ ALL:
                 md_command: player.playlist.clear
                 md_read: true
                 md_write: true
+                visu_acl: rw
                 enforce_updates: true
                 eval: True if value else None
 
@@ -955,6 +1131,7 @@ ALL:
                 md_command: player.playlist.delete
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             deleteitem:
                 type: str
@@ -962,6 +1139,7 @@ ALL:
                 md_command: player.playlist.deleteitem
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             deletealbum:
                 type: str
@@ -969,6 +1147,7 @@ ALL:
                 md_command: player.playlist.deletealbum
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             preview:
                 type: str
@@ -976,6 +1155,7 @@ ALL:
                 md_command: player.playlist.preview
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             next:
                 type: num
@@ -983,6 +1163,7 @@ ALL:
                 md_command: player.playlist.next
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 enforce_updates: true
                 initial_value: 1
 
@@ -992,6 +1173,7 @@ ALL:
                 md_command: player.playlist.previous
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 enforce_updates: true
                 initial_value: 1
 
@@ -1001,6 +1183,7 @@ ALL:
                 md_command: player.playlist.customskip
                 md_read: false
                 md_write: true
+                visu_acl: rw
                 cache: true
 
         info:
@@ -1017,7 +1200,9 @@ ALL:
                 md_command: player.info.connected
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
 
             name:
                 type: str
@@ -1025,7 +1210,9 @@ ALL:
                 md_command: player.info.name
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
 
             sleep:
                 type: num
@@ -1033,15 +1220,9 @@ ALL:
                 md_command: player.info.sleep
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-
-            alarms:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.alarms
-                md_read: true
-                md_write: false
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
 
             syncgroups:
                 type: num
@@ -1049,7 +1230,9 @@ ALL:
                 md_command: player.info.syncgroups
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
 
             signalstrength:
                 type: num
@@ -1057,7 +1240,9 @@ ALL:
                 md_command: player.info.signalstrength
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
 
             genre:
                 type: str
@@ -1065,6 +1250,7 @@ ALL:
                 md_command: player.info.genre
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
 
             artist:
@@ -1073,6 +1259,7 @@ ALL:
                 md_command: player.info.artist
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
 
             album:
@@ -1081,6 +1268,7 @@ ALL:
                 md_command: player.info.album
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
                 md_read_initial: true
 
@@ -1090,7 +1278,9 @@ ALL:
                 md_command: player.info.title
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
 
             path:
                 type: str
@@ -1098,6 +1288,7 @@ ALL:
                 md_command: player.info.path
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
 
             duration:
@@ -1106,6 +1297,7 @@ ALL:
                 md_command: player.info.duration
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
 
             albumarturl:
@@ -1114,6 +1306,7 @@ ALL:
                 md_command: player.info.albumarturl
                 md_read: true
                 md_write: false
+                visu_acl: ro
 
     read:
         type: bool
@@ -1135,6 +1328,7 @@ ALL:
             md_command: server.listenmode
             md_read: true
             md_write: true
+            visu_acl: rw
 
         playercount:
             type: num
@@ -1142,7 +1336,9 @@ ALL:
             md_command: server.playercount
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.server']
+            md_read_initial: true
 
         favoritescount:
             type: num
@@ -1150,7 +1346,9 @@ ALL:
             md_command: server.favoritescount
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.server']
+            md_read_initial: true
 
     database:
 
@@ -1174,6 +1372,7 @@ ALL:
                 md_command: database.rescan.start
                 md_read: false
                 md_write: true
+                visu_acl: rw
 
             running:
                 type: bool
@@ -1181,7 +1380,9 @@ ALL:
                 md_command: database.rescan.running
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.database', 'ALL.database.rescan']
+                md_read_initial: true
 
             progress:
                 type: str
@@ -1189,6 +1390,7 @@ ALL:
                 md_command: database.rescan.progress
                 md_read: true
                 md_write: false
+                visu_acl: ro
 
             runningtime:
                 type: str
@@ -1196,6 +1398,7 @@ ALL:
                 md_command: database.rescan.runningtime
                 md_read: true
                 md_write: false
+                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.database', 'ALL.database.rescan']
 
             fail:
@@ -1204,6 +1407,7 @@ ALL:
                 md_command: database.rescan.fail
                 md_read: true
                 md_write: false
+                visu_acl: ro
 
             abortscan:
                 type: bool
@@ -1211,6 +1415,7 @@ ALL:
                 md_command: database.rescan.abortscan
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
             wipecache:
                 type: bool
@@ -1218,6 +1423,7 @@ ALL:
                 md_command: database.rescan.wipecache
                 md_read: true
                 md_write: true
+                visu_acl: rw
 
         totalgenres:
             type: num
@@ -1225,7 +1431,9 @@ ALL:
             md_command: database.totalgenres
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
+            md_read_initial: true
 
         totalduration:
             type: num
@@ -1233,7 +1441,9 @@ ALL:
             md_command: database.totalduration
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
+            md_read_initial: true
 
         totalartists:
             type: num
@@ -1241,7 +1451,9 @@ ALL:
             md_command: database.totalartists
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
+            md_read_initial: true
 
         totalalbums:
             type: num
@@ -1249,7 +1461,9 @@ ALL:
             md_command: database.totalalbums
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
+            md_read_initial: true
 
         totalsongs:
             type: num
@@ -1257,5 +1471,7 @@ ALL:
             md_command: database.totalsongs
             md_read: true
             md_write: false
+            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
+            md_read_initial: true
 

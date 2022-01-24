@@ -26,6 +26,23 @@ class DT_SqueezePlay(DT.Datatype):
         return True if data == "play" else False
 
 
+class DT_SqueezeAlarms(DT.Datatype):
+    def get_shng_data(self, data, type=None, **kwargs):
+        dic = {}
+        _id = None
+        res = data.split()
+        for i in res:
+            key, value = i.split(':')
+            if key == "id":
+                _id = value
+                dic[_id] = {}
+            elif _id:
+              dic[_id][key] = value
+            else:
+              dic[key] = value
+        return dic
+
+
 class DT_SqueezePlayMode(DT.Datatype):
     def get_shng_data(self, data, type=None, **kwargs):
         if data in ["play", "pause 0"]:

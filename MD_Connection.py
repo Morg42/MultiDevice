@@ -74,6 +74,7 @@ class MD_Connection(object):
         self.device_id = device_id
         self._is_connected = False
         self._data_received_callback = data_received_callback
+        self.dummy = None   # dummy response for testing
 
         # we set defaults for all possible connection parameters, so we don't
         # need to care later if a parameter is set or not
@@ -195,7 +196,7 @@ class MD_Connection(object):
         Return None if no response is received or expected.
         """
         self.logger.debug(f'simulating to send data {data_dict}...')
-        return None
+        return self.dummy
 
     def _send_init_on_open(self):
         """

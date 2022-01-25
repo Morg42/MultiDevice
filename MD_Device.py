@@ -287,6 +287,8 @@ class MD_Device(object):
                     by = None
                     if self.custom_commands:
                         by = kwargs['custom'][self.custom_commands]
+                        if custom_value:
+                            command = command + CUSTOM_SEP + custom_value
                     self._data_received_callback(self.device_id, command, value, by)
                 else:
                     self.logger.warning(f'command {command} received result {result}, but _data_received_callback is not set. Discarding result.')

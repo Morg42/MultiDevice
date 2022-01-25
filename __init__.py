@@ -809,6 +809,27 @@ class MultiDevice(SmartPlugin):
             self.logger.debug(f'Item {item}: parse for device {device_id}')
 
             command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+            # handle custom item attributes
+            self._items_custom[item.id()] = {1: None, 2: None, 3: None}
+            for index in (1, 2, 3):
+
+                val = None
+                if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                    val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                    self.logger.debug(f'Item {item} has custom item attribute {index} with value {val}')
+                elif device.has_recursive_custom_attribute(index):
+                    val = find_custom_attr(item, index)
+                    if val is not None:
+                        self.logger.debug(f'Item {item} inherited custom item attribute {index} with value {val}')
+                if val is not None:
+                    device.set_custom_item(item, command, index, val)
+                    self._items_custom[item.id()][index] = val
+
+            custom_token = ''
+            if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
+                custom_token = CUSTOM_SEP + self._items_custom[item.id()][device.custom_commands]
+
             if command:
 
                 # command found, validate command for device
@@ -816,29 +837,12 @@ class MultiDevice(SmartPlugin):
                     self.logger.warning(f'Item {item} requests undefined command {command} for device {device_id}, ignoring item')
                     return
 
-                # handle custom item attributes
-                self._items_custom[item.id()] = {1: None, 2: None, 3: None}
-                for index in (1, 2, 3):
-
-                    val = None
-                    if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
-                        val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
-                        self.logger.debug(f'Item {item} has custom item attribute {index} with value {val}')
-                    elif device.has_recursive_custom_attribute(index):
-                        val = find_custom_attr(item, index)
-                        if val is not None:
-                            self.logger.debug(f'Item {item} inherited custom item attribute {index} with value {val}')
-                    if val is not None:
-                        device.set_custom_item(item, command, index, val)
-                        self._items_custom[item.id()][index] = val
-
                 # if "custom commands" are active for device <dev>, modify command to be
                 # <command>#<customx>, where x is the index of the md_custom<x> item attribute
                 # and <customx> is the value of the attribute.
                 # By this modification, multiple items with the same command but different customx-Values
                 # can "coexist" and be differentiated by the plugin and the device.
-                if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
-                    command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
+                command += custom_token
 
                 # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
@@ -861,6 +865,7 @@ class MultiDevice(SmartPlugin):
                         if isinstance(group, list):
                             for grp in group:
                                 if grp:
+                                    grp += custom_token
                                     if grp not in self._commands_read_grp[device_id]:
                                         self._commands_read_grp[device_id][grp] = []
                                     self._commands_read_grp[device_id][grp].append(command)
@@ -900,26 +905,32 @@ class MultiDevice(SmartPlugin):
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
             if grp:
 
+                grp += custom_token
+                item_msg = f'Item {item}'
+                if custom_token:
+                    item_msg += f' with token {custom_token}'
+                item_msg += ' saved for '
+
                 # trigger read on startup?
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                     if grp not in self._triggers_initial[device_id]:
                         self._triggers_initial[device_id].append(grp)
-                        self.logger.debug(f'Item {item} saved for startup triggering of read group {grp} on device {device_id}')
+                        self.logger.debug(f'{item_msg} startup triggering of read group {grp} on device {device_id}')
 
                 # read cyclically?
                 cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                 if cycle:
                     # if cycle is already set for command, use the lower value of the two
                     self._triggers_cyclic[device_id][grp] = {'cycle': min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), 'next': 0}
-                    self.logger.debug(f'Item {item} saved for cyclic triggering of read group {grp} on device {device_id}')
+                    self.logger.debug(f'{item_msg} cyclic triggering of read group {grp} on device {device_id}')
 
                 if grp == '0':
                     self._items_read_all[item.id()] = device_id
-                    self.logger.debug(f'Item {item} saved for read_all on device {device_id}')
+                    self.logger.debug(f'{item_msg} read_all on device {device_id}')
                     return self.update_item
                 elif grp:
                     self._items_read_grp[item.id()] = [device_id, grp]
-                    self.logger.debug(f'Item {item} saved for reading group {grp} on device {device_id}')
+                    self.logger.debug(f'{item_msg} reading group {grp} on device {device_id}')
                     return self.update_item
                 else:
                     self.logger.warning(f'Item {item} wants to trigger group read with invalid group identifier "{grp}", ignoring.')

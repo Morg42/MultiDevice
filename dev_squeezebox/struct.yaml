@@ -15,7 +15,6 @@ server:
         md_command: server.listenmode
         md_read: true
         md_write: true
-        visu_acl: rw
 
     playercount:
         type: num
@@ -23,7 +22,6 @@ server:
         md_command: server.playercount
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['server']
         md_read_initial: true
 
@@ -33,7 +31,6 @@ server:
         md_command: server.favoritescount
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['server']
         md_read_initial: true
 
@@ -59,7 +56,6 @@ database:
             md_command: database.rescan.start
             md_read: false
             md_write: true
-            visu_acl: rw
 
         running:
             type: bool
@@ -67,7 +63,6 @@ database:
             md_command: database.rescan.running
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['database', 'database.rescan']
             md_read_initial: true
 
@@ -77,7 +72,6 @@ database:
             md_command: database.rescan.progress
             md_read: true
             md_write: false
-            visu_acl: ro
 
         runningtime:
             type: str
@@ -85,7 +79,6 @@ database:
             md_command: database.rescan.runningtime
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['database', 'database.rescan']
 
         fail:
@@ -94,7 +87,6 @@ database:
             md_command: database.rescan.fail
             md_read: true
             md_write: false
-            visu_acl: ro
 
         abortscan:
             type: bool
@@ -102,7 +94,6 @@ database:
             md_command: database.rescan.abortscan
             md_read: true
             md_write: true
-            visu_acl: rw
 
         wipecache:
             type: bool
@@ -110,7 +101,6 @@ database:
             md_command: database.rescan.wipecache
             md_read: true
             md_write: true
-            visu_acl: rw
 
     totalgenres:
         type: num
@@ -118,7 +108,6 @@ database:
         md_command: database.totalgenres
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['database']
         md_read_initial: true
 
@@ -128,7 +117,6 @@ database:
         md_command: database.totalduration
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['database']
         md_read_initial: true
 
@@ -138,7 +126,6 @@ database:
         md_command: database.totalartists
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['database']
         md_read_initial: true
 
@@ -148,7 +135,6 @@ database:
         md_command: database.totalalbums
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['database']
         md_read_initial: true
 
@@ -158,7 +144,6 @@ database:
         md_command: database.totalsongs
         md_read: true
         md_write: false
-        visu_acl: ro
         md_read_group: ['database']
         md_read_initial: true
 
@@ -184,7 +169,6 @@ player:
             md_command: player.control.power
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
@@ -194,7 +178,6 @@ player:
             md_command: player.control.playmode
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
@@ -204,7 +187,6 @@ player:
             md_command: player.control.playpause
             md_read: true
             md_write: true
-            visu_acl: rw
 
         stop:
             type: bool
@@ -212,7 +194,6 @@ player:
             md_command: player.control.stop
             md_read: true
             md_write: true
-            visu_acl: rw
 
         mute:
             type: bool
@@ -220,7 +201,6 @@ player:
             md_command: player.control.mute
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
@@ -230,7 +210,6 @@ player:
             md_command: player.control.volume
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
@@ -240,7 +219,6 @@ player:
             md_command: player.control.volume_low
             md_read: false
             md_write: true
-            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 60
@@ -251,7 +229,6 @@ player:
             md_command: player.control.volume_high
             md_read: false
             md_write: true
-            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 80
@@ -262,7 +239,6 @@ player:
             md_command: player.control.volumeup
             md_read: false
             md_write: true
-            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 1
@@ -273,7 +249,6 @@ player:
             md_command: player.control.volumedown
             md_read: false
             md_write: true
-            visu_acl: rw
             cache: true
             enforce_updates: true
             initial_value: 1
@@ -284,7 +259,6 @@ player:
             md_command: player.control.set_alarm
             md_read: true
             md_write: true
-            visu_acl: rw
 
         alarms:
             type: dict
@@ -292,7 +266,6 @@ player:
             md_command: player.control.alarms
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.control', 'player.control.alarms']
             md_read_initial: true
 
@@ -308,7 +281,6 @@ player:
             md_command: player.control.sync
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
@@ -318,7 +290,6 @@ player:
             md_command: player.control.unsync
             md_read: false
             md_write: true
-            visu_acl: rw
 
         display:
             type: str
@@ -326,7 +297,6 @@ player:
             md_command: player.control.display
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
@@ -336,7 +306,6 @@ player:
             md_command: player.control.connect
             md_read: true
             md_write: true
-            visu_acl: rw
 
         disconnect:
             type: str
@@ -344,7 +313,6 @@ player:
             md_command: player.control.disconnect
             md_read: true
             md_write: true
-            visu_acl: rw
 
         time:
             type: num
@@ -352,7 +320,6 @@ player:
             md_command: player.control.time
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.control', 'player.control.time_poll']
             enforce_updates: true
 
@@ -370,7 +337,6 @@ player:
             md_command: player.control.forward
             md_read: true
             md_write: true
-            visu_acl: rw
             enforce_updates: true
             initial_value: 10
 
@@ -380,7 +346,6 @@ player:
             md_command: player.control.rewind
             md_read: true
             md_write: true
-            visu_acl: rw
             enforce_updates: true
             initial_value: 10
 
@@ -398,7 +363,6 @@ player:
             md_command: player.playlist.repeat
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
             md_read_initial: true
             remark: 0 = Off, 1 = Song, 2 = Playlist
@@ -414,7 +378,6 @@ player:
             md_command: player.playlist.shuffle
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
             md_read_initial: true
             remark: 0 = Off, 1 = Song, 2 = Album
@@ -430,7 +393,6 @@ player:
             md_command: player.playlist.index
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
             md_read_initial: true
 
@@ -440,7 +402,6 @@ player:
             md_command: player.playlist.name
             md_read: true
             md_write: true
-            visu_acl: rw
             md_read_group: ['player', 'player.playlist']
             md_read_initial: true
 
@@ -450,7 +411,6 @@ player:
             md_command: player.playlist.id
             md_read: true
             md_write: true
-            visu_acl: rw
 
         save:
             type: str
@@ -458,7 +418,6 @@ player:
             md_command: player.playlist.save
             md_read: true
             md_write: true
-            visu_acl: rw
 
         load:
             type: str
@@ -466,7 +425,6 @@ player:
             md_command: player.playlist.load
             md_read: true
             md_write: true
-            visu_acl: rw
 
         loadalbum:
             type: str
@@ -474,7 +432,6 @@ player:
             md_command: player.playlist.loadalbum
             md_read: true
             md_write: true
-            visu_acl: rw
 
         loadtracks:
             type: str
@@ -482,7 +439,6 @@ player:
             md_command: player.playlist.loadtracks
             md_read: true
             md_write: true
-            visu_acl: rw
 
         add:
             type: str
@@ -490,7 +446,6 @@ player:
             md_command: player.playlist.add
             md_read: true
             md_write: true
-            visu_acl: rw
 
         addalbum:
             type: str
@@ -498,7 +453,6 @@ player:
             md_command: player.playlist.addalbum
             md_read: true
             md_write: true
-            visu_acl: rw
 
         addtracks:
             type: str
@@ -506,7 +460,6 @@ player:
             md_command: player.playlist.addtracks
             md_read: true
             md_write: true
-            visu_acl: rw
 
         insertalbum:
             type: str
@@ -514,7 +467,6 @@ player:
             md_command: player.playlist.insertalbum
             md_read: true
             md_write: true
-            visu_acl: rw
 
         inserttracks:
             type: str
@@ -522,7 +474,6 @@ player:
             md_command: player.playlist.inserttracks
             md_read: true
             md_write: true
-            visu_acl: rw
 
         tracks:
             type: num
@@ -530,7 +481,6 @@ player:
             md_command: player.playlist.tracks
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.playlist']
             md_read_initial: true
 
@@ -540,7 +490,6 @@ player:
             md_command: player.playlist.clear
             md_read: true
             md_write: true
-            visu_acl: rw
             enforce_updates: true
             eval: True if value else None
 
@@ -550,7 +499,6 @@ player:
             md_command: player.playlist.delete
             md_read: true
             md_write: true
-            visu_acl: rw
 
         deleteitem:
             type: str
@@ -558,7 +506,6 @@ player:
             md_command: player.playlist.deleteitem
             md_read: true
             md_write: true
-            visu_acl: rw
 
         deletealbum:
             type: str
@@ -566,7 +513,6 @@ player:
             md_command: player.playlist.deletealbum
             md_read: true
             md_write: true
-            visu_acl: rw
 
         preview:
             type: str
@@ -574,7 +520,6 @@ player:
             md_command: player.playlist.preview
             md_read: true
             md_write: true
-            visu_acl: rw
 
         next:
             type: num
@@ -582,7 +527,6 @@ player:
             md_command: player.playlist.next
             md_read: false
             md_write: true
-            visu_acl: rw
             enforce_updates: true
             initial_value: 1
 
@@ -592,7 +536,6 @@ player:
             md_command: player.playlist.previous
             md_read: false
             md_write: true
-            visu_acl: rw
             enforce_updates: true
             initial_value: 1
 
@@ -602,7 +545,6 @@ player:
             md_command: player.playlist.customskip
             md_read: false
             md_write: true
-            visu_acl: rw
             cache: true
 
     info:
@@ -619,7 +561,6 @@ player:
             md_command: player.info.connected
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -629,7 +570,6 @@ player:
             md_command: player.info.name
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -639,7 +579,6 @@ player:
             md_command: player.info.sleep
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -649,7 +588,6 @@ player:
             md_command: player.info.syncgroups
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -659,7 +597,6 @@ player:
             md_command: player.info.signalstrength
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -669,7 +606,6 @@ player:
             md_command: player.info.genre
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         artist:
@@ -678,7 +614,6 @@ player:
             md_command: player.info.artist
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         album:
@@ -687,7 +622,6 @@ player:
             md_command: player.info.album
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -697,7 +631,6 @@ player:
             md_command: player.info.title
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
             md_read_initial: true
 
@@ -707,7 +640,6 @@ player:
             md_command: player.info.path
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         duration:
@@ -716,7 +648,6 @@ player:
             md_command: player.info.duration
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['player', 'player.info']
 
         albumarturl:
@@ -725,574 +656,8 @@ player:
             md_command: player.info.albumarturl
             md_read: true
             md_write: false
-            visu_acl: ro
 
 ALL:
-
-    player:
-
-        control:
-
-            alarms:
-                type: dict
-                md_device: DEVICENAME
-                md_command: player.control.alarms
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.alarms']
-                md_read_initial: true
-
-                query:
-                    type: bool
-                    enforce_updates: true
-                    md_device: DEVICENAME
-                    md_read_group_trigger: player.control.alarms
-
-            time:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.time
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.time_poll']
-                enforce_updates: true
-
-                poll:
-                    type: bool
-                    enforce_updates: true
-                    md_device: DEVICENAME
-                    md_read_group_trigger: player.control.time_poll
-                    eval: True if sh....playmode() == "play" else None
-                    cycle: 10 = True
-
-            read:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: ALL.player.control
-
-            power:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.control.power
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
-                md_read_initial: true
-
-            playmode:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.control.playmode
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
-                md_read_initial: true
-
-            playpause:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.control.playpause
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            stop:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.control.stop
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            mute:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.control.mute
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
-                md_read_initial: true
-
-            volume:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.volume
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
-                md_read_initial: true
-
-            volume_low:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.volume_low
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                cache: true
-                enforce_updates: true
-                initial_value: 60
-
-            volume_high:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.volume_high
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                cache: true
-                enforce_updates: true
-                initial_value: 80
-
-            volumeup:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.volumeup
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                cache: true
-                enforce_updates: true
-                initial_value: 1
-
-            volumedown:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.volumedown
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                cache: true
-                enforce_updates: true
-                initial_value: 1
-
-            set_alarm:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.control.set_alarm
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            sync:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.control.sync
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
-                md_read_initial: true
-
-            unsync:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.control.unsync
-                md_read: false
-                md_write: true
-                visu_acl: rw
-
-            display:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.control.display
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
-                md_read_initial: true
-
-            connect:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.control.connect
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            disconnect:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.control.disconnect
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            forward:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.forward
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                enforce_updates: true
-                initial_value: 10
-
-            rewind:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.control.rewind
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                enforce_updates: true
-                initial_value: 10
-
-        read:
-            type: bool
-            enforce_updates: true
-            md_device: DEVICENAME
-            md_read_group_trigger: ALL.player
-
-        playlist:
-
-            read:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: ALL.player.playlist
-
-            repeat:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.repeat
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
-                md_read_initial: true
-                remark: 0 = Off, 1 = Song, 2 = Playlist
-
-                lookup:
-                    type: list
-                    md_device: DEVICENAME
-                    md_lookup: REPEAT#list
-
-            shuffle:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.shuffle
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
-                md_read_initial: true
-                remark: 0 = Off, 1 = Song, 2 = Album
-
-                lookup:
-                    type: list
-                    md_device: DEVICENAME
-                    md_lookup: SHUFFLE#list
-
-            index:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.index
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
-                md_read_initial: true
-
-            name:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.name
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
-                md_read_initial: true
-
-            id:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.playlist.id
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            save:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.save
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            load:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.load
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            loadalbum:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.loadalbum
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            loadtracks:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.loadtracks
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            add:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.add
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            addalbum:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.addalbum
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            addtracks:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.addtracks
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            insertalbum:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.insertalbum
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            inserttracks:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.inserttracks
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            tracks:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.playlist.tracks
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
-                md_read_initial: true
-
-            clear:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.playlist.clear
-                md_read: true
-                md_write: true
-                visu_acl: rw
-                enforce_updates: true
-                eval: True if value else None
-
-            delete:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.delete
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            deleteitem:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.deleteitem
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            deletealbum:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.deletealbum
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            preview:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.preview
-                md_read: true
-                md_write: true
-                visu_acl: rw
-
-            next:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.playlist.next
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                enforce_updates: true
-                initial_value: 1
-
-            previous:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.playlist.previous
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                enforce_updates: true
-                initial_value: 1
-
-            customskip:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.playlist.customskip
-                md_read: false
-                md_write: true
-                visu_acl: rw
-                cache: true
-
-        info:
-
-            read:
-                type: bool
-                enforce_updates: true
-                md_device: DEVICENAME
-                md_read_group_trigger: ALL.player.info
-
-            connected:
-                type: bool
-                md_device: DEVICENAME
-                md_command: player.info.connected
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            name:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.name
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            sleep:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.info.sleep
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            syncgroups:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.info.syncgroups
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            signalstrength:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.info.signalstrength
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            genre:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.genre
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-
-            artist:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.artist
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-
-            album:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.album
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            title:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.title
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-                md_read_initial: true
-
-            path:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.path
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-
-            duration:
-                type: num
-                md_device: DEVICENAME
-                md_command: player.info.duration
-                md_read: true
-                md_write: false
-                visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
-
-            albumarturl:
-                type: str
-                md_device: DEVICENAME
-                md_command: player.info.albumarturl
-                md_read: true
-                md_write: false
-                visu_acl: ro
 
     read:
         type: bool
@@ -1314,7 +679,6 @@ ALL:
             md_command: server.listenmode
             md_read: true
             md_write: true
-            visu_acl: rw
 
         playercount:
             type: num
@@ -1322,7 +686,6 @@ ALL:
             md_command: server.playercount
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.server']
             md_read_initial: true
 
@@ -1332,7 +695,6 @@ ALL:
             md_command: server.favoritescount
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.server']
             md_read_initial: true
 
@@ -1358,7 +720,6 @@ ALL:
                 md_command: database.rescan.start
                 md_read: false
                 md_write: true
-                visu_acl: rw
 
             running:
                 type: bool
@@ -1366,7 +727,6 @@ ALL:
                 md_command: database.rescan.running
                 md_read: true
                 md_write: false
-                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.database', 'ALL.database.rescan']
                 md_read_initial: true
 
@@ -1376,7 +736,6 @@ ALL:
                 md_command: database.rescan.progress
                 md_read: true
                 md_write: false
-                visu_acl: ro
 
             runningtime:
                 type: str
@@ -1384,7 +743,6 @@ ALL:
                 md_command: database.rescan.runningtime
                 md_read: true
                 md_write: false
-                visu_acl: ro
                 md_read_group: ['ALL', 'ALL.database', 'ALL.database.rescan']
 
             fail:
@@ -1393,7 +751,6 @@ ALL:
                 md_command: database.rescan.fail
                 md_read: true
                 md_write: false
-                visu_acl: ro
 
             abortscan:
                 type: bool
@@ -1401,7 +758,6 @@ ALL:
                 md_command: database.rescan.abortscan
                 md_read: true
                 md_write: true
-                visu_acl: rw
 
             wipecache:
                 type: bool
@@ -1409,7 +765,6 @@ ALL:
                 md_command: database.rescan.wipecache
                 md_read: true
                 md_write: true
-                visu_acl: rw
 
         totalgenres:
             type: num
@@ -1417,7 +772,6 @@ ALL:
             md_command: database.totalgenres
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
             md_read_initial: true
 
@@ -1427,7 +781,6 @@ ALL:
             md_command: database.totalduration
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
             md_read_initial: true
 
@@ -1437,7 +790,6 @@ ALL:
             md_command: database.totalartists
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
             md_read_initial: true
 
@@ -1447,7 +799,6 @@ ALL:
             md_command: database.totalalbums
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
             md_read_initial: true
 
@@ -1457,6 +808,516 @@ ALL:
             md_command: database.totalsongs
             md_read: true
             md_write: false
-            visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
             md_read_initial: true
+
+    player:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: ALL.player
+
+        control:
+
+            read:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: ALL.player.control
+
+            power:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.power
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
+
+            playmode:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.playmode
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
+
+            playpause:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.playpause
+                md_read: true
+                md_write: true
+
+            stop:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.stop
+                md_read: true
+                md_write: true
+
+            mute:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.mute
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
+
+            volume:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
+
+            volume_low:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume_low
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 60
+
+            volume_high:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume_high
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 80
+
+            volumeup:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volumeup
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 1
+
+            volumedown:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volumedown
+                md_read: false
+                md_write: true
+                cache: true
+                enforce_updates: true
+                initial_value: 1
+
+            set_alarm:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.set_alarm
+                md_read: true
+                md_write: true
+
+            alarms:
+                type: dict
+                md_device: DEVICENAME
+                md_command: player.control.alarms
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.alarms']
+                md_read_initial: true
+
+                query:
+                    type: bool
+                    enforce_updates: true
+                    md_device: DEVICENAME
+                    md_read_group_trigger: player.control.alarms
+
+            sync:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.sync
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
+
+            unsync:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.control.unsync
+                md_read: false
+                md_write: true
+
+            display:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.display
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
+                md_read_initial: true
+
+            connect:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.connect
+                md_read: true
+                md_write: true
+
+            disconnect:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.disconnect
+                md_read: true
+                md_write: true
+
+            time:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.time
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.time_poll']
+                enforce_updates: true
+
+                poll:
+                    type: bool
+                    eval: True if sh....playmode() == "play" else None
+                    enforce_updates: true
+                    cycle: 10 = True
+                    md_device: DEVICENAME
+                    md_read_group_trigger: player.control.time_poll
+
+            forward:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.forward
+                md_read: true
+                md_write: true
+                enforce_updates: true
+                initial_value: 10
+
+            rewind:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.rewind
+                md_read: true
+                md_write: true
+                enforce_updates: true
+                initial_value: 10
+
+        playlist:
+
+            read:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: ALL.player.playlist
+
+            repeat:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.repeat
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
+                remark: 0 = Off, 1 = Song, 2 = Playlist
+
+                lookup:
+                    type: list
+                    md_device: DEVICENAME
+                    md_lookup: REPEAT#list
+
+            shuffle:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.shuffle
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
+                remark: 0 = Off, 1 = Song, 2 = Album
+
+                lookup:
+                    type: list
+                    md_device: DEVICENAME
+                    md_lookup: SHUFFLE#list
+
+            index:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.index
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
+
+            name:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.name
+                md_read: true
+                md_write: true
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
+
+            id:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.playlist.id
+                md_read: true
+                md_write: true
+
+            save:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.save
+                md_read: true
+                md_write: true
+
+            load:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.load
+                md_read: true
+                md_write: true
+
+            loadalbum:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.loadalbum
+                md_read: true
+                md_write: true
+
+            loadtracks:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.loadtracks
+                md_read: true
+                md_write: true
+
+            add:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.add
+                md_read: true
+                md_write: true
+
+            addalbum:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.addalbum
+                md_read: true
+                md_write: true
+
+            addtracks:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.addtracks
+                md_read: true
+                md_write: true
+
+            insertalbum:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.insertalbum
+                md_read: true
+                md_write: true
+
+            inserttracks:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.inserttracks
+                md_read: true
+                md_write: true
+
+            tracks:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.playlist.tracks
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.playlist']
+                md_read_initial: true
+
+            clear:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.playlist.clear
+                md_read: true
+                md_write: true
+                enforce_updates: true
+                eval: True if value else None
+
+            delete:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.delete
+                md_read: true
+                md_write: true
+
+            deleteitem:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.deleteitem
+                md_read: true
+                md_write: true
+
+            deletealbum:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.deletealbum
+                md_read: true
+                md_write: true
+
+            preview:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.preview
+                md_read: true
+                md_write: true
+
+            next:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.playlist.next
+                md_read: false
+                md_write: true
+                enforce_updates: true
+                initial_value: 1
+
+            previous:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.playlist.previous
+                md_read: false
+                md_write: true
+                enforce_updates: true
+                initial_value: 1
+
+            customskip:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.playlist.customskip
+                md_read: false
+                md_write: true
+                cache: true
+
+        info:
+
+            read:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: ALL.player.info
+
+            connected:
+                type: bool
+                md_device: DEVICENAME
+                md_command: player.info.connected
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            name:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.name
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            sleep:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.sleep
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            syncgroups:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.syncgroups
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            signalstrength:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.signalstrength
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            genre:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.genre
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            artist:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.artist
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            album:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.album
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            title:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.title
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+                md_read_initial: true
+
+            path:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.path
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            duration:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.info.duration
+                md_read: true
+                md_write: false
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.info']
+
+            albumarturl:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.info.albumarturl
+                md_read: true
+                md_write: false
+

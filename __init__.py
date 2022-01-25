@@ -1343,7 +1343,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                             rg_list = [rg_list]
                         for entry in rg_list:
                             grps.append(entry.get('name'))
-
                     item[ITEM_ATTR_GROUP] = grps
 
                 if inode:
@@ -1398,6 +1397,9 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                     pass
 
             add_item_to_tree(path, item)
+#
+            if CMD_ATTR_ITEM_ATTRS in node:
+                find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
     def print_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         """ print item """
@@ -1470,7 +1472,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 item_tree = {}
 
                 # find read group triggers
-                walk(obj[model], model, None, find_read_group_triggers, '', 0, model, [model], True)
+                # walk(obj[model], model, None, find_read_group_triggers, '', 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], '', None, create_item, '', 0, model, [model], True)
@@ -1492,7 +1494,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 obj = {section: commands[section]}
 
                 # find read group triggers
-                walk(obj[section], section, obj, find_read_group_triggers, '', 0, section, [section], True)
+                # walk(obj[section], section, obj, find_read_group_triggers, section, 0, section, [section], True)
 
                 # create item tree
                 walk(obj[section], section, None, create_item, section, 0, '', [], True)
@@ -1527,7 +1529,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 walk(obj[model], model, obj, removeEmptyItems, '', 0, model, [model], True, False)
 
                 # find read group triggers
-                walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
+                # walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], model, obj, create_item, model, 0, '', [], False, cut_levels=1)

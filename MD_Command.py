@@ -263,13 +263,13 @@ class MD_Command_Str(MD_Command):
     def _parse_str(self, string, data=None, **kwargs):
         """
         parse string and replace
-        - MD_OPCODE with the command opcode
-        - MD_PARAM:<elem>: with the plugin parameter
-        - MD_VALUE with the data value
-        - MD_CUSTOM[123] with the respective custom token value
+        - ``{OPCODE}`` with the command opcode
+        - ``{PARAM:<elem>}`` with the plugin parameter
+        - ``{VALUE}`` with the data value
+        - ``{CUSTOM_ATTR[123]}`` with the respective custom token value
 
-        The replacement order ensures that MD_PARAM-patterns from the opcode
-        can be replaced as well as MD_VALUE-pattern in any of the strings.
+        The replacement order ensures that PARAM-patterns from the opcode
+        can be replaced as well as VALUE-pattern in any of the strings.
         """
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), ''))
@@ -297,7 +297,7 @@ class MD_Command_Str(MD_Command):
         #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
 
         if data is not None:
-            string = string.replace(r'\{' + CMD_STR_VALUE + r'\}', str(self._DT.get_send_data(data)))
+            string = string.replace('{' + CMD_STR_VALUE + '}', str(self._DT.get_send_data(data)))
 
         return string
 

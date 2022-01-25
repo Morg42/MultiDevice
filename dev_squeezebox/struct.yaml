@@ -293,18 +293,14 @@ player:
             md_read: true
             md_write: false
             visu_acl: ro
-            md_read_group: ['player', 'player.control', 'player.control.alarms.query']
+            md_read_group: ['player', 'player.control', 'player.control.alarms']
             md_read_initial: true
 
-            item_attrs:
-
-                read_groups:
-
-                    read:
-                        type: bool
-                        enforce_updates: true
-                        md_device: DEVICENAME
-                        md_read_group_trigger: player.control.alarms.item_attrs.read_groups
+            query:
+                type: bool
+                enforce_updates: true
+                md_device: DEVICENAME
+                md_read_group_trigger: player.control.alarms
 
         sync:
             type: str
@@ -744,24 +740,14 @@ ALL:
                 md_read: true
                 md_write: false
                 visu_acl: ro
-                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.alarms.query']
+                md_read_group: ['ALL', 'ALL.player', 'ALL.player.control', 'player.control.alarms']
                 md_read_initial: true
 
                 query:
                     type: bool
                     enforce_updates: true
                     md_device: DEVICENAME
-                    md_read_group_trigger: player.control.alarms.query
-
-                item_attrs:
-
-                    read_groups:
-
-                        read:
-                            type: bool
-                            enforce_updates: true
-                            md_device: DEVICENAME
-                            md_read_group_trigger: ALL.player.control.alarms.item_attrs.read_groups
+                    md_read_group_trigger: player.control.alarms
 
             time:
                 type: num
@@ -1474,4 +1460,3 @@ ALL:
             visu_acl: ro
             md_read_group: ['ALL', 'ALL.database']
             md_read_initial: true
-

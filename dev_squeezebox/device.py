@@ -58,10 +58,12 @@ class MD_Device(MD_Device):
 
     def _process_additional_data(self, command, data, value, custom, by):
 
-        def _dispatch(command, value, custom=None):
+        def _dispatch(command, value, custom=None, send=False):
             if custom:
                 command = command + CUSTOM_SEP + custom
-            if self._data_received_callback:
+            if send:
+                self.send_command(command, value)
+            elif self._data_received_callback:
                 self._data_received_callback(self.device_id, command, value)
 
         def _trigger_read(command, custom=None):
@@ -85,7 +87,7 @@ class MD_Device(MD_Device):
                         alarm += f"{k}:{v} "
                     alarm = f"alarm add {alarm.strip()}"
                     self.logger.debug(f"Set alarm: {alarm}")
-                    _dispatch('player.control.set_alarm', alarm, custom)
+                    _dispatch('player.control.set_alarm', alarm, custom, True)
             except Exception as e:
                 self.logger.error(f"Error setting alarm: {e}")
 

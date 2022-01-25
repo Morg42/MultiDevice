@@ -70,7 +70,7 @@ status:
         type: bool
         md_device: DEVICENAME
         md_command: status.update
-        md_read: true
+        md_read: false
         md_write: true
         md_read_group: ['status']
 
@@ -299,7 +299,7 @@ ALL:
             type: bool
             md_device: DEVICENAME
             md_command: status.update
-            md_read: true
+            md_read: false
             md_write: true
             md_read_group: ['ALL', 'ALL.status']
 

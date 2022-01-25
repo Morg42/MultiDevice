@@ -1380,7 +1380,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                         item['lookup'][ITEM_ATTR_LOOKUP] = f'{node.get(CMD_ATTR_LOOKUP)}#{ltyp}'
 
             # 'level node' -> print read item
-            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
+            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
 
                 item['read'] = {'type': 'bool'}
                 item['read']['enforce_updates'] = True
@@ -1396,7 +1396,8 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 except AttributeError:
                     pass
 
-            add_item_to_tree(path, item)
+            if item:
+                add_item_to_tree(path, item)
 #
             if CMD_ATTR_ITEM_ATTRS in node:
                 find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)

@@ -385,10 +385,10 @@ class MD_Command_ParseStr(MD_Command_Str):
                      CMD_STR_VAL_UPP: data.upper(),
                      CMD_STR_VAL_LOW: data.lower(),
                      CMD_STR_VAL_CAP: data.capitalize()}
-                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+                cmd_str = self._parse_str(cmd.format(**d), data)
             else:
                 d = {CMD_STR_VAL_RAW: data}
-                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+                cmd_str = self._parse_str(cmd.format(**d), data)
 
         return {'payload': cmd_str, 'data': None if data is None else self._DT.get_send_data(data)}
 

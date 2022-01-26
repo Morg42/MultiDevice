@@ -156,23 +156,23 @@ COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_
 COMMAND_ITEM_ATTRS = (CMD_IATTR_RG_LEVELS, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES, CMD_IATTR_TEMPLATE,
                       CMD_IATTR_READ_GROUPS, CMD_IATTR_CYCLE, CMD_IATTR_INITIAL, CMD_IATTR_ENFORCE)
 
-# reply pattern substitution tokens
-PATTERN_LOOKUP               = 'LOOKUP'
-PATTERN_VALID_LIST           = 'VALID_LIST'
-PATTERN_VALID_LIST_CI        = 'VALID_LIST_CI'
-PATTERN_CUSTOM_PATTERN       = 'CUSTOM_PATTERN'
+# reply pattern substitution tokens, set token in {<token>}
+PATTERN_LOOKUP               = 'LOOKUP'                 # replace with lookup values    
+PATTERN_VALID_LIST           = 'VALID_LIST'             # replace with valid_list items
+PATTERN_VALID_LIST_CI        = 'VALID_LIST_CI'          # replace with valid_list_ci items
+PATTERN_CUSTOM_PATTERN       = 'CUSTOM_PATTERN'         # replace with custom pattern <x>
 
 PATTERN_MARKERS = (PATTERN_LOOKUP, PATTERN_VALID_LIST, PATTERN_VALID_LIST_CI, PATTERN_CUSTOM_PATTERN)
 
-# command string substitution tokens
-CMD_STR_VAL_RAW              = 'RAW_VALUE'
-CMD_STR_VAL_UPP              = 'RAW_VALUE_UPPER'
-CMD_STR_VAL_LOW              = 'RAW_VALUE_LOWER'
-CMD_STR_VAL_CAP              = 'RAW_VALUE_CAP'
-CMD_STR_VALUE                = 'VALUE'
-CMD_STR_OPCODE               = 'OPCODE'
-CMD_STR_PARAM                = 'PARAM:'
-CMD_STR_CUSTOM               = 'CUSTOM_ATTR'
+# command string substitution tokens, set token in {<token>}
+CMD_STR_VAL_RAW              = 'RAW_VALUE'              # replace with raw value
+CMD_STR_VAL_UPP              = 'RAW_VALUE_UPPER'        # replace with raw value uppercase (if string)
+CMD_STR_VAL_LOW              = 'RAW_VALUE_LOWER'        # replace with raw value lowercase (if string)
+CMD_STR_VAL_CAP              = 'RAW_VALUE_CAP'          # replace with raw value capitalized (if string)
+CMD_STR_VALUE                = 'VALUE'                  # replace with DT converted value
+CMD_STR_OPCODE               = 'OPCODE'                 # replace with opcode string/bytes
+CMD_STR_PARAM                = 'PARAM:'                 # replace with kwargs[foo] (``{PARAM:foo}``)
+CMD_STR_CUSTOM               = 'CUSTOM_ATTR'            # replace with value of custom attribute <x>
 
 CMD_STRINGS = (CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM)
 
@@ -180,7 +180,7 @@ CMD_STRINGS = (CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CA
 MINMAXKEYS                   = ('valid_min', 'valid_max', 'force_min', 'force_max')
 
 # name of non-model specific key for commands, models and lookups
-INDEX_GENERIC                = 'ALL'
+INDEX_GENERIC                = 'ALL'                    # placeholder for generic data
 
 
 #############################################################################################################################################################################################################################################

@@ -34,7 +34,7 @@ implementations.</p>
 <p>The plugin manages item association and updates. For each device it handles, it
 creates an object based on <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code> or derived classes.</p>
 <p>The device object handles starting and stopping the device and its
-configuration.</p>
+configuration as well as connecting the different layers.</p>
 <p>Possible commands are bundled by the <code><a title="multidevice.MD_Commands" href="MD_Commands.html">multidevice.MD_Commands</a></code> class which handles
 loading, validating and calling the separate <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code> or derived
 objects.</p>
@@ -42,7 +42,7 @@ objects.</p>
 command tokens/strings to/from the real device.</p>
 <p>Each command is assigned a data type, which is represented by a <code>Datatype</code>-
 derived class and transforms values between the real device and the command
-object.</p>
+object respectively the final SmartHomeNG item data type.</p>
 <p>To actually talk to the real device, that is, send commands/values and receive
 replies, it uses a standardized interface via one of the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> or
 derived classes.</p>
@@ -53,15 +53,16 @@ with validity of data sent or received.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Using the <code>MD_Command_Str</code> or especially the <code>MD_Command_ParseStr</code> classes,
-the need for specialized datatype classes <strong>can</strong> be sidestepped.</p>
+the need for specialized datatype classes <strong>can</strong> possibly be sidestepped.</p>
 <p>Be aware that while creating complex commands indeed can be fun, string
 parsing will not be able to detect or cope with some data type conversions.</p>
 <p>You have been warned 😉</p>
 </div>
 <p>(New) devices each reside in their respective subfolder of the plugin folder,
-providing a derived device class, a command definition and - if applicable -
-additional necessary datatypes. These are automatically loaded by the plugin if
-the respective device has a configuration entry in <code>/etc/plugin.yaml</code>.</p>
+providing a derived device class, a device description file, a command definition
+and - if applicable - additional necessary datatypes. These are automatically
+loaded by the plugin if the respective device has a configuration entry in
+<code>/etc/plugin.yaml</code>.</p>
 <p>This concept is meant to</p>
 <ul>
 <li>minimize the amount of (repeating) code needed to implement a new device,</li>
@@ -94,8 +95,8 @@ program. The main goal is running device-supplied functions, for example to
 initiate a device discovery or diagnostic functions. To this end, it must be
 run from the SmartHomeNG folder by issuing</p>
 <p><code>python3 plugins/multidevice/__init__.py &lt;devicename&gt; [&lt;params&gt;] [-v]</code></p>
-<p>Be advised that any functionality to provide in this mode must absolutely
-by implemented by you :)</p>
+<p>Be advised that any functionality any device shall provide in this mode must
+absolutely by implemented by you :) (that is, the device developer).</p>
 <p>struct.yaml generation
 ~~~~~~~~~~~~~~~~~~~~~~</p>
 <p>The second goal of standalone usage is creating <code>struct.yaml</code> template files
@@ -104,16 +105,16 @@ or the <code>-S</code> argument:</p>
 <p><code>python3 plugins/multidevice/__init__.py &lt;devicename&gt; -s</code></p>
 <p>The <code>-s</code> argument prints the struct file contents to screen, <code>-S</code> causes the
 plugin to write the <code>struct.yaml</code> directly to the devices' folder. Beware that
-existing files will be overwritten.</p>
+existing files <em>will</em> be overwritten.</p>
 <p>The additional argument <code>-a</code> instructs the generator to add <code>visu_acl:</code> item
 attributes, setting the value to <code>ro</code> or <code>rw</code> depending on the write property
 of the respective command.</p>
 <h2 id="md_device">Md_Device</h2>
 <p>The <code><a title="multidevice.MD_Device" href="MD_Device.html">multidevice.MD_Device</a></code>-class provides a framework for receiving (item) data values
-from the plugin and forward it to the connection class and vice versa.
+from the plugin and forwarding them to the connection class and vice versa.
 A basic framework for managing the device, i.e. (re-)configuring, starting
-and stopping the device is already implemented and can be used without code
-changed by device configuration.</p>
+and stopping the device is already implemented and can be used via by device
+configuration without the need for code changes.</p>
 <p><code>MD_Device(device_type, device_id, **kwargs)</code></p>
 <p>Public methods:</p>
 <ul>
@@ -193,7 +194,7 @@ classes.</p>
 <li><code>MD_Connection_Net_Tcp_Request</code> for query-reply TCP connections</li>
 <li><code>MD_Connection_Net_Tcp_Client</code>
 for persistent TCP connections with async replies</li>
-<li><code>MD_Connection_Net_Udp_Request</code> for UDP listering server with async callback</li>
+<li><code>MD_Connection_Net_Udp_Request</code> for UDP listening server with async callback</li>
 <li><code>MD_Connection_Serial</code>
 for query-reply serial connections</li>
 <li><code>MD_Connection_Serial_Async</code>
@@ -218,13 +219,13 @@ used for testing.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Supplying the <code>protocol</code> attribute as a kind of 'empty default' is
-prone to break devices relying on protocol support.</p>
+bound to break devices relying on protocol support.</p>
 </div>
 <p>The methods are the same as for the <code><a title="multidevice.MD_Connection" href="MD_Connection.html">multidevice.MD_Connection</a></code> class.</p>
 <p>This class has subclasses defined for the following types of protocols:</p>
 <ul>
 <li><code>MD_Protocol_Jsonrpc</code> for JSON-RPC 2.0 protocol data exchange</li>
-<li><code>MD_Protocol_Viessmann</code> for P300- and KW-protocol communication</li>
+<li><code>MD_Protocol_Viessmann</code> for P300- and KW-protocol serial communication</li>
 </ul>
 <h2 id="md_commands">Md_Commands</h2>
 <p>This class is a 'dict on steroids' of <code><a title="multidevice.MD_Command" href="MD_Command.html">multidevice.MD_Command</a></code>-objects with error checking
@@ -285,10 +286,10 @@ strings and dicts to build request URLs as payload data e.g. for the
 They also demonstrate parameter substitution in command definitions on
 different levels of complexity.</p>
 <h2 id="datatype">Datatype</h2>
-<p>This is one of the most important classes. By declaration, it contains
-information about the data type and format needed by a device and methods
-to convert its value from selected Python data types used in items to the
-(possibly) special data formats required by devices and vice versa.</p>
+<p>This class contains information about the data type and format needed by
+a device and methods to convert its value from selected Python data types
+used in items to the (possibly) special data formats required by devices
+and vice versa.</p>
 <p>Datatypes are specified in subclasses of Datatype with a nomenclature
 convention of <code>DT_&lt;device data type of format&gt;</code>.</p>
 <p>All default datatype classes are imported from <code>datatypes.py</code> into the 'DT' module.</p>
@@ -326,20 +327,21 @@ the command name from the device configuration, respectively.</p>
 <p>The device class needs comprehensive configuration concerning available commands,
 the associated sent and received data formats, which will be supplied by way
 of configuration files in python format. Furthermore, the device-dependent
-type and configuration of connection should be set in <code>etc/plugin.yaml</code> for
-each device used.</p>
+type and configuration of connection can be set in <code>etc/plugin.yaml</code> for
+each device used, if the provided defaults are not sufficient.</p>
 <p>For some device classes, it is possible to choose from different models. In
-this case, the attribute <code>model: &lt;modelname&gt;</code> needs to be present. In any
+this case, the attribute <code>model: &lt;modelname&gt;</code> should be present. In any
 other case, the <code>model</code> key should not be present.</p>
 <p>The connection classes will be chosen and configured by the device classes.
 They should not need further configuration, as all data transformation is done
 by the device classes and the connection-specific attributes are provided
 from plugin configuration.</p>
 <p>If the additional protocol layer is necessary, usually the device class will
-provide for proper loading (it loads in place of the connection class). If for
-some reason the protocol layer should be selected and loaded manually, it can
-be forced by providing the <code>protocol: &lt;protocolname&gt;</code> attribute. As with the
-model, this attribute should normally not be present in the configuration.</p>
+provide for proper loading (it loads the protocol in place of the connection
+class). If for some reason the protocol layer should be selected and loaded
+manually, it can be forced by providing the <code>protocol: &lt;protocolname&gt;</code>
+attribute. As with the model, this attribute should normally not be present
+in the configuration.</p>
 <p>Three custom item attributes exist, aptly named <code>md_custom1</code> through
 <code>md_custom3</code>. These can be used by the device for arbitrary functions.
 Unlike other item attributes, these can be configured to be used recursively,
@@ -347,8 +349,8 @@ meaning that it only needs to be set for one item and is used for all sub-items.
 To effect this behaviour, the device configuration takes the parameter
 <code>recursive_custom: &lt;foo&gt;</code>, where <foo> can be a number from 1 to 3 or a list
 of any combination of the three.</p>
-<p>A list of all currently supported attributes is found in the <code>MD_Globals.py</code>
-file next to their respective identifiers.</p>
+<p>A list and short description of all currently supported attributes is found in
+the <code>MD_Globals.py</code> file next to their respective identifiers.</p>
 <p>Example for <code>etc/plugin.yaml</code> configuration:</p>
 <div class="admonition code">
 <p class="admonition-title">Code:&ensp;yaml</p>
@@ -392,34 +394,34 @@ optional</p>
 <p>A new device_type <code>gadget</code> can be implemented by providing the following:</p>
 <ul>
 <li>a device folder <code>dev_gadget</code></li>
+<li>a device description file defining configuration attributes <code>dev_gadget/device.yaml</code></li>
 <li>a device configuration file defining commands <code>dev_gadget/commands.py</code></li>
+<li>a device class file with a derived class <code>dev_gadget/device.py</code> (this can be
+an "empty" class containing only a <code>pass</code> statement)</li>
 <li>
 <p>only if needed:</p>
 </li>
 <li>
-<p>a device class file with a derived class <code>dev_gadget/device.py</code></p>
-</li>
-<li>additional methods in the device class to handle special commands which
+<p>additional methods in the device class to handle special commands which
 do more than assign transformed item data to a single item or which need
-more complex item transformation</li>
-<li>additional methods in the connection class to handle special forms of
-connection initialization (e.g. serial sync routines)</li>
+more complex item transformation</p>
+</li>
 <li>a data formats file defining data types <code>dev_gadget/datatypes.py</code> and
 additional data types in the datatype file</li>
 <li>definition of lookup tables in <code>dev_gadget/commands.py</code></li>
-<li>specification of needed connection type in <code>etc/plugin.yaml</code> ('conn_type'),
-if different connection types are possible</li>
 </ul>
 <p>For examples on how to implement this, take a look at the dev_example folder
 which contains simple examples as well as the reference documentation for the
 commands.py file structure.</p>
 <p>Also, take a look into the different existing device classes to get a feeling
-for the needed effort to implement a new device.</p>
+for the needed effort to implement a new device. Both "simple" (all work is done
+in the <code>commands.py</code> file) as well as more complex (extensive handling is added
+in the <code>device.py</code>file) devices are already provided and serve as examples.</p>
 <p>Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
 or requiring a more complex approach, e.g. if it is not practical to store all
-information in items immediately, or if multiple data points are trans- mitted
-at one, which requires splitting or other means of data management.</p>
+information in items immediately, or if multiple data points are transmitted
+at once, which requires splitting data or other means of data management.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -472,7 +474,7 @@ The plugin manages item association and updates. For each device it handles, it
 creates an object based on ``MD_Device`` or derived classes.
 
 The device object handles starting and stopping the device and its
-configuration.
+configuration as well as connecting the different layers.
 
 Possible commands are bundled by the ``MD_Commands`` class which handles
 loading, validating and calling the separate ``MD_Command`` or derived
@@ -483,7 +485,7 @@ command tokens/strings to/from the real device.
 
 Each command is assigned a data type, which is represented by a ``Datatype``-
 derived class and transforms values between the real device and the command
-object.
+object respectively the final SmartHomeNG item data type.
 
 To actually talk to the real device, that is, send commands/values and receive
 replies, it uses a standardized interface via one of the ``MD_Connection`` or
@@ -496,7 +498,7 @@ with validity of data sent or received.
 
 .. note::
     Using the ``MD_Command_Str`` or especially the ``MD_Command_ParseStr`` classes,
-    the need for specialized datatype classes **can** be sidestepped.
+    the need for specialized datatype classes **can** possibly be sidestepped.
 
     Be aware that while creating complex commands indeed can be fun, string
     parsing will not be able to detect or cope with some data type conversions.
@@ -505,9 +507,10 @@ with validity of data sent or received.
 
 
 (New) devices each reside in their respective subfolder of the plugin folder,
-providing a derived device class, a command definition and - if applicable -
-additional necessary datatypes. These are automatically loaded by the plugin if
-the respective device has a configuration entry in ``/etc/plugin.yaml``.
+providing a derived device class, a device description file, a command definition
+and - if applicable - additional necessary datatypes. These are automatically
+loaded by the plugin if the respective device has a configuration entry in
+``/etc/plugin.yaml``.
 
 
 This concept is meant to
@@ -558,8 +561,8 @@ run from the SmartHomeNG folder by issuing
 
 ``python3 plugins/multidevice/__init__.py &lt;devicename&gt; [&lt;params&gt;] [-v]``
 
-Be advised that any functionality to provide in this mode must absolutely
-by implemented by you :)
+Be advised that any functionality any device shall provide in this mode must
+absolutely by implemented by you :) (that is, the device developer).
 
 
 struct.yaml generation
@@ -573,7 +576,7 @@ or the ``-S`` argument:
 
 The ``-s`` argument prints the struct file contents to screen, ``-S`` causes the
 plugin to write the ``struct.yaml`` directly to the devices&#39; folder. Beware that
-existing files will be overwritten.
+existing files _will_ be overwritten.
 
 The additional argument ``-a`` instructs the generator to add ``visu_acl:`` item
 attributes, setting the value to ``ro`` or ``rw`` depending on the write property
@@ -583,10 +586,10 @@ MD_Device
 ---------
 
 The ``MD_Device``-class provides a framework for receiving (item) data values
-from the plugin and forward it to the connection class and vice versa.
+from the plugin and forwarding them to the connection class and vice versa.
 A basic framework for managing the device, i.e. (re-)configuring, starting
-and stopping the device is already implemented and can be used without code
-changed by device configuration.
+and stopping the device is already implemented and can be used via by device
+configuration without the need for code changes.
 
 
 ``MD_Device(device_type, device_id, **kwargs)``
@@ -684,7 +687,7 @@ This class has subclasses defined for the following types of connection:
 
 * ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
 * ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-* ``MD_Connection_Net_Udp_Request`` for UDP listering server with async callback
+* ``MD_Connection_Net_Udp_Request`` for UDP listening server with async callback
 * ``MD_Connection_Serial``          for query-reply serial connections
 * ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
@@ -716,7 +719,7 @@ used for testing.
 .. warning::
 
     Supplying the ``protocol`` attribute as a kind of &#39;empty default&#39; is
-    prone to break devices relying on protocol support.
+    bound to break devices relying on protocol support.
 
 
 The methods are the same as for the ``MD_Connection`` class.
@@ -725,7 +728,7 @@ The methods are the same as for the ``MD_Connection`` class.
 This class has subclasses defined for the following types of protocols:
 
 * ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
-* ``MD_Protocol_Viessmann`` for P300- and KW-protocol communication
+* ``MD_Protocol_Viessmann`` for P300- and KW-protocol serial communication
 
 
 MD_Commands
@@ -805,11 +808,10 @@ different levels of complexity.
 Datatype
 --------
 
-This is one of the most important classes. By declaration, it contains
-information about the data type and format needed by a device and methods
-to convert its value from selected Python data types used in items to the
-(possibly) special data formats required by devices and vice versa.
-
+This class contains information about the data type and format needed by
+a device and methods to convert its value from selected Python data types
+used in items to the (possibly) special data formats required by devices
+and vice versa.
 
 Datatypes are specified in subclasses of Datatype with a nomenclature
 convention of `DT_&lt;device data type of format&gt;`.
@@ -857,6 +859,7 @@ The configuration can include the attribute ``device_type`` to specify the type
 of the device (if different from the id) and - optionally - the attribute
 ``model``, if a device offers multiple model configurations.
 
+
 The item configuration is supplemented by the attributes ``md_device`` and
 ``md_command``, which designate the device id from plugin configuration and
 the command name from the device configuration, respectively.
@@ -865,11 +868,11 @@ the command name from the device configuration, respectively.
 The device class needs comprehensive configuration concerning available commands,
 the associated sent and received data formats, which will be supplied by way
 of configuration files in python format. Furthermore, the device-dependent
-type and configuration of connection should be set in ``etc/plugin.yaml`` for
-each device used.
+type and configuration of connection can be set in ``etc/plugin.yaml`` for
+each device used, if the provided defaults are not sufficient.
 
 For some device classes, it is possible to choose from different models. In
-this case, the attribute ``model: &lt;modelname&gt;`` needs to be present. In any
+this case, the attribute ``model: &lt;modelname&gt;`` should be present. In any
 other case, the ``model`` key should not be present.
 
 
@@ -880,10 +883,11 @@ from plugin configuration.
 
 
 If the additional protocol layer is necessary, usually the device class will
-provide for proper loading (it loads in place of the connection class). If for
-some reason the protocol layer should be selected and loaded manually, it can
-be forced by providing the ``protocol: &lt;protocolname&gt;`` attribute. As with the
-model, this attribute should normally not be present in the configuration.
+provide for proper loading (it loads the protocol in place of the connection
+class). If for some reason the protocol layer should be selected and loaded
+manually, it can be forced by providing the ``protocol: &lt;protocolname&gt;``
+attribute. As with the model, this attribute should normally not be present
+in the configuration.
 
 
 Three custom item attributes exist, aptly named ``md_custom1`` through
@@ -894,8 +898,8 @@ To effect this behaviour, the device configuration takes the parameter
 ``recursive_custom: &lt;foo&gt;``, where &lt;foo&gt; can be a number from 1 to 3 or a list
 of any combination of the three.
 
-A list of all currently supported attributes is found in the ``MD_Globals.py``
-file next to their respective identifiers.
+A list and short description of all currently supported attributes is found in
+the ``MD_Globals.py`` file next to their respective identifiers.
 
 
 Example for `etc/plugin.yaml` configuration:
@@ -927,33 +931,33 @@ New devices
 A new device_type ``gadget`` can be implemented by providing the following:
 
 * a device folder ``dev_gadget``
+* a device description file defining configuration attributes ``dev_gadget/device.yaml``
 * a device configuration file defining commands ``dev_gadget/commands.py``
+* a device class file with a derived class ``dev_gadget/device.py`` (this can be
+  an &#34;empty&#34; class containing only a ``pass`` statement)
 * only if needed:
 
-  * a device class file with a derived class ``dev_gadget/device.py``
   * additional methods in the device class to handle special commands which
     do more than assign transformed item data to a single item or which need
     more complex item transformation
-  * additional methods in the connection class to handle special forms of
-    connection initialization (e.g. serial sync routines)
   * a data formats file defining data types ``dev_gadget/datatypes.py`` and
     additional data types in the datatype file
   * definition of lookup tables in ``dev_gadget/commands.py``
-  * specification of needed connection type in ``etc/plugin.yaml`` (&#39;conn_type&#39;),
-    if different connection types are possible
 
 For examples on how to implement this, take a look at the dev_example folder
 which contains simple examples as well as the reference documentation for the
 commands.py file structure.
 
 Also, take a look into the different existing device classes to get a feeling
-for the needed effort to implement a new device.
+for the needed effort to implement a new device. Both &#34;simple&#34; (all work is done
+in the ``commands.py`` file) as well as more complex (extensive handling is added
+in the ``device.py``file) devices are already provided and serve as examples.
 
 Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
 or requiring a more complex approach, e.g. if it is not practical to store all
-information in items immediately, or if multiple data points are trans- mitted
-at one, which requires splitting or other means of data management.
+information in items immediately, or if multiple data points are transmitted
+at once, which requires splitting data or other means of data management.
 &#34;&#34;&#34;
 
 import importlib
@@ -1235,6 +1239,27 @@ class MultiDevice(SmartPlugin):
             self.logger.debug(f&#39;Item {item}: parse for device {device_id}&#39;)
 
             command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+            # handle custom item attributes
+            self._items_custom[item.id()] = {1: None, 2: None, 3: None}
+            for index in (1, 2, 3):
+
+                val = None
+                if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                    val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                    self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
+                elif device.has_recursive_custom_attribute(index):
+                    val = find_custom_attr(item, index)
+                    if val is not None:
+                        self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
+                if val is not None:
+                    device.set_custom_item(item, command, index, val)
+                    self._items_custom[item.id()][index] = val
+
+            custom_token = &#39;&#39;
+            if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
+                custom_token = CUSTOM_SEP + self._items_custom[item.id()][device.custom_commands]
+
             if command:
 
                 # command found, validate command for device
@@ -1242,29 +1267,12 @@ class MultiDevice(SmartPlugin):
                     self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_id}, ignoring item&#39;)
                     return
 
-                # handle custom item attributes
-                self._items_custom[item.id()] = {1: None, 2: None, 3: None}
-                for index in (1, 2, 3):
-
-                    val = None
-                    if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
-                        val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
-                        self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
-                    elif device.has_recursive_custom_attribute(index):
-                        val = find_custom_attr(item, index)
-                        if val is not None:
-                            self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
-                    if val is not None:
-                        device.set_custom_item(item, command, index, val)
-                        self._items_custom[item.id()][index] = val
-
                 # if &#34;custom commands&#34; are active for device &lt;dev&gt;, modify command to be
                 # &lt;command&gt;#&lt;customx&gt;, where x is the index of the md_custom&lt;x&gt; item attribute
                 # and &lt;customx&gt; is the value of the attribute.
                 # By this modification, multiple items with the same command but different customx-Values
                 # can &#34;coexist&#34; and be differentiated by the plugin and the device.
-                if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
-                    command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
+                command += custom_token
 
                 # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
@@ -1287,6 +1295,7 @@ class MultiDevice(SmartPlugin):
                         if isinstance(group, list):
                             for grp in group:
                                 if grp:
+                                    grp += custom_token
                                     if grp not in self._commands_read_grp[device_id]:
                                         self._commands_read_grp[device_id][grp] = []
                                     self._commands_read_grp[device_id][grp].append(command)
@@ -1326,26 +1335,32 @@ class MultiDevice(SmartPlugin):
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
             if grp:
 
+                grp += custom_token
+                item_msg = f&#39;Item {item}&#39;
+                if custom_token:
+                    item_msg += f&#39; with token {custom_token}&#39;
+                item_msg += &#39; saved for &#39;
+
                 # trigger read on startup?
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                     if grp not in self._triggers_initial[device_id]:
                         self._triggers_initial[device_id].append(grp)
-                        self.logger.debug(f&#39;Item {item} saved for startup triggering of read group {grp} on device {device_id}&#39;)
+                        self.logger.debug(f&#39;{item_msg} startup triggering of read group {grp} on device {device_id}&#39;)
 
                 # read cyclically?
                 cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                 if cycle:
                     # if cycle is already set for command, use the lower value of the two
                     self._triggers_cyclic[device_id][grp] = {&#39;cycle&#39;: min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), &#39;next&#39;: 0}
-                    self.logger.debug(f&#39;Item {item} saved for cyclic triggering of read group {grp} on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} cyclic triggering of read group {grp} on device {device_id}&#39;)
 
                 if grp == &#39;0&#39;:
                     self._items_read_all[item.id()] = device_id
-                    self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} read_all on device {device_id}&#39;)
                     return self.update_item
                 elif grp:
                     self._items_read_grp[item.id()] = [device_id, grp]
-                    self.logger.debug(f&#39;Item {item} saved for reading group {grp} on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} reading group {grp} on device {device_id}&#39;)
                     return self.update_item
                 else:
                     self.logger.warning(f&#39;Item {item} wants to trigger group read with invalid group identifier &#34;{grp}&#34;, ignoring.&#39;)
@@ -1403,7 +1418,7 @@ class MultiDevice(SmartPlugin):
                     command = self._items_write[item.id()][&#39;command&#39;]
                     dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                     if not device.send_command(command, item(), custom=self._items_custom[item.id()]):
-                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34;&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
+                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
                         item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_id)
                         return None
 
@@ -1769,7 +1784,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                             rg_list = [rg_list]
                         for entry in rg_list:
                             grps.append(entry.get(&#39;name&#39;))
-
                     item[ITEM_ATTR_GROUP] = grps
 
                 if inode:
@@ -1807,7 +1821,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                         item[&#39;lookup&#39;][ITEM_ATTR_LOOKUP] = f&#39;{node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;
 
             # &#39;level node&#39; -&gt; print read item
-            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
+            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
 
                 item[&#39;read&#39;] = {&#39;type&#39;: &#39;bool&#39;}
                 item[&#39;read&#39;][&#39;enforce_updates&#39;] = True
@@ -1823,7 +1837,11 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 except AttributeError:
                     pass
 
-            add_item_to_tree(path, item)
+            if item:
+                add_item_to_tree(path, item)
+#
+            if CMD_ATTR_ITEM_ATTRS in node:
+                find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
     def print_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         &#34;&#34;&#34; print item &#34;&#34;&#34;
@@ -1896,7 +1914,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 item_tree = {}
 
                 # find read group triggers
-                walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
+                # walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], &#39;&#39;, None, create_item, &#39;&#39;, 0, model, [model], True)
@@ -1918,7 +1936,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 obj = {section: commands[section]}
 
                 # find read group triggers
-                walk(obj[section], section, obj, find_read_group_triggers, &#39;&#39;, 0, section, [section], True)
+                # walk(obj[section], section, obj, find_read_group_triggers, section, 0, section, [section], True)
 
                 # create item tree
                 walk(obj[section], section, None, create_item, section, 0, &#39;&#39;, [], True)
@@ -1953,7 +1971,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 walk(obj[model], model, obj, removeEmptyItems, &#39;&#39;, 0, model, [model], True, False)
 
                 # find read group triggers
-                walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
+                # walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], model, obj, create_item, model, 0, &#39;&#39;, [], False, cut_levels=1)
@@ -2330,7 +2348,6 @@ if __name__ == &#39;__main__&#39;:
                             rg_list = [rg_list]
                         for entry in rg_list:
                             grps.append(entry.get(&#39;name&#39;))
-
                     item[ITEM_ATTR_GROUP] = grps
 
                 if inode:
@@ -2368,7 +2385,7 @@ if __name__ == &#39;__main__&#39;:
                         item[&#39;lookup&#39;][ITEM_ATTR_LOOKUP] = f&#39;{node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;
 
             # &#39;level node&#39; -&gt; print read item
-            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES):
+            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
 
                 item[&#39;read&#39;] = {&#39;type&#39;: &#39;bool&#39;}
                 item[&#39;read&#39;][&#39;enforce_updates&#39;] = True
@@ -2384,7 +2401,11 @@ if __name__ == &#39;__main__&#39;:
                 except AttributeError:
                     pass
 
-            add_item_to_tree(path, item)
+            if item:
+                add_item_to_tree(path, item)
+#
+            if CMD_ATTR_ITEM_ATTRS in node:
+                find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
     def print_item(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels=0):
         &#34;&#34;&#34; print item &#34;&#34;&#34;
@@ -2457,7 +2478,7 @@ if __name__ == &#39;__main__&#39;:
                 item_tree = {}
 
                 # find read group triggers
-                walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
+                # walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], &#39;&#39;, None, create_item, &#39;&#39;, 0, model, [model], True)
@@ -2479,7 +2500,7 @@ if __name__ == &#39;__main__&#39;:
                 obj = {section: commands[section]}
 
                 # find read group triggers
-                walk(obj[section], section, obj, find_read_group_triggers, &#39;&#39;, 0, section, [section], True)
+                # walk(obj[section], section, obj, find_read_group_triggers, section, 0, section, [section], True)
 
                 # create item tree
                 walk(obj[section], section, None, create_item, section, 0, &#39;&#39;, [], True)
@@ -2514,7 +2535,7 @@ if __name__ == &#39;__main__&#39;:
                 walk(obj[model], model, obj, removeEmptyItems, &#39;&#39;, 0, model, [model], True, False)
 
                 # find read group triggers
-                walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
+                # walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], model, obj, create_item, model, 0, &#39;&#39;, [], False, cut_levels=1)
@@ -2811,6 +2832,27 @@ modules and initializing them by instantiating the proper class.</p></div>
             self.logger.debug(f&#39;Item {item}: parse for device {device_id}&#39;)
 
             command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+            # handle custom item attributes
+            self._items_custom[item.id()] = {1: None, 2: None, 3: None}
+            for index in (1, 2, 3):
+
+                val = None
+                if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                    val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                    self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
+                elif device.has_recursive_custom_attribute(index):
+                    val = find_custom_attr(item, index)
+                    if val is not None:
+                        self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
+                if val is not None:
+                    device.set_custom_item(item, command, index, val)
+                    self._items_custom[item.id()][index] = val
+
+            custom_token = &#39;&#39;
+            if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
+                custom_token = CUSTOM_SEP + self._items_custom[item.id()][device.custom_commands]
+
             if command:
 
                 # command found, validate command for device
@@ -2818,29 +2860,12 @@ modules and initializing them by instantiating the proper class.</p></div>
                     self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_id}, ignoring item&#39;)
                     return
 
-                # handle custom item attributes
-                self._items_custom[item.id()] = {1: None, 2: None, 3: None}
-                for index in (1, 2, 3):
-
-                    val = None
-                    if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
-                        val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
-                        self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
-                    elif device.has_recursive_custom_attribute(index):
-                        val = find_custom_attr(item, index)
-                        if val is not None:
-                            self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
-                    if val is not None:
-                        device.set_custom_item(item, command, index, val)
-                        self._items_custom[item.id()][index] = val
-
                 # if &#34;custom commands&#34; are active for device &lt;dev&gt;, modify command to be
                 # &lt;command&gt;#&lt;customx&gt;, where x is the index of the md_custom&lt;x&gt; item attribute
                 # and &lt;customx&gt; is the value of the attribute.
                 # By this modification, multiple items with the same command but different customx-Values
                 # can &#34;coexist&#34; and be differentiated by the plugin and the device.
-                if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
-                    command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
+                command += custom_token
 
                 # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
@@ -2863,6 +2888,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                         if isinstance(group, list):
                             for grp in group:
                                 if grp:
+                                    grp += custom_token
                                     if grp not in self._commands_read_grp[device_id]:
                                         self._commands_read_grp[device_id][grp] = []
                                     self._commands_read_grp[device_id][grp].append(command)
@@ -2902,26 +2928,32 @@ modules and initializing them by instantiating the proper class.</p></div>
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
             if grp:
 
+                grp += custom_token
+                item_msg = f&#39;Item {item}&#39;
+                if custom_token:
+                    item_msg += f&#39; with token {custom_token}&#39;
+                item_msg += &#39; saved for &#39;
+
                 # trigger read on startup?
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                     if grp not in self._triggers_initial[device_id]:
                         self._triggers_initial[device_id].append(grp)
-                        self.logger.debug(f&#39;Item {item} saved for startup triggering of read group {grp} on device {device_id}&#39;)
+                        self.logger.debug(f&#39;{item_msg} startup triggering of read group {grp} on device {device_id}&#39;)
 
                 # read cyclically?
                 cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
                 if cycle:
                     # if cycle is already set for command, use the lower value of the two
                     self._triggers_cyclic[device_id][grp] = {&#39;cycle&#39;: min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), &#39;next&#39;: 0}
-                    self.logger.debug(f&#39;Item {item} saved for cyclic triggering of read group {grp} on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} cyclic triggering of read group {grp} on device {device_id}&#39;)
 
                 if grp == &#39;0&#39;:
                     self._items_read_all[item.id()] = device_id
-                    self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} read_all on device {device_id}&#39;)
                     return self.update_item
                 elif grp:
                     self._items_read_grp[item.id()] = [device_id, grp]
-                    self.logger.debug(f&#39;Item {item} saved for reading group {grp} on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} reading group {grp} on device {device_id}&#39;)
                     return self.update_item
                 else:
                     self.logger.warning(f&#39;Item {item} wants to trigger group read with invalid group identifier &#34;{grp}&#34;, ignoring.&#39;)
@@ -2979,7 +3011,7 @@ modules and initializing them by instantiating the proper class.</p></div>
                     command = self._items_write[item.id()][&#39;command&#39;]
                     dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                     if not device.send_command(command, item(), custom=self._items_custom[item.id()]):
-                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34;&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
+                        dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
                         item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_id)
                         return None
 
@@ -3309,6 +3341,27 @@ Recall function for item updates</p></div>
         self.logger.debug(f&#39;Item {item}: parse for device {device_id}&#39;)
 
         command = self.get_iattr_value(item.conf, ITEM_ATTR_COMMAND)
+
+        # handle custom item attributes
+        self._items_custom[item.id()] = {1: None, 2: None, 3: None}
+        for index in (1, 2, 3):
+
+            val = None
+            if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
+                val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
+                self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
+            elif device.has_recursive_custom_attribute(index):
+                val = find_custom_attr(item, index)
+                if val is not None:
+                    self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
+            if val is not None:
+                device.set_custom_item(item, command, index, val)
+                self._items_custom[item.id()][index] = val
+
+        custom_token = &#39;&#39;
+        if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
+            custom_token = CUSTOM_SEP + self._items_custom[item.id()][device.custom_commands]
+
         if command:
 
             # command found, validate command for device
@@ -3316,29 +3369,12 @@ Recall function for item updates</p></div>
                 self.logger.warning(f&#39;Item {item} requests undefined command {command} for device {device_id}, ignoring item&#39;)
                 return
 
-            # handle custom item attributes
-            self._items_custom[item.id()] = {1: None, 2: None, 3: None}
-            for index in (1, 2, 3):
-
-                val = None
-                if self.has_iattr(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index)):
-                    val = self.get_iattr_value(item.conf, ITEM_ATTR_CUSTOM_PREFIX + str(index))
-                    self.logger.debug(f&#39;Item {item} has custom item attribute {index} with value {val}&#39;)
-                elif device.has_recursive_custom_attribute(index):
-                    val = find_custom_attr(item, index)
-                    if val is not None:
-                        self.logger.debug(f&#39;Item {item} inherited custom item attribute {index} with value {val}&#39;)
-                if val is not None:
-                    device.set_custom_item(item, command, index, val)
-                    self._items_custom[item.id()][index] = val
-
             # if &#34;custom commands&#34; are active for device &lt;dev&gt;, modify command to be
             # &lt;command&gt;#&lt;customx&gt;, where x is the index of the md_custom&lt;x&gt; item attribute
             # and &lt;customx&gt; is the value of the attribute.
             # By this modification, multiple items with the same command but different customx-Values
             # can &#34;coexist&#34; and be differentiated by the plugin and the device.
-            if device.custom_commands and self._items_custom[item.id()][device.custom_commands]:
-                command = command + CUSTOM_SEP + self._items_custom[item.id()].get(device.custom_commands)
+            command += custom_token
 
             # from here on command is combined if device.custom_commands is set and a valid custom token is found
 
@@ -3361,6 +3397,7 @@ Recall function for item updates</p></div>
                     if isinstance(group, list):
                         for grp in group:
                             if grp:
+                                grp += custom_token
                                 if grp not in self._commands_read_grp[device_id]:
                                     self._commands_read_grp[device_id][grp] = []
                                 self._commands_read_grp[device_id][grp].append(command)
@@ -3400,26 +3437,32 @@ Recall function for item updates</p></div>
         grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
         if grp:
 
+            grp += custom_token
+            item_msg = f&#39;Item {item}&#39;
+            if custom_token:
+                item_msg += f&#39; with token {custom_token}&#39;
+            item_msg += &#39; saved for &#39;
+
             # trigger read on startup?
             if self.get_iattr_value(item.conf, ITEM_ATTR_READ_INIT):
                 if grp not in self._triggers_initial[device_id]:
                     self._triggers_initial[device_id].append(grp)
-                    self.logger.debug(f&#39;Item {item} saved for startup triggering of read group {grp} on device {device_id}&#39;)
+                    self.logger.debug(f&#39;{item_msg} startup triggering of read group {grp} on device {device_id}&#39;)
 
             # read cyclically?
             cycle = self.get_iattr_value(item.conf, ITEM_ATTR_CYCLE)
             if cycle:
                 # if cycle is already set for command, use the lower value of the two
                 self._triggers_cyclic[device_id][grp] = {&#39;cycle&#39;: min(cycle, self._triggers_cyclic[device_id].get(grp, cycle)), &#39;next&#39;: 0}
-                self.logger.debug(f&#39;Item {item} saved for cyclic triggering of read group {grp} on device {device_id}&#39;)
+                self.logger.debug(f&#39;{item_msg} cyclic triggering of read group {grp} on device {device_id}&#39;)
 
             if grp == &#39;0&#39;:
                 self._items_read_all[item.id()] = device_id
-                self.logger.debug(f&#39;Item {item} saved for read_all on device {device_id}&#39;)
+                self.logger.debug(f&#39;{item_msg} read_all on device {device_id}&#39;)
                 return self.update_item
             elif grp:
                 self._items_read_grp[item.id()] = [device_id, grp]
-                self.logger.debug(f&#39;Item {item} saved for reading group {grp} on device {device_id}&#39;)
+                self.logger.debug(f&#39;{item_msg} reading group {grp} on device {device_id}&#39;)
                 return self.update_item
             else:
                 self.logger.warning(f&#39;Item {item} wants to trigger group read with invalid group identifier &#34;{grp}&#34;, ignoring.&#39;)
@@ -3537,7 +3580,7 @@ SmartHomeNG. It should write the changed value out to the device
                 command = self._items_write[item.id()][&#39;command&#39;]
                 dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34;&#39;)
                 if not device.send_command(command, item(), custom=self._items_custom[item.id()]):
-                    dev_log.debug(f&#39;Writing value &#34;{item()}&#34;&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
+                    dev_log.debug(f&#39;Writing value &#34;{item()}&#34; from item {item.id()} with command &#34;{command}&#34; failed, resetting item value&#39;)
                     item(item.property.last_value, self.get_shortname() + &#39;.&#39; + device_id)
                     return None
 

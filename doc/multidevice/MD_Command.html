@@ -291,13 +291,13 @@ class MD_Command_Str(MD_Command):
     def _parse_str(self, string, data=None, **kwargs):
         &#34;&#34;&#34;
         parse string and replace
-        - MD_OPCODE with the command opcode
-        - MD_PARAM:&lt;elem&gt;: with the plugin parameter
-        - MD_VALUE with the data value
-        - MD_CUSTOM[123] with the respective custom token value
+        - ``{OPCODE}`` with the command opcode
+        - ``{PARAM:&lt;elem&gt;}`` with the plugin parameter
+        - ``{VALUE}`` with the data value
+        - ``{CUSTOM_ATTR[123]}`` with the respective custom token value
 
-        The replacement order ensures that MD_PARAM-patterns from the opcode
-        can be replaced as well as MD_VALUE-pattern in any of the strings.
+        The replacement order ensures that PARAM-patterns from the opcode
+        can be replaced as well as VALUE-pattern in any of the strings.
         &#34;&#34;&#34;
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
@@ -325,7 +325,7 @@ class MD_Command_Str(MD_Command):
         #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
 
         if data is not None:
-            string = string.replace(r&#39;\{&#39; + CMD_STR_VALUE + r&#39;\}&#39;, str(self._DT.get_send_data(data)))
+            string = string.replace(&#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;, str(self._DT.get_send_data(data)))
 
         return string
 
@@ -413,10 +413,10 @@ class MD_Command_ParseStr(MD_Command_Str):
                      CMD_STR_VAL_UPP: data.upper(),
                      CMD_STR_VAL_LOW: data.lower(),
                      CMD_STR_VAL_CAP: data.capitalize()}
-                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+                cmd_str = self._parse_str(cmd.format(**d), data)
             else:
                 d = {CMD_STR_VAL_RAW: data}
-                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+                cmd_str = self._parse_str(cmd.format(**d), data)
 
         return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}
 
@@ -1157,10 +1157,10 @@ MRE by JF properly :)</p></div>
                      CMD_STR_VAL_UPP: data.upper(),
                      CMD_STR_VAL_LOW: data.lower(),
                      CMD_STR_VAL_CAP: data.capitalize()}
-                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+                cmd_str = self._parse_str(cmd.format(**d), data)
             else:
                 d = {CMD_STR_VAL_RAW: data}
-                cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+                cmd_str = self._parse_str(cmd.format(**d), data)
 
         return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}
 
@@ -1245,10 +1245,10 @@ MRE by JF properly :)</p></div>
                  CMD_STR_VAL_UPP: data.upper(),
                  CMD_STR_VAL_LOW: data.lower(),
                  CMD_STR_VAL_CAP: data.capitalize()}
-            cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+            cmd_str = self._parse_str(cmd.format(**d), data)
         else:
             d = {CMD_STR_VAL_RAW: data}
-            cmd_str = self._parse_str(cmd[1:-1].format(**d), data)
+            cmd_str = self._parse_str(cmd.format(**d), data)
 
     return {&#39;payload&#39;: cmd_str, &#39;data&#39;: None if data is None else self._DT.get_send_data(data)}</code></pre>
 </details>
@@ -1414,13 +1414,13 @@ element from a json response:</p>
     def _parse_str(self, string, data=None, **kwargs):
         &#34;&#34;&#34;
         parse string and replace
-        - MD_OPCODE with the command opcode
-        - MD_PARAM:&lt;elem&gt;: with the plugin parameter
-        - MD_VALUE with the data value
-        - MD_CUSTOM[123] with the respective custom token value
+        - ``{OPCODE}`` with the command opcode
+        - ``{PARAM:&lt;elem&gt;}`` with the plugin parameter
+        - ``{VALUE}`` with the data value
+        - ``{CUSTOM_ATTR[123]}`` with the respective custom token value
 
-        The replacement order ensures that MD_PARAM-patterns from the opcode
-        can be replaced as well as MD_VALUE-pattern in any of the strings.
+        The replacement order ensures that PARAM-patterns from the opcode
+        can be replaced as well as VALUE-pattern in any of the strings.
         &#34;&#34;&#34;
         def repl_func(matchobj):
             return str(self._plugin_params.get(matchobj.group(2), &#39;&#39;))
@@ -1448,7 +1448,7 @@ element from a json response:</p>
         #             string = re.sub(regex, kwargs[ITEM_ATTR_CUSTOM_PREFIX][index], string)
 
         if data is not None:
-            string = string.replace(r&#39;\{&#39; + CMD_STR_VALUE + r&#39;\}&#39;, str(self._DT.get_send_data(data)))
+            string = string.replace(&#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;, str(self._DT.get_send_data(data)))
 
         return string
 

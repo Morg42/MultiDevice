@@ -46,7 +46,7 @@ The plugin manages item association and updates. For each device it handles, it
 creates an object based on ``MD_Device`` or derived classes.
 
 The device object handles starting and stopping the device and its
-configuration.
+configuration as well as connecting the different layers.
 
 Possible commands are bundled by the ``MD_Commands`` class which handles
 loading, validating and calling the separate ``MD_Command`` or derived
@@ -57,7 +57,7 @@ command tokens/strings to/from the real device.
 
 Each command is assigned a data type, which is represented by a ``Datatype``-
 derived class and transforms values between the real device and the command
-object.
+object respectively the final SmartHomeNG item data type.
 
 To actually talk to the real device, that is, send commands/values and receive
 replies, it uses a standardized interface via one of the ``MD_Connection`` or
@@ -70,7 +70,7 @@ with validity of data sent or received.
 
 .. note::
     Using the ``MD_Command_Str`` or especially the ``MD_Command_ParseStr`` classes,
-    the need for specialized datatype classes **can** be sidestepped.
+    the need for specialized datatype classes **can** possibly be sidestepped.
 
     Be aware that while creating complex commands indeed can be fun, string
     parsing will not be able to detect or cope with some data type conversions.
@@ -79,9 +79,10 @@ with validity of data sent or received.
 
 
 (New) devices each reside in their respective subfolder of the plugin folder,
-providing a derived device class, a command definition and - if applicable -
-additional necessary datatypes. These are automatically loaded by the plugin if
-the respective device has a configuration entry in ``/etc/plugin.yaml``.
+providing a derived device class, a device description file, a command definition
+and - if applicable - additional necessary datatypes. These are automatically
+loaded by the plugin if the respective device has a configuration entry in
+``/etc/plugin.yaml``.
 
 
 This concept is meant to
@@ -132,8 +133,8 @@ run from the SmartHomeNG folder by issuing
 
 ``python3 plugins/multidevice/__init__.py <devicename> [<params>] [-v]``
 
-Be advised that any functionality to provide in this mode must absolutely
-by implemented by you :)
+Be advised that any functionality any device shall provide in this mode must
+absolutely by implemented by you :) (that is, the device developer).
 
 
 struct.yaml generation
@@ -147,7 +148,7 @@ or the ``-S`` argument:
 
 The ``-s`` argument prints the struct file contents to screen, ``-S`` causes the
 plugin to write the ``struct.yaml`` directly to the devices' folder. Beware that
-existing files will be overwritten.
+existing files _will_ be overwritten.
 
 The additional argument ``-a`` instructs the generator to add ``visu_acl:`` item
 attributes, setting the value to ``ro`` or ``rw`` depending on the write property
@@ -157,10 +158,10 @@ MD_Device
 ---------
 
 The ``MD_Device``-class provides a framework for receiving (item) data values
-from the plugin and forward it to the connection class and vice versa.
+from the plugin and forwarding them to the connection class and vice versa.
 A basic framework for managing the device, i.e. (re-)configuring, starting
-and stopping the device is already implemented and can be used without code
-changed by device configuration.
+and stopping the device is already implemented and can be used via by device
+configuration without the need for code changes.
 
 
 ``MD_Device(device_type, device_id, **kwargs)``
@@ -258,7 +259,7 @@ This class has subclasses defined for the following types of connection:
 
 * ``MD_Connection_Net_Tcp_Request`` for query-reply TCP connections
 * ``MD_Connection_Net_Tcp_Client``  for persistent TCP connections with async replies
-* ``MD_Connection_Net_Udp_Request`` for UDP listering server with async callback
+* ``MD_Connection_Net_Udp_Request`` for UDP listening server with async callback
 * ``MD_Connection_Serial``          for query-reply serial connections
 * ``MD_Connection_Serial_Async``    for event-loop serial connection with async callback
 
@@ -290,7 +291,7 @@ used for testing.
 .. warning::
 
     Supplying the ``protocol`` attribute as a kind of 'empty default' is
-    prone to break devices relying on protocol support.
+    bound to break devices relying on protocol support.
 
 
 The methods are the same as for the ``MD_Connection`` class.
@@ -299,7 +300,7 @@ The methods are the same as for the ``MD_Connection`` class.
 This class has subclasses defined for the following types of protocols:
 
 * ``MD_Protocol_Jsonrpc`` for JSON-RPC 2.0 protocol data exchange
-* ``MD_Protocol_Viessmann`` for P300- and KW-protocol communication
+* ``MD_Protocol_Viessmann`` for P300- and KW-protocol serial communication
 
 
 MD_Commands
@@ -379,11 +380,10 @@ different levels of complexity.
 Datatype
 --------
 
-This is one of the most important classes. By declaration, it contains
-information about the data type and format needed by a device and methods
-to convert its value from selected Python data types used in items to the
-(possibly) special data formats required by devices and vice versa.
-
+This class contains information about the data type and format needed by
+a device and methods to convert its value from selected Python data types
+used in items to the (possibly) special data formats required by devices
+and vice versa.
 
 Datatypes are specified in subclasses of Datatype with a nomenclature
 convention of `DT_<device data type of format>`.
@@ -431,6 +431,7 @@ The configuration can include the attribute ``device_type`` to specify the type
 of the device (if different from the id) and - optionally - the attribute
 ``model``, if a device offers multiple model configurations.
 
+
 The item configuration is supplemented by the attributes ``md_device`` and
 ``md_command``, which designate the device id from plugin configuration and
 the command name from the device configuration, respectively.
@@ -439,11 +440,11 @@ the command name from the device configuration, respectively.
 The device class needs comprehensive configuration concerning available commands,
 the associated sent and received data formats, which will be supplied by way
 of configuration files in python format. Furthermore, the device-dependent
-type and configuration of connection should be set in ``etc/plugin.yaml`` for
-each device used.
+type and configuration of connection can be set in ``etc/plugin.yaml`` for
+each device used, if the provided defaults are not sufficient.
 
 For some device classes, it is possible to choose from different models. In
-this case, the attribute ``model: <modelname>`` needs to be present. In any
+this case, the attribute ``model: <modelname>`` should be present. In any
 other case, the ``model`` key should not be present.
 
 
@@ -454,10 +455,11 @@ from plugin configuration.
 
 
 If the additional protocol layer is necessary, usually the device class will
-provide for proper loading (it loads in place of the connection class). If for
-some reason the protocol layer should be selected and loaded manually, it can
-be forced by providing the ``protocol: <protocolname>`` attribute. As with the
-model, this attribute should normally not be present in the configuration.
+provide for proper loading (it loads the protocol in place of the connection
+class). If for some reason the protocol layer should be selected and loaded
+manually, it can be forced by providing the ``protocol: <protocolname>``
+attribute. As with the model, this attribute should normally not be present
+in the configuration.
 
 
 Three custom item attributes exist, aptly named ``md_custom1`` through
@@ -468,8 +470,8 @@ To effect this behaviour, the device configuration takes the parameter
 ``recursive_custom: <foo>``, where <foo> can be a number from 1 to 3 or a list
 of any combination of the three.
 
-A list of all currently supported attributes is found in the ``MD_Globals.py``
-file next to their respective identifiers.
+A list and short description of all currently supported attributes is found in
+the ``MD_Globals.py`` file next to their respective identifiers.
 
 
 Example for `etc/plugin.yaml` configuration:
@@ -501,33 +503,33 @@ New devices
 A new device_type ``gadget`` can be implemented by providing the following:
 
 * a device folder ``dev_gadget``
+* a device description file defining configuration attributes ``dev_gadget/device.yaml``
 * a device configuration file defining commands ``dev_gadget/commands.py``
+* a device class file with a derived class ``dev_gadget/device.py`` (this can be
+  an "empty" class containing only a ``pass`` statement)
 * only if needed:
 
-  * a device class file with a derived class ``dev_gadget/device.py``
   * additional methods in the device class to handle special commands which
     do more than assign transformed item data to a single item or which need
     more complex item transformation
-  * additional methods in the connection class to handle special forms of
-    connection initialization (e.g. serial sync routines)
   * a data formats file defining data types ``dev_gadget/datatypes.py`` and
     additional data types in the datatype file
   * definition of lookup tables in ``dev_gadget/commands.py``
-  * specification of needed connection type in ``etc/plugin.yaml`` ('conn_type'),
-    if different connection types are possible
 
 For examples on how to implement this, take a look at the dev_example folder
 which contains simple examples as well as the reference documentation for the
 commands.py file structure.
 
 Also, take a look into the different existing device classes to get a feeling
-for the needed effort to implement a new device.
+for the needed effort to implement a new device. Both "simple" (all work is done
+in the ``commands.py`` file) as well as more complex (extensive handling is added
+in the ``device.py``file) devices are already provided and serve as examples.
 
 Depending on the device protocol and command complexity, implementing a new
 device can be a quick and easy job (e.g. for simple string or byte exchanges)
 or requiring a more complex approach, e.g. if it is not practical to store all
-information in items immediately, or if multiple data points are trans- mitted
-at one, which requires splitting or other means of data management.
+information in items immediately, or if multiple data points are transmitted
+at once, which requires splitting data or other means of data management.
 """
 
 import importlib

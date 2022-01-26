@@ -38,7 +38,7 @@ import types
 #
 #############################################################################################################################################################################################################################################
 
-# plugin attributes, used in plugin config 'device'
+# plugin attributes, used in plugin config 'device' and instance creation (**kwargs)
 
 # general attributes
 PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to manually disable loading of device
@@ -49,8 +49,6 @@ PLUGIN_ATTR_RECURSIVE        = 'recursive_custom'        # indices of custom ite
 
 # general connection attributes
 PLUGIN_ATTR_CONNECTION       = 'conn_type'               # manually set connection class, classname or type (see below)
-PLUGIN_ATTR_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
-PLUGIN_ATTR_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
 PLUGIN_ATTR_CONN_TIMEOUT     = 'timeout'                 # timeout for reading from network or serial
 PLUGIN_ATTR_CONN_TERMINATOR  = 'terminator'              # terminator for reading from network or serial
 PLUGIN_ATTR_CONN_BINARY      = 'binary'                  # tell connection to handle data for binary parsing
@@ -73,6 +71,10 @@ PLUGIN_ATTR_SERIAL_STOP      = 'stopbits'                # stopbits for serial c
 PLUGIN_ATTR_PROTOCOL         = 'protocol'                # manually choose protocol class, classname or type (see below). Don't set if not necessary!
 PLUGIN_ATTR_MSG_TIMEOUT      = 'message_timeout'         # how many seconds to wait for reply to command (JSON-RPC only)
 PLUGIN_ATTR_MSG_REPEAT       = 'message_repeat'          # how often to repeat command till reply is received? (JSON-RPC only)
+
+# callback functions, not in plugin.yaml
+PLUGIN_ATTR_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
+PLUGIN_ATTR_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
 
 PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_RECURSIVE,
                 PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_TIMEOUT,
@@ -100,51 +102,51 @@ PROTO_VIESSMANN              = 'viessmann'        # Viessmann P300 / KW
 PROTOCOL_TYPES = (PROTO_NULL, PROTO_JSONRPC, PROTO_VIESSMANN)
 
 # item attributes (as defines in plugin.yaml)
-ITEM_ATTR_DEVICE             = 'md_device'
-ITEM_ATTR_COMMAND            = 'md_command'
-ITEM_ATTR_READ               = 'md_read'
-ITEM_ATTR_CYCLE              = 'md_read_cycle'
-ITEM_ATTR_READ_INIT          = 'md_read_initial'
-ITEM_ATTR_GROUP              = 'md_read_group'
-ITEM_ATTR_WRITE              = 'md_write'
-ITEM_ATTR_READ_GRP           = 'md_read_group_trigger'
-ITEM_ATTR_LOOKUP             = 'md_lookup'
-ITEM_ATTR_CUSTOM_PREFIX      = 'md_custom'
-ITEM_ATTR_CUSTOM1            = 'md_custom1'
-ITEM_ATTR_CUSTOM2            = 'md_custom2'
-ITEM_ATTR_CUSTOM3            = 'md_custom3'
+ITEM_ATTR_DEVICE             = 'md_device'              # device id of the related device
+ITEM_ATTR_COMMAND            = 'md_command'             # command to issue/read for the item
+ITEM_ATTR_READ               = 'md_read'                # command can be triggered for reading
+ITEM_ATTR_CYCLE              = 'md_read_cycle'          # trigger read every x seconds
+ITEM_ATTR_READ_INIT          = 'md_read_initial'        # trigger read on initial connect
+ITEM_ATTR_GROUP              = 'md_read_group'          # trigger read with read group <foo>
+ITEM_ATTR_WRITE              = 'md_write'               # command can be called for writing values
+ITEM_ATTR_READ_GRP           = 'md_read_group_trigger'  # item triggers reading of read group <foo>
+ITEM_ATTR_LOOKUP             = 'md_lookup'              # create lookup item <item>.lookup
+ITEM_ATTR_CUSTOM_PREFIX      = 'md_custom'              # prefix for custom attributes (used internally)
+ITEM_ATTR_CUSTOM1            = 'md_custom1'             # custom attribute 1
+ITEM_ATTR_CUSTOM2            = 'md_custom2'             # custom attribute 2
+ITEM_ATTR_CUSTOM3            = 'md_custom3'             # custom attribute 3
 
 ITEM_ATTRS = (ITEM_ATTR_DEVICE, ITEM_ATTR_COMMAND, ITEM_ATTR_READ, ITEM_ATTR_CYCLE, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, ITEM_ATTR_READ_GRP, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_CUSTOM1, ITEM_ATTR_CUSTOM2, ITEM_ATTR_CUSTOM3)
 
 # command definition
-COMMAND_READ                 = True
-COMMAND_WRITE                = False
-COMMAND_SEP                  = '.'
-CUSTOM_SEP                   = '#'
+COMMAND_READ                 = True                     # used internally
+COMMAND_WRITE                = False                    # used internally
+COMMAND_SEP                  = '.'                      # divider for command path items
+CUSTOM_SEP                   = '#'                      # divider for command and custom token
 
 # command definition attributes
-CMD_ATTR_OPCODE              = 'opcode'
-CMD_ATTR_READ                = 'read'
-CMD_ATTR_WRITE               = 'write'
-CMD_ATTR_ITEM_TYPE           = 'item_type'
-CMD_ATTR_DEV_TYPE            = 'dev_datatype'
-CMD_ATTR_READ_CMD            = 'read_cmd'
-CMD_ATTR_WRITE_CMD           = 'write_cmd'
-CMD_ATTR_REPLY_PATTERN       = 'reply_pattern'
-CMD_ATTR_CMD_SETTINGS        = 'cmd_settings'
-CMD_ATTR_LOOKUP              = 'lookup'
-CMD_ATTR_PARAMS              = 'params'
-CMD_ATTR_PARAM_VALUES        = 'param_values'
-CMD_ATTR_ITEM_ATTRS          = 'item_attrs'
+CMD_ATTR_OPCODE              = 'opcode'                 # code or string to send to device
+CMD_ATTR_READ                = 'read'                   # command can request/receive value
+CMD_ATTR_WRITE               = 'write'                  # command can set value
+CMD_ATTR_ITEM_TYPE           = 'item_type'              # type of associated shng item
+CMD_ATTR_DEV_TYPE            = 'dev_datatype'           # type of DT class for device
+CMD_ATTR_READ_CMD            = 'read_cmd'               # code or string to send for reading (if different from opcode)
+CMD_ATTR_WRITE_CMD           = 'write_cmd'              # code or string to send for writing (if different from opcode)
+CMD_ATTR_REPLY_PATTERN       = 'reply_pattern'          # regex pattern(s) to identify reply and capture reply value
+CMD_ATTR_CMD_SETTINGS        = 'cmd_settings'           # additional settings for command, e.g. data validity
+CMD_ATTR_LOOKUP              = 'lookup'                 # use lookup table <foo> to translate between plugin and items
+CMD_ATTR_PARAMS              = 'params'                 # parameters to send (e.g. in JSON-RPC)
+CMD_ATTR_PARAM_VALUES        = 'param_values'           # values to send for parameters (e.g. JSON-RPC)
+CMD_ATTR_ITEM_ATTRS          = 'item_attrs'             # item attributes for struct generation (see below)
 
-CMD_IATTR_RG_LEVELS          = 'read_group_levels'
-CMD_IATTR_LOOKUP_ITEM        = 'lookup_item'
-CMD_IATTR_ATTRIBUTES         = 'attributes'
-CMD_IATTR_READ_GROUPS        = 'read_groups'
-CMD_IATTR_ENFORCE            = 'enforce'
-CMD_IATTR_INITIAL            = 'initial'
-CMD_IATTR_CYCLE              = 'cycle'
-CMD_IATTR_TEMPLATE           = 'item_template'
+CMD_IATTR_RG_LEVELS          = 'read_group_levels'      # include this number of read groups (max, 0=no read groups)
+CMD_IATTR_LOOKUP_ITEM        = 'lookup_item'            # create lookup item <item>.lookup
+CMD_IATTR_ATTRIBUTES         = 'attributes'             # additional item attributes (copy 1:1)
+CMD_IATTR_READ_GROUPS        = 'read_groups'            # add custom read group(s) and read group trigger(s)
+CMD_IATTR_ENFORCE            = 'enforce'                # add ``enforce_updates: true``
+CMD_IATTR_INITIAL            = 'initial'                # add ``md_read_initial: true``
+CMD_IATTR_CYCLE              = 'cycle'                  # add ``md_read_cycle: <val>``
+CMD_IATTR_TEMPLATE           = 'item_template'          # add item template <foo>
 
 # commands definition parameters
 COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE, CMD_ATTR_READ_CMD,

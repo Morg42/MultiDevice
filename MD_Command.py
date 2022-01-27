@@ -442,8 +442,8 @@ class MD_Command_JSON(MD_Command):
 
     The command is sent as 'method', the params-dict is populated from the
     CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-    taken from the CMD_ATTR_PARAM_VALUES attribute. 'VAL' is replaced with the
-    actual item value.
+    taken from the CMD_ATTR_PARAM_VALUES attribute. '{VALUE}' (CMD_STR_VAL) is
+    replaced with the actual item value.
 
     params and param_value need to be None or lists of the same length.
     """
@@ -491,11 +491,11 @@ class MD_Command_JSON(MD_Command):
 
         for idx in range(len(self.params)):
             val = self.param_values[idx]
-            if val == 'VAL':
+            if val == '{' + CMD_STR_VALUE + '}':
                 val = data
             elif isinstance(val, tuple):
                 try:
-                    expr = str(val[0]).replace('VAL', str(data))
+                    expr = str(val[0]).replace('{' + CMD_STR_VALUE + '}', str(data))
                     val = eval(expr)
                 except Exception as e:
                     raise ValueError(f'invalid data: eval expression {val} with argument {data} raised error: {e}')

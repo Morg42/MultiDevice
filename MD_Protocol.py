@@ -198,7 +198,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
     def on_disconnect(self, by=None):
         super().on_disconnect(by)
 
-        # did we power down kodi? then clear queues
+        # did we power down? then clear queues
         if self._shutdown_active:
             self._send_queue = queue.Queue()
             self._stale_lock.acquire()
@@ -329,7 +329,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         Send a JSON RPC message.
         The  JSON string is extracted from the supplied method and the given parameters.
 
-        :param method: the Kodi method to be triggered
+        :param method: the method to be triggered
         :param params: parameters dictionary
         :param message_id: the message ID to be used. If none, use the internal counter
         :param repeat: counter for how often the message has been repeated

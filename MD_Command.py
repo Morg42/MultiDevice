@@ -26,6 +26,7 @@
 
 import logging
 import re
+from copy import deepcopy
 
 if MD_standalone:
     from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
@@ -479,19 +480,13 @@ class MD_Command_JSON(MD_Command):
         :return: params-dict (or None)
         :rtype: dict
         """
-        params = {}
-        if not hasattr(self, CMD_ATTR_PARAMS):
-            return None
+        def check_value(val, data):
 
-        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
-            raise SyntaxError(f'params {kwargs["params"]} given, but no param_values')
-
-        if len(self.params) != len(self.param_values):
-            raise SyntaxError(f'different number of params and values given ({self.params}/{self.param_values})')
-
-        for idx in range(len(self.params)):
-            val = self.param_values[idx]
-            if val == '{' + CMD_STR_VALUE + '}':
+            if isinstance(val, list):
+                # recursively check list
+                for idx in range(len(val)):
+                    val[idx] = check_value(val[idx], data)
+            elif val == '{' + CMD_STR_VALUE + '}':
                 val = data
             elif isinstance(val, tuple):
                 try:
@@ -500,10 +495,32 @@ class MD_Command_JSON(MD_Command):
                 except Exception as e:
                     raise ValueError(f'invalid data: eval expression {val} with argument {data} raised error: {e}')
 
-            params[self.params[idx]] = val
+            return val
 
-        if 'playerid' in params and 'playerid' in kwargs:
-            params['playerid'] = kwargs['playerid']
+        if not hasattr(self, CMD_ATTR_PARAMS):
+            return None
+
+        params = deepcopy(self.params)
+
+        if isinstance(params, list):
+
+            # unnamed parameters, list format
+            for i in range(len(params)):
+                params[i] = check_value(params[i], data)
+
+                if params[i] == '{ID}' and 'playerid' in kwargs:
+                    params[i] = kwargs['playerid']
+
+        elif isinstance(params, dict):
+
+            # named parameters, dict format
+            for key in params:
+                params[key] = check_value(params[key], data)
+
+            if 'playerid' in params and 'playerid' in kwargs:
+                params['playerid'] = kwargs['playerid']
+        else:
+            raise ValueError('invalid data: params not in dict or list format')
 
         return params
 

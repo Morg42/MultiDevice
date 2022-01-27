@@ -239,7 +239,11 @@ class MD_Device(MD_Device):
                 processed = True
                 self.logger.debug('received: player notification')
                 try:
-                    p_id = data['params']['data']['info.player']['playerid']
+                    p_id = data['params']['data']['player']['playerid']
+                    if p_id:
+                        self._playerid = p_id
+                        self._activeplayers.append(p_id)
+                        self._data_received_callback(self.device_id, 'info.player', p_id)
                     query_playerinfo.append(p_id)
                 except KeyError:
                     pass

@@ -115,6 +115,9 @@ class MD_Commands(object):
         raise Exception(f'command {command} not found in commands')
 
     def get_command_from_reply(self, data):
+        if data is None:
+            return None
+
         if type(data) in (bytes, bytearray):
             data = str(data.decode('utf-8'))
 

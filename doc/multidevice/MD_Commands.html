@@ -143,6 +143,9 @@ class MD_Commands(object):
         raise Exception(f&#39;command {command} not found in commands&#39;)
 
     def get_command_from_reply(self, data):
+        if data is None:
+            return None
+
         if type(data) in (bytes, bytearray):
             data = str(data.decode(&#39;utf-8&#39;))
 
@@ -390,15 +393,15 @@ class MD_Commands(object):
             if cmd[-len(CMD_ATTR_ITEM_ATTRS) - len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
                 continue
 
-            cmd_obj = commands[cmd]
+            cmd_dict = commands[cmd]
 
             # preset default values
             kw = {CMD_ATTR_READ: True, CMD_ATTR_WRITE: False, CMD_ATTR_OPCODE: &#39;&#39;, CMD_ATTR_ITEM_TYPE: &#39;bool&#39;, CMD_ATTR_DEV_TYPE: &#39;raw&#39;}
 
             # update with command attributes
             for arg in COMMAND_PARAMS:
-                if arg in cmd_obj:
-                    kw[arg] = cmd_obj[arg]
+                if arg in cmd_dict:
+                    kw[arg] = cmd_dict[arg]
 
             # if valid_list_ci is present in settings, convert all str elements to lowercase only once
             if CMD_ATTR_CMD_SETTINGS in kw:
@@ -420,25 +423,25 @@ class MD_Commands(object):
                 for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
 
                     if pattern == &#39;*&#39;:
-                        pattern = getattr(cmd_obj, CMD_ATTR_READ_CMD, getattr(cmd_obj, CMD_ATTR_OPCODE, &#39;&#39;))
+                        pattern = cmd_dict.get(CMD_ATTR_READ_CMD, cmd_dict.get(CMD_ATTR_OPCODE, &#39;&#39;))
 
                     if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
                         for index in (1, 2, 3):
                             pattern = pattern.replace(&#39;{&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;}&#39;, custom_patterns[index])
 
-                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
+                    if cmd_dict.get(CMD_ATTR_LOOKUP) and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
 
-                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_obj.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
+                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_dict.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39;, lu_pattern)
 
-                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39; in pattern:
+                    if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_dict[CMD_ATTR_CMD_SETTINGS] and &#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39; in pattern:
 
-                        vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list&#39;]) + &#39;)&#39;
+                        vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_dict[CMD_ATTR_CMD_SETTINGS][&#39;valid_list&#39;]) + &#39;)&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39;, vl_pattern)
 
-                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39; in pattern:
+                    if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_dict[CMD_ATTR_CMD_SETTINGS] and &#39;{&#39; + PATTERN_VALID_LIST_CI + &#39;}&#39; in pattern:
 
-                        vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list_ci&#39;]) + &#39;))&#39;
+                        vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_dict[CMD_ATTR_CMD_SETTINGS][&#39;valid_list_ci&#39;]) + &#39;))&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST_CI + &#39;}&#39;, vl_pattern)
 
                     processed_patterns.append(pattern)
@@ -588,6 +591,9 @@ MD_Command-object</p>
         raise Exception(f&#39;command {command} not found in commands&#39;)
 
     def get_command_from_reply(self, data):
+        if data is None:
+            return None
+
         if type(data) in (bytes, bytearray):
             data = str(data.decode(&#39;utf-8&#39;))
 
@@ -835,15 +841,15 @@ MD_Command-object</p>
             if cmd[-len(CMD_ATTR_ITEM_ATTRS) - len(COMMAND_SEP):] == COMMAND_SEP + CMD_ATTR_ITEM_ATTRS:
                 continue
 
-            cmd_obj = commands[cmd]
+            cmd_dict = commands[cmd]
 
             # preset default values
             kw = {CMD_ATTR_READ: True, CMD_ATTR_WRITE: False, CMD_ATTR_OPCODE: &#39;&#39;, CMD_ATTR_ITEM_TYPE: &#39;bool&#39;, CMD_ATTR_DEV_TYPE: &#39;raw&#39;}
 
             # update with command attributes
             for arg in COMMAND_PARAMS:
-                if arg in cmd_obj:
-                    kw[arg] = cmd_obj[arg]
+                if arg in cmd_dict:
+                    kw[arg] = cmd_dict[arg]
 
             # if valid_list_ci is present in settings, convert all str elements to lowercase only once
             if CMD_ATTR_CMD_SETTINGS in kw:
@@ -865,25 +871,25 @@ MD_Command-object</p>
                 for pattern in kw[CMD_ATTR_REPLY_PATTERN]:
 
                     if pattern == &#39;*&#39;:
-                        pattern = getattr(cmd_obj, CMD_ATTR_READ_CMD, getattr(cmd_obj, CMD_ATTR_OPCODE, &#39;&#39;))
+                        pattern = cmd_dict.get(CMD_ATTR_READ_CMD, cmd_dict.get(CMD_ATTR_OPCODE, &#39;&#39;))
 
                     if custom_patterns and PATTERN_CUSTOM_PATTERN in pattern:
                         for index in (1, 2, 3):
                             pattern = pattern.replace(&#39;{&#39; + PATTERN_CUSTOM_PATTERN + str(index) + &#39;}&#39;, custom_patterns[index])
 
-                    if hasattr(cmd_obj, CMD_ATTR_LOOKUP) and cmd_obj.lookup and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
+                    if cmd_dict.get(CMD_ATTR_LOOKUP) and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
 
-                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_obj.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
+                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_dict.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39;, lu_pattern)
 
-                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST + &#39;)&#39; in pattern:
+                    if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_dict[CMD_ATTR_CMD_SETTINGS] and &#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39; in pattern:
 
-                        vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list&#39;]) + &#39;)&#39;
+                        vl_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_dict[CMD_ATTR_CMD_SETTINGS][&#39;valid_list&#39;]) + &#39;)&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39;, vl_pattern)
 
-                    if hasattr(cmd_obj, CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_obj.cmd_settings and &#39;(&#39; + PATTERN_VALID_LIST_CI + &#39;)&#39; in pattern:
+                    if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and &#39;valid_list_ci&#39; in cmd_dict[CMD_ATTR_CMD_SETTINGS] and &#39;{&#39; + PATTERN_VALID_LIST_CI + &#39;}&#39; in pattern:
 
-                        vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_obj.cmd_settings[&#39;valid_list_ci&#39;]) + &#39;))&#39;
+                        vl_pattern = &#39;((?i:&#39; + &#39;|&#39;.join(re.escape(key) for key in cmd_dict[CMD_ATTR_CMD_SETTINGS][&#39;valid_list_ci&#39;]) + &#39;))&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_VALID_LIST_CI + &#39;}&#39;, vl_pattern)
 
                     processed_patterns.append(pattern)
@@ -949,6 +955,9 @@ MD_Command-object</p>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_command_from_reply(self, data):
+    if data is None:
+        return None
+
     if type(data) in (bytes, bytearray):
         data = str(data.decode(&#39;utf-8&#39;))
 

@@ -446,6 +446,9 @@ class MD_Command_JSON(MD_Command):
     taken from the CMD_ATTR_PARAM_VALUES attribute. '{VALUE}' (CMD_STR_VAL) is
     replaced with the actual item value.
 
+    Giving 'playerid' in kwargs replaces a dict entry with the key of 'playerid'
+    or a list entry of '{ID}' with the value of kwargs['playerid'].
+
     params and param_value need to be None or lists of the same length.
     """
 

@@ -54,6 +54,7 @@
 
 import logging
 import re
+from copy import deepcopy
 
 if MD_standalone:
     from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
@@ -470,8 +471,11 @@ class MD_Command_JSON(MD_Command):
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
     CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;VAL&#39; is replaced with the
-    actual item value.
+    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;{VALUE}&#39; (CMD_STR_VAL) is
+    replaced with the actual item value.
+
+    Giving &#39;playerid&#39; in kwargs replaces a dict entry with the key of &#39;playerid&#39;
+    or a list entry of &#39;{ID}&#39; with the value of kwargs[&#39;playerid&#39;].
 
     params and param_value need to be None or lists of the same length.
     &#34;&#34;&#34;
@@ -507,31 +511,47 @@ class MD_Command_JSON(MD_Command):
         :return: params-dict (or None)
         :rtype: dict
         &#34;&#34;&#34;
-        params = {}
-        if not hasattr(self, CMD_ATTR_PARAMS):
-            return None
+        def check_value(val, data):
 
-        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
-            raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
-
-        if len(self.params) != len(self.param_values):
-            raise SyntaxError(f&#39;different number of params and values given ({self.params}/{self.param_values})&#39;)
-
-        for idx in range(len(self.params)):
-            val = self.param_values[idx]
-            if val == &#39;VAL&#39;:
+            if isinstance(val, list):
+                # recursively check list
+                for idx in range(len(val)):
+                    val[idx] = check_value(val[idx], data)
+            elif val == &#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;:
                 val = data
             elif isinstance(val, tuple):
                 try:
-                    expr = str(val[0]).replace(&#39;VAL&#39;, str(data))
+                    expr = str(val[0]).replace(&#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;, str(data))
                     val = eval(expr)
                 except Exception as e:
                     raise ValueError(f&#39;invalid data: eval expression {val} with argument {data} raised error: {e}&#39;)
 
-            params[self.params[idx]] = val
+            return val
 
-        if &#39;playerid&#39; in params and &#39;playerid&#39; in kwargs:
-            params[&#39;playerid&#39;] = kwargs[&#39;playerid&#39;]
+        if not hasattr(self, CMD_ATTR_PARAMS):
+            return None
+
+        params = deepcopy(self.params)
+
+        if isinstance(params, list):
+
+            # unnamed parameters, list format
+            for i in range(len(params)):
+                params[i] = check_value(params[i], data)
+
+                if params[i] == &#39;{ID}&#39; and &#39;playerid&#39; in kwargs:
+                    params[i] = kwargs[&#39;playerid&#39;]
+
+        elif isinstance(params, dict):
+
+            # named parameters, dict format
+            for key in params:
+                params[key] = check_value(params[key], data)
+
+            if &#39;playerid&#39; in params and &#39;playerid&#39; in kwargs:
+                params[&#39;playerid&#39;] = kwargs[&#39;playerid&#39;]
+        else:
+            raise ValueError(&#39;invalid data: params not in dict or list format&#39;)
 
         return params
 
@@ -921,8 +941,10 @@ dev_example/commands.py file.</p>
 from it.</p>
 <p>The command is sent as 'method', the params-dict is populated from the
 CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-taken from the CMD_ATTR_PARAM_VALUES attribute. 'VAL' is replaced with the
-actual item value.</p>
+taken from the CMD_ATTR_PARAM_VALUES attribute. '{VALUE}' (CMD_STR_VAL) is
+replaced with the actual item value.</p>
+<p>Giving 'playerid' in kwargs replaces a dict entry with the key of 'playerid'
+or a list entry of '{ID}' with the value of kwargs['playerid'].</p>
 <p>params and param_value need to be None or lists of the same length.</p></div>
 <details class="source">
 <summary>
@@ -936,8 +958,11 @@ actual item value.</p>
 
     The command is sent as &#39;method&#39;, the params-dict is populated from the
     CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;VAL&#39; is replaced with the
-    actual item value.
+    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;{VALUE}&#39; (CMD_STR_VAL) is
+    replaced with the actual item value.
+
+    Giving &#39;playerid&#39; in kwargs replaces a dict entry with the key of &#39;playerid&#39;
+    or a list entry of &#39;{ID}&#39; with the value of kwargs[&#39;playerid&#39;].
 
     params and param_value need to be None or lists of the same length.
     &#34;&#34;&#34;
@@ -973,31 +998,47 @@ actual item value.</p>
         :return: params-dict (or None)
         :rtype: dict
         &#34;&#34;&#34;
-        params = {}
-        if not hasattr(self, CMD_ATTR_PARAMS):
-            return None
+        def check_value(val, data):
 
-        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
-            raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
-
-        if len(self.params) != len(self.param_values):
-            raise SyntaxError(f&#39;different number of params and values given ({self.params}/{self.param_values})&#39;)
-
-        for idx in range(len(self.params)):
-            val = self.param_values[idx]
-            if val == &#39;VAL&#39;:
+            if isinstance(val, list):
+                # recursively check list
+                for idx in range(len(val)):
+                    val[idx] = check_value(val[idx], data)
+            elif val == &#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;:
                 val = data
             elif isinstance(val, tuple):
                 try:
-                    expr = str(val[0]).replace(&#39;VAL&#39;, str(data))
+                    expr = str(val[0]).replace(&#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;, str(data))
                     val = eval(expr)
                 except Exception as e:
                     raise ValueError(f&#39;invalid data: eval expression {val} with argument {data} raised error: {e}&#39;)
 
-            params[self.params[idx]] = val
+            return val
 
-        if &#39;playerid&#39; in params and &#39;playerid&#39; in kwargs:
-            params[&#39;playerid&#39;] = kwargs[&#39;playerid&#39;]
+        if not hasattr(self, CMD_ATTR_PARAMS):
+            return None
+
+        params = deepcopy(self.params)
+
+        if isinstance(params, list):
+
+            # unnamed parameters, list format
+            for i in range(len(params)):
+                params[i] = check_value(params[i], data)
+
+                if params[i] == &#39;{ID}&#39; and &#39;playerid&#39; in kwargs:
+                    params[i] = kwargs[&#39;playerid&#39;]
+
+        elif isinstance(params, dict):
+
+            # named parameters, dict format
+            for key in params:
+                params[key] = check_value(params[key], data)
+
+            if &#39;playerid&#39; in params and &#39;playerid&#39; in kwargs:
+                params[&#39;playerid&#39;] = kwargs[&#39;playerid&#39;]
+        else:
+            raise ValueError(&#39;invalid data: params not in dict or list format&#39;)
 
         return params</code></pre>
 </details>

@@ -130,7 +130,10 @@ class MD_Device(MD_Device):
         for l1 in list(data.keys()):
             if isinstance(data[l1], dict):
                 for l2 in list(data[l1].keys()):
-                    # check combined l1+l2 command to distinguish 1st level
-                    _check_value(l1 + COMMAND_SEP + l2, data[l1][l2], custom)
+                    if isinstance(data[l1][l2], dict):
+                        for l3 in list(data[l1][l2].keys()):
+                            _check_value(l1 + COMMAND_SEP + l2 + COMMAND_SEP + l3, data[l1][l2][l3], custom)
+                    else:
+                        _check_value(l1 + COMMAND_SEP + l2, data[l1][l2], custom)
             else:
                 _check_value(l1, data[l1], custom)

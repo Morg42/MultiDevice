@@ -107,7 +107,6 @@ system:
         md_command: system.passthru
         md_read: true
         md_write: true
-        md_read_group: ['system']
         enforce_updates: true
 
     deviceinfo:
@@ -164,7 +163,6 @@ main:
         md_command: main.power
         md_read: true
         md_write: true
-        md_read_group: ['main']
         enforce_updates: true
 
     sleep:
@@ -173,7 +171,6 @@ main:
         md_command: main.sleep
         md_read: true
         md_write: true
-        md_read_group: ['main']
         enforce_updates: true
 
     input:
@@ -182,7 +179,6 @@ main:
         md_command: main.input
         md_read: true
         md_write: true
-        md_read_group: ['main']
         enforce_updates: true
 
     mute:
@@ -191,7 +187,6 @@ main:
         md_command: main.mute
         md_read: true
         md_write: true
-        md_read_group: ['main']
         enforce_updates: true
 
     volume:
@@ -200,7 +195,6 @@ main:
         md_command: main.volume
         md_read: true
         md_write: true
-        md_read_group: ['main']
         enforce_updates: true
 
     volume_max:
@@ -234,7 +228,6 @@ netusb:
         md_command: netusb.preset
         md_read: true
         md_write: true
-        md_read_group: ['netusb']
         enforce_updates: true
 
     playback:
@@ -243,7 +236,6 @@ netusb:
         md_command: netusb.playback
         md_read: true
         md_write: true
-        md_read_group: ['netusb']
         enforce_updates: true
 
     position:
@@ -252,7 +244,6 @@ netusb:
         md_command: netusb.position
         md_read: true
         md_write: true
-        md_read_group: ['netusb']
         enforce_updates: true
 
 alarm:
@@ -263,13 +254,22 @@ alarm:
         md_device: DEVICENAME
         md_read_group_trigger: alarm
 
+    update:
+        type: bool
+        md_device: DEVICENAME
+        md_command: alarm.update
+        md_read: true
+        md_write: false
+        md_read_group: ['alarm']
+        enforce_updates: true
+        md_read_initial: true
+
     enable:
         type: bool
         md_device: DEVICENAME
         md_command: alarm.enable
         md_read: true
         md_write: true
-        md_read_group: ['alarm']
         enforce_updates: true
 
     time:
@@ -278,7 +278,6 @@ alarm:
         md_command: alarm.time
         md_read: true
         md_write: true
-        md_read_group: ['alarm']
         enforce_updates: true
 
     beep:
@@ -287,7 +286,6 @@ alarm:
         md_command: alarm.beep
         md_read: true
         md_write: true
-        md_read_group: ['alarm']
         enforce_updates: true
 
 ALL:
@@ -404,7 +402,6 @@ ALL:
             md_command: system.passthru
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.system']
             enforce_updates: true
 
         deviceinfo:
@@ -461,7 +458,6 @@ ALL:
             md_command: main.power
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.main']
             enforce_updates: true
 
         sleep:
@@ -470,7 +466,6 @@ ALL:
             md_command: main.sleep
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.main']
             enforce_updates: true
 
         input:
@@ -479,7 +474,6 @@ ALL:
             md_command: main.input
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.main']
             enforce_updates: true
 
         mute:
@@ -488,7 +482,6 @@ ALL:
             md_command: main.mute
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.main']
             enforce_updates: true
 
         volume:
@@ -497,7 +490,6 @@ ALL:
             md_command: main.volume
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.main']
             enforce_updates: true
 
         volume_max:
@@ -531,7 +523,6 @@ ALL:
             md_command: netusb.preset
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.netusb']
             enforce_updates: true
 
         playback:
@@ -540,7 +531,6 @@ ALL:
             md_command: netusb.playback
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.netusb']
             enforce_updates: true
 
         position:
@@ -549,7 +539,6 @@ ALL:
             md_command: netusb.position
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.netusb']
             enforce_updates: true
 
     alarm:
@@ -560,13 +549,22 @@ ALL:
             md_device: DEVICENAME
             md_read_group_trigger: ALL.alarm
 
+        update:
+            type: bool
+            md_device: DEVICENAME
+            md_command: alarm.update
+            md_read: true
+            md_write: false
+            md_read_group: ['ALL', 'ALL.alarm']
+            enforce_updates: true
+            md_read_initial: true
+
         enable:
             type: bool
             md_device: DEVICENAME
             md_command: alarm.enable
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.alarm']
             enforce_updates: true
 
         time:
@@ -575,7 +573,6 @@ ALL:
             md_command: alarm.time
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.alarm']
             enforce_updates: true
 
         beep:
@@ -584,6 +581,5 @@ ALL:
             md_command: alarm.beep
             md_read: true
             md_write: true
-            md_read_group: ['ALL', 'ALL.alarm']
             enforce_updates: true
 

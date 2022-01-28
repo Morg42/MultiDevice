@@ -3,14 +3,15 @@
 
 import urllib.parse
 
+# needed?
 from lib.item import Items
 items = Items.get_instance()
 
 if MD_standalone:
-    from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
+    from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT)
     from MD_Device import MD_Device
 else:
-    from ..MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
+    from ..MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT)
     from ..MD_Device import MD_Device
 
 
@@ -32,13 +33,9 @@ class MD_Device(MD_Device):
         self._custom_patterns = {1: '(?:[0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', 2: '', 3: ''}
         self._use_callbacks = True
 
-
     def on_connect(self, by=None):
         self.logger.debug("Activating listen mode after connection.")
         self.send_command('server.listenmode', True)
-
-    def _transform_send_data(self, data=None, **kwargs):
-        return data
 
     def _transform_received_data(self, data):
         # fix weird representation of MAC address (%3A = :), etc.

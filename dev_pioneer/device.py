@@ -31,7 +31,7 @@ class MD_Device(MD_Device):
             b = b.decode('unicode-escape').encode()
             self._params[PLUGIN_ATTR_CONN_TERMINATOR] = b
 
-    def _transform_send_data(self, data=None):
+    def _transform_send_data(self, data=None, **kwargs):
         if data:
             try:
                 data['limit_response'] = self._params.get(PLUGIN_ATTR_CONN_TERMINATOR, b'\r')

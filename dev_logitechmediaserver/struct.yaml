@@ -1,0 +1,47 @@
+%YAML 1.1
+---
+# vim: expandtab:ts=4:sw=4
+server:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: server
+
+    playercount:
+        type: num
+        md_device: DEVICENAME
+        md_command: server.playercount
+        md_read: true
+        md_write: false
+        visu_acl: ro
+        md_read_group: ['server']
+        md_read_initial: true
+
+ALL:
+
+    read:
+        type: bool
+        enforce_updates: true
+        md_device: DEVICENAME
+        md_read_group_trigger: ALL
+
+    server:
+
+        read:
+            type: bool
+            enforce_updates: true
+            md_device: DEVICENAME
+            md_read_group_trigger: ALL.server
+
+        playercount:
+            type: num
+            md_device: DEVICENAME
+            md_command: server.playercount
+            md_read: true
+            md_write: false
+            visu_acl: ro
+            md_read_group: ['ALL', 'ALL.server']
+            md_read_initial: true
+

@@ -52,5 +52,5 @@ parameters:
     # nicht ändern
     conn_type:
         type: str
-        default: MD_Connection_Net_Tcp_Client
+        default: MD_Connection_Net_Tcp_Request
         description: 'Name der Klasse für Connection'

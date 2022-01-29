@@ -33,25 +33,9 @@ class MD_Device(MD_Device):
         self._custom_patterns = {1: '(?:[0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', 2: '', 3: ''}
         self._use_callbacks = True
 
-    def on_connect(self, by=None):
-        self.logger.debug("Activating listen mode after connection.")
-        self.send_command('server.listenmode', True)
-
     def _transform_received_data(self, data):
         # fix weird representation of MAC address (%3A = :), etc.
         return urllib.parse.unquote_plus(data)
-
-    def _transform_send_data(self, data_dict, **kwargs):
-        payload = data_dict['payload']
-        host = self._params['host']
-        port = self._params['port']
-
-        url = f'http://{host}:{port}/jsonrpc.js'
-        data_dict['payload'] = url
-        data_dict['method'] = 'slim.request'
-        self.logger.error(f'data: {data_dict}')
-        return data_dict
-
 
     def _process_additional_data(self, command, data, value, custom, by):
 
@@ -88,35 +72,27 @@ class MD_Device(MD_Device):
             except Exception as e:
                 self.logger.error(f"Error setting alarm: {e}")
 
-        # set album art URL
-        if command == 'player.info.album':
-            host = self._params.get(PLUGIN_ATTR_NET_HOST)
-            port = self._params.get(PLUGIN_ATTR_NET_PORT)
-            url = f'http://{host}:{port}/music/current/cover.jpg?player={custom}'
-            _dispatch('player.info.albumarturl', url, custom)
-
         # update on new song
-        if command == 'player.info.title' or (command == 'player.control.playpause' and value == "True"):
-            _trigger_read('player.control.playmode', custom)
-            _trigger_read('player.playlist.index', custom)
-            _trigger_read('player.info.duration', custom)
-            _trigger_read('player.info.album', custom)
-            _trigger_read('player.info.artist', custom)
-            _trigger_read('player.info.genre', custom)
-            _trigger_read('player.info.path', custom)
-
-        # update current time info
-        if command in ['player.control.forward', 'player.control.rewind']:
-            _trigger_read('player.control.time', custom)
-
-        # update play and stop items based on playmode
-        if command == 'player.control.playmode':
-            mode = data.split("mode")[-1].strip()
-            mode = mode.split("playlist")[-1].strip()
-            _dispatch('player.control.playpause', True if mode in ["play", "pause 0"] else False, custom)
-            _dispatch('player.control.stop', True if mode == "stop" else False, custom)
-            _trigger_read('player.control.time', custom)
-
-        # update play and stop items based on playmode
-        if command == 'player.control.stop' or (command == 'player.control.playpause' and value == "False"):
-            _trigger_read('player.control.playmode', custom)
+        if command == 'player.info.status':
+            _dispatch('player.info.name', data.get("player_name"), custom)
+            _dispatch('player.info.connected', data.get("player_connected"), custom)
+            _dispatch('player.info.signalstrength', data.get("signalstrength"), custom)
+            _dispatch('player.info.playmode', data.get("mode"), custom)
+            _dispatch('player.info.time', data.get("time"), custom)
+            _dispatch('player.info.rate', data.get("rate"), custom)
+            _dispatch('player.info.duration', data.get("duration"), custom)
+            _dispatch('player.info.title', data.get("current_title"), custom)
+            _dispatch('player.control.power', data.get("power"), custom)
+            _dispatch('player.control.volume', data.get("mixer volume"), custom)
+            _dispatch('player.playlist.repeat', data.get("playlist repeat"), custom)
+            _dispatch('player.playlist.shuffle', data.get("playlist shuffle"), custom)
+            _dispatch('player.playlist.mode', data.get("playlist mode"), custom)
+            _dispatch('player.playlist.seq_no', data.get("seq_no"), custom)
+            _dispatch('player.playlist.index', data.get("playlist_cur_index"), custom)
+            _dispatch('player.playlist.timestamp', data.get("playlist_timestamp"), custom)
+            _dispatch('player.playlist.tracks', data.get("playlist_tracks"), custom)
+            _dispatch('player.playlist.nextsong1', data["remoteMeta"]["playlist_loop"][1].get("title"), custom)
+            _dispatch('player.playlist.nextsong2', data["remoteMeta"]["playlist_loop"][2].get("title"), custom)
+            _dispatch('player.playlist.nextsong3', data["remoteMeta"]["playlist_loop"][3].get("title"), custom)
+            _dispatch('player.playlist.nextsong4', data["remoteMeta"]["playlist_loop"][4].get("title"), custom)
+            _dispatch('player.playlist.nextsong5', data["remoteMeta"]["playlist_loop"][5].get("title"), custom)

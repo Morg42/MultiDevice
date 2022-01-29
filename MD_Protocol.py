@@ -314,27 +314,26 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         wrapper to prepare json rpc message to send. extracts command, id, repeat and
         params (data) from data_dict and call send_rpc_message(command, params, id, repeat)
         """
-        command = data_dict.get('payload')
-        params = data_dict.get('data', None)
+        command = data_dict.get('method', data_dict.get('payload'))
         message_id = data_dict.get('message_id', None)
         repeat = data_dict.get('repeat', 0)
 
-        self._send_rpc_message(command, params, message_id, repeat)
+        self._send_rpc_message(command, data_dict, message_id, repeat)
 
         # we don't get a response (this goes via on_data_received), so we signal "no response"
         return None
 
-    def _send_rpc_message(self, command, params=None, message_id=None, repeat=0):
+    def _send_rpc_message(self, command, ddict=None, message_id=None, repeat=0):
         """
         Send a JSON RPC message.
         The  JSON string is extracted from the supplied command and the given parameters.
 
         :param command: the command to be triggered
-        :param params: parameters dictionary
+        :param ddict: dictionary with command data, e.g. keys 'params', 'data', 'headers', 'request_method'...
         :param message_id: the message ID to be used. If none, use the internal counter
         :param repeat: counter for how often the message has been repeated
         """
-        self.logger.debug(f'preparing message to send command {command} with data {params}, try #{repeat}')
+        self.logger.debug(f'preparing message to send command {command} with data {ddict}, try #{repeat}')
 
         if message_id is None:
             # safely acquire next message_id
@@ -346,28 +345,47 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
             message_id = str(new_msgid) + '_' + command
             # !! self.logger.debug('Releasing message id access ({})'.format(self._message_id))
 
+        if not ddict:
+            ddict = {}
+
         # create message packet
-        data = {'jsonrpc': '2.0', 'id': message_id, 'method': command}
-        if params:
-            data['params'] = params
-        try:
-            send_command = json.dumps(data, separators=(',', ':'))
-        except Exception as err:
-            raise ValueError(f'problem with json.dumps: {err}, ignoring message. Error was {err}')
+        new_data = {'jsonrpc': '2.0', 'id': message_id, 'method': command}
+        
+        if 'data' in ddict and ddict['data']:
+
+            # ddict already contains 'data', we either have an old "ready" packet or new data
+            if 'jsonrpc' not in ddict['data']:
+
+                # we don't have a jsonrpc header, add new data to new header
+                new_data['params'] = ddict['data']
+            else:
+                # jsonrpc header present, keep packet as is
+                new_data = ddict['data']
+    
+        # set packet data
+        ddict['data'] = new_data
+
+        # convert data if not using HTTP connections
+        if 'request_method' not in ddict:
+
+            try:
+                ddict['payload'] += json.dumps(ddict['data'])
+            except Exception as e:
+                raise ValueError(f'data {ddict["data"]} not convertible to JSON, aborting. Error was: {e}')
 
         # push message in queue
         # !! self.logger.debug('Queuing message {}'.format(send_command))
-        self._send_queue.put([message_id, send_command, command, params, repeat])
+        self._send_queue.put([message_id, command, ddict, repeat])
         # !! self.logger.debug('Queued message {}'.format(send_command))
 
         # try to actually send all queued messages
         self.logger.debug(f'processing queue - {self._send_queue.qsize()} elements')
         while not self._send_queue.empty():
-            (message_id, data, command, params, repeat) = self._send_queue.get()
-            self.logger.debug(f'sending queued msg {message_id} - {data} (#{repeat})')
-            self._connection.send({'payload': data})
+            (message_id, command, ddict, repeat) = self._send_queue.get()
+            self.logger.debug(f'sending queued msg {message_id} - {command} (#{repeat})')
+            self._connection.send(ddict)
             # !! self.logger.debug('Adding cmd to message archive: {} - {} (try #{})'.format(message_id, data, repeat))
-            self._message_archive[message_id] = [time(), command, params, repeat]
+            self._message_archive[message_id] = [time(), command, ddict, repeat]
             # !! self.logger.debug('Sent msg {} - {}'.format(message_id, data))
         # !! self.logger.debug('Processing queue finished - {} elements remaining'.format(self._send_queue.qsize()))
 

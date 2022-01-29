@@ -42,7 +42,7 @@ commands = {
     'alarm': {
         'update':     {'read': True,  'write': False, 'opcode': 'v1/clock/getSettings', 'item_type': 'bool', 'dev_datatype': 'mc', 'item_attrs': {'enforce': True, 'initial': True}},
         'enable':     {'read': True,  'write': True,  'opcode': 'v1/clock/setAlarmSettings', 'reply_pattern': 'alarm.alarm_on', 'item_type': 'bool', 'dev_datatype': 'al_on', 'lookup': 'bool', 'item_attrs': {'enforce': True, 'read_group_levels': 0}},
-        'time':       {'read': True,  'write': True,  'opcode': 'v1/clock/setAlarmSettings', 'reply_pattern': 'alarm.oneday.time', 'item_type': 'str', 'dev_datatype': 'al_time', 'item_attrs': {'enforce': True, 'read_group_levels': 0}},
+        'time':       {'read': True,  'write': True,  'opcode': 'v1/clock/setAlarmSettings', 'reply_pattern': 'alarm.oneday.time|response_code', 'item_type': 'str', 'dev_datatype': 'al_time', 'item_attrs': {'enforce': True, 'read_group_levels': 0}},
         'beep':       {'read': True,  'write': True,  'opcode': 'v1/clock/setAlarmSettings', 'reply_pattern': 'alarm.oneday.beep', 'item_type': 'bool', 'dev_datatype': 'al_beep', 'lookup': 'bool', 'item_attrs': {'enforce': True, 'read_group_levels': 0}},
     }
 }

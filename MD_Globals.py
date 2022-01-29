@@ -182,6 +182,9 @@ MINMAXKEYS                   = ('valid_min', 'valid_max', 'force_min', 'force_ma
 # name of non-model specific key for commands, models and lookups
 INDEX_GENERIC                = 'ALL'                    # placeholder for generic data
 
+# dict keys for request data_dict
+REQUEST_DICT_ARGS = ('params', 'headers', 'data', 'cookies', 'files')
+
 
 #############################################################################################################################################################################################################################################
 #

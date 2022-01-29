@@ -35,9 +35,9 @@ from contextlib import contextmanager
 from lib.network import Tcp_client
 
 if MD_standalone:
-    from MD_Globals import (sanitize_param, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP)
+    from MD_Globals import (sanitize_param, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP, REQUEST_DICT_ARGS)
 else:
-    from .MD_Globals import (sanitize_param, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP)
+    from .MD_Globals import (sanitize_param, PLUGIN_ATTRS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_PROTOCOL, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP, REQUEST_DICT_ARGS)
 
 
 #############################################################################################################################################################################################################################################
@@ -248,16 +248,17 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
     The data_dict['payload']-Data needs to be the full query URL. Additional
     parameter dicts can be added to be given to requests.request, as
     - request_method: get (default) or post
-    - headers, data, cookies, files, params: passed thru to request()
+    - headers, data, cookies, files: passed thru to request()
+    - data is encoded in the url for GET or sent as dict for POST
 
     Response data is returned as text. Errors raise HTTPException
     """
     def _open(self):
-        self.logger.debug(f'{self.__class__.__name__} "opening connection" as {__name__} with params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} opening connection as {__name__} with params {self._params}')
         return True
 
     def _close(self):
-        self.logger.debug(f'{self.__class__.__name__} "closing connection" as {__name__} with params {self._params}')
+        self.logger.debug(f'{self.__class__.__name__} closing connection as {__name__} with params {self._params}')
 
     def _send(self, data_dict):
         url = data_dict.get('payload', None)
@@ -270,8 +271,14 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
 
         # check for additional data
         par = {}
-        for arg in ('headers', 'data', 'cookies', 'files', 'params'):
+        for arg in (REQUEST_DICT_ARGS):
             par[arg] = data_dict.get(arg, {})
+
+        if request_method == 'get':
+            par['params'] = par['data']
+            par['data'] = {}
+        else:
+            par['params'] = {}
 
         # send data
         response = requests.request(request_method, url,

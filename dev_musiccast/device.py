@@ -119,6 +119,11 @@ class MD_Device(MD_Device):
             self.logger.info(f'got unknown reply: {data}, ignoring.')
             return
 
+        if data == {'response_code': 0}:
+            # ok, no error, no answer
+            self.logger.debug(f'command {command} executed without error.')
+            return
+
         if 'response_code' in data and data['response_code']:
             # error, response_code != 0
             lu = self._commands._get_cmd_lookup('info.error')

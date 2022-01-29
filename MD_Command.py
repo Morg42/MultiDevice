@@ -441,8 +441,8 @@ class MD_Command_JSON(MD_Command):
     With this class, you can send JSON-RPC commands to the device and read
     from it.
 
-    The command is sent as 'method', the params-dict is populated from the
-    CMD_ATTR_PARAMS attribute of the command, while the parameter values are
+    The command is sent as JSON-RPC 'method', the params-dict is populated from
+    the CMD_ATTR_PARAMS attribute of the command, while the parameter values are
     taken from the CMD_ATTR_PARAM_VALUES attribute. '{VALUE}' (CMD_STR_VAL) is
     replaced with the actual item value.
 

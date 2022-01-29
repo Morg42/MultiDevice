@@ -247,7 +247,7 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
 
     The data_dict['payload']-Data needs to be the full query URL. Additional
     parameter dicts can be added to be given to requests.request, as
-    - method: get (default) or post
+    - request_method: get (default) or post
     - headers, data, cookies, files, params: passed thru to request()
 
     Response data is returned as text. Errors raise HTTPException
@@ -266,7 +266,7 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
             return False
 
         # default to get if not 'post' specified
-        method = data_dict.get('method', 'get')
+        request_method = data_dict.get('request_method', 'get')
 
         # check for additional data
         par = {}
@@ -274,7 +274,7 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
             par[arg] = data_dict.get(arg, {})
 
         # send data
-        response = requests.request(method, url,
+        response = requests.request(request_method, url,
                                     params=par['params'],
                                     headers=par['headers'],
                                     data=par['data'],

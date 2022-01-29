@@ -227,7 +227,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 self.logger.warning(f'Could not json.load data item {data} with error {err}')
                 continue
 
-            method = None
+            command = None
 
             # check messageid for replies
             if 'id' in jdata:
@@ -238,22 +238,22 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                     # possibly the command was resent and removed before processing the reply
                     # so let's 'try' at least...
                     try:
-                        method = self._message_archive[response_id][1]
+                        command = self._message_archive[response_id][1]
                         del self._message_archive[response_id]
                     except KeyError:
-                        method = '(deleted)' if '_' not in response_id else response_id[response_id.find('_') + 1:]
+                        command = '(deleted)' if '_' not in response_id else response_id[response_id.find('_') + 1:]
                 else:
-                    method = None
+                    command = None
 
                 # log possible errors
                 if 'error' in jdata:
-                    self.logger.error(f'received error {jdata} in response to command {method}')
-                elif method:
-                    self.logger.debug(f'command {method} sent successfully')
+                    self.logger.error(f'received error {jdata} in response to command {command}')
+                elif command:
+                    self.logger.debug(f'command {command} sent successfully')
 
             # process data
             if self._data_received_callback:
-                self._data_received_callback(connection, jdata, method)
+                self._data_received_callback(connection, jdata, command)
 
         # check _message_archive for old commands - check time reached?
         if self._next_stale_check < time():
@@ -267,10 +267,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 remove_ids = []
                 requeue_cmds = []
 
-                # self._message_archive[message_id] = [time(), method, params, repeat]
+                # self._message_archive[message_id] = [time(), command, params, repeat]
                 self.logger.debug(f'Checking for unanswered commands, last check was {int(time()) - self._last_stale_check} seconds ago, {len(self._message_archive)} commands saved')
                 # !! self.logger.debug('Stale commands: {}'.format(stale_messages))
-                for (message_id, (send_time, method, params, repeat)) in stale_messages.items():
+                for (message_id, (send_time, command, params, repeat)) in stale_messages.items():
 
                     if send_time + self._params[PLUGIN_ATTR_MSG_TIMEOUT] < time():
 
@@ -278,10 +278,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                         if repeat <= self._params[PLUGIN_ATTR_MSG_REPEAT]:
 
                             # send again, increase counter
-                            self.logger.info(f'Repeating unanswered command {method} ({params}), try {repeat + 1}')
-                            requeue_cmds.append([method, params, message_id, repeat + 1])
+                            self.logger.info(f'Repeating unanswered command {command} ({params}), try {repeat + 1}')
+                            requeue_cmds.append([command, params, message_id, repeat + 1])
                         else:
-                            self.logger.info(f'Unanswered command {method} ({params}) repeated {repeat} times, giving up.')
+                            self.logger.info(f'Unanswered command {command} ({params}) repeated {repeat} times, giving up.')
                             remove_ids.append(message_id)
 
                 for msgid in remove_ids:
@@ -294,8 +294,8 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                         pass
 
                 # resend pending repeats - after original
-                for (method, params, message_id, repeat) in requeue_cmds:
-                    self._send_rpc_message(method, params, message_id, repeat)
+                for (command, params, message_id, repeat) in requeue_cmds:
+                    self._send_rpc_message(command, params, message_id, repeat)
 
                 # set next stale check time
                 self._last_stale_check = time()
@@ -311,30 +311,30 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
     def _send(self, data_dict):
         """
-        wrapper to prepare json rpc message to send. extracts method, id, repeat and
-        params (data) from data_dict and call send_rpc_message(method, params, id, repeat)
+        wrapper to prepare json rpc message to send. extracts command, id, repeat and
+        params (data) from data_dict and call send_rpc_message(command, params, id, repeat)
         """
-        method = data_dict.get('payload')
+        command = data_dict.get('payload')
         params = data_dict.get('data', None)
         message_id = data_dict.get('message_id', None)
         repeat = data_dict.get('repeat', 0)
 
-        self._send_rpc_message(method, params, message_id, repeat)
+        self._send_rpc_message(command, params, message_id, repeat)
 
         # we don't get a response (this goes via on_data_received), so we signal "no response"
         return None
 
-    def _send_rpc_message(self, method, params=None, message_id=None, repeat=0):
+    def _send_rpc_message(self, command, params=None, message_id=None, repeat=0):
         """
         Send a JSON RPC message.
-        The  JSON string is extracted from the supplied method and the given parameters.
+        The  JSON string is extracted from the supplied command and the given parameters.
 
-        :param method: the method to be triggered
+        :param command: the command to be triggered
         :param params: parameters dictionary
         :param message_id: the message ID to be used. If none, use the internal counter
         :param repeat: counter for how often the message has been repeated
         """
-        self.logger.debug(f'preparing message to send method {method} with data {params}, try #{repeat}')
+        self.logger.debug(f'preparing message to send command {command} with data {params}, try #{repeat}')
 
         if message_id is None:
             # safely acquire next message_id
@@ -343,11 +343,11 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
             self._message_id += 1
             new_msgid = self._message_id
             self._msgid_lock.release()
-            message_id = str(new_msgid) + '_' + method
+            message_id = str(new_msgid) + '_' + command
             # !! self.logger.debug('Releasing message id access ({})'.format(self._message_id))
 
         # create message packet
-        data = {'jsonrpc': '2.0', 'id': message_id, 'method': method}
+        data = {'jsonrpc': '2.0', 'id': message_id, 'method': command}
         if params:
             data['params'] = params
         try:
@@ -357,17 +357,17 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
         # push message in queue
         # !! self.logger.debug('Queuing message {}'.format(send_command))
-        self._send_queue.put([message_id, send_command, method, params, repeat])
+        self._send_queue.put([message_id, send_command, command, params, repeat])
         # !! self.logger.debug('Queued message {}'.format(send_command))
 
         # try to actually send all queued messages
         self.logger.debug(f'processing queue - {self._send_queue.qsize()} elements')
         while not self._send_queue.empty():
-            (message_id, data, method, params, repeat) = self._send_queue.get()
+            (message_id, data, command, params, repeat) = self._send_queue.get()
             self.logger.debug(f'sending queued msg {message_id} - {data} (#{repeat})')
             self._connection.send({'payload': data})
             # !! self.logger.debug('Adding cmd to message archive: {} - {} (try #{})'.format(message_id, data, repeat))
-            self._message_archive[message_id] = [time(), method, params, repeat]
+            self._message_archive[message_id] = [time(), command, params, repeat]
             # !! self.logger.debug('Sent msg {} - {}'.format(message_id, data))
         # !! self.logger.debug('Processing queue finished - {} elements remaining'.format(self._send_queue.qsize()))
 

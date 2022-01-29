@@ -3,10 +3,10 @@
 
 if MD_standalone:
     from MD_Device import MD_Device
-    from MD_Globals import (COMMAND_SEP, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTR_RECURSIVE)
+    from MD_Globals import (COMMAND_SEP, CUSTOM_SEP, PLUGIN_ATTR_RECURSIVE)
 else:
     from ..MD_Device import MD_Device
-    from ..MD_Globals import (COMMAND_SEP, CUSTOM_SEP, ITEM_ATTR_CUSTOM_PREFIX, PLUGIN_ATTR_RECURSIVE)
+    from ..MD_Globals import (COMMAND_SEP, CUSTOM_SEP, PLUGIN_ATTR_RECURSIVE)
 
 from lib.network import Network
 import json
@@ -45,13 +45,13 @@ class MD_Device(MD_Device):
         self._data_received_callback = self.data_callback
 
     def _transform_send_data(self, data_dict, **kwargs):
-        payload = data_dict['payload']
         if self.custom_commands and 'custom' in kwargs:
             host = kwargs['custom'][self.custom_commands]
         else:
             host = self._params['host']
 
-        url = f'http://{host}/YamahaExtendedControl/{payload}'
+        # complete url in payload from command in payload
+        url = f'http://{host}/YamahaExtendedControl/{data_dict["payload"]}'
         headers = {
             'X-AppName': 'MusicCast/0.42',
             'X-AppPort': f'{self._params["port"]}'
@@ -60,9 +60,9 @@ class MD_Device(MD_Device):
         data_dict['headers'] = headers
 
         if data_dict['data'] is not None:
-            data_dict['method'] = 'post'
+            data_dict['request_method'] = 'post'
         else:
-            data_dict['method'] = 'get'
+            data_dict['request_method'] = 'get'
 
         return data_dict
 

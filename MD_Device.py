@@ -271,7 +271,7 @@ class MD_Device(object):
         result = None
         try:
             result = self._send(data_dict)
-        except Exception as e:
+        except OSError as e:  # Exception as e:
             self.logger.debug(f'error on sending command {command}, error was {e}')
             return False
 
@@ -330,7 +330,7 @@ class MD_Device(object):
             value = self._commands.get_shng_data(command, data)
             if custom:
                 command = command + CUSTOM_SEP + custom
-        except Exception as e:
+        except OSError as e:  # Exception as e:
             self.logger.info(f'received data "{data}" for command {command}, error {e} occurred while converting. Discarding data.')
         else:
             self.logger.debug(f'received data "{data}" for command {command} converted to value {value}')
@@ -500,6 +500,8 @@ class MD_Device(object):
     def _get_custom_value(self, command, data):
         """ extract custom value from data. At least PATTERN Needs to be overwritten """
         if not self.custom_commands:
+            return None
+        if not isinstance(data, str):
             return None
         res = re.search(self._token_pattern, data)
         if not res:

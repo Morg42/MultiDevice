@@ -2,6 +2,7 @@
 # vim: set encoding=utf-8 tabstop=4 softtabstop=4 shiftwidth=4 expandtab
 
 import urllib.parse
+import json
 
 if MD_standalone:
     from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_RECURSIVE)
@@ -30,20 +31,39 @@ class MD_Device(MD_Device):
         self._use_callbacks = True
         self._params[PLUGIN_ATTR_RECURSIVE] = 1
 
+    def _get_custom_value(self, command, data):
+        """ extract custom value from data. At least PATTERN Needs to be overwritten """
+        if not self.custom_commands:
+            return None
+
+        res = None
+        if 'params' in data and isinstance(data['params'], list):
+            res = data['params'][0]
+
+        if not res:
+            self.logger.debug(f'custom token not found in {data}, ignoring')
+            return None
+        elif res in self._custom_values[self.custom_commands] or res in ('', '-'):
+            return res
+        else:
+            self.logger.debug(f'received custom token {res}, not in list of known tokens {self._custom_values[self.custom_commands]}')
+            return None
+
     def _transform_received_data(self, data):
-        # fix weird representation of MAC address (%3A = :), etc.
-        return urllib.parse.unquote_plus(data)
+        if isinstance(data, dict) and 'result' in data and len(data['result']) == 1:
+            data['result'] = list(data['result'].values())[0]
+        return data
 
     def _transform_send_data(self, data_dict, **kwargs):
         host = self._params[PLUGIN_ATTR_NET_HOST]
         port = self._params[PLUGIN_ATTR_NET_PORT]
 
+        data_dict['command'] = data_dict['payload']
         url = f'http://{host}:{port}/jsonrpc.js'
         data_dict['payload'] = url
         data_dict['method'] = 'slim.request'
         data_dict['request_method'] = 'post'
         data_dict['headers'] = {'Content-Type': 'application/json'}
-        self.logger.error(f'data: {data_dict}')
         return data_dict
 
     def _process_additional_data(self, command, data, value, custom, by):

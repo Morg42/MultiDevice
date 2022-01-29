@@ -314,13 +314,13 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         wrapper to prepare json rpc message to send. extracts command, id, repeat and
         params (data) from data_dict and call send_rpc_message(command, params, id, repeat)
         """
-        command = data_dict.get('method', data_dict.get('payload'))
+        command = data_dict.get('command', data_dict.get('method', data_dict.get('payload')))
         message_id = data_dict.get('message_id', None)
         repeat = data_dict.get('repeat', 0)
 
         self._send_rpc_message(command, data_dict, message_id, repeat)
 
-        # we don't get a response (this goes via on_data_received), so we signal "no response"
+        # we don't return a response (this goes via on_data_received)
         return None
 
     def _send_rpc_message(self, command, ddict=None, message_id=None, repeat=0):
@@ -348,8 +348,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         if not ddict:
             ddict = {}
 
+        method = ddict.get('method', command)
+
         # create message packet
-        new_data = {'jsonrpc': '2.0', 'id': message_id, 'method': command}
+        new_data = {'jsonrpc': '2.0', 'id': message_id, 'method': method}
         
         if 'data' in ddict and ddict['data']:
 
@@ -374,20 +376,19 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 raise ValueError(f'data {ddict["data"]} not convertible to JSON, aborting. Error was: {e}')
 
         # push message in queue
-        # !! self.logger.debug('Queuing message {}'.format(send_command))
         self._send_queue.put([message_id, command, ddict, repeat])
-        # !! self.logger.debug('Queued message {}'.format(send_command))
 
         # try to actually send all queued messages
         self.logger.debug(f'processing queue - {self._send_queue.qsize()} elements')
         while not self._send_queue.empty():
             (message_id, command, ddict, repeat) = self._send_queue.get()
-            self.logger.debug(f'sending queued msg {message_id} - {command} (#{repeat})')
-            self._connection.send(ddict)
-            # !! self.logger.debug('Adding cmd to message archive: {} - {} (try #{})'.format(message_id, data, repeat))
+
             self._message_archive[message_id] = [time(), command, ddict, repeat]
-            # !! self.logger.debug('Sent msg {} - {}'.format(message_id, data))
-        # !! self.logger.debug('Processing queue finished - {} elements remaining'.format(self._send_queue.qsize()))
+
+            self.logger.debug(f'sending queued msg {message_id} - {command} (#{repeat})')
+            response = self._connection.send(ddict)
+            if response:
+                self.on_data_received('request', response)
 
 
 class MD_Protocol_Viessmann(MD_Protocol):

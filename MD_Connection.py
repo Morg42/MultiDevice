@@ -31,6 +31,7 @@ import serial
 import socket
 from threading import Lock, Thread
 from contextlib import contextmanager
+import json
 
 from lib.network import Tcp_client
 
@@ -280,6 +281,9 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
         else:
             par['params'] = {}
 
+        # needed for LMS, Requests does funny things converting data dict to json...
+        par['data'] = json.dumps(par['data'])
+
         # send data
         response = requests.request(request_method, url,
                                     params=par['params'],
@@ -287,6 +291,8 @@ class MD_Connection_Net_Tcp_Request(MD_Connection):
                                     data=par['data'],
                                     cookies=par['cookies'],
                                     files=par['files'])
+
+        self.logger.debug(f'{self.__class__.__name__} received response {response.text} with code {response.status_code}')
 
         if 200 <= response.status_code < 400:
             return response.text

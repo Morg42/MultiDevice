@@ -3,15 +3,11 @@
 
 import urllib.parse
 
-# needed?
-from lib.item import Items
-items = Items.get_instance()
-
 if MD_standalone:
-    from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT)
+    from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_RECURSIVE)
     from MD_Device import MD_Device
 else:
-    from ..MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT)
+    from ..MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_RECURSIVE)
     from ..MD_Device import MD_Device
 
 
@@ -26,17 +22,32 @@ class MD_Device(MD_Device):
     """
 
     def _set_device_defaults(self):
-
+        self._discard_unknown_command = False
         self.custom_commands = 1
         self._token_pattern = '([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}'
         # for substitution in reply_pattern
         self._custom_patterns = {1: '(?:[0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', 2: '', 3: ''}
         self._use_callbacks = True
+        self._params[PLUGIN_ATTR_RECURSIVE] = 1
 
     def _transform_received_data(self, data):
         # fix weird representation of MAC address (%3A = :), etc.
         return urllib.parse.unquote_plus(data)
 
+<<<<<<< Updated upstream
+=======
+    def _transform_send_data(self, data_dict, **kwargs):
+        host = self._params['host']
+        port = self._params['port']
+
+        url = f'http://{host}:{port}/jsonrpc.js'
+        data_dict['payload'] = url
+        data_dict['method'] = 'slim.request'
+        data_dict['request_method'] = 'post'
+        self.logger.error(f'data: {data_dict}')
+        return data_dict
+
+>>>>>>> Stashed changes
     def _process_additional_data(self, command, data, value, custom, by):
 
         def _dispatch(command, value, custom=None, send=False):

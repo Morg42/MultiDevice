@@ -6,7 +6,7 @@
 
 commands = {
     'server': {
-        'playercount': {'read': True, 'write': False, 'item_type': 'num', 'dev_datatype': 'str', 'reply_pattern': '_count', 'item_attrs': {'initial': True}, 'params': ["-", ["player", "count", "?"]]},
+        'playercount': {'read': True, 'write': False, 'opcode': 'foo', 'item_type': 'num', 'dev_datatype': 'str', 'reply_pattern': '_count', 'item_attrs': {'initial': True}, 'params': ["-", ["player", "count", "?"]]},
         'favoritescount': {'read': True, 'write': False, 'item_type': 'num', 'dev_datatype': 'str', 'reply_pattern': 'count', 'item_attrs': {'initial': True}, 'params': ["-", ["favorites", "items"]]},
         'version': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_pattern': '_version', 'item_attrs': {'initial': True}, 'params': ["-", ["version", "?"]]}
     },
@@ -48,6 +48,7 @@ commands = {
             'repeat': {'read': True, 'write': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_pattern': r'{CUSTOM_PATTERN1} playlist repeat (\d)', 'lookup': 'REPEAT', 'item_attrs': {'attributes': {'remark': '0 = Off, 1 = Song, 2 = Playlist'}, 'lookup_item': True}, 'params': ["{CUSTOM_ATTR1}", ["playlist", "repeat", "{VALUE}"]]},
             'shuffle': {'read': True, 'write': True, 'item_type': 'str', 'dev_datatype': 'str', 'reply_pattern': r'{CUSTOM_PATTERN1} playlist shuffle (\d)', 'lookup': 'SHUFFLE', 'item_attrs': {'attributes': {'remark': '0 = Off, 1 = Song, 2 = Album'}, 'lookup_item': True}, 'params': ["{CUSTOM_ATTR1}", ["playlist", "shuffle", "{VALUE}"]]},
         }
+    }
 }
 
 lookups = {

@@ -34,20 +34,18 @@ class MD_Device(MD_Device):
         # fix weird representation of MAC address (%3A = :), etc.
         return urllib.parse.unquote_plus(data)
 
-<<<<<<< Updated upstream
-=======
     def _transform_send_data(self, data_dict, **kwargs):
-        host = self._params['host']
-        port = self._params['port']
+        host = self._params[PLUGIN_ATTR_NET_HOST]
+        port = self._params[PLUGIN_ATTR_NET_PORT]
 
         url = f'http://{host}:{port}/jsonrpc.js'
         data_dict['payload'] = url
         data_dict['method'] = 'slim.request'
         data_dict['request_method'] = 'post'
+        data_dict['headers'] = {'Content-Type': 'application/json'}
         self.logger.error(f'data: {data_dict}')
         return data_dict
 
->>>>>>> Stashed changes
     def _process_additional_data(self, command, data, value, custom, by):
 
         def _dispatch(command, value, custom=None, send=False):

@@ -10,14 +10,7 @@ else:
 
 
 class MD_Device(MD_Device):
-    """ Device class for Squeezebox function.
-
-    Most of the work is done by the base class, so we only set default parameters
-    for the connection (to be overwritten by device attributes from the plugin
-    configuration) and add a fixed terminator byte to outgoing datagrams.
-
-    The know-how is in the commands.py (and some DT_ classes...)
-    """
+    """ Device class for Squeezebox function. """
 
     def _set_device_defaults(self):
         self._discard_unknown_command = False

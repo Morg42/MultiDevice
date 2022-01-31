@@ -341,7 +341,7 @@ class MD_Device(object):
 
         self._process_additional_data(base_command, data, value, custom, by)
 
-    def read_all_commands(self, group=0):
+    def read_all_commands(self, group=''):
         """
         Triggers all configured read commands or all configured commands of given group
         """
@@ -702,14 +702,14 @@ class MD_Device(object):
         if self._initial_values_read:
             self.logger.debug('_read_initial_values() called, but inital values were already read. Ignoring')
         else:
-            if self._commands_initial != []:  # also read after reconnect and not self._initial_values_read:
+            if self._commands_initial:  # also read after reconnect and not self._initial_values_read:
                 self.logger.info('Starting initial read commands')
                 for cmd in self._commands_initial:
                     self.logger.debug(f'Sending initial command {cmd}')
                     self.send_command(cmd)
                 self._initial_values_read = True
                 self.logger.info('Initial read commands sent')
-            if self._triggers_initial != []:  # also read after reconnect and not self._initial_values_read:
+            if self._triggers_initial:  # also read after reconnect and not self._initial_values_read:
                 self.logger.info('Starting initial read group triggers')
                 for grp in self._triggers_initial:
                     self.logger.debug(f'Triggering initial read group {grp}')

@@ -786,7 +786,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
 
         return (packet, responselen)
 
-    def _calc_checksum(self, packet):
+    @staticmethod
+    def _calc_checksum(packet):
         """
         Calculate checksum for P300 protocol packets
 
@@ -801,13 +802,10 @@ class MD_Protocol_Viessmann(MD_Protocol):
                 packet = packet[1:]
                 checksum = sum(packet)
                 checksum = checksum - int(checksum / 256) * 256
-            else:
-                self.logger.error('bytes to calculate checksum from not starting with start byte')
-        else:
-            self.logger.error('no bytes received to calculate checksum')
         return checksum
 
-    def _int2bytes(self, value, length, signed=False):
+    @staticmethod
+    def _int2bytes(value, length, signed=False):
         """
         Convert value to bytearray with respect to defined length and sign format.
         Value exceeding limit set by length and sign will be truncated
@@ -824,7 +822,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
         value = value % (2 ** (length * 8))
         return value.to_bytes(length, byteorder='big', signed=signed)
 
-    def _bytes2int(self, rawbytes, signed):
+    @staticmethod
+    def _bytes2int(rawbytes, signed):
         """
         Convert bytearray to value with respect to sign format
 
@@ -837,7 +836,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
         """
         return int.from_bytes(rawbytes, byteorder='little', signed=signed)
 
-    def _bytes2hexstring(self, bytesvalue):
+    @staticmethod
+    def _bytes2hexstring(bytesvalue):
         """
         Create hex-formatted string from bytearray
         :param bytesvalue: Bytes to convert

@@ -255,7 +255,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 self.logger.warning(f&#39;Could not json.load data item {data} with error {err}&#39;)
                 continue
 
-            method = None
+            command = None
 
             # check messageid for replies
             if &#39;id&#39; in jdata:
@@ -266,22 +266,22 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                     # possibly the command was resent and removed before processing the reply
                     # so let&#39;s &#39;try&#39; at least...
                     try:
-                        method = self._message_archive[response_id][1]
+                        command = self._message_archive[response_id][1]
                         del self._message_archive[response_id]
                     except KeyError:
-                        method = &#39;(deleted)&#39; if &#39;_&#39; not in response_id else response_id[response_id.find(&#39;_&#39;) + 1:]
+                        command = &#39;(deleted)&#39; if &#39;_&#39; not in response_id else response_id[response_id.find(&#39;_&#39;) + 1:]
                 else:
-                    method = None
+                    command = None
 
                 # log possible errors
                 if &#39;error&#39; in jdata:
-                    self.logger.error(f&#39;received error {jdata} in response to command {method}&#39;)
-                elif method:
-                    self.logger.debug(f&#39;command {method} sent successfully&#39;)
+                    self.logger.error(f&#39;received error {jdata} in response to command {command}&#39;)
+                elif command:
+                    self.logger.debug(f&#39;command {command} sent successfully&#39;)
 
             # process data
             if self._data_received_callback:
-                self._data_received_callback(connection, jdata, method)
+                self._data_received_callback(connection, jdata, command)
 
         # check _message_archive for old commands - check time reached?
         if self._next_stale_check &lt; time():
@@ -295,10 +295,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                 remove_ids = []
                 requeue_cmds = []
 
-                # self._message_archive[message_id] = [time(), method, params, repeat]
+                # self._message_archive[message_id] = [time(), command, params, repeat]
                 self.logger.debug(f&#39;Checking for unanswered commands, last check was {int(time()) - self._last_stale_check} seconds ago, {len(self._message_archive)} commands saved&#39;)
                 # !! self.logger.debug(&#39;Stale commands: {}&#39;.format(stale_messages))
-                for (message_id, (send_time, method, params, repeat)) in stale_messages.items():
+                for (message_id, (send_time, command, params, repeat)) in stale_messages.items():
 
                     if send_time + self._params[PLUGIN_ATTR_MSG_TIMEOUT] &lt; time():
 
@@ -306,10 +306,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                         if repeat &lt;= self._params[PLUGIN_ATTR_MSG_REPEAT]:
 
                             # send again, increase counter
-                            self.logger.info(f&#39;Repeating unanswered command {method} ({params}), try {repeat + 1}&#39;)
-                            requeue_cmds.append([method, params, message_id, repeat + 1])
+                            self.logger.info(f&#39;Repeating unanswered command {command} ({params}), try {repeat + 1}&#39;)
+                            requeue_cmds.append([command, params, message_id, repeat + 1])
                         else:
-                            self.logger.info(f&#39;Unanswered command {method} ({params}) repeated {repeat} times, giving up.&#39;)
+                            self.logger.info(f&#39;Unanswered command {command} ({params}) repeated {repeat} times, giving up.&#39;)
                             remove_ids.append(message_id)
 
                 for msgid in remove_ids:
@@ -322,8 +322,8 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                         pass
 
                 # resend pending repeats - after original
-                for (method, params, message_id, repeat) in requeue_cmds:
-                    self._send_rpc_message(method, params, message_id, repeat)
+                for (command, params, message_id, repeat) in requeue_cmds:
+                    self._send_rpc_message(command, params, message_id, repeat)
 
                 # set next stale check time
                 self._last_stale_check = time()
@@ -339,30 +339,29 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
-        wrapper to prepare json rpc message to send. extracts method, id, repeat and
-        params (data) from data_dict and call send_rpc_message(method, params, id, repeat)
+        wrapper to prepare json rpc message to send. extracts command, id, repeat and
+        params (data) from data_dict and call send_rpc_message(command, params, id, repeat)
         &#34;&#34;&#34;
-        method = data_dict.get(&#39;payload&#39;)
-        params = data_dict.get(&#39;data&#39;, None)
+        command = data_dict.get(&#39;command&#39;, data_dict.get(&#39;method&#39;, data_dict.get(&#39;payload&#39;)))
         message_id = data_dict.get(&#39;message_id&#39;, None)
         repeat = data_dict.get(&#39;repeat&#39;, 0)
 
-        self._send_rpc_message(method, params, message_id, repeat)
+        self._send_rpc_message(command, data_dict, message_id, repeat)
 
-        # we don&#39;t get a response (this goes via on_data_received), so we signal &#34;no response&#34;
+        # we don&#39;t return a response (this goes via on_data_received)
         return None
 
-    def _send_rpc_message(self, method, params=None, message_id=None, repeat=0):
+    def _send_rpc_message(self, command, ddict=None, message_id=None, repeat=0):
         &#34;&#34;&#34;
         Send a JSON RPC message.
-        The  JSON string is extracted from the supplied method and the given parameters.
+        The  JSON string is extracted from the supplied command and the given parameters.
 
-        :param method: the method to be triggered
-        :param params: parameters dictionary
+        :param command: the command to be triggered
+        :param ddict: dictionary with command data, e.g. keys &#39;params&#39;, &#39;data&#39;, &#39;headers&#39;, &#39;request_method&#39;...
         :param message_id: the message ID to be used. If none, use the internal counter
         :param repeat: counter for how often the message has been repeated
         &#34;&#34;&#34;
-        self.logger.debug(f&#39;preparing message to send method {method} with data {params}, try #{repeat}&#39;)
+        self.logger.debug(f&#39;preparing message to send command {command} with data {ddict}, try #{repeat}&#39;)
 
         if message_id is None:
             # safely acquire next message_id
@@ -371,33 +370,53 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
             self._message_id += 1
             new_msgid = self._message_id
             self._msgid_lock.release()
-            message_id = str(new_msgid) + &#39;_&#39; + method
+            message_id = str(new_msgid) + &#39;_&#39; + command
             # !! self.logger.debug(&#39;Releasing message id access ({})&#39;.format(self._message_id))
 
+        if not ddict:
+            ddict = {}
+
+        method = ddict.get(&#39;method&#39;, command)
+
         # create message packet
-        data = {&#39;jsonrpc&#39;: &#39;2.0&#39;, &#39;id&#39;: message_id, &#39;method&#39;: method}
-        if params:
-            data[&#39;params&#39;] = params
-        try:
-            send_command = json.dumps(data, separators=(&#39;,&#39;, &#39;:&#39;))
-        except Exception as err:
-            raise ValueError(f&#39;problem with json.dumps: {err}, ignoring message. Error was {err}&#39;)
+        new_data = {&#39;jsonrpc&#39;: &#39;2.0&#39;, &#39;id&#39;: message_id, &#39;method&#39;: method}
+        
+        if &#39;data&#39; in ddict and ddict[&#39;data&#39;]:
+
+            # ddict already contains &#39;data&#39;, we either have an old &#34;ready&#34; packet or new data
+            if &#39;jsonrpc&#39; not in ddict[&#39;data&#39;]:
+
+                # we don&#39;t have a jsonrpc header, add new data to new header
+                new_data[&#39;params&#39;] = ddict[&#39;data&#39;]
+            else:
+                # jsonrpc header present, keep packet as is
+                new_data = ddict[&#39;data&#39;]
+    
+        # set packet data
+        ddict[&#39;data&#39;] = new_data
+
+        # convert data if not using HTTP connections
+        if &#39;request_method&#39; not in ddict:
+
+            try:
+                ddict[&#39;payload&#39;] += json.dumps(ddict[&#39;data&#39;])
+            except Exception as e:
+                raise ValueError(f&#39;data {ddict[&#34;data&#34;]} not convertible to JSON, aborting. Error was: {e}&#39;)
 
         # push message in queue
-        # !! self.logger.debug(&#39;Queuing message {}&#39;.format(send_command))
-        self._send_queue.put([message_id, send_command, method, params, repeat])
-        # !! self.logger.debug(&#39;Queued message {}&#39;.format(send_command))
+        self._send_queue.put([message_id, command, ddict, repeat])
 
         # try to actually send all queued messages
         self.logger.debug(f&#39;processing queue - {self._send_queue.qsize()} elements&#39;)
         while not self._send_queue.empty():
-            (message_id, data, method, params, repeat) = self._send_queue.get()
-            self.logger.debug(f&#39;sending queued msg {message_id} - {data} (#{repeat})&#39;)
-            self._connection.send({&#39;payload&#39;: data})
-            # !! self.logger.debug(&#39;Adding cmd to message archive: {} - {} (try #{})&#39;.format(message_id, data, repeat))
-            self._message_archive[message_id] = [time(), method, params, repeat]
-            # !! self.logger.debug(&#39;Sent msg {} - {}&#39;.format(message_id, data))
-        # !! self.logger.debug(&#39;Processing queue finished - {} elements remaining&#39;.format(self._send_queue.qsize()))
+            (message_id, command, ddict, repeat) = self._send_queue.get()
+
+            self._message_archive[message_id] = [time(), command, ddict, repeat]
+
+            self.logger.debug(f&#39;sending queued msg {message_id} - {command} (#{repeat})&#39;)
+            response = self._connection.send(ddict)
+            if response:
+                self.on_data_received(&#39;request&#39;, response)
 
 
 class MD_Protocol_Viessmann(MD_Protocol):
@@ -795,7 +814,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
 
         return (packet, responselen)
 
-    def _calc_checksum(self, packet):
+    @staticmethod
+    def _calc_checksum(packet):
         &#34;&#34;&#34;
         Calculate checksum for P300 protocol packets
 
@@ -810,13 +830,10 @@ class MD_Protocol_Viessmann(MD_Protocol):
                 packet = packet[1:]
                 checksum = sum(packet)
                 checksum = checksum - int(checksum / 256) * 256
-            else:
-                self.logger.error(&#39;bytes to calculate checksum from not starting with start byte&#39;)
-        else:
-            self.logger.error(&#39;no bytes received to calculate checksum&#39;)
         return checksum
 
-    def _int2bytes(self, value, length, signed=False):
+    @staticmethod
+    def _int2bytes(value, length, signed=False):
         &#34;&#34;&#34;
         Convert value to bytearray with respect to defined length and sign format.
         Value exceeding limit set by length and sign will be truncated
@@ -833,7 +850,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
         value = value % (2 ** (length * 8))
         return value.to_bytes(length, byteorder=&#39;big&#39;, signed=signed)
 
-    def _bytes2int(self, rawbytes, signed):
+    @staticmethod
+    def _bytes2int(rawbytes, signed):
         &#34;&#34;&#34;
         Convert bytearray to value with respect to sign format
 
@@ -846,7 +864,8 @@ class MD_Protocol_Viessmann(MD_Protocol):
         &#34;&#34;&#34;
         return int.from_bytes(rawbytes, byteorder=&#39;little&#39;, signed=signed)
 
-    def _bytes2hexstring(self, bytesvalue):
+    @staticmethod
+    def _bytes2hexstring(bytesvalue):
         &#34;&#34;&#34;
         Create hex-formatted string from bytearray
         :param bytesvalue: Bytes to convert
@@ -1112,7 +1131,7 @@ If callbacks are class members, they need the additional first parameter 'self'<
                 self.logger.warning(f&#39;Could not json.load data item {data} with error {err}&#39;)
                 continue
 
-            method = None
+            command = None
 
             # check messageid for replies
             if &#39;id&#39; in jdata:
@@ -1123,22 +1142,22 @@ If callbacks are class members, they need the additional first parameter 'self'<
                     # possibly the command was resent and removed before processing the reply
                     # so let&#39;s &#39;try&#39; at least...
                     try:
-                        method = self._message_archive[response_id][1]
+                        command = self._message_archive[response_id][1]
                         del self._message_archive[response_id]
                     except KeyError:
-                        method = &#39;(deleted)&#39; if &#39;_&#39; not in response_id else response_id[response_id.find(&#39;_&#39;) + 1:]
+                        command = &#39;(deleted)&#39; if &#39;_&#39; not in response_id else response_id[response_id.find(&#39;_&#39;) + 1:]
                 else:
-                    method = None
+                    command = None
 
                 # log possible errors
                 if &#39;error&#39; in jdata:
-                    self.logger.error(f&#39;received error {jdata} in response to command {method}&#39;)
-                elif method:
-                    self.logger.debug(f&#39;command {method} sent successfully&#39;)
+                    self.logger.error(f&#39;received error {jdata} in response to command {command}&#39;)
+                elif command:
+                    self.logger.debug(f&#39;command {command} sent successfully&#39;)
 
             # process data
             if self._data_received_callback:
-                self._data_received_callback(connection, jdata, method)
+                self._data_received_callback(connection, jdata, command)
 
         # check _message_archive for old commands - check time reached?
         if self._next_stale_check &lt; time():
@@ -1152,10 +1171,10 @@ If callbacks are class members, they need the additional first parameter 'self'<
                 remove_ids = []
                 requeue_cmds = []
 
-                # self._message_archive[message_id] = [time(), method, params, repeat]
+                # self._message_archive[message_id] = [time(), command, params, repeat]
                 self.logger.debug(f&#39;Checking for unanswered commands, last check was {int(time()) - self._last_stale_check} seconds ago, {len(self._message_archive)} commands saved&#39;)
                 # !! self.logger.debug(&#39;Stale commands: {}&#39;.format(stale_messages))
-                for (message_id, (send_time, method, params, repeat)) in stale_messages.items():
+                for (message_id, (send_time, command, params, repeat)) in stale_messages.items():
 
                     if send_time + self._params[PLUGIN_ATTR_MSG_TIMEOUT] &lt; time():
 
@@ -1163,10 +1182,10 @@ If callbacks are class members, they need the additional first parameter 'self'<
                         if repeat &lt;= self._params[PLUGIN_ATTR_MSG_REPEAT]:
 
                             # send again, increase counter
-                            self.logger.info(f&#39;Repeating unanswered command {method} ({params}), try {repeat + 1}&#39;)
-                            requeue_cmds.append([method, params, message_id, repeat + 1])
+                            self.logger.info(f&#39;Repeating unanswered command {command} ({params}), try {repeat + 1}&#39;)
+                            requeue_cmds.append([command, params, message_id, repeat + 1])
                         else:
-                            self.logger.info(f&#39;Unanswered command {method} ({params}) repeated {repeat} times, giving up.&#39;)
+                            self.logger.info(f&#39;Unanswered command {command} ({params}) repeated {repeat} times, giving up.&#39;)
                             remove_ids.append(message_id)
 
                 for msgid in remove_ids:
@@ -1179,8 +1198,8 @@ If callbacks are class members, they need the additional first parameter 'self'<
                         pass
 
                 # resend pending repeats - after original
-                for (method, params, message_id, repeat) in requeue_cmds:
-                    self._send_rpc_message(method, params, message_id, repeat)
+                for (command, params, message_id, repeat) in requeue_cmds:
+                    self._send_rpc_message(command, params, message_id, repeat)
 
                 # set next stale check time
                 self._last_stale_check = time()
@@ -1196,30 +1215,29 @@ If callbacks are class members, they need the additional first parameter 'self'<
 
     def _send(self, data_dict):
         &#34;&#34;&#34;
-        wrapper to prepare json rpc message to send. extracts method, id, repeat and
-        params (data) from data_dict and call send_rpc_message(method, params, id, repeat)
+        wrapper to prepare json rpc message to send. extracts command, id, repeat and
+        params (data) from data_dict and call send_rpc_message(command, params, id, repeat)
         &#34;&#34;&#34;
-        method = data_dict.get(&#39;payload&#39;)
-        params = data_dict.get(&#39;data&#39;, None)
+        command = data_dict.get(&#39;command&#39;, data_dict.get(&#39;method&#39;, data_dict.get(&#39;payload&#39;)))
         message_id = data_dict.get(&#39;message_id&#39;, None)
         repeat = data_dict.get(&#39;repeat&#39;, 0)
 
-        self._send_rpc_message(method, params, message_id, repeat)
+        self._send_rpc_message(command, data_dict, message_id, repeat)
 
-        # we don&#39;t get a response (this goes via on_data_received), so we signal &#34;no response&#34;
+        # we don&#39;t return a response (this goes via on_data_received)
         return None
 
-    def _send_rpc_message(self, method, params=None, message_id=None, repeat=0):
+    def _send_rpc_message(self, command, ddict=None, message_id=None, repeat=0):
         &#34;&#34;&#34;
         Send a JSON RPC message.
-        The  JSON string is extracted from the supplied method and the given parameters.
+        The  JSON string is extracted from the supplied command and the given parameters.
 
-        :param method: the method to be triggered
-        :param params: parameters dictionary
+        :param command: the command to be triggered
+        :param ddict: dictionary with command data, e.g. keys &#39;params&#39;, &#39;data&#39;, &#39;headers&#39;, &#39;request_method&#39;...
         :param message_id: the message ID to be used. If none, use the internal counter
         :param repeat: counter for how often the message has been repeated
         &#34;&#34;&#34;
-        self.logger.debug(f&#39;preparing message to send method {method} with data {params}, try #{repeat}&#39;)
+        self.logger.debug(f&#39;preparing message to send command {command} with data {ddict}, try #{repeat}&#39;)
 
         if message_id is None:
             # safely acquire next message_id
@@ -1228,33 +1246,53 @@ If callbacks are class members, they need the additional first parameter 'self'<
             self._message_id += 1
             new_msgid = self._message_id
             self._msgid_lock.release()
-            message_id = str(new_msgid) + &#39;_&#39; + method
+            message_id = str(new_msgid) + &#39;_&#39; + command
             # !! self.logger.debug(&#39;Releasing message id access ({})&#39;.format(self._message_id))
 
+        if not ddict:
+            ddict = {}
+
+        method = ddict.get(&#39;method&#39;, command)
+
         # create message packet
-        data = {&#39;jsonrpc&#39;: &#39;2.0&#39;, &#39;id&#39;: message_id, &#39;method&#39;: method}
-        if params:
-            data[&#39;params&#39;] = params
-        try:
-            send_command = json.dumps(data, separators=(&#39;,&#39;, &#39;:&#39;))
-        except Exception as err:
-            raise ValueError(f&#39;problem with json.dumps: {err}, ignoring message. Error was {err}&#39;)
+        new_data = {&#39;jsonrpc&#39;: &#39;2.0&#39;, &#39;id&#39;: message_id, &#39;method&#39;: method}
+        
+        if &#39;data&#39; in ddict and ddict[&#39;data&#39;]:
+
+            # ddict already contains &#39;data&#39;, we either have an old &#34;ready&#34; packet or new data
+            if &#39;jsonrpc&#39; not in ddict[&#39;data&#39;]:
+
+                # we don&#39;t have a jsonrpc header, add new data to new header
+                new_data[&#39;params&#39;] = ddict[&#39;data&#39;]
+            else:
+                # jsonrpc header present, keep packet as is
+                new_data = ddict[&#39;data&#39;]
+    
+        # set packet data
+        ddict[&#39;data&#39;] = new_data
+
+        # convert data if not using HTTP connections
+        if &#39;request_method&#39; not in ddict:
+
+            try:
+                ddict[&#39;payload&#39;] += json.dumps(ddict[&#39;data&#39;])
+            except Exception as e:
+                raise ValueError(f&#39;data {ddict[&#34;data&#34;]} not convertible to JSON, aborting. Error was: {e}&#39;)
 
         # push message in queue
-        # !! self.logger.debug(&#39;Queuing message {}&#39;.format(send_command))
-        self._send_queue.put([message_id, send_command, method, params, repeat])
-        # !! self.logger.debug(&#39;Queued message {}&#39;.format(send_command))
+        self._send_queue.put([message_id, command, ddict, repeat])
 
         # try to actually send all queued messages
         self.logger.debug(f&#39;processing queue - {self._send_queue.qsize()} elements&#39;)
         while not self._send_queue.empty():
-            (message_id, data, method, params, repeat) = self._send_queue.get()
-            self.logger.debug(f&#39;sending queued msg {message_id} - {data} (#{repeat})&#39;)
-            self._connection.send({&#39;payload&#39;: data})
-            # !! self.logger.debug(&#39;Adding cmd to message archive: {} - {} (try #{})&#39;.format(message_id, data, repeat))
-            self._message_archive[message_id] = [time(), method, params, repeat]
-            # !! self.logger.debug(&#39;Sent msg {} - {}&#39;.format(message_id, data))
-        # !! self.logger.debug(&#39;Processing queue finished - {} elements remaining&#39;.format(self._send_queue.qsize()))</code></pre>
+            (message_id, command, ddict, repeat) = self._send_queue.get()
+
+            self._message_archive[message_id] = [time(), command, ddict, repeat]
+
+            self.logger.debug(f&#39;sending queued msg {message_id} - {command} (#{repeat})&#39;)
+            response = self._connection.send(ddict)
+            if response:
+                self.on_data_received(&#39;request&#39;, response)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1688,7 +1726,8 @@ implemented for network access as of this time&hellip;</p></div>
 
         return (packet, responselen)
 
-    def _calc_checksum(self, packet):
+    @staticmethod
+    def _calc_checksum(packet):
         &#34;&#34;&#34;
         Calculate checksum for P300 protocol packets
 
@@ -1703,13 +1742,10 @@ implemented for network access as of this time&hellip;</p></div>
                 packet = packet[1:]
                 checksum = sum(packet)
                 checksum = checksum - int(checksum / 256) * 256
-            else:
-                self.logger.error(&#39;bytes to calculate checksum from not starting with start byte&#39;)
-        else:
-            self.logger.error(&#39;no bytes received to calculate checksum&#39;)
         return checksum
 
-    def _int2bytes(self, value, length, signed=False):
+    @staticmethod
+    def _int2bytes(value, length, signed=False):
         &#34;&#34;&#34;
         Convert value to bytearray with respect to defined length and sign format.
         Value exceeding limit set by length and sign will be truncated
@@ -1726,7 +1762,8 @@ implemented for network access as of this time&hellip;</p></div>
         value = value % (2 ** (length * 8))
         return value.to_bytes(length, byteorder=&#39;big&#39;, signed=signed)
 
-    def _bytes2int(self, rawbytes, signed):
+    @staticmethod
+    def _bytes2int(rawbytes, signed):
         &#34;&#34;&#34;
         Convert bytearray to value with respect to sign format
 
@@ -1739,7 +1776,8 @@ implemented for network access as of this time&hellip;</p></div>
         &#34;&#34;&#34;
         return int.from_bytes(rawbytes, byteorder=&#39;little&#39;, signed=signed)
 
-    def _bytes2hexstring(self, bytesvalue):
+    @staticmethod
+    def _bytes2hexstring(bytesvalue):
         &#34;&#34;&#34;
         Create hex-formatted string from bytearray
         :param bytesvalue: Bytes to convert

@@ -484,7 +484,7 @@ class MD_Connection_Serial(MD_Connection):
         self._connection_attempts = 0
         self._read_buffer = b''
         self.__use_read_buffer = True
-        self.__running = False
+        self.__listener_active = False
 
         # initialize connection
         self._connection = serial.Serial()
@@ -579,7 +579,7 @@ class MD_Connection_Serial(MD_Connection):
             raise serial.SerialException(f'data {data} could not be sent')
 
         # don't try to read response if listener is active
-        if self.__running:
+        if self.__listener_active:
             return None
 
         rlen = data_dict.get('limit_response', None)
@@ -680,7 +680,7 @@ class MD_Connection_Serial(MD_Connection):
                 self.logger.warning('read_bytes couldn\'t get lock on serial. Ths is unintended...')
 
         # timeout reached, did we read anything?
-        if not totalreadbytes and not self.__running:
+        if not totalreadbytes and not self.__listener_active:
 
             # just in case, force plugin to reconnect
             self._is_connected = False
@@ -727,14 +727,14 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
         if not self._is_connected:
             return
 
-        self.__running = True
+        self.__listener_active = True
         self.__receive_thread = Thread(target=self.__receive_thread_worker, name=f'{self.device_id}_Serial')
         self.__receive_thread.daemon = True
         self.__receive_thread.start()
 
     def _close(self):
         self.logger.debug(f'stopping receive thread {self.__receive_thread.name}')
-        self.__running = False
+        self.__listener_active = False
         try:
             self.__receive_thread.join()
         except Exception:
@@ -747,7 +747,7 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
         self._is_receiving = True
         # try to find possible "hidden" errors
         try:
-            while self._is_connected and self.__running:
+            while self._is_connected and self.__listener_active:
                 try:
                     msg = self._read_bytes(0)
                 except serial.SerialTimeoutException:
@@ -776,13 +776,13 @@ class MD_Connection_Serial_Async(MD_Connection_Serial):
                                 self._data_received_callback(self, line if self._binary else str(line, 'utf-8').strip())
                     # If not in terminator mode just forward what we received
 
-                if not self.__running:
+                if not self.__listener_active:
                     # socket shut down by self.close, no error
                     self.logger.debug('serial connection shut down by call to close method')
                     return
 
         except Exception as e:
-            if not self.__running:
+            if not self.__listener_active:
                 self.logger.debug(f'serial receive thread {self.__receive_thread.name} shutting down')
                 return
             else:

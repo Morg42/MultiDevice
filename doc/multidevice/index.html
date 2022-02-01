@@ -1526,27 +1526,11 @@ class MultiDevice(SmartPlugin):
             &#39;callback&#39;: self.on_data_received
         }
 
-    def _get_device_type(self, device_id):
-        &#34;&#34;&#34; getter method. Really most unused. &#34;&#34;&#34;
-        dev = self._devices.get(device_id, None)
-        if dev:
-            return dev[&#39;device_type&#39;]
-        else:
-            return None
-
     def get_device(self, device_id):
         &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;device&#39;]
-        else:
-            return None
-
-    def _get_device_params(self, device_id):
-        &#34;&#34;&#34; getter method &#34;&#34;&#34;
-        dev = self._devices.get(device_id, None)
-        if dev:
-            return dev[&#39;params&#39;]
         else:
             return None
 
@@ -1839,7 +1823,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
 
             if item:
                 add_item_to_tree(path, item)
-#
+
             if CMD_ATTR_ITEM_ATTRS in node:
                 find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
@@ -1913,9 +1897,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
 
                 item_tree = {}
 
-                # find read group triggers
-                # walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
-
                 # create item tree
                 walk(obj[model], &#39;&#39;, None, create_item, &#39;&#39;, 0, model, [model], True)
 
@@ -1934,9 +1915,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 item_tree = {}
 
                 obj = {section: commands[section]}
-
-                # find read group triggers
-                # walk(obj[section], section, obj, find_read_group_triggers, section, 0, section, [section], True)
 
                 # create item tree
                 walk(obj[section], section, None, create_item, section, 0, &#39;&#39;, [], True)
@@ -1969,9 +1947,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
 
                 # remove all empty items from obj
                 walk(obj[model], model, obj, removeEmptyItems, &#39;&#39;, 0, model, [model], True, False)
-
-                # find read group triggers
-                # walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], model, obj, create_item, model, 0, &#39;&#39;, [], False, cut_levels=1)
@@ -2013,34 +1988,34 @@ if __name__ == &#39;__main__&#39;:
     Be aware that later parameters, be they dict or pair type, overwrite earlier
     parameters of the same name.
 
-    ./__init__.py &lt;device&gt; host=www.smarthomeng.de port=80
+    ``__init__.py &lt;device&gt; host=www.smarthomeng.de port=80``
 
     or
 
-    ./__init__.py &lt;device&gt; &#39;{&#39;host&#39;: &#39;www.smarthomeng.de&#39;, &#39;port&#39;: 80}&#39;
+    ``__init__.py &lt;device&gt; &#39;{&#39;host&#39;: &#39;www.smarthomeng.de&#39;, &#39;port&#39;: 80}&#39;``
 
     If you call it with -v as a parameter after the device id, you get additional
     debug information:
 
-    ./__init__.py &lt;device&gt; -v
+    ``__init__.py &lt;device&gt; -v``
 
     ===============
 
     If you call it with -s as a parameter after the device id, the plugin will
     print a struct.yaml file from the devices&#39; commands.py:
 
-    ./__init__.py &lt;device&gt; -s
+    ``__init__.py &lt;device&gt; -s``
 
     If you call it with -S as a parameter, the plugin will write the created
     struct yaml to plugins/multidevice/dev_&lt;device&gt;/struct.yaml.
     BEWARE: an existing file will be overwritten.
 
-    ./__init__.py &lt;device&gt; -S
+    ``__init__.py &lt;device&gt; -S``
 
     An additional argument with a number can change the indent width from
     default 4 (both with -s and -S):
 
-    ./__init__.py &lt;device&gt; -s -2
+    ``__init__.py &lt;device&gt; -s -2``
 
     &#34;&#34;&#34;
     logger = logging.getLogger(__name__)
@@ -2403,7 +2378,7 @@ if __name__ == &#39;__main__&#39;:
 
             if item:
                 add_item_to_tree(path, item)
-#
+
             if CMD_ATTR_ITEM_ATTRS in node:
                 find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
@@ -2477,9 +2452,6 @@ if __name__ == &#39;__main__&#39;:
 
                 item_tree = {}
 
-                # find read group triggers
-                # walk(obj[model], model, None, find_read_group_triggers, &#39;&#39;, 0, model, [model], True)
-
                 # create item tree
                 walk(obj[model], &#39;&#39;, None, create_item, &#39;&#39;, 0, model, [model], True)
 
@@ -2498,9 +2470,6 @@ if __name__ == &#39;__main__&#39;:
                 item_tree = {}
 
                 obj = {section: commands[section]}
-
-                # find read group triggers
-                # walk(obj[section], section, obj, find_read_group_triggers, section, 0, section, [section], True)
 
                 # create item tree
                 walk(obj[section], section, None, create_item, section, 0, &#39;&#39;, [], True)
@@ -2533,9 +2502,6 @@ if __name__ == &#39;__main__&#39;:
 
                 # remove all empty items from obj
                 walk(obj[model], model, obj, removeEmptyItems, &#39;&#39;, 0, model, [model], True, False)
-
-                # find read group triggers
-                # walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], model, obj, create_item, model, 0, &#39;&#39;, [], False, cut_levels=1)
@@ -3119,27 +3085,11 @@ modules and initializing them by instantiating the proper class.</p></div>
             &#39;callback&#39;: self.on_data_received
         }
 
-    def _get_device_type(self, device_id):
-        &#34;&#34;&#34; getter method. Really most unused. &#34;&#34;&#34;
-        dev = self._devices.get(device_id, None)
-        if dev:
-            return dev[&#39;device_type&#39;]
-        else:
-            return None
-
     def get_device(self, device_id):
         &#34;&#34;&#34; getter method for device object &#34;&#34;&#34;
         dev = self._devices.get(device_id, None)
         if dev:
             return dev[&#39;device&#39;]
-        else:
-            return None
-
-    def _get_device_params(self, device_id):
-        &#34;&#34;&#34; getter method &#34;&#34;&#34;
-        dev = self._devices.get(device_id, None)
-        if dev:
-            return dev[&#39;params&#39;]
         else:
             return None
 

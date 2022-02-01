@@ -1098,27 +1098,11 @@ class MultiDevice(SmartPlugin):
             'callback': self.on_data_received
         }
 
-    def _get_device_type(self, device_id):
-        """ getter method. Really most unused. """
-        dev = self._devices.get(device_id, None)
-        if dev:
-            return dev['device_type']
-        else:
-            return None
-
     def get_device(self, device_id):
         """ getter method for device object """
         dev = self._devices.get(device_id, None)
         if dev:
             return dev['device']
-        else:
-            return None
-
-    def _get_device_params(self, device_id):
-        """ getter method """
-        dev = self._devices.get(device_id, None)
-        if dev:
-            return dev['params']
         else:
             return None
 
@@ -1411,7 +1395,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
 
             if item:
                 add_item_to_tree(path, item)
-#
+
             if CMD_ATTR_ITEM_ATTRS in node:
                 find_read_group_triggers(node, node_name, parent, path, indent, gpath, gpathlist, cut_levels)
 
@@ -1485,9 +1469,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
 
                 item_tree = {}
 
-                # find read group triggers
-                # walk(obj[model], model, None, find_read_group_triggers, '', 0, model, [model], True)
-
                 # create item tree
                 walk(obj[model], '', None, create_item, '', 0, model, [model], True)
 
@@ -1506,9 +1487,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                 item_tree = {}
 
                 obj = {section: commands[section]}
-
-                # find read group triggers
-                # walk(obj[section], section, obj, find_read_group_triggers, section, 0, section, [section], True)
 
                 # create item tree
                 walk(obj[section], section, None, create_item, section, 0, '', [], True)
@@ -1541,9 +1519,6 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
 
                 # remove all empty items from obj
                 walk(obj[model], model, obj, removeEmptyItems, '', 0, model, [model], True, False)
-
-                # find read group triggers
-                # walk(obj[model], model, obj, find_read_group_triggers, model, 0, model, [model], True)
 
                 # create item tree
                 walk(obj[model], model, obj, create_item, model, 0, '', [], False, cut_levels=1)
@@ -1585,34 +1560,34 @@ if __name__ == '__main__':
     Be aware that later parameters, be they dict or pair type, overwrite earlier
     parameters of the same name.
 
-    ./__init__.py <device> host=www.smarthomeng.de port=80
+    ``__init__.py <device> host=www.smarthomeng.de port=80``
 
     or
 
-    ./__init__.py <device> '{'host': 'www.smarthomeng.de', 'port': 80}'
+    ``__init__.py <device> '{'host': 'www.smarthomeng.de', 'port': 80}'``
 
     If you call it with -v as a parameter after the device id, you get additional
     debug information:
 
-    ./__init__.py <device> -v
+    ``__init__.py <device> -v``
 
     ===============
 
     If you call it with -s as a parameter after the device id, the plugin will
     print a struct.yaml file from the devices' commands.py:
 
-    ./__init__.py <device> -s
+    ``__init__.py <device> -s``
 
     If you call it with -S as a parameter, the plugin will write the created
     struct yaml to plugins/multidevice/dev_<device>/struct.yaml.
     BEWARE: an existing file will be overwritten.
 
-    ./__init__.py <device> -S
+    ``__init__.py <device> -S``
 
     An additional argument with a number can change the indent width from
     default 4 (both with -s and -S):
 
-    ./__init__.py <device> -s -2
+    ``__init__.py <device> -s -2``
 
     """
     logger = logging.getLogger(__name__)

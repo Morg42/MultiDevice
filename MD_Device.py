@@ -66,7 +66,7 @@ class MD_Device(object):
     :type device_type: str
     :type device_id: str
     """
-    DEVICE_ATTRS = ('viess_proto',)
+    ADDITIONAL_DEVICE_ATTRS = ('viess_proto',)
 
     def __init__(self, device_type, device_id, **kwargs):
         """
@@ -230,6 +230,14 @@ class MD_Device(object):
         :return: True if send was successful, False otherwise
         :rtype: bool
         """
+        if not self.alive:
+            self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
+            return False
+
+        if not self._connection:
+            self.logger.warning(f'trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
+            return False
+
         kwargs.update(self._params)
         if self.custom_commands:
             try:
@@ -239,14 +247,6 @@ class MD_Device(object):
                 kwargs['custom'][self.custom_commands] = custom_value
             except ValueError:
                 self.logger.debug(f'extracting custom token failed, maybe not present in command {command}')
-
-        if not self.alive:
-            self.logger.warning(f'trying to send command {command} with value {value}, but device is not active.')
-            return False
-
-        if not self._connection:
-            self.logger.warning(f'trying to send command {command} with value {value}, but connection is None. This shouldn\'t happen...')
-            return False
 
         if not self._connection.connected():
             self._connection.open()
@@ -542,7 +542,7 @@ class MD_Device(object):
             self._params = {}
 
         p = yaml.get('parameters', {})
-        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.DEVICE_ATTRS)})
+        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.ADDUTIONAL_DEVICE_ATTRS)})
 
     def _get_connection(self):
         """

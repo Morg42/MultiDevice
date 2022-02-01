@@ -542,7 +542,7 @@ class MD_Device(object):
             self._params = {}
 
         p = yaml.get('parameters', {})
-        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.ADDUTIONAL_DEVICE_ATTRS)})
+        self._params.update({k: v.get('default', None) for k, v in p.items() if k in (PLUGIN_ATTRS + self.ADDITIONAL_DEVICE_ATTRS)})
 
     def _get_connection(self):
         """

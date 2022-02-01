@@ -7,20 +7,30 @@ else:
     from .. import datatypes as DT
 
 
+class DT_Squeeze(DT.Datatype):
+    def get_send_data(self, data, **kwargs):
+        return "?" if data is None else data
+
+
+class DT_SqueezePower(DT.Datatype):
+    def get_send_data(self, data, **kwargs):
+        return "?" if data is None else 1 if data is True else 0
+
+
 # handle feedback if rescan is running or not
 class DT_SqueezeRescan(DT.Datatype):
     def get_shng_data(self, data, type=None, **kwargs):
-        return True if data in ["1", "done"] else False
+        return True if data in ["1", "done"] else "?" if data is None else False
 
 
 class DT_SqueezeConnection(DT.Datatype):
     def get_shng_data(self, data, type=None, **kwargs):
-        return True if data in ["1", "reconnect"] else False
+        return True if data in ["1", "reconnect"] else "?" if data is None else False
 
 
 class DT_SqueezePlay(DT.Datatype):
     def get_send_data(self, data, type=None, **kwargs):
-        return "play 3" if data is True else "pause 3"
+        return "play 3" if data is True else "?" if data is None else "pause 3"
 
     def get_shng_data(self, data, type=None, **kwargs):
         return True if data == "play" else False
@@ -56,7 +66,7 @@ class DT_SqueezePlayMode(DT.Datatype):
 
 class DT_SqueezeStop(DT.Datatype):
     def get_send_data(self, data, type=None, **kwargs):
-        return "play 3" if data is False else "stop"
+        return "play 3" if data is False else "?" if data is None else "stop"
 
     def get_shng_data(self, data, type=None, **kwargs):
         return True if data == "stop" else False

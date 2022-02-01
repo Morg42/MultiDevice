@@ -147,7 +147,7 @@ or the ``-S`` argument:
 ``python3 plugins/multidevice/__init__.py <devicename> -s``
 
 The ``-s`` argument prints the struct file contents to screen, ``-S`` causes the
-plugin to write the ``struct.yaml`` directly to the devices' folder. Beware that
+plugin to write the ``struct.yaml`` directly to the devices folder. Beware that
 existing files _will_ be overwritten.
 
 The additional argument ``-a`` instructs the generator to add ``visu_acl:`` item
@@ -327,8 +327,8 @@ Public methods:
 * ``get_lookup(lookup, type='fwd')``
 
 
-Options and syntax of commands configuration are detailed in the `commands.py`
-file in the `dev_example` folder:
+Options and syntax of commands configuration are detailed in the ``commands.py``
+file in the ``dev_example`` folder:
 
 .. literalinclude:: dev_example/commands.py
     :language: python
@@ -386,7 +386,7 @@ used in items to the (possibly) special data formats required by devices
 and vice versa.
 
 Datatypes are specified in subclasses of Datatype with a nomenclature
-convention of `DT_<device data type of format>`.
+convention of ``DT_<device data type of format>``.
 
 All default datatype classes are imported from ``datatypes.py`` into the 'DT' module.
 
@@ -474,7 +474,7 @@ A list and short description of all currently supported attributes is found in
 the ``MD_Globals.py`` file next to their respective identifiers.
 
 
-Example for `etc/plugin.yaml` configuration:
+Example for ``etc/plugin.yaml`` configuration:
 
 .. code:: yaml
 

@@ -94,7 +94,6 @@ class MD_Device(MD_Device):
         # update on new song
         if command == 'player.info.status':
             data = data.get("result")
-            self.logger.debug(f"data: {data}")
             _dispatch('player.info.name', data.get("player_name"), custom)
             _dispatch('player.info.connected', data.get("player_connected"), custom)
             _dispatch('player.info.signalstrength', data.get("signalstrength"), custom)
@@ -112,9 +111,7 @@ class MD_Device(MD_Device):
             _dispatch('player.playlist.index', data.get("playlist_cur_index"), custom)
             _dispatch('player.playlist.timestamp', data.get("playlist_timestamp"), custom)
             _dispatch('player.playlist.tracks', data.get("playlist_tracks"), custom)
-            data = data["remoteMeta"]["playlist_loop"]
-            _dispatch('player.playlist.nextsong1', data[1].get("title"), custom)
-            _dispatch('player.playlist.nextsong2', data[2].get("title"), custom)
-            _dispatch('player.playlist.nextsong3', data[3].get("title"), custom)
-            _dispatch('player.playlist.nextsong4', data[4].get("title"), custom)
-            _dispatch('player.playlist.nextsong5', data[5].get("title"), custom)
+            data = data.get("playlist_loop")
+            for id, i in enumerate(data):
+                if id > 0 and id <= 5:
+                    _dispatch(f'player.playlist.nextsong{id}', i.get("title"), custom)

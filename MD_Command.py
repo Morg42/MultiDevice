@@ -491,6 +491,10 @@ class MD_Command_JSON(MD_Command):
                     val[idx] = check_value(val[idx], data)
             elif val == '{' + CMD_STR_VALUE + '}':
                 val = data
+            elif 'custom' in kwargs and isinstance(val, str) and re.match(r'^\{CUSTOM_ATTR[123]\}$', val):
+                idx = re.match(r'^\{CUSTOM_ATTR([123])\}$', val)
+                if idx and (1 <= int(idx[1]) <= 3):
+                    val = kwargs['custom'][int(idx[1])]
             elif isinstance(val, tuple):
                 try:
                     expr = str(val[0]).replace('{' + CMD_STR_VALUE + '}', str(data))

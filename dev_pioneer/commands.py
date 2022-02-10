@@ -15,7 +15,7 @@ models = {
 
 commands = {
     'general': {
-        'error': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_pattern': r'E0(\d+)', 'lookup': 'ERROR'},
+        'error': {'read': True, 'write': False, 'item_type': 'str', 'dev_datatype': 'str', 'reply_pattern': r'E0{LOOKUP}', 'lookup': 'ERROR'},
         'display': {'read': True, 'write': False, 'read_cmd': '?FL', 'item_type': 'str', 'dev_datatype': 'PioDisplay', 'reply_pattern': 'FL(.{28}).*'},
         'pqls': {'read': True, 'write': True, 'read_cmd': '?PQ', 'write_cmd': '{RAW_VALUE:01}PQ', 'item_type': 'str', 'dev_datatype': 'bool', 'reply_pattern': r'PQ(\d)'},
         'dimmer': {'read': True, 'write': True, 'write_cmd': '{RAW_VALUE}SAA', 'cmd_settings': {'force_min': 0, 'force_max': 3}, 'item_type': 'num', 'dev_datatype': 'str', 'reply_pattern': r'SAA(\d)', 'item_attrs': {'attributes': {'remark': '0 = very bright, 1 = bright, 2 = dark, 3 = off'}}},

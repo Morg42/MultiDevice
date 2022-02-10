@@ -184,7 +184,7 @@ Einrückweite fest:
 
 .. code:: bash
 
-    python3 plugins/multidevice/__init__.py <device> -s -2
+    python3 plugins/multidevice/__init__.py <device> -s -a
 
 Das zusätzlich Argument -a veranlasst die Ausgabe des ``visu_acl:``-Attributs
 für alle Items, die ein Kommando enthalten. Dabei ist der Wert des Attributs
@@ -211,4 +211,3 @@ Plugin-Verzeichnisses.
 
 
 .. automodule:: plugins.multidevice
-

@@ -403,7 +403,7 @@ class MD_Commands(object):
 
                     if cmd_dict.get(CMD_ATTR_LOOKUP) and '{' + PATTERN_LOOKUP + '}' in pattern:
 
-                        lu_pattern = '(' + '|'.join(re.escape(key) for key in self._lookups[cmd_dict.lookup]['fwd'].keys()) + ')'
+                        lu_pattern = '(' + '|'.join(re.escape(key) for key in self._lookups[cmd_dict[CMD_ATTR_LOOKUP]]['fwd'].keys()) + ')'
                         pattern = pattern.replace('{' + PATTERN_LOOKUP + '}', lu_pattern)
 
                     if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and 'valid_list' in cmd_dict[CMD_ATTR_CMD_SETTINGS] and '{' + PATTERN_VALID_LIST + '}' in pattern:

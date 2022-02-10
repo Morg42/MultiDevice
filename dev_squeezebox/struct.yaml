@@ -234,6 +234,19 @@ player:
             md_read_group: ['player', 'player.control']
             md_read_initial: true
 
+        volume_fading:
+            type: num
+            md_device: DEVICENAME
+            md_command: player.control.volume_fading
+            md_read: false
+            md_write: true
+            visu_acl: rw
+
+            goal:
+                type: num
+                visu_acl: rw
+                cache: True
+
         volume_low:
             type: num
             md_device: DEVICENAME
@@ -383,6 +396,14 @@ player:
             visu_acl: rw
             enforce_updates: true
             initial_value: 10
+
+        playsong:
+            type: str
+            md_device: DEVICENAME
+            md_command: player.control.playsong
+            md_read: false
+            md_write: true
+            visu_acl: rw
 
         sleep:
             type: num
@@ -968,6 +989,19 @@ ALL:
                 md_read_group: ['ALL', 'ALL.player', 'ALL.player.control']
                 md_read_initial: true
 
+            volume_fading:
+                type: num
+                md_device: DEVICENAME
+                md_command: player.control.volume_fading
+                md_read: false
+                md_write: true
+                visu_acl: rw
+
+                goal:
+                    type: num
+                    visu_acl: rw
+                    cache: True
+
             volume_low:
                 type: num
                 md_device: DEVICENAME
@@ -1117,6 +1151,14 @@ ALL:
                 visu_acl: rw
                 enforce_updates: true
                 initial_value: 10
+
+            playsong:
+                type: str
+                md_device: DEVICENAME
+                md_command: player.control.playsong
+                md_read: false
+                md_write: true
+                visu_acl: rw
 
             sleep:
                 type: num

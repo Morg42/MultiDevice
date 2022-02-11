@@ -171,24 +171,24 @@ item_attributes:
             de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden.'
             en: 'For custom use of each device respectively.'
         description_long:
-            de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden. Durch den Parameter "recursive: 1" in der Geräte-Konfiguration wird der Wert rekursiv für alle Unteritems gesetzt.'
-            en: 'For custom use of each device respectively. By setting "recursive: 1" in the device configuration, the value of this attribute will be set for all sub-items.'
+            de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden. Durch den Parameter "recursive_custom: 1" in der Geräte-Konfiguration wird der Wert rekursiv für alle Unteritems gesetzt.'
+            en: 'For custom use of each device respectively. By setting "recursive_custom: 1" in the device configuration, the value of this attribute will be set for all sub-items.'
     md_custom2:
         type: str
         description:
             de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden.'
             en: 'For custom use of each device respectively.'
         description_long:
-            de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden. Durch den Parameter "recursive: 2" in der Geräte-Konfiguration wird der Wert rekursiv für alle Unteritems gesetzt.'
-            en: 'For custom use of each device respectively. By setting "recursive: 2" in the device configuration, the value of this attribute will be set for all sub-items.'
+            de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden. Durch den Parameter "recursive_custom: 2" in der Geräte-Konfiguration wird der Wert rekursiv für alle Unteritems gesetzt.'
+            en: 'For custom use of each device respectively. By setting "recursive_custom: 2" in the device configuration, the value of this attribute will be set for all sub-items.'
     md_custom3:
         type: str
         description:
             de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden.'
             en: 'For custom use of each device respectively.'
         description_long:
-            de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden. Durch den Parameter "recursive: 3" in der Geräte-Konfiguration wird der Wert rekursiv für alle Unteritems gesetzt.'
-            en: 'For custom use of each device respectively. By setting "recursive: 3" in the device configuration, the value of this attribute will be set for all sub-items.'
+            de: 'Der Inhalt dieses Items kann vom jeweiligen Gerät für spezielle Zwecke genutzt werden. Durch den Parameter "recursive_custom: 3" in der Geräte-Konfiguration wird der Wert rekursiv für alle Unteritems gesetzt.'
+            en: 'For custom use of each device respectively. By setting "recursive_custom: 3" in the device configuration, the value of this attribute will be set for all sub-items.'
 
 
 item_structs: NONE

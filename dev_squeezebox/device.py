@@ -25,7 +25,6 @@ class MD_Device(MD_Device):
     """
 
     def _set_device_defaults(self):
-        self._discard_unknown_command = False
         self.custom_commands = 1
         self._token_pattern = '([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}'
         # for substitution in reply_pattern

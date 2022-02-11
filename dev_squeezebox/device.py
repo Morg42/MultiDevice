@@ -7,10 +7,10 @@ from lib.item import Items
 items = Items.get_instance()
 
 if MD_standalone:
-    from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
+    from MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_CONN_TERMINATOR)
     from MD_Device import MD_Device
 else:
-    from ..MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_CONN_TERMINATOR, CONN_NET_TCP_CLI, CONN_SER_ASYNC)
+    from ..MD_Globals import (CUSTOM_SEP, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_RECURSIVE, PLUGIN_ATTR_CONN_TERMINATOR)
     from ..MD_Device import MD_Device
 
 
@@ -25,19 +25,13 @@ class MD_Device(MD_Device):
     """
 
     def _set_device_defaults(self):
-
+        self._discard_unknown_command = False
         self.custom_commands = 1
         self._token_pattern = '([0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}'
         # for substitution in reply_pattern
         self._custom_patterns = {1: '(?:[0-9a-fA-F]{2}[-:]){5}[0-9a-fA-F]{2}', 2: '', 3: ''}
         self._use_callbacks = True
-
-        # set our own preferences concerning connections
-        if not self._params.get(PLUGIN_ATTR_CONNECTION):
-            if PLUGIN_ATTR_NET_HOST in self._params and self._params.get(PLUGIN_ATTR_NET_HOST):
-                self._params[PLUGIN_ATTR_CONNECTION] = CONN_NET_TCP_CLI
-            elif PLUGIN_ATTR_SERIAL_PORT in self._params and self._params.get(PLUGIN_ATTR_SERIAL_PORT):
-                self._params[PLUGIN_ATTR_CONNECTION] = CONN_SER_ASYNC
+        self._params[PLUGIN_ATTR_RECURSIVE] = 1
 
     def on_connect(self, by=None):
         self.logger.debug("Activating listen mode after connection.")

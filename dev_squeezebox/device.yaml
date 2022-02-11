@@ -48,3 +48,9 @@ parameters:
         type: str
         default: MD_Command_ParseStr
         description: 'Name der Klasse für Commands'
+
+    # nicht ändern
+    conn_type:
+        type: str
+        default: MD_Connection_Net_Tcp_Client
+        description: 'Name der Klasse für Connection'

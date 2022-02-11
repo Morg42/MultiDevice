@@ -371,7 +371,10 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         if 'request_method' not in ddict:
 
             try:
-                ddict['payload'] += json.dumps(ddict['data'])
+                if 'payload' in ddict:
+                    ddict['payload'] += json.dumps(ddict['data'])
+                else:
+                    ddict['payload'] = json.dumps(ddict['data'])                    
             except Exception as e:
                 raise ValueError(f'data {ddict["data"]} not convertible to JSON, aborting. Error was: {e}')
 

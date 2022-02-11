@@ -604,9 +604,9 @@ class MultiDevice(SmartPlugin):
         self._items_write = {}          # contains all items with write command - <item_id>: {'device_id': <device_id>, 'command': <command>}
         self._items_read_all = {}       # contains items which trigger 'read all' - <item_id>: <device_id>
         self._items_read_grp = {}       # contains items which trigger 'read group foo' - <item_id>: [<device_id>, <foo>]
-        self._commands_read = {}        # contains all commands per device with read command - <device_id>: {<command>: <item_object>}
-        self._commands_pseudo = {}      # contains all pseudo commands per device (without command sequence) - <device_id>: {<command>: <item_object>}
-        self._commands_read_grp = {}    # contains all commands per device with read group command - <device_id>: {<group>: {<command>: <item_object>}}}
+        self._commands_read = {}        # contains all commands per device with read command - <device_id>: {<command>: [<item_object>, <item_object>...]}
+        self._commands_pseudo = {}      # contains all pseudo commands per device (without command sequence) - <device_id>: {<command>: [<item_object>, <item_object>...]}
+        self._commands_read_grp = {}    # contains all commands per device with read group command - <device_id>: {<group>: [<command>, <command>...]}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - <device_id>: ['command', 'command', ...]
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {<command>: {'cycle': <cycle>, 'next': <next>}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - <device_id>: ['grp', 'grp', ...]
@@ -851,11 +851,10 @@ class MultiDevice(SmartPlugin):
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
                     if device.is_valid_command(command, COMMAND_READ):
-                        if command in self._commands_read[device_id]:
-                            self.logger.warning(f'Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item')
-                        else:
-                            self._commands_read[device_id][command] = item
-                            self.logger.debug(f'Item {item} saved for reading command {command} on device {device_id}')
+                        if command not in self._commands_read[device_id]:
+                            self._commands_read[device_id][command] = []
+                        self._commands_read[device_id][command].append(item)
+                        self.logger.debug(f'Item {item} saved for reading command {command} on device {device_id}')
                     else:
                         self.logger.warning(f'Item {item} requests command {command} for reading on device {device_id}, which is not allowed, read configuration is ignored')
 
@@ -897,11 +896,10 @@ class MultiDevice(SmartPlugin):
 
                 # pseudo commands
                 if not self.get_iattr_value(item.conf, ITEM_ATTR_READ) and not self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
-                    if command in self._commands_pseudo[device_id]:
-                        self.logger.warning(f'Item {item} requests pseudo command {command} on device {device_id}, but this is already set with item {self._commands_pseudo[device_id][command]}, ignoring item')
-                    else:
-                        self._commands_pseudo[device_id][command] = item
-                        self.logger.debug(f'Item {item} saved for pseudo command {command} on device {device_id}')
+                    if command not in self._commands_pseudo[device_id]:
+                        self._commands_pseudo[device_id][command] = []
+                    self._commands_pseudo[device_id][command].append(item)
+                    self.logger.debug(f'Item {item} saved for pseudo command {command} on device {device_id}')
 
             # is read_grp trigger item?
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
@@ -1029,18 +1027,18 @@ class MultiDevice(SmartPlugin):
             item = None
 
             # check if combination of device_id and command is configured for reading
-            if device_id in self._commands_read and command in self._commands_read[device_id]:
-                item = self._commands_read[device_id][command]
-            elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
-                item = self._commands_pseudo[device_id][command]
+            if device_id in self._commands_read:
+                items = self._commands_read[device_id].get(command, [])
+            elif device_id in self._commands_pseudo:
+                items = self._commands_pseudo[device_id].get(command, [])
 
-            if item is not None:
+            if not items:
+                dev_log.warning(f'Command {command} yielded value {value}, not assigned to any item, discarding data')
+                return
+
+            for item in items:
                 dev_log.debug(f'Command {command} updated item {item.id()} with value {value}')
                 item(value, self.get_shortname() + '.' + device_id)
-            # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
-            #     dev_log.debug(f'Command {command} yielded value {value}, but not configured for reading, discarding data')
-            else:
-                dev_log.warning(f'Command {command} yielded value {value}, not assigned to any item, discarding data')
 
     def _update_device_params(self, device_id):
         """

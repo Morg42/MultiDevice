@@ -43,7 +43,7 @@ import types
 # general attributes
 PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to manually disable loading of device
 PLUGIN_ATTR_MODEL            = 'model'                   # select model if applicable. Don't set if not necessary!
-PLUGIN_ATTR_CLEAN_STRUCT     = 'clean_structs'           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
+PLUGIN_ATTR_CLEAN_STRUCTS     = 'clean_structs'           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
 PLUGIN_ATTR_CMD_CLASS        = 'command_class'           # name of class to use for commands
 PLUGIN_ATTR_RECURSIVE        = 'recursive_custom'        # indices of custom item attributes for which to enable recursive lookup (number or list of numbers)
 
@@ -76,7 +76,7 @@ PLUGIN_ATTR_MSG_REPEAT       = 'message_repeat'          # how often to repeat c
 PLUGIN_ATTR_CB_ON_CONNECT    = 'connected_callback'      # callback function, called if connection is established
 PLUGIN_ATTR_CB_ON_DISCONNECT = 'disconnected_callback'   # callback function, called if connection is lost
 
-PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCT, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_RECURSIVE,
+PLUGIN_ATTRS = (PLUGIN_ATTR_ENABLED, PLUGIN_ATTR_MODEL, PLUGIN_ATTR_CLEAN_STRUCTS, PLUGIN_ATTR_CMD_CLASS, PLUGIN_ATTR_RECURSIVE,
                 PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONN_TIMEOUT,
                 PLUGIN_ATTR_CONN_TERMINATOR, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_CYCLE,
                 PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT,
@@ -136,7 +136,6 @@ CMD_ATTR_REPLY_PATTERN       = 'reply_pattern'          # regex pattern(s) to id
 CMD_ATTR_CMD_SETTINGS        = 'cmd_settings'           # additional settings for command, e.g. data validity
 CMD_ATTR_LOOKUP              = 'lookup'                 # use lookup table <foo> to translate between plugin and items
 CMD_ATTR_PARAMS              = 'params'                 # parameters to send (e.g. in JSON-RPC)
-CMD_ATTR_PARAM_VALUES        = 'param_values'           # values to send for parameters (e.g. JSON-RPC)
 CMD_ATTR_ITEM_ATTRS          = 'item_attrs'             # item attributes for struct generation (see below)
 
 CMD_IATTR_RG_LEVELS          = 'read_group_levels'      # include this number of read groups (max, 0=no read groups)
@@ -149,9 +148,9 @@ CMD_IATTR_CYCLE              = 'cycle'                  # add ``md_read_cycle: <
 CMD_IATTR_TEMPLATE           = 'item_template'          # add item template <foo>
 
 # commands definition parameters
-COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE, CMD_ATTR_READ_CMD,
-                  CMD_ATTR_WRITE_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_CMD_SETTINGS,
-                  CMD_ATTR_LOOKUP, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS)
+COMMAND_PARAMS = (CMD_ATTR_OPCODE, CMD_ATTR_READ, CMD_ATTR_WRITE, CMD_ATTR_ITEM_TYPE, CMD_ATTR_DEV_TYPE,
+                  CMD_ATTR_READ_CMD, CMD_ATTR_WRITE_CMD, CMD_ATTR_REPLY_PATTERN, CMD_ATTR_CMD_SETTINGS,
+                  CMD_ATTR_LOOKUP, CMD_ATTR_PARAMS, CMD_ATTR_ITEM_ATTRS)
 
 COMMAND_ITEM_ATTRS = (CMD_IATTR_RG_LEVELS, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_ATTRIBUTES, CMD_IATTR_TEMPLATE,
                       CMD_IATTR_READ_GROUPS, CMD_IATTR_CYCLE, CMD_IATTR_INITIAL, CMD_IATTR_ENFORCE)
@@ -175,6 +174,9 @@ CMD_STR_PARAM                = 'PARAM:'                 # replace with kwargs[fo
 CMD_STR_CUSTOM               = 'CUSTOM_ATTR'            # replace with value of custom attribute <x>
 
 CMD_STRINGS = (CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM)
+
+# JSON keys to move from dict root to data.params
+JSON_MOVE_KEYS               = 'json_move_keys'
 
 # keys for min / max values for data bounds
 MINMAXKEYS                   = ('valid_min', 'valid_max', 'force_min', 'force_max')

@@ -985,7 +985,7 @@ if __name__ == &#39;__main__&#39;:
     BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
     sys.path.insert(0, BASE)
 
-    from MD_Globals import (sanitize_param, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCT)
+    from MD_Globals import (sanitize_param, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCTS)
     from MD_Commands import MD_Commands
 
 else:
@@ -994,7 +994,7 @@ else:
     from lib.model.smartplugin import SmartPlugin
     import lib.shyaml as shyaml
 
-    from .MD_Globals import (sanitize_param, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCT)
+    from .MD_Globals import (sanitize_param, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCTS)
     from .webif import WebInterface
 
 
@@ -1032,9 +1032,9 @@ class MultiDevice(SmartPlugin):
         self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_id&#39;: &lt;device_id&gt;, &#39;command&#39;: &lt;command&gt;}
         self._items_read_all = {}       # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_id&gt;
         self._items_read_grp = {}       # contains items which trigger &#39;read group foo&#39; - &lt;item_id&gt;: [&lt;device_id&gt;, &lt;foo&gt;]
-        self._commands_read = {}        # contains all commands per device with read command - &lt;device_id&gt;: {&lt;command&gt;: &lt;item_object&gt;}
-        self._commands_pseudo = {}      # contains all pseudo commands per device (without command sequence) - &lt;device_id&gt;: {&lt;command&gt;: &lt;item_object&gt;}
-        self._commands_read_grp = {}    # contains all commands per device with read group command - &lt;device_id&gt;: {&lt;group&gt;: {&lt;command&gt;: &lt;item_object&gt;}}}
+        self._commands_read = {}        # contains all commands per device with read command - &lt;device_id&gt;: {&lt;command&gt;: [&lt;item_object&gt;, &lt;item_object&gt;...]}
+        self._commands_pseudo = {}      # contains all pseudo commands per device (without command sequence) - &lt;device_id&gt;: {&lt;command&gt;: [&lt;item_object&gt;, &lt;item_object&gt;...]}
+        self._commands_read_grp = {}    # contains all commands per device with read group command - &lt;device_id&gt;: {&lt;group&gt;: [&lt;command&gt;, &lt;command&gt;...]}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_id&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {&lt;command&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - &lt;device_id&gt;: [&#39;grp&#39;, &#39;grp&#39;, ...]
@@ -1279,11 +1279,10 @@ class MultiDevice(SmartPlugin):
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
                     if device.is_valid_command(command, COMMAND_READ):
-                        if command in self._commands_read[device_id]:
-                            self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item&#39;)
-                        else:
-                            self._commands_read[device_id][command] = item
-                            self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_id}&#39;)
+                        if command not in self._commands_read[device_id]:
+                            self._commands_read[device_id][command] = []
+                        self._commands_read[device_id][command].append(item)
+                        self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_id}&#39;)
                     else:
                         self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, which is not allowed, read configuration is ignored&#39;)
 
@@ -1325,11 +1324,10 @@ class MultiDevice(SmartPlugin):
 
                 # pseudo commands
                 if not self.get_iattr_value(item.conf, ITEM_ATTR_READ) and not self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
-                    if command in self._commands_pseudo[device_id]:
-                        self.logger.warning(f&#39;Item {item} requests pseudo command {command} on device {device_id}, but this is already set with item {self._commands_pseudo[device_id][command]}, ignoring item&#39;)
-                    else:
-                        self._commands_pseudo[device_id][command] = item
-                        self.logger.debug(f&#39;Item {item} saved for pseudo command {command} on device {device_id}&#39;)
+                    if command not in self._commands_pseudo[device_id]:
+                        self._commands_pseudo[device_id][command] = []
+                    self._commands_pseudo[device_id][command].append(item)
+                    self.logger.debug(f&#39;Item {item} saved for pseudo command {command} on device {device_id}&#39;)
 
             # is read_grp trigger item?
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
@@ -1457,18 +1455,18 @@ class MultiDevice(SmartPlugin):
             item = None
 
             # check if combination of device_id and command is configured for reading
-            if device_id in self._commands_read and command in self._commands_read[device_id]:
-                item = self._commands_read[device_id][command]
-            elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
-                item = self._commands_pseudo[device_id][command]
+            if device_id in self._commands_read:
+                items = self._commands_read[device_id].get(command, [])
+            elif device_id in self._commands_pseudo:
+                items = self._commands_pseudo[device_id].get(command, [])
 
-            if item is not None:
+            if not items:
+                dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
+                return
+
+            for item in items:
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
                 item(value, self.get_shortname() + &#39;.&#39; + device_id)
-            # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
-            #     dev_log.debug(f&#39;Command {command} yielded value {value}, but not configured for reading, discarding data&#39;)
-            else:
-                dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
     def _update_device_params(self, device_id):
         &#34;&#34;&#34;
@@ -1574,7 +1572,7 @@ class MultiDevice(SmartPlugin):
             self.logger.warning(f&#39;importing structs for device {device_id} failed, check struct definitions. Error was: {e}&#39;)
             return {}
 
-        if not self._devices[device_id][&#39;device&#39;]._params.get(PLUGIN_ATTR_CLEAN_STRUCT, False):
+        if not self._devices[device_id][&#39;device&#39;]._params.get(PLUGIN_ATTR_CLEAN_STRUCTS, False):
             return mod_struct
 
         obj = OrderedDict({&#39;structs&#39;: mod_struct})
@@ -1729,7 +1727,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
         item = {}
 
         # skip known command sub-dict nodes, but include command nodes
-        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and &#39;type&#39; not in node):
+        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and &#39;type&#39; not in node):
 
             # item -&gt; print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
@@ -1805,7 +1803,7 @@ def create_struct_yaml(device, indentwidth=4, write_output=False, acl=False):
                         item[&#39;lookup&#39;][ITEM_ATTR_LOOKUP] = f&#39;{node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;
 
             # &#39;level node&#39; -&gt; print read item
-            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
+            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
 
                 item[&#39;read&#39;] = {&#39;type&#39;: &#39;bool&#39;}
                 item[&#39;read&#39;][&#39;enforce_updates&#39;] = True
@@ -2284,7 +2282,7 @@ if __name__ == &#39;__main__&#39;:
         item = {}
 
         # skip known command sub-dict nodes, but include command nodes
-        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and &#39;type&#39; not in node):
+        if CMD_ATTR_ITEM_TYPE in node or (node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES) and &#39;type&#39; not in node):
 
             # item -&gt; print item attributes
             if CMD_ATTR_ITEM_TYPE in node:
@@ -2360,7 +2358,7 @@ if __name__ == &#39;__main__&#39;:
                         item[&#39;lookup&#39;][ITEM_ATTR_LOOKUP] = f&#39;{node.get(CMD_ATTR_LOOKUP)}#{ltyp}&#39;
 
             # &#39;level node&#39; -&gt; print read item
-            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
+            elif node_name not in (CMD_ATTR_CMD_SETTINGS, CMD_ATTR_PARAMS, CMD_ATTR_ITEM_ATTRS, CMD_IATTR_ATTRIBUTES, CMD_IATTR_READ_GROUPS):
 
                 item[&#39;read&#39;] = {&#39;type&#39;: &#39;bool&#39;}
                 item[&#39;read&#39;][&#39;enforce_updates&#39;] = True
@@ -2591,9 +2589,9 @@ modules and initializing them by instantiating the proper class.</p></div>
         self._items_write = {}          # contains all items with write command - &lt;item_id&gt;: {&#39;device_id&#39;: &lt;device_id&gt;, &#39;command&#39;: &lt;command&gt;}
         self._items_read_all = {}       # contains items which trigger &#39;read all&#39; - &lt;item_id&gt;: &lt;device_id&gt;
         self._items_read_grp = {}       # contains items which trigger &#39;read group foo&#39; - &lt;item_id&gt;: [&lt;device_id&gt;, &lt;foo&gt;]
-        self._commands_read = {}        # contains all commands per device with read command - &lt;device_id&gt;: {&lt;command&gt;: &lt;item_object&gt;}
-        self._commands_pseudo = {}      # contains all pseudo commands per device (without command sequence) - &lt;device_id&gt;: {&lt;command&gt;: &lt;item_object&gt;}
-        self._commands_read_grp = {}    # contains all commands per device with read group command - &lt;device_id&gt;: {&lt;group&gt;: {&lt;command&gt;: &lt;item_object&gt;}}}
+        self._commands_read = {}        # contains all commands per device with read command - &lt;device_id&gt;: {&lt;command&gt;: [&lt;item_object&gt;, &lt;item_object&gt;...]}
+        self._commands_pseudo = {}      # contains all pseudo commands per device (without command sequence) - &lt;device_id&gt;: {&lt;command&gt;: [&lt;item_object&gt;, &lt;item_object&gt;...]}
+        self._commands_read_grp = {}    # contains all commands per device with read group command - &lt;device_id&gt;: {&lt;group&gt;: [&lt;command&gt;, &lt;command&gt;...]}
         self._commands_initial = {}     # contains all commands per device to be read after run() is called - &lt;device_id&gt;: [&#39;command&#39;, &#39;command&#39;, ...]
         self._commands_cyclic = {}      # contains all commands per device to be read cyclically - device_id: {&lt;command&gt;: {&#39;cycle&#39;: &lt;cycle&gt;, &#39;next&#39;: &lt;next&gt;}}
         self._triggers_initial = {}     # contains all read groups per device to be triggered after run() is called - &lt;device_id&gt;: [&#39;grp&#39;, &#39;grp&#39;, ...]
@@ -2838,11 +2836,10 @@ modules and initializing them by instantiating the proper class.</p></div>
                 # command marked for reading
                 if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
                     if device.is_valid_command(command, COMMAND_READ):
-                        if command in self._commands_read[device_id]:
-                            self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item&#39;)
-                        else:
-                            self._commands_read[device_id][command] = item
-                            self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_id}&#39;)
+                        if command not in self._commands_read[device_id]:
+                            self._commands_read[device_id][command] = []
+                        self._commands_read[device_id][command].append(item)
+                        self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_id}&#39;)
                     else:
                         self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, which is not allowed, read configuration is ignored&#39;)
 
@@ -2884,11 +2881,10 @@ modules and initializing them by instantiating the proper class.</p></div>
 
                 # pseudo commands
                 if not self.get_iattr_value(item.conf, ITEM_ATTR_READ) and not self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
-                    if command in self._commands_pseudo[device_id]:
-                        self.logger.warning(f&#39;Item {item} requests pseudo command {command} on device {device_id}, but this is already set with item {self._commands_pseudo[device_id][command]}, ignoring item&#39;)
-                    else:
-                        self._commands_pseudo[device_id][command] = item
-                        self.logger.debug(f&#39;Item {item} saved for pseudo command {command} on device {device_id}&#39;)
+                    if command not in self._commands_pseudo[device_id]:
+                        self._commands_pseudo[device_id][command] = []
+                    self._commands_pseudo[device_id][command].append(item)
+                    self.logger.debug(f&#39;Item {item} saved for pseudo command {command} on device {device_id}&#39;)
 
             # is read_grp trigger item?
             grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)
@@ -3016,18 +3012,18 @@ modules and initializing them by instantiating the proper class.</p></div>
             item = None
 
             # check if combination of device_id and command is configured for reading
-            if device_id in self._commands_read and command in self._commands_read[device_id]:
-                item = self._commands_read[device_id][command]
-            elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
-                item = self._commands_pseudo[device_id][command]
+            if device_id in self._commands_read:
+                items = self._commands_read[device_id].get(command, [])
+            elif device_id in self._commands_pseudo:
+                items = self._commands_pseudo[device_id].get(command, [])
 
-            if item is not None:
+            if not items:
+                dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
+                return
+
+            for item in items:
                 dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
                 item(value, self.get_shortname() + &#39;.&#39; + device_id)
-            # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
-            #     dev_log.debug(f&#39;Command {command} yielded value {value}, but not configured for reading, discarding data&#39;)
-            else:
-                dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
 
     def _update_device_params(self, device_id):
         &#34;&#34;&#34;
@@ -3133,7 +3129,7 @@ modules and initializing them by instantiating the proper class.</p></div>
             self.logger.warning(f&#39;importing structs for device {device_id} failed, check struct definitions. Error was: {e}&#39;)
             return {}
 
-        if not self._devices[device_id][&#39;device&#39;]._params.get(PLUGIN_ATTR_CLEAN_STRUCT, False):
+        if not self._devices[device_id][&#39;device&#39;]._params.get(PLUGIN_ATTR_CLEAN_STRUCTS, False):
             return mod_struct
 
         obj = OrderedDict({&#39;structs&#39;: mod_struct})
@@ -3222,18 +3218,18 @@ and update value</p>
         item = None
 
         # check if combination of device_id and command is configured for reading
-        if device_id in self._commands_read and command in self._commands_read[device_id]:
-            item = self._commands_read[device_id][command]
-        elif device_id in self._commands_pseudo and command in self._commands_pseudo[device_id]:
-            item = self._commands_pseudo[device_id][command]
+        if device_id in self._commands_read:
+            items = self._commands_read[device_id].get(command, [])
+        elif device_id in self._commands_pseudo:
+            items = self._commands_pseudo[device_id].get(command, [])
 
-        if item is not None:
+        if not items:
+            dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)
+            return
+
+        for item in items:
             dev_log.debug(f&#39;Command {command} updated item {item.id()} with value {value}&#39;)
-            item(value, self.get_shortname() + &#39;.&#39; + device_id)
-        # not self.get_device(device_id).is_valid_command(command, COMMAND_READ):
-        #     dev_log.debug(f&#39;Command {command} yielded value {value}, but not configured for reading, discarding data&#39;)
-        else:
-            dev_log.warning(f&#39;Command {command} yielded value {value}, not assigned to any item, discarding data&#39;)</code></pre>
+            item(value, self.get_shortname() + &#39;.&#39; + device_id)</code></pre>
 </details>
 </dd>
 <dt id="multidevice.MultiDevice.parse_item"><code class="name flex">
@@ -3331,11 +3327,10 @@ Recall function for item updates</p></div>
             # command marked for reading
             if self.get_iattr_value(item.conf, ITEM_ATTR_READ):
                 if device.is_valid_command(command, COMMAND_READ):
-                    if command in self._commands_read[device_id]:
-                        self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, but this is already set with item {self._commands_read[device_id][command]}, ignoring item&#39;)
-                    else:
-                        self._commands_read[device_id][command] = item
-                        self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_id}&#39;)
+                    if command not in self._commands_read[device_id]:
+                        self._commands_read[device_id][command] = []
+                    self._commands_read[device_id][command].append(item)
+                    self.logger.debug(f&#39;Item {item} saved for reading command {command} on device {device_id}&#39;)
                 else:
                     self.logger.warning(f&#39;Item {item} requests command {command} for reading on device {device_id}, which is not allowed, read configuration is ignored&#39;)
 
@@ -3377,11 +3372,10 @@ Recall function for item updates</p></div>
 
             # pseudo commands
             if not self.get_iattr_value(item.conf, ITEM_ATTR_READ) and not self.get_iattr_value(item.conf, ITEM_ATTR_WRITE):
-                if command in self._commands_pseudo[device_id]:
-                    self.logger.warning(f&#39;Item {item} requests pseudo command {command} on device {device_id}, but this is already set with item {self._commands_pseudo[device_id][command]}, ignoring item&#39;)
-                else:
-                    self._commands_pseudo[device_id][command] = item
-                    self.logger.debug(f&#39;Item {item} saved for pseudo command {command} on device {device_id}&#39;)
+                if command not in self._commands_pseudo[device_id]:
+                    self._commands_pseudo[device_id][command] = []
+                self._commands_pseudo[device_id][command].append(item)
+                self.logger.debug(f&#39;Item {item} saved for pseudo command {command} on device {device_id}&#39;)
 
         # is read_grp trigger item?
         grp = self.get_iattr_value(item.conf, ITEM_ATTR_READ_GRP)

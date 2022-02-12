@@ -431,7 +431,7 @@ class MD_Commands(object):
 
                     if cmd_dict.get(CMD_ATTR_LOOKUP) and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
 
-                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_dict.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
+                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_dict[CMD_ATTR_LOOKUP]][&#39;fwd&#39;].keys()) + &#39;)&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39;, lu_pattern)
 
                     if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_dict[CMD_ATTR_CMD_SETTINGS] and &#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39; in pattern:
@@ -879,7 +879,7 @@ MD_Command-object</p>
 
                     if cmd_dict.get(CMD_ATTR_LOOKUP) and &#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39; in pattern:
 
-                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_dict.lookup][&#39;fwd&#39;].keys()) + &#39;)&#39;
+                        lu_pattern = &#39;(&#39; + &#39;|&#39;.join(re.escape(key) for key in self._lookups[cmd_dict[CMD_ATTR_LOOKUP]][&#39;fwd&#39;].keys()) + &#39;)&#39;
                         pattern = pattern.replace(&#39;{&#39; + PATTERN_LOOKUP + &#39;}&#39;, lu_pattern)
 
                     if cmd_dict.get(CMD_ATTR_CMD_SETTINGS) and &#39;valid_list&#39; in cmd_dict[CMD_ATTR_CMD_SETTINGS] and &#39;{&#39; + PATTERN_VALID_LIST + &#39;}&#39; in pattern:

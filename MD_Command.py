@@ -29,10 +29,10 @@ import re
 from copy import deepcopy
 
 if MD_standalone:
-    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
+    from MD_Globals import (CMD_ATTR_PARAMS, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
     import datatypes as DT
 else:
-    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
+    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
     from . import datatypes as DT
 
 
@@ -442,14 +442,13 @@ class MD_Command_JSON(MD_Command):
     from it.
 
     The command is sent as JSON-RPC 'method', the params-dict is populated from
-    the CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-    taken from the CMD_ATTR_PARAM_VALUES attribute. '{VALUE}' (CMD_STR_VAL) is
+    the CMD_ATTR_PARAMS attribute of the command. '{VALUE}' (CMD_STR_VAL) is
     replaced with the actual item value.
 
     Giving 'playerid' in kwargs replaces a dict entry with the key of 'playerid'
     or a list entry of '{ID}' with the value of kwargs['playerid'].
 
-    params and param_value need to be None or lists of the same length.
+    params needs to be None or a dict.
     """
 
     def get_send_data(self, data, **kwargs):

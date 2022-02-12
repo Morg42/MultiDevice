@@ -27,10 +27,10 @@
 import logging
 
 if MD_standalone:
-    from MD_Globals import (CONN_NET_TCP_CLI, CONN_SER_DIR, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP)
+    from MD_Globals import (CONN_NET_TCP_CLI, CONN_SER_DIR, JSON_MOVE_KEYS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP, REQUEST_DICT_ARGS)
     from MD_Connection import MD_Connection
 else:
-    from .MD_Globals import (CONN_NET_TCP_CLI, CONN_SER_DIR, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP)
+    from .MD_Globals import (CONN_NET_TCP_CLI, CONN_SER_DIR, JSON_MOVE_KEYS, PLUGIN_ATTR_CB_ON_CONNECT, PLUGIN_ATTR_CB_ON_DISCONNECT, PLUGIN_ATTR_CONNECTION, PLUGIN_ATTR_CONN_AUTO_CONN, PLUGIN_ATTR_CONN_BINARY, PLUGIN_ATTR_CONN_CYCLE, PLUGIN_ATTR_CONN_RETRIES, PLUGIN_ATTR_CONN_TIMEOUT, PLUGIN_ATTR_MSG_REPEAT, PLUGIN_ATTR_MSG_TIMEOUT, PLUGIN_ATTR_NET_HOST, PLUGIN_ATTR_NET_PORT, PLUGIN_ATTR_SERIAL_BAUD, PLUGIN_ATTR_SERIAL_BSIZE, PLUGIN_ATTR_SERIAL_PARITY, PLUGIN_ATTR_SERIAL_PORT, PLUGIN_ATTR_SERIAL_STOP, REQUEST_DICT_ARGS)
     from .MD_Connection import MD_Connection
 
 
@@ -168,7 +168,8 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
                         PLUGIN_ATTR_MSG_TIMEOUT: 5,
                         PLUGIN_ATTR_CB_ON_DISCONNECT: None,
                         PLUGIN_ATTR_CB_ON_CONNECT: None,
-                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI}
+                        PLUGIN_ATTR_CONNECTION: CONN_NET_TCP_CLI,
+                        JSON_MOVE_KEYS: []}
         self._params.update(kwargs)
 
         # check if some of the arguments are usable
@@ -326,7 +327,7 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
     def _send_rpc_message(self, command, ddict=None, message_id=None, repeat=0):
         """
         Send a JSON RPC message.
-        The  JSON string is extracted from the supplied command and the given parameters.
+        The JSON string is extracted from the supplied command and the given parameters.
 
         :param command: the command to be triggered
         :param ddict: dictionary with command data, e.g. keys 'params', 'data', 'headers', 'request_method'...
@@ -367,14 +368,21 @@ class MD_Protocol_Jsonrpc(MD_Protocol):
         # set packet data
         ddict['data'] = new_data
 
+        for key in self._params[JSON_MOVE_KEYS]:
+            if key in ddict:
+                if 'params' not in ddict['data']:
+                    ddict['data']['params'] = {}
+                ddict['data']['params'][key] = ddict[key]
+                del ddict[key]
+
         # convert data if not using HTTP connections
         if 'request_method' not in ddict:
 
             try:
-                if 'payload' in ddict:
-                    ddict['payload'] += json.dumps(ddict['data'])
-                else:
-                    ddict['payload'] = json.dumps(ddict['data'])                    
+                # if 'payload' in ddict:
+                #     ddict['payload'] += json.dumps(ddict['data'])
+                # else:
+                ddict['payload'] = json.dumps(ddict['data'])                    
             except Exception as e:
                 raise ValueError(f'data {ddict["data"]} not convertible to JSON, aborting. Error was: {e}')
 

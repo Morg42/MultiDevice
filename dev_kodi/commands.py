@@ -10,13 +10,13 @@ commands = {
         'media':            {'read': True,  'write': False, 'opcode': 'media',                     'reply_pattern': '*', 'item_type': 'str',  'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
         'title':            {'read': True,  'write': False, 'opcode': 'title',                     'reply_pattern': '*', 'item_type': 'str',  'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
         'streams':          {'read': True,  'write': False, 'opcode': 'streams',                   'reply_pattern': '*', 'item_type': 'list', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
-        'subtitles':        {'read': True,  'write': False, 'opcode': 'subtitles',                 'reply_pattern': '*', 'item_type': 'dict', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
+        'subtitles':        {'read': True,  'write': False, 'opcode': 'subtitles',                 'reply_pattern': '*', 'item_type': 'list', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
         'macro':            {'read': True,  'write': True,  'opcode': 'macro',                     'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': None, 'item_attrs': {'read_group_levels': 0}},
     },
     'status': {
         'update':           {'read': False, 'write': True,  'opcode': 'update',                    'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},
         'ping':             {'read': True,  'write': False, 'opcode': 'JSONRPC.Ping',              'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},
-        'get_status_au':    {'read': True,  'write': False, 'opcode': 'Application.GetProperties', 'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': {'playerid': '{ID}', 'properties': ['volume', 'muted']}},
+        'get_status_au':    {'read': True,  'write': False, 'opcode': 'Application.GetProperties', 'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': {'properties': ['volume', 'muted']}},
 
         'get_players':      {'read': True,  'write': False, 'opcode': 'Player.GetPlayers',         'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},
         'get_actplayer':    {'read': True,  'write': False, 'opcode': 'Player.GetActivePlayers',   'reply_pattern': '*', 'item_type': 'bool', 'dev_datatype': 'raw', 'params': None},

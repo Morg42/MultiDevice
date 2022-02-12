@@ -3,8 +3,10 @@
 
 if MD_standalone:
     from MD_Device import MD_Device
+    from MD_Globals import JSON_MOVE_KEYS
 else:
     from ..MD_Device import MD_Device
+    from ..MD_Globals import JSON_MOVE_KEYS
 
 
 class MD_Device(MD_Device):
@@ -44,6 +46,7 @@ class MD_Device(MD_Device):
 
     def _set_device_defaults(self):
         self._use_callbacks = True
+        self._params[JSON_MOVE_KEYS] = ['playerid', 'properties']
 
     def _post_init(self):
         if not self.disabled:
@@ -204,7 +207,7 @@ class MD_Device(MD_Device):
                 self._data_received_callback(self.device_id, 'info.state', 'Playing')
                 self._data_received_callback(self.device_id, 'control.stop', False)
                 self._data_received_callback(self.device_id, 'control.playpause', True)
-                query_playerinfo.append(data['params']['data']['info.player']['playerid'])
+                query_playerinfo.append(data['params']['data']['player']['playerid'])
 
             elif data['method'] == 'Player.OnPause':
                 processed = True
@@ -212,7 +215,7 @@ class MD_Device(MD_Device):
                 self._data_received_callback(self.device_id, 'info.state', 'Paused')
                 self._data_received_callback(self.device_id, 'control.stop', False)
                 self._data_received_callback(self.device_id, 'control.playpause', False)
-                query_playerinfo.append(data['params']['data']['info.player']['playerid'])
+                query_playerinfo.append(data['params']['data']['player']['playerid'])
 
             elif data['method'] == 'Player.OnStop':
                 processed = True

@@ -57,10 +57,10 @@ import re
 from copy import deepcopy
 
 if MD_standalone:
-    from MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
+    from MD_Globals import (CMD_ATTR_PARAMS, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
     import datatypes as DT
 else:
-    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_ATTR_PARAM_VALUES, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
+    from .MD_Globals import (CMD_ATTR_PARAMS, CMD_STR_VAL_RAW, CMD_STR_VAL_UPP, CMD_STR_VAL_LOW, CMD_STR_VAL_CAP, CMD_STR_VALUE, CMD_STR_OPCODE, CMD_STR_PARAM, CMD_STR_CUSTOM, COMMAND_PARAMS, MINMAXKEYS)
     from . import datatypes as DT
 
 
@@ -470,14 +470,13 @@ class MD_Command_JSON(MD_Command):
     from it.
 
     The command is sent as JSON-RPC &#39;method&#39;, the params-dict is populated from
-    the CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;{VALUE}&#39; (CMD_STR_VAL) is
+    the CMD_ATTR_PARAMS attribute of the command. &#39;{VALUE}&#39; (CMD_STR_VAL) is
     replaced with the actual item value.
 
     Giving &#39;playerid&#39; in kwargs replaces a dict entry with the key of &#39;playerid&#39;
     or a list entry of &#39;{ID}&#39; with the value of kwargs[&#39;playerid&#39;].
 
-    params and param_value need to be None or lists of the same length.
+    params needs to be None or a dict.
     &#34;&#34;&#34;
 
     def get_send_data(self, data, **kwargs):
@@ -519,6 +518,10 @@ class MD_Command_JSON(MD_Command):
                     val[idx] = check_value(val[idx], data)
             elif val == &#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;:
                 val = data
+            elif &#39;custom&#39; in kwargs and isinstance(val, str) and re.match(r&#39;^\{CUSTOM_ATTR[123]\}$&#39;, val):
+                idx = re.match(r&#39;^\{CUSTOM_ATTR([123])\}$&#39;, val)
+                if idx and (1 &lt;= int(idx[1]) &lt;= 3):
+                    val = kwargs[&#39;custom&#39;][int(idx[1])]
             elif isinstance(val, tuple):
                 try:
                     expr = str(val[0]).replace(&#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;, str(data))
@@ -940,12 +943,11 @@ dev_example/commands.py file.</p>
 <p>With this class, you can send JSON-RPC commands to the device and read
 from it.</p>
 <p>The command is sent as JSON-RPC 'method', the params-dict is populated from
-the CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-taken from the CMD_ATTR_PARAM_VALUES attribute. '{VALUE}' (CMD_STR_VAL) is
+the CMD_ATTR_PARAMS attribute of the command. '{VALUE}' (CMD_STR_VAL) is
 replaced with the actual item value.</p>
 <p>Giving 'playerid' in kwargs replaces a dict entry with the key of 'playerid'
 or a list entry of '{ID}' with the value of kwargs['playerid'].</p>
-<p>params and param_value need to be None or lists of the same length.</p></div>
+<p>params needs to be None or a dict.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -957,14 +959,13 @@ or a list entry of '{ID}' with the value of kwargs['playerid'].</p>
     from it.
 
     The command is sent as JSON-RPC &#39;method&#39;, the params-dict is populated from
-    the CMD_ATTR_PARAMS attribute of the command, while the parameter values are
-    taken from the CMD_ATTR_PARAM_VALUES attribute. &#39;{VALUE}&#39; (CMD_STR_VAL) is
+    the CMD_ATTR_PARAMS attribute of the command. &#39;{VALUE}&#39; (CMD_STR_VAL) is
     replaced with the actual item value.
 
     Giving &#39;playerid&#39; in kwargs replaces a dict entry with the key of &#39;playerid&#39;
     or a list entry of &#39;{ID}&#39; with the value of kwargs[&#39;playerid&#39;].
 
-    params and param_value need to be None or lists of the same length.
+    params needs to be None or a dict.
     &#34;&#34;&#34;
 
     def get_send_data(self, data, **kwargs):
@@ -1006,6 +1007,10 @@ or a list entry of '{ID}' with the value of kwargs['playerid'].</p>
                     val[idx] = check_value(val[idx], data)
             elif val == &#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;:
                 val = data
+            elif &#39;custom&#39; in kwargs and isinstance(val, str) and re.match(r&#39;^\{CUSTOM_ATTR[123]\}$&#39;, val):
+                idx = re.match(r&#39;^\{CUSTOM_ATTR([123])\}$&#39;, val)
+                if idx and (1 &lt;= int(idx[1]) &lt;= 3):
+                    val = kwargs[&#39;custom&#39;][int(idx[1])]
             elif isinstance(val, tuple):
                 try:
                     expr = str(val[0]).replace(&#39;{&#39; + CMD_STR_VALUE + &#39;}&#39;, str(data))

@@ -45,7 +45,7 @@ info:
         md_write: false
 
     subtitles:
-        type: dict
+        type: list
         md_device: DEVICENAME
         md_command: info.subtitles
         md_read: true
@@ -274,7 +274,7 @@ ALL:
             md_write: false
 
         subtitles:
-            type: dict
+            type: list
             md_device: DEVICENAME
             md_command: info.subtitles
             md_read: true

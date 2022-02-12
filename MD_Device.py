@@ -148,7 +148,7 @@ class MD_Device(object):
 
         # check if manually disabled
         if PLUGIN_ATTR_ENABLED in self._params and not self._params[PLUGIN_ATTR_ENABLED]:
-            self.logger.warning('device attribute "enabled" set to False, not loading device')
+            self.logger.info('device attribute "enabled" set to False, not loading device')
             return
 
         # this is only viable for the base class. All derived classes from

@@ -551,7 +551,7 @@ class MD_Command_Viessmann(MD_Command):
         self._signed = False
         for attr in ('len', 'mult', 'signed'):
             if attr in self.params:
-                setattr(self, '_' + attr, self.param_values[self.params.index(attr)])
+                setattr(self, '_' + attr, self.params[attr])
 
     def get_send_data(self, data, **kwargs):
 
@@ -584,14 +584,8 @@ class MD_Command_Viessmann(MD_Command):
         if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
-            raise SyntaxError(f'params {kwargs["params"]} given, but no param_values')
-
-        if len(self.params) != len(self.param_values):
-            raise SyntaxError(f'different number of params and values given ({self.params}/{self.param_values})')
-
-        for idx in range(len(self.params)):
-            val = self.param_values[idx]
+        for key in self.params:
+            val = self.params[key]
             if val == 'VAL':
                 val = data
             elif isinstance(val, tuple):
@@ -601,6 +595,6 @@ class MD_Command_Viessmann(MD_Command):
                 except Exception as e:
                     raise ValueError(f'invalid data: eval expression {val} with argument {data} raised error: {e}')
 
-            params[self.params[idx]] = val
+            params[key] = val
 
         return params

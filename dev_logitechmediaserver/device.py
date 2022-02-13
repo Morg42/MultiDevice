@@ -111,7 +111,8 @@ class MD_Device(MD_Device):
             _dispatch('player.playlist.index', data.get("playlist_cur_index"), custom)
             _dispatch('player.playlist.timestamp', data.get("playlist_timestamp"), custom)
             _dispatch('player.playlist.tracks', data.get("playlist_tracks"), custom)
-            data = data.get("playlist_loop")
-            for id, i in enumerate(data):
-                if id > 0 and id <= 5:
-                    _dispatch(f'player.playlist.nextsong{id}', i.get("title"), custom)
+            pdata = data.get("playlist_loop")
+            if pdata:
+                for id, i in enumerate(pdata):
+                    if id > 0 and id <= 5:
+                        _dispatch(f'player.playlist.nextsong{id}', i.get("title"), custom)

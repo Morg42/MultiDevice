@@ -579,7 +579,7 @@ class MD_Command_Viessmann(MD_Command):
         self._signed = False
         for attr in (&#39;len&#39;, &#39;mult&#39;, &#39;signed&#39;):
             if attr in self.params:
-                setattr(self, &#39;_&#39; + attr, self.param_values[self.params.index(attr)])
+                setattr(self, &#39;_&#39; + attr, self.params[attr])
 
     def get_send_data(self, data, **kwargs):
 
@@ -612,14 +612,8 @@ class MD_Command_Viessmann(MD_Command):
         if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
-            raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
-
-        if len(self.params) != len(self.param_values):
-            raise SyntaxError(f&#39;different number of params and values given ({self.params}/{self.param_values})&#39;)
-
-        for idx in range(len(self.params)):
-            val = self.param_values[idx]
+        for key in self.params:
+            val = self.params[key]
             if val == &#39;VAL&#39;:
                 val = data
             elif isinstance(val, tuple):
@@ -629,7 +623,7 @@ class MD_Command_Viessmann(MD_Command):
                 except Exception as e:
                     raise ValueError(f&#39;invalid data: eval expression {val} with argument {data} raised error: {e}&#39;)
 
-            params[self.params[idx]] = val
+            params[key] = val
 
         return params</code></pre>
 </details>
@@ -1633,7 +1627,7 @@ actual item value.</p>
         self._signed = False
         for attr in (&#39;len&#39;, &#39;mult&#39;, &#39;signed&#39;):
             if attr in self.params:
-                setattr(self, &#39;_&#39; + attr, self.param_values[self.params.index(attr)])
+                setattr(self, &#39;_&#39; + attr, self.params[attr])
 
     def get_send_data(self, data, **kwargs):
 
@@ -1666,14 +1660,8 @@ actual item value.</p>
         if not hasattr(self, CMD_ATTR_PARAMS):
             return None
 
-        if not hasattr(self, CMD_ATTR_PARAM_VALUES):
-            raise SyntaxError(f&#39;params {kwargs[&#34;params&#34;]} given, but no param_values&#39;)
-
-        if len(self.params) != len(self.param_values):
-            raise SyntaxError(f&#39;different number of params and values given ({self.params}/{self.param_values})&#39;)
-
-        for idx in range(len(self.params)):
-            val = self.param_values[idx]
+        for key in self.params:
+            val = self.params[key]
             if val == &#39;VAL&#39;:
                 val = data
             elif isinstance(val, tuple):
@@ -1683,7 +1671,7 @@ actual item value.</p>
                 except Exception as e:
                     raise ValueError(f&#39;invalid data: eval expression {val} with argument {data} raised error: {e}&#39;)
 
-            params[self.params[idx]] = val
+            params[key] = val
 
         return params</code></pre>
 </details>

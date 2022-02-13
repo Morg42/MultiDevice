@@ -57,6 +57,7 @@
 
 from lib.utils import Utils
 from ast import literal_eval
+from collections import abc
 import types
 
 #############################################################################################################################################################################################################################################
@@ -72,7 +73,7 @@ import types
 # general attributes
 PLUGIN_ATTR_ENABLED          = &#39;enabled&#39;                 # set to False to manually disable loading of device
 PLUGIN_ATTR_MODEL            = &#39;model&#39;                   # select model if applicable. Don&#39;t set if not necessary!
-PLUGIN_ATTR_CLEAN_STRUCTS     = &#39;clean_structs&#39;           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
+PLUGIN_ATTR_CLEAN_STRUCTS    = &#39;clean_structs&#39;           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
 PLUGIN_ATTR_CMD_CLASS        = &#39;command_class&#39;           # name of class to use for commands
 PLUGIN_ATTR_RECURSIVE        = &#39;recursive_custom&#39;        # indices of custom item attributes for which to enable recursive lookup (number or list of numbers)
 
@@ -212,6 +213,7 @@ MINMAXKEYS                   = (&#39;valid_min&#39;, &#39;valid_max&#39;, &#39;f
 
 # name of non-model specific key for commands, models and lookups
 INDEX_GENERIC                = &#39;ALL&#39;                    # placeholder for generic data
+INDEX_MODEL                  = &#39;MODEL&#39;                  # placeholder for model-specific struct
 
 # dict keys for request data_dict
 REQUEST_DICT_ARGS = (&#39;params&#39;, &#39;headers&#39;, &#39;data&#39;, &#39;cookies&#39;, &#39;files&#39;)
@@ -260,7 +262,16 @@ def sanitize_param(val):
                 val = new
         except Exception:
             pass
-    return val</code></pre>
+    return val
+
+
+def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d</code></pre>
 </details>
 </section>
 <section>
@@ -316,6 +327,24 @@ def sanitize_param(val):
     return val</code></pre>
 </details>
 </dd>
+<dt id="multidevice.MD_Globals.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>d, u)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -357,6 +386,7 @@ def sanitize_param(val):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="multidevice.MD_Globals.sanitize_param" href="#multidevice.MD_Globals.sanitize_param">sanitize_param</a></code></li>
+<li><code><a title="multidevice.MD_Globals.update" href="#multidevice.MD_Globals.update">update</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>

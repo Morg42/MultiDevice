@@ -154,6 +154,13 @@ The additional argument ``-a`` instructs the generator to add ``visu_acl:`` item
 attributes, setting the value to ``ro`` or ``rw`` depending on the write property
 of the respective command.
 
+
+When starting, MultiDevice will create a struct ``multidevice.<device_id>.MODEL``
+for each device. If a model is configured, this struct will contain the model-
+specific struct; if a model is not configured, this struct will contain the
+generic struct ('ALL').
+
+
 MD_Device
 ---------
 
@@ -462,6 +469,15 @@ attribute. As with the model, this attribute should normally not be present
 in the configuration.
 
 
+When starting, MultiDevice will create a struct ``multidevice.<device_id>.MODEL``
+for each device. If a model is configured, this struct will contain the model-
+specific struct; if a model is not configured, this struct will contain the
+generic struct ('ALL').
+
+So the easiest way to configure items is using the struct generator and including
+the `MODEL`-struct for each device.
+
+
 Three custom item attributes exist, aptly named ``md_custom1`` through
 ``md_custom3``. These can be used by the device for arbitrary functions.
 Unlike other item attributes, these can be configured to be used recursively,
@@ -557,7 +573,7 @@ if __name__ == '__main__':
     BASE = os.path.sep.join(os.path.realpath(__file__).split(os.path.sep)[:-3])
     sys.path.insert(0, BASE)
 
-    from MD_Globals import (sanitize_param, update, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCTS)
+    from MD_Globals import (sanitize_param, update, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, INDEX_MODEL, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCTS)
     from MD_Commands import MD_Commands
 
 else:
@@ -566,7 +582,7 @@ else:
     from lib.model.smartplugin import SmartPlugin
     import lib.shyaml as shyaml
 
-    from .MD_Globals import (sanitize_param, update, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCTS)
+    from .MD_Globals import (sanitize_param, update, CMD_ATTR_CMD_SETTINGS, CMD_ATTR_ITEM_ATTRS, CMD_ATTR_ITEM_TYPE, CMD_ATTR_LOOKUP, CMD_ATTR_OPCODE, CMD_ATTR_PARAMS, CMD_ATTR_READ, CMD_ATTR_READ_CMD, CMD_ATTR_WRITE, CMD_IATTR_ATTRIBUTES, CMD_IATTR_CYCLE, CMD_IATTR_ENFORCE, CMD_IATTR_INITIAL, CMD_IATTR_LOOKUP_ITEM, CMD_IATTR_READ_GROUPS, CMD_IATTR_RG_LEVELS, CMD_IATTR_TEMPLATE, COMMAND_READ, COMMAND_SEP, COMMAND_WRITE, CUSTOM_SEP, INDEX_GENERIC, INDEX_MODEL, ITEM_ATTR_COMMAND, ITEM_ATTR_CUSTOM_PREFIX, ITEM_ATTR_CYCLE, ITEM_ATTR_DEVICE, ITEM_ATTR_GROUP, ITEM_ATTR_LOOKUP, ITEM_ATTR_READ, ITEM_ATTR_READ_GRP, ITEM_ATTR_READ_INIT, ITEM_ATTR_WRITE, PLUGIN_ATTR_CLEAN_STRUCTS)
     from .webif import WebInterface
 
 
@@ -735,7 +751,13 @@ class MultiDevice(SmartPlugin):
                             self.logger.debug(f'loaded {len(struct_list)} structs for processing')
                             # replace all mentions of 'DEVICENAME' with the plugin/device's name
                             mod_struct = self._process_struct(raw_struct, device_id)
-                            for struct_name in struct_list:
+
+                            if param.get('model'):
+                                mod_struct[INDEX_MODEL] = mod_struct[param['model']]
+                            else:
+                                mod_struct[INDEX_MODEL] = mod_struct[INDEX_GENERIC]
+
+                            for struct_name in struct_list + [INDEX_MODEL]:
                                 if struct_name in mod_struct:
                                     self.logger.debug(f'adding struct {self.get_shortname()}.{device_id}.{struct_name}')
                                     self._sh.items.add_struct_definition(self.get_shortname() + '.' + device_id, struct_name, mod_struct[struct_name])

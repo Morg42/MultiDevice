@@ -44,7 +44,7 @@ import types
 # general attributes
 PLUGIN_ATTR_ENABLED          = 'enabled'                 # set to False to manually disable loading of device
 PLUGIN_ATTR_MODEL            = 'model'                   # select model if applicable. Don't set if not necessary!
-PLUGIN_ATTR_CLEAN_STRUCTS     = 'clean_structs'           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
+PLUGIN_ATTR_CLEAN_STRUCTS    = 'clean_structs'           # remove items from stucts not supported by chosen model (not necessary if using generated structs)
 PLUGIN_ATTR_CMD_CLASS        = 'command_class'           # name of class to use for commands
 PLUGIN_ATTR_RECURSIVE        = 'recursive_custom'        # indices of custom item attributes for which to enable recursive lookup (number or list of numbers)
 
@@ -184,6 +184,7 @@ MINMAXKEYS                   = ('valid_min', 'valid_max', 'force_min', 'force_ma
 
 # name of non-model specific key for commands, models and lookups
 INDEX_GENERIC                = 'ALL'                    # placeholder for generic data
+INDEX_MODEL                  = 'MODEL'                  # placeholder for model-specific struct
 
 # dict keys for request data_dict
 REQUEST_DICT_ARGS = ('params', 'headers', 'data', 'cookies', 'files')
